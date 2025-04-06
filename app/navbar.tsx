@@ -25,7 +25,12 @@ export default function Navbar() {
   const handleLogin = async () => {
     const email = prompt('Please enter your email:');
     if (email) {
-      const { error } = await supabase.auth.signInWithOtp({ email });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: 'https://carlosvelosos.github.io/finance-tracker/', // Full redirect URL
+        },
+      });
       if (error) {
         console.error('Error sending magic link:', error);
       } else {

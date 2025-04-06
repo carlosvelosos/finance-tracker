@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export', // Enables static export
+  basePath: '/finance-tracker', // Replace with your GitHub repository name
+  trailingSlash: true, // Ensures proper routing for static files
 };
 
-export default nextConfig;
+module.exports = nextConfig;

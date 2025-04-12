@@ -140,7 +140,7 @@ export default function Home() {
       {/* Category Chart */}
       <div className="text-right mb-4">
         <Button
-           onClick={() => window.location.href = '/handelsbanken/chart'}
+           onClick={() => window.location.href = './chart'}
           className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
         >
           Go to Chart Page

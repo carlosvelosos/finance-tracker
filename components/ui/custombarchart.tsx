@@ -1,10 +1,16 @@
 'use client';
 
 // import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { BarChart, Bar, XAxis, YAxis} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer} from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { TrendingUp } from 'lucide-react';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 type CustomBarChartProps = {
   data: { category: string; total: number }[];
@@ -28,15 +34,24 @@ export function CustomBarChart({
   // Dynamically calculate chart height based on the number of categories
   // const dynamicHeight = Math.max(data.length * 30, height); // 30px per bar, minimum height is the default
 
+  // Format numbers as Swedish currency (SEK)
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('sv-SE', {
+      style: 'currency',
+      currency: 'SEK',
+    }).format(value);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className='h-[400px]'>
+      {/* <CardContent className='h-[400px]'> */}
+      <CardContent className="flex flex-col items-center justify-center">
         <ChartContainer config={{ layout: { label: 'Vertical Layout', color: barColor } }} className='h-[300px]'>
           {/* <ResponsiveContainer width="100%" height={dynamicHeight}> */}
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
               layout="vertical"
@@ -61,10 +76,22 @@ export function CustomBarChart({
               />
               <Bar dataKey="total" fill={barColor} radius={10} barSize={20} /> {/* Explicit bar size */}
             </BarChart>
-          {/* </ResponsiveContainer> */}
+          </ResponsiveContainer>
         </ChartContainer>
-        <div>
-          test
+        <div className="flex-col items-center justify-center mt-2 w-full">
+          <Accordion type="single" collapsible>
+            {data.map((item) => (
+              <AccordionItem key={item.category} value={item.category}>
+                <AccordionTrigger>
+                  {/* {item.category} - Total: {item.total} */}
+                  {item.category} - {formatCurrency(item.total)}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <p>Total: {formatCurrency(item.total)}</p>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

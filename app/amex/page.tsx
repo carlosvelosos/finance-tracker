@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 // import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
 
 type Transaction = {
   id: number;
@@ -153,6 +154,16 @@ import {
     return (
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">American Express Transactions</h1>
+
+      {/* Category Chart */}
+      <div className="text-right mb-4">
+        <Button
+           onClick={() => window.location.href = './chart'}
+          className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
+        >
+          Go to Chart Page
+        </Button>
+      </div>
   
         {/* Accordion */}
         <Accordion type="single" collapsible>

@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -29,14 +30,14 @@ export default function Navbar() {
         process.env.NODE_ENV === 'production'
           ? 'https://carlosvelosos.github.io/finance-tracker/' // Deployed version
           : 'http://localhost:3000'; // Local development version
-  
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: redirectUrl,
         },
       });
-  
+
       if (error) {
         console.error('Error sending magic link:', error);
       } else {
@@ -47,8 +48,26 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white text-gray-800 p-4 flex justify-between items-center shadow-md">
-      <div className="text-lg font-bold">Finance Tracker</div>
+      {/* Logo or App Name */}
+      <div className="text-lg font-bold">
+        <Link href="/" className="text-blue-500 hover:underline">
+          Finance Tracker
+        </Link>
+      </div>
+
+      {/* Navigation Links */}
       <div className="flex items-center gap-4">
+        <Link href="/global" className="text-gray-800 hover:underline">
+          Transactions
+        </Link>
+        <Link href="/about" className="text-gray-800 hover:underline">
+          About
+        </Link>
+        <Link href="/contact" className="text-gray-800 hover:underline">
+          Contact
+        </Link>
+
+        {/* User Authentication */}
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

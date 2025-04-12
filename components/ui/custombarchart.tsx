@@ -72,7 +72,17 @@ export function CustomBarChart({
               />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel />}
+                content={({ payload }) => {
+                  if (payload && payload.length > 0) {
+                    const value = payload[0].value; // Get the value from the payload
+                    return (
+                      <div className="p-2 bg-white shadow-md rounded">
+                        {formatCurrency(value as number)} {/* Format the value as Swedish currency */}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
               />
               <Bar dataKey="total" fill={barColor} radius={10} barSize={20} /> {/* Explicit bar size */}
             </BarChart>

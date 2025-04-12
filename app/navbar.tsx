@@ -57,6 +57,9 @@ export default function Navbar() {
 
       {/* Navigation Links */}
       <div className="flex items-center gap-4">
+        <Link href="/handelsbanken" className="text-gray-800 hover:underline">
+          Handelsbanken
+        </Link>
         <Link href="/global" className="text-gray-800 hover:underline">
           Transactions
         </Link>

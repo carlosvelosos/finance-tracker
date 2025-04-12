@@ -56,7 +56,7 @@ export function CustomBarChart({
               data={data}
               layout="vertical"
               margin={{
-                left: -20,
+                left: 0,
                 right: 50, // Add margin to the right
               }}
               // className='h-[400px]'

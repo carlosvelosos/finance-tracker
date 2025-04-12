@@ -45,13 +45,35 @@ export default function CategoryChartPage() {
       return acc;
     }, {} as Record<string, number>);
   
-    const chartData = Object.entries(totals)
+    const totalSum = Object.values(totals).reduce((sum, value) => sum + Math.abs(value), 0); // Calculate total sum of all categories
+  
+    const sortedCategories = Object.entries(totals)
       .map(([category, total]) => ({
         category,
         total: Math.abs(total), // Convert to absolute value
       }))
-    //   .filter((item) => item.category !== 'Invoice') // Filter out the "Invoice" category
-      .filter((item) => !['Invoice', 'Salary', 'Crédit card'].includes(item.category)) // Filter out multiple categories
+      .sort((a, b) => a.total - b.total); // Sort categories in ascending order by total
+  
+    let minorExpensesTotal = 0;
+    const filteredCategories = [];
+    for (const category of sortedCategories) {
+      if ((minorExpensesTotal + category.total) / totalSum <= 0.02) { // Check if the category is less than 3% of the total
+        minorExpensesTotal += category.total; // Add to "Minor expenses" total
+      } else {
+        filteredCategories.push(category); // Keep the category
+      }
+    }
+  
+    // Add "Minor expenses" as a new category if applicable
+    if (minorExpensesTotal > 0) {
+      filteredCategories.push({
+        category: 'Minor expenses (2%)',
+        total: minorExpensesTotal,
+      });
+    }
+  
+    const chartData = filteredCategories
+      .filter((item) => !['Invoice', 'Salary', 'Crédit card'].includes(item.category)) // Filter out specific categories
       .sort((a, b) => b.total - a.total); // Sort in descending order
   
     setData(chartData);

@@ -57,6 +57,7 @@ export function CustomBarChart({
               layout="vertical"
               margin={{
                 left: -20,
+                right: 40, // Add margin to the right
               }}
               // className='h-[400px]'
               // barCategoryGap={15} // Set gap between bars to 5px

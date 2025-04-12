@@ -32,6 +32,8 @@ export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Transaction | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [categoryFilter, setCategoryFilter] = useState(''); // State for filtering by category
+  const [descriptionFilter, setDescriptionFilter] = useState(''); // State for filtering by description
 
   useEffect(() => {
     if (user) {
@@ -75,9 +77,18 @@ export default function Home() {
   };
 
   // Filter transactions to only include those where Bank is "Handelsbanken"
-  const filteredTransactions = transactions.filter(
-    (transaction) => transaction.Bank === 'Handelsbanken'
-  );
+  const filteredTransactions = transactions
+    .filter((transaction) => transaction.Bank === 'Handelsbanken')
+    .filter((transaction) => {
+      // Filter by category
+      const categoryQuery = categoryFilter.toLowerCase();
+      return transaction.Category?.toLowerCase().includes(categoryQuery);
+    })
+    .filter((transaction) => {
+      // Filter by description
+      const descriptionQuery = descriptionFilter.toLowerCase();
+      return transaction.Description?.toLowerCase().includes(descriptionQuery);
+    });
 
   // Sort the filtered transactions
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
@@ -106,6 +117,25 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">Handelsbanken Transactions</h1>
+
+      {/* Filter Inputs */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          placeholder="Filter by Category"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+        <input
+          type="text"
+          placeholder="Filter by Description"
+          value={descriptionFilter}
+          onChange={(e) => setDescriptionFilter(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -139,27 +169,27 @@ export default function Home() {
           </TableRow>
         </TableHeader>
         <TableBody>
-            {sortedTransactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                <TableCell>{transaction.id}</TableCell>
-                <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
-                <TableCell>{transaction.Description || 'N/A'}</TableCell>
-                <TableCell className="text-right">
-                    {transaction.Amount !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
-                    : 'N/A'}
-                </TableCell>
-                <TableCell>
-                    {transaction.Balance !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
-                    : 'N/A'}
-                </TableCell>
-                <TableCell>{transaction.Category || 'N/A'}</TableCell>
-                <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
-                <TableCell>{transaction.Bank || 'N/A'}</TableCell>
-                <TableCell>{transaction.Comment || 'N/A'}</TableCell>
-                </TableRow>
-            ))}
+          {sortedTransactions.map((transaction) => (
+            <TableRow key={transaction.id}>
+              <TableCell>{transaction.id}</TableCell>
+              <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
+              <TableCell>{transaction.Description || 'N/A'}</TableCell>
+              <TableCell className="text-right">
+                {transaction.Amount !== null
+                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
+                  : 'N/A'}
+              </TableCell>
+              <TableCell>
+                {transaction.Balance !== null
+                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
+                  : 'N/A'}
+              </TableCell>
+              <TableCell>{transaction.Category || 'N/A'}</TableCell>
+              <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
+              <TableCell>{transaction.Bank || 'N/A'}</TableCell>
+              <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>

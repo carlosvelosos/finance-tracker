@@ -30,6 +30,8 @@ type Transaction = {
 export default function Home() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [sortColumn, setSortColumn] = useState<keyof Transaction | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     if (user) {
@@ -63,6 +65,34 @@ export default function Home() {
     }
   }, [user]);
 
+  const handleSort = (column: keyof Transaction) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    if (!sortColumn) return 0;
+
+    const aValue = a[sortColumn] ?? '';
+    const bValue = b[sortColumn] ?? '';
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+
+    return 0;
+  });
+
   if (!user) {
     return <div className="text-center mt-10">Please log in to view your transactions.</div>;
   }
@@ -73,19 +103,37 @@ export default function Home() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Balance</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Responsable</TableHead>
-            <TableHead>Bank</TableHead>
-            <TableHead>Comment</TableHead>
+            <TableHead onClick={() => handleSort('id')}>
+              ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Date')}>
+              Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Description')}>
+              Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Amount')}>
+              Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Balance')}>
+              Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Category')}>
+              Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Responsable')}>
+              Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Bank')}>
+              Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('Comment')}>
+              Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => (
+          {sortedTransactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>{transaction.id}</TableCell>
               <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>

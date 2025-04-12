@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "mv out/_next/static out/static && find out -type f -exec sed -i 's|/_next/static|/finance-tracker/static|g' {} +",
+    "postbuild": "mv out/_next/static out/static && find out -type f -exec sed -i 's|/_next/static|/static|g' {} +",
     "start": "next start",
     "lint": "next lint"
   },

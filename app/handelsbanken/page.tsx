@@ -135,6 +135,11 @@ export default function Home() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">Handelsbanken Transactions</h1>
 
+      {/* Total Amount */}
+      <div className="mt-4 text-right font-bold">
+        Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
+      </div>
+
       {/* Tabs for Month Selection */}
       <Tabs
         defaultValue="All"

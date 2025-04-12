@@ -159,6 +159,12 @@ import {
           <AccordionItem value="main-table">
             <AccordionTrigger>Main Transactions</AccordionTrigger>
             <AccordionContent>
+                {/* Total Amount */}
+                <div className="mb-4 text-right font-bold">
+                Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
+                </div>
+
+
               {/* Tabs for Month Selection */}
               <Tabs
                 defaultValue="All"

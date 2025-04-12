@@ -11,7 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+// import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Transaction = {
   id: number;
@@ -210,15 +211,33 @@ import {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Balance</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Responsable</TableHead>
-                    <TableHead>Bank</TableHead>
-                    <TableHead>Comment</TableHead>
+                    <TableHead onClick={() => handleSort('id')}>
+                        ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Date')}>
+                        Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Description')}>
+                        Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Amount')}>
+                        Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Balance')}>
+                        Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Category')}>
+                        Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Responsable')}>
+                        Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Bank')}>
+                        Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead onClick={() => handleSort('Comment')}>
+                        Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

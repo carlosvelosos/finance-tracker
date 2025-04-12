@@ -84,7 +84,29 @@ export function CustomBarChart({
                   return null;
                 }}
               />
-              <Bar dataKey="total" fill={barColor} radius={10} barSize={20} /> {/* Explicit bar size */}
+              <Bar
+                dataKey="total"
+                fill={barColor}
+                radius={10}
+                barSize={20} // Explicit bar size
+                label={({ x, y, width, value, index }) => {
+                  // Calculate the percentage
+                  const totalSum = data.reduce((sum, item) => sum + item.total, 0);
+                  const percentage = ((value as number) / totalSum) * 100;
+
+                  return (
+                    <text
+                      x={x + width + 10} // Position the label to the right of the bar
+                      y={y + 14} // Center the label vertically with the bar
+                      textAnchor="start" // Align the text to the start (left-aligned)
+                      fill="#555" // Text color
+                      fontSize="12px" // Font size
+                    >
+                      {percentage.toFixed(1)}% {/* Display percentage with 1 decimal */}
+                    </text>
+                  );
+                }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

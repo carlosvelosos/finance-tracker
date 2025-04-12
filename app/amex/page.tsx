@@ -80,27 +80,28 @@ export default function Home() {
 
   // Filter transactions
   const filteredTransactions = transactions
-    .filter((transaction) => transaction.Bank === 'American Express')
-    .filter((transaction) => {
-      const categoryQuery = categoryFilter.toLowerCase();
-      return transaction.Category?.toLowerCase().includes(categoryQuery);
-    })
-    .filter((transaction) => {
-      const descriptionQuery = descriptionFilter.toLowerCase();
-      return transaction.Description?.toLowerCase().includes(descriptionQuery);
-    })
-    .filter((transaction) => {
-      if (selectedMonth === 'All') return true;
-      if (transaction.Date) {
-        const transactionMonth = new Date(transaction.Date).getMonth(); // Get month (0-11)
-        const selectedMonthIndex = [
-          'Jan', 'Fev', 'Mar', 'Apr', 'Mai', 'Jun',
-          'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dez',
-        ].indexOf(selectedMonth);
-        return transactionMonth === selectedMonthIndex;
-      }
-      return false;
-    });
+  .filter((transaction) => transaction.Bank === 'American Express') // Filter by bank
+  .filter((transaction) => {
+    const categoryQuery = categoryFilter.toLowerCase();
+    return transaction.Category?.toLowerCase().includes(categoryQuery);
+  }) // Filter by category input
+  .filter((transaction) => {
+    const descriptionQuery = descriptionFilter.toLowerCase();
+    return transaction.Description?.toLowerCase().includes(descriptionQuery);
+  }) // Filter by description input
+  .filter((transaction) => {
+    if (selectedMonth === 'All') return true;
+    if (transaction.Date) {
+      const transactionMonth = new Date(transaction.Date).getMonth(); // Get month (0-11)
+      const selectedMonthIndex = [
+        'Jan', 'Fev', 'Mar', 'Apr', 'Mai', 'Jun',
+        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dez',
+      ].indexOf(selectedMonth);
+      return transactionMonth === selectedMonthIndex;
+    }
+    return false;
+  }) // Filter by selected month
+  .filter((transaction) => transaction.Category !== 'Invoice'); // Exclude "Invoice" category
 
   // Calculate the sum of the Amount column
   const totalAmount = filteredTransactions.reduce((sum, transaction) => {

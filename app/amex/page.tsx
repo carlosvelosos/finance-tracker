@@ -28,7 +28,14 @@ type Transaction = {
   source_table: string | null;
 };
 
-export default function Home() {
+import {
+    Accordion,
+    AccordionItem,
+    AccordionTrigger,
+    AccordionContent,
+  } from "@/components/ui/accordion";
+  
+  export default function Home() {
     const { user } = useAuth();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [sortColumn, setSortColumn] = useState<keyof Transaction | null>(null);
@@ -146,137 +153,146 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">American Express Transactions</h1>
   
-        {/* Tabs for Month Selection */}
-        <Tabs
-          defaultValue="All"
-          onValueChange={(value) => setSelectedMonth(value)}
-          className="mb-4"
-        >
-          <TabsList>
-            <TabsTrigger value="All">All</TabsTrigger>
-            <TabsTrigger value="Jan">Jan</TabsTrigger>
-            <TabsTrigger value="Fev">Fev</TabsTrigger>
-            <TabsTrigger value="Mar">Mar</TabsTrigger>
-            <TabsTrigger value="Apr">Apr</TabsTrigger>
-            <TabsTrigger value="Mai">Mai</TabsTrigger>
-            <TabsTrigger value="Jun">Jun</TabsTrigger>
-            <TabsTrigger value="Jul">Jul</TabsTrigger>
-            <TabsTrigger value="Ago">Ago</TabsTrigger>
-            <TabsTrigger value="Sep">Sep</TabsTrigger>
-            <TabsTrigger value="Oct">Oct</TabsTrigger>
-            <TabsTrigger value="Nov">Nov</TabsTrigger>
-            <TabsTrigger value="Dez">Dez</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {/* Accordion */}
+        <Accordion type="single" collapsible>
+          {/* Main Table Section */}
+          <AccordionItem value="main-table">
+            <AccordionTrigger>Main Transactions</AccordionTrigger>
+            <AccordionContent>
+              {/* Tabs for Month Selection */}
+              <Tabs
+                defaultValue="All"
+                onValueChange={(value) => setSelectedMonth(value)}
+                className="mb-4"
+              >
+                <TabsList>
+                  <TabsTrigger value="All">All</TabsTrigger>
+                  <TabsTrigger value="Jan">Jan</TabsTrigger>
+                  <TabsTrigger value="Fev">Fev</TabsTrigger>
+                  <TabsTrigger value="Mar">Mar</TabsTrigger>
+                  <TabsTrigger value="Apr">Apr</TabsTrigger>
+                  <TabsTrigger value="Mai">Mai</TabsTrigger>
+                  <TabsTrigger value="Jun">Jun</TabsTrigger>
+                  <TabsTrigger value="Jul">Jul</TabsTrigger>
+                  <TabsTrigger value="Ago">Ago</TabsTrigger>
+                  <TabsTrigger value="Sep">Sep</TabsTrigger>
+                  <TabsTrigger value="Oct">Oct</TabsTrigger>
+                  <TabsTrigger value="Nov">Nov</TabsTrigger>
+                  <TabsTrigger value="Dez">Dez</TabsTrigger>
+                </TabsList>
+              </Tabs>
   
-        {/* Filter Inputs */}
-        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Filter by Category"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Filter by Description"
-            value={descriptionFilter}
-            onChange={(e) => setDescriptionFilter(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
+              {/* Filter Inputs */}
+              <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="Filter by Category"
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+                <input
+                  type="text"
+                  placeholder="Filter by Description"
+                  value={descriptionFilter}
+                  onChange={(e) => setDescriptionFilter(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
   
-        {/* Main Table */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Balance</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Responsable</TableHead>
-              <TableHead>Bank</TableHead>
-              <TableHead>Comment</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedTransactions.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>{transaction.id}</TableCell>
-                <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
-                <TableCell>{transaction.Description || 'N/A'}</TableCell>
-                <TableCell>
-                  {transaction.Amount !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
-                    : 'N/A'}
-                </TableCell>
-                <TableCell>
-                  {transaction.Balance !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
-                    : 'N/A'}
-                </TableCell>
-                <TableCell>{transaction.Category || 'N/A'}</TableCell>
-                <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
-                <TableCell>{transaction.Bank || 'N/A'}</TableCell>
-                <TableCell>{transaction.Comment || 'N/A'}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              {/* Main Table */}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Balance</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Responsable</TableHead>
+                    <TableHead>Bank</TableHead>
+                    <TableHead>Comment</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedTransactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>{transaction.id}</TableCell>
+                      <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
+                      <TableCell>{transaction.Description || 'N/A'}</TableCell>
+                      <TableCell>
+                        {transaction.Amount !== null
+                          ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {transaction.Balance !== null
+                          ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                      <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
+                      <TableCell>{transaction.Bank || 'N/A'}</TableCell>
+                      <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="mt-4 text-right font-bold">
+                Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
   
-        {/* Total Amount */}
-        <div className="mt-4 text-right font-bold">
-          Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
-        </div>
-  
-        {/* Invoice Table */}
-        <h2 className="text-xl font-bold text-center mt-10 mb-4">Invoice Transactions</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Balance</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Responsable</TableHead>
-              <TableHead>Bank</TableHead>
-              <TableHead>Comment</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {invoiceTransactions.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>{transaction.id}</TableCell>
-                <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
-                <TableCell>{transaction.Description || 'N/A'}</TableCell>
-                <TableCell>
-                  {transaction.Amount !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
-                    : 'N/A'}
-                </TableCell>
-                <TableCell>
-                  {transaction.Balance !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
-                    : 'N/A'}
-                </TableCell>
-                <TableCell>{transaction.Category || 'N/A'}</TableCell>
-                <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
-                <TableCell>{transaction.Bank || 'N/A'}</TableCell>
-                <TableCell>{transaction.Comment || 'N/A'}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-  
-        {/* Total Invoice Amount */}
-        <div className="mt-4 text-right font-bold">
-          Total Invoice Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalInvoiceAmount)}
-        </div>
+          {/* Invoice Table Section */}
+          <AccordionItem value="invoice-table">
+            <AccordionTrigger>Invoice Transactions</AccordionTrigger>
+            <AccordionContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Balance</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Responsable</TableHead>
+                    <TableHead>Bank</TableHead>
+                    <TableHead>Comment</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoiceTransactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>{transaction.id}</TableCell>
+                      <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
+                      <TableCell>{transaction.Description || 'N/A'}</TableCell>
+                      <TableCell>
+                        {transaction.Amount !== null
+                          ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {transaction.Balance !== null
+                          ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                      <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
+                      <TableCell>{transaction.Bank || 'N/A'}</TableCell>
+                      <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="mt-4 text-right font-bold">
+                Total Invoice Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalInvoiceAmount)}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     );
   }

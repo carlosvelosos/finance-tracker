@@ -52,12 +52,12 @@ export function CustomBarChart({
   title = 'Bar Chart',
   description = 'Category-wise totals',
 }: CustomBarChartProps) {
+  // State for the minor expenses threshold (default to 1.40%)
+  const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.40);
+
   if (!data || data.length === 0) {
     return <div className="text-center mt-10">No data available to display the chart.</div>;
   }
-
-  // State for the minor expenses threshold (default to 1.40%)
-  const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.40);
 
   // Remove unwanted categories before any processing
   const filteredData = data.filter(

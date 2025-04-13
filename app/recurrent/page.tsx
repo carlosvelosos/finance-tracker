@@ -26,7 +26,8 @@ const countryCurrencyMap: Record<string, string> = {
 };
 
 export default function BillsPage() {
-  const [bills, setBills] = useState<Bill[]>([
+//   const [bills, setBills] = useState<Bill[]>([
+  const [bills] = useState<Bill[]>([
     { id: 1, description: 'Home Rent - lundbergs fastigheter', dueDay: '2025-04-30', paymentMethod: 'Betalo - Amex', country: 'Sweden', value: 12000 },
     { id: 2, description: 'Home Internet - Telia', dueDay: '2025-04-30', paymentMethod: '???', country: 'Sweden', value: 500 },
     { id: 3, description: 'Home Electricity - Tekniska verken', dueDay: '2025-04-30', paymentMethod: 'Kivra?', country: 'Sweden', value: 800 },

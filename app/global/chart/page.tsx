@@ -86,13 +86,15 @@ export default function CategoryChartPage() {
   return (
     // <div className="container mx-auto p-4">
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <CustomBarChart
-        data={data}
-        // height={400}
-        barColor="hsl(var(--chart-1))"
-        title="Total Amount per Category"
-        description="Showing totals for American Express, SJ Prio and Handelsbanken transactions"
-      />
+      <div className="pt-8 pb-8">
+        <CustomBarChart
+          data={data}
+          // height={400}
+          barColor="hsl(var(--chart-1))"
+          title="Total Amount per Category"
+          description="Showing totals for American Express, SJ Prio and Handelsbanken transactions"
+        />
+      </div>
     </div>
   );
 }

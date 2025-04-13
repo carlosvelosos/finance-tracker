@@ -50,7 +50,7 @@ export function CustomBarChart({
       </CardHeader>
       {/* <CardContent className='h-[400px]'> */}
       <CardContent className="flex flex-col items-center justify-center">
-        <ChartContainer config={{ layout: { label: 'Vertical Layout', color: barColor } }} className='h-[300px]'>
+        <ChartContainer config={{ layout: { label: 'Vertical Layout', color: barColor } }} className='h-[400px]'>
           {/* <ResponsiveContainer width="100%" height={dynamicHeight}> */}
           <ResponsiveContainer width="100%" height="100%">
             <BarChart

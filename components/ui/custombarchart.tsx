@@ -3,7 +3,8 @@
 // import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer} from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+// import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import { TrendingUp } from 'lucide-react';
 import {
   Accordion,
@@ -90,7 +91,8 @@ export function CustomBarChart({
                 fill={barColor}
                 radius={10}
                 barSize={20} // Explicit bar size
-                label={({ x, y, width, value, index }) => {
+                // label={({ x, y, width, value, index }) => {
+                label={({ x, y, width, value }) => {
                   // Calculate the percentage
                   const totalSum = data.reduce((sum, item) => sum + item.total, 0);
                   const percentage = ((value as number) / totalSum) * 100;

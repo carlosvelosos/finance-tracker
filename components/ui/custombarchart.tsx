@@ -115,11 +115,11 @@ export function CustomBarChart({
         </ChartContainer>
         <div className="flex-col items-center justify-center mt-2 w-full">
           <Accordion type="single" collapsible>
-            {data.map((item) => (
+            {data.map((item, index) => (
               <AccordionItem key={item.category} value={item.category}>
                 <AccordionTrigger>
-                  {/* {item.category} - Total: {item.total} */}
-                  {item.category} - {formatCurrency(item.total)}
+                  {/* Add sequential number to the text */}
+                  {index + 1}. {item.category} - {formatCurrency(item.total)}
                 </AccordionTrigger>
                 <AccordionContent>
                   <p>Total: {formatCurrency(item.total)}</p>

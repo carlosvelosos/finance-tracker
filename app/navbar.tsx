@@ -10,9 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react'; // Icons for the hamburger menu
 
 export default function Navbar() {
   const { user } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -55,24 +58,38 @@ export default function Navbar() {
         </Link>
       </div>
 
+      {/* Hamburger Menu for Small Screens */}
+      <div className="md:hidden">
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="text-gray-800 focus:outline-none"
+        >
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
       {/* Navigation Links */}
-      <div className="flex items-center gap-4">
-        <Link href="/sjprio" className="text-gray-800 hover:underline">
+      <div
+        className={`${
+          isMenuOpen ? 'block' : 'hidden'
+        } absolute top-16 left-0 w-full bg-white shadow-md md:static md:flex md:items-center md:gap-4 md:w-auto`}
+      >
+        <Link href="/sjprio" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           SJ Prio
         </Link>
-        <Link href="/amex" className="text-gray-800 hover:underline">
+        <Link href="/amex" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           Amex
         </Link>
-        <Link href="/handelsbanken" className="text-gray-800 hover:underline">
+        <Link href="/handelsbanken" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           Handelsbanken
         </Link>
-        <Link href="/global" className="text-gray-800 hover:underline">
+        <Link href="/global" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           Transactions
         </Link>
-        <Link href="/about" className="text-gray-800 hover:underline">
+        <Link href="/about" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           About
         </Link>
-        <Link href="/contact" className="text-gray-800 hover:underline">
+        <Link href="/contact" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           Contact
         </Link>
 

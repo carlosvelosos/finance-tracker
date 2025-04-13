@@ -50,7 +50,7 @@ export default function Navbar() {
     <nav className="bg-white text-gray-800 p-4 flex justify-between items-center shadow-md">
       {/* Logo or App Name */}
       <div className="text-lg font-bold">
-        <Link href="/" className="text-blue-500 hover:underline">
+        <Link href="/" className="text-green-600 hover:underline">
           Finance Tracker
         </Link>
       </div>

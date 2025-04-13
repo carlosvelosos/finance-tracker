@@ -75,74 +75,80 @@ export default function Navbar() {
         } absolute top-full left-0 w-full bg-white shadow-md md:static md:flex md:items-center md:gap-4 md:w-auto z-50`}
       >
         {/* Navigation Links */}
-        <Link
-          href="/sjprio"
-          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-        >
-          SJ Prio
-        </Link>
-        <Link
-          href="/amex"
-          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-        >
-          Amex
-        </Link>
-        <Link
-          href="/handelsbanken"
-          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-        >
-          Handelsbanken
-        </Link>
-        <Link
-          href="/global"
-          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-        >
-          Transactions
-        </Link>
-        <Link
-          href="/about"
-          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-        >
-          About
-        </Link>
-        <Link
-          href="/contact"
-          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-        >
-          Contact
-        </Link>
+        <div className="flex flex-col gap-y-2 px-4 py-2 md:flex-row md:gap-4 md:p-0">
+          <Link
+            href="/sjprio"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+          >
+            SJ Prio
+          </Link>
+          <Link
+            href="/amex"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+          >
+            Amex
+          </Link>
+          <Link
+            href="/handelsbanken"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+          >
+            Handelsbanken
+          </Link>
+          <Link
+            href="/global"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+          >
+            Transactions
+          </Link>
+          <Link
+            href="/about"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+          >
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+          >
+            Contact
+          </Link>
+        </div>
+        
 
         {/* User Authentication */}
-        {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="text-gray-800">
-                {user.email}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-gray-100 text-gray-800 shadow-md rounded-md">
-              <DropdownMenuItem
-                className="cursor-pointer hover:bg-gray-200 hover:underline hover:text-green-600 transition-colors duration-200"
-              >
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="cursor-pointer hover:bg-gray-200 hover:underline hover:text-green-600 transition-colors duration-200"
-              >
-                Log Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button
-            onClick={handleLogin}
-            variant="ghost"
-            className="text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-          >
-            Log In
-          </Button>
-        )}
+        <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 md:border-none md:flex-row md:gap-4 md:p-0">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-gray-800">
+                  {user.email}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-gray-100 text-gray-800 shadow-md rounded-md">
+                <DropdownMenuItem
+                  className="cursor-pointer hover:bg-gray-200 hover:underline hover:text-green-600 transition-colors duration-200"
+                >
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer hover:bg-gray-200 hover:underline hover:text-green-600 transition-colors duration-200"
+                >
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              onClick={handleLogin}
+              variant="ghost"
+              className="text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+            >
+              Log In
+            </Button>
+          )}
+        </div>
+        
       </div>
     </nav>
   );

@@ -59,7 +59,7 @@ export default function Navbar() {
       </div>
 
       {/* Hamburger Menu for Small Screens */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="text-gray-800 focus:outline-none"
@@ -72,10 +72,10 @@ export default function Navbar() {
       <div
         className={`${
           isMenuOpen ? 'block' : 'hidden'
-        } absolute top-full left-0 w-full bg-white shadow-md md:static md:flex md:items-center md:gap-4 md:w-auto z-50`}
+        } absolute top-full left-0 w-full bg-white shadow-md lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto z-50`}
       >
         {/* Navigation Links */}
-        <div className="flex flex-col gap-y-2 px-4 py-2 md:flex-row md:gap-4 md:p-0">
+        <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0">
           <Link
             href="/sjprio"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
@@ -116,7 +116,7 @@ export default function Navbar() {
         
 
         {/* User Authentication */}
-        <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 md:border-none md:flex-row md:gap-4 md:p-0">
+        <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

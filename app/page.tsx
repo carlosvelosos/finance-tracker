@@ -9,8 +9,8 @@ export default function LandingPage() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          // backgroundImage: "url('/finance-tracker/micheile-henderson-lZ_4nPFKcV8-unsplash.jpg')", // Use the correct path for GitHub Pages
-          backgroundImage: "url('/micheile-henderson-lZ_4nPFKcV8-unsplash.jpg')", // Use the correct path for GitHub Pages
+          backgroundImage: "url('/finance-tracker/micheile-henderson-lZ_4nPFKcV8-unsplash.jpg')", // Use the correct path for GitHub Pages
+          // backgroundImage: "url('/micheile-henderson-lZ_4nPFKcV8-unsplash.jpg')", // Use the correct path for GitHub Pages
           filter: 'saturate(0.75) brightness(0.75) contrast(1.05) grayscale(0.25)', // Apply filters only to the background
         }}
       ></div>

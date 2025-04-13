@@ -50,7 +50,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white text-gray-800 p-4 flex justify-between items-center shadow-md">
+    <nav className="bg-white text-gray-800 p-4 flex justify-between items-center shadow-md relative">
       {/* Logo or App Name */}
       <div className="text-lg font-bold">
         <Link href="/" className="text-green-600 hover:underline">
@@ -72,7 +72,7 @@ export default function Navbar() {
       <div
         className={`${
           isMenuOpen ? 'block' : 'hidden'
-        } absolute top-16 left-0 w-full bg-white shadow-md md:static md:flex md:items-center md:gap-4 md:w-auto`}
+        } absolute top-full left-0 w-full bg-white shadow-md md:static md:flex md:items-center md:gap-4 md:w-auto z-50`}
       >
         <Link href="/sjprio" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
           SJ Prio

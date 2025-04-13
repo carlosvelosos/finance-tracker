@@ -74,22 +74,41 @@ export default function Navbar() {
           isMenuOpen ? 'block' : 'hidden'
         } absolute top-full left-0 w-full bg-white shadow-md md:static md:flex md:items-center md:gap-4 md:w-auto z-50`}
       >
-        <Link href="/sjprio" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
+        {/* Navigation Links */}
+        <Link
+          href="/sjprio"
+          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+        >
           SJ Prio
         </Link>
-        <Link href="/amex" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
+        <Link
+          href="/amex"
+          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+        >
           Amex
         </Link>
-        <Link href="/handelsbanken" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
+        <Link
+          href="/handelsbanken"
+          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+        >
           Handelsbanken
         </Link>
-        <Link href="/global" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
+        <Link
+          href="/global"
+          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+        >
           Transactions
         </Link>
-        <Link href="/about" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
+        <Link
+          href="/about"
+          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+        >
           About
         </Link>
-        <Link href="/contact" className="block px-4 py-2 text-gray-800 hover:underline md:inline">
+        <Link
+          href="/contact"
+          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+        >
           Contact
         </Link>
 
@@ -102,10 +121,14 @@ export default function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-gray-100 text-gray-800 shadow-md rounded-md">
-              <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer hover:bg-gray-200 hover:underline hover:text-green-600 transition-colors duration-200"
+              >
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="cursor-pointer hover:bg-gray-200"
+                className="cursor-pointer hover:bg-gray-200 hover:underline hover:text-green-600 transition-colors duration-200"
               >
                 Log Out
               </DropdownMenuItem>
@@ -115,7 +138,7 @@ export default function Navbar() {
           <Button
             onClick={handleLogin}
             variant="ghost"
-            className="text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100"
+            className="text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
           >
             Log In
           </Button>

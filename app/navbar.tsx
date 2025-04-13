@@ -31,7 +31,7 @@ export default function Navbar() {
     if (email) {
       const redirectUrl =
         process.env.NODE_ENV === 'production'
-          ? 'https://carlosvelosos.github.io/finance-tracker/' // Deployed version
+          ? 'https://finance-tracker-steel-five.vercel.app/' // Deployed version
           : 'http://localhost:3000'; // Local development version
 
       const { error } = await supabase.auth.signInWithOtp({

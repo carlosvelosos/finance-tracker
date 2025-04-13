@@ -81,6 +81,13 @@ export default function Navbar() {
         {/* Navigation Links */}
         <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0">
           <Link
+            href="/recurrent"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
+            onClick={handleLinkClick} // Close menu on click
+          >
+            Recurrent
+          </Link>
+          <Link
             href="/sjprio"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
             onClick={handleLinkClick} // Close menu on click

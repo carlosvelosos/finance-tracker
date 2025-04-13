@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from '@/components/ui/button';
 
 type Transaction = {
   id: number;
@@ -100,6 +101,17 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">Your Transactions</h1>
+
+      {/* Category Chart */}
+      <div className="text-right mb-4">
+        <Button
+           onClick={() => window.location.href = './chart'}
+          className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
+        >
+          Go to Chart Page
+        </Button>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -138,8 +150,16 @@ export default function Home() {
               <TableCell>{transaction.id}</TableCell>
               <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
               <TableCell>{transaction.Description || 'N/A'}</TableCell>
-              <TableCell>{transaction.Amount !== null ? `$${transaction.Amount.toFixed(2)}` : 'N/A'}</TableCell>
-              <TableCell>{transaction.Balance !== null ? `$${transaction.Balance.toFixed(2)}` : 'N/A'}</TableCell>
+              <TableCell className="text-right">
+                {transaction.Amount !== null
+                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
+                  : 'N/A'}
+              </TableCell>
+              <TableCell>
+                {transaction.Balance !== null
+                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
+                  : 'N/A'}
+              </TableCell>
               <TableCell>{transaction.Category || 'N/A'}</TableCell>
               <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
               <TableCell>{transaction.Bank || 'N/A'}</TableCell>

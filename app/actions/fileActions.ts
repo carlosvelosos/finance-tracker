@@ -53,7 +53,7 @@ export async function uploadExcel(file: File, bank: string) {
   }
 }
 
-async function uploadToSupabase(tableName: string, transactions: any[]) {
+async function uploadToSupabase(tableName: string, transactions: Record<string, unknown>[]) {
   try {
     const { error } = await supabase.from(tableName).insert(transactions);
     if (error) throw new Error(error.message);

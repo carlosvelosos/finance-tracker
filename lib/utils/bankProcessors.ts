@@ -1,4 +1,4 @@
-export function processDEV(data: any[][]) {
+export function processDEV(data: string[][]) {
     const transactions = data.slice(1).map((row, index) => {
       // Extract and clean the amount (Valor column)
       const rawAmount = row[4];
@@ -39,7 +39,7 @@ export function processDEV(data: any[][]) {
     return { tableName, transactions };
   }
 
-export function processInterBR(data: any[][]) {
+export function processInterBR(data: string[][]) {
     const transactions = data.slice(1).map((row) => ({
       transaction_date: row[0],
       description: row[1],
@@ -50,7 +50,7 @@ export function processInterBR(data: any[][]) {
     return { tableName, transactions };
   }
   
-  export function processHandelsbanken(data: any[][]) {
+  export function processHandelsbanken(data: string[][]) {
     // Extract the year from row 6: "Period: 2025-01-01 - 2025-03-24"
     const periodRow = data[6]?.[0] || "";
     const yearMatch = periodRow.match(/(\d{4})-/);
@@ -77,7 +77,7 @@ export function processInterBR(data: any[][]) {
     return { tableName, transactions };
   }
   
-  export function processAmex(data: any[][], fileName: string) {
+  export function processAmex(data: string[][], fileName: string) {
     // Extract table name from filename (e.g., "AM_202503.csv" -> "AM_202503")
     const tableName = fileName.replace(".csv", "");
   
@@ -122,7 +122,7 @@ export function processInterBR(data: any[][]) {
   
   
   
-  export function processSEB(data: any[][], fileName: string) {
+  export function processSEB(data: string[][], fileName: string) {
     // Extract the table name from the file name (e.g., "SEB_202503.csv" -> "SEB_202503")
     const tableName = fileName.replace(".xls", "");
   

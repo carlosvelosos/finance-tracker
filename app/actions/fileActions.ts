@@ -6,21 +6,21 @@ import { processDEV, processInterBR, processHandelsbanken, processAmex, processS
 export async function uploadExcel(file: File, bank: string) {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    let data;
+    let data: string[][]; // Explicitly type data as string[][]
 
     if (file.name.endsWith(".csv")) {
       const text = new TextDecoder("utf-8").decode(arrayBuffer);
 
       // Use PapaParse to parse the CSV data
-      const parsed = Papa.parse(text, {
+      const parsed = Papa.parse<string[]>(text, {
         header: false, // Disable header row parsing
         skipEmptyLines: true, // Skip empty lines
       });
-      data = parsed.data; // Extract parsed data
+      data = parsed.data as string[][]; // Cast parsed data to string[][]
     } else {
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheetName = workbook.SheetNames[0];
-      data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+      data = XLSX.utils.sheet_to_json<string[]>(workbook.Sheets[sheetName], { header: 1 }) as string[][]; // Cast to string[][]
     }
     console.log("Parsed data:", data);
 
@@ -49,7 +49,7 @@ export async function uploadExcel(file: File, bank: string) {
     // Upload to Supabase
     return await uploadToSupabase(processedData.tableName, processedData.transactions);
   } catch (error) {
-    return `Error: ${error.message}`;
+    return `Error: ${error instanceof Error ? error.message : "Unknown error"}`;
   }
 }
 
@@ -59,6 +59,6 @@ async function uploadToSupabase(tableName: string, transactions: Record<string, 
     if (error) throw new Error(error.message);
     return `Upload successful! Data inserted into ${tableName}`;
   } catch (error) {
-    return `Error uploading to Supabase: ${error.message}`;
+    return `Error uploading to Supabase: ${error instanceof Error ? error.message : "Unknown error"}`;
   }
 }

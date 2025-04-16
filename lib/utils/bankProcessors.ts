@@ -144,7 +144,7 @@ export function processInterBR(data: string[][]) {
       .map((row, index) => {
         // Handle the Datum column (Excel serial date or MM-DD format)
         let formattedDate: string | null = null;
-        if (!isNaN(row[0])) {
+        if (!isNaN(Number(row[0]))) {
           // If Datum is an Excel serial date
           formattedDate = excelToDate(Number(row[0]));
         } else if (typeof row[0] === "string") {

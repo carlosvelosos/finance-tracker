@@ -46,6 +46,7 @@ export default function UploadPage() {
         description: result,
       });
     } catch (error) {
+      console.error("Upload failed:", error); // Log the error for debugging
       toast.error("Upload Failed", {
         description: "Something went wrong.",
       });

@@ -95,10 +95,10 @@ export function processInterBR(data: string[][]) {
         }
   
         // Remove unwanted characters (quotes, spaces)
-        let cleanAmount = rawAmount.replace(/[^0-9.-]/g, ""); 
+        const cleanAmount = rawAmount.replace(/[^0-9.-]/g, ""); 
   
         // Convert to a floating-point number
-        let finalAmount = parseFloat(cleanAmount);
+        const finalAmount = parseFloat(cleanAmount);
   
         console.log(`Row ${index + 1} - Raw: "${rawAmount}", Clean: "${cleanAmount}", Final: ${finalAmount}`);
   
@@ -153,18 +153,18 @@ export function processInterBR(data: string[][]) {
           formattedDate = month && day ? `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}` : null;
         }
   
-        // Handle the Bokfört column (Excel serial date or MM-DD format)
-        let formattedBookedDate: string | null = null;
-        if (!isNaN(row[1])) {
-          // If Bokfört is an Excel serial date
-          formattedBookedDate = excelToDate(Number(row[1]));
-        } else if (typeof row[1] === "string") {
-          // If Bokfört is in MM-DD format
-          const [bookedMonth, bookedDay] = row[1].split("-");
-          formattedBookedDate = bookedMonth && bookedDay
-            ? `${year}-${bookedMonth.padStart(2, "0")}-${bookedDay.padStart(2, "0")}`
-            : null;
-        }
+        // // Handle the Bokfört column (Excel serial date or MM-DD format)
+        // let formattedBookedDate: string | null = null;
+        // if (!isNaN(row[1])) {
+        //   // If Bokfört is an Excel serial date
+        //   formattedBookedDate = excelToDate(Number(row[1]));
+        // } else if (typeof row[1] === "string") {
+        //   // If Bokfört is in MM-DD format
+        //   const [bookedMonth, bookedDay] = row[1].split("-");
+        //   formattedBookedDate = bookedMonth && bookedDay
+        //     ? `${year}-${bookedMonth.padStart(2, "0")}-${bookedDay.padStart(2, "0")}`
+        //     : null;
+        // }
   
         // Parse the Belopp column (convert to float)
         const rawAmount = row[6] ? String(row[6]).replace(",", ".").trim() : "0"; // Replace commas with dots

@@ -31,7 +31,7 @@ export async function uploadExcel(file: File, bank: string) {
         console.log("Processed Data:", processedData);
         break;
       case "Inter-BR":
-        processedData = processInterBR(data);
+        processedData = processInterBR(data, file.name);
         break;
       case "Handelsbanken-SE":
         processedData = processHandelsbanken(data);

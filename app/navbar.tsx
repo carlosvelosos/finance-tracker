@@ -130,7 +130,6 @@ export default function Navbar() {
             Contact
           </Link>
         </div>
-      {/* </div> */}
 
         {/* User Authentication */}
         <div className="lg:w-60 flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0 text-right">

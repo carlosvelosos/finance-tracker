@@ -54,67 +54,78 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gray-100 text-gray-800 p-4 flex items-center shadow-md relative">
-      {/* Logo */}
-      <div className="text-lg font-bold flex-shrink-0">
+    <nav className="bg-gray-100 text-gray-800 p-4 flex justify-between items-center shadow-md relative">
+      {/* Logo or App Name */}
+      <div className="text-lg font-bold">
         <Link href="/" className="text-green-600 hover:underline">
           Finance Tracker
         </Link>
+      </div>
+
+      {/* Hamburger Menu for Small Screens */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="text-gray-800 focus:outline-none"
+        >
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
 
       {/* Navigation Links */}
       <div
         className={`${
           isMenuOpen ? 'block' : 'hidden'
-        } absolute top-full left-0 w-full bg-white shadow-md lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto lg:mx-auto lg:rounded-md z-50`}
+        } absolute top-full left-0 w-full bg-white shadow-md lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto lg:rounded-md z-50`}
       >
+        {/* Navigation Links */}
         <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0">
           <Link
             href="/recurrent"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             Recurrent
           </Link>
           <Link
             href="/sjprio"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             SJ Prio
           </Link>
           <Link
             href="/amex"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             Amex
           </Link>
           <Link
             href="/handelsbanken"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             Handelsbanken
           </Link>
           <Link
             href="/global"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             Transactions
           </Link>
           <Link
             href="/about"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             About
           </Link>
           <Link
             href="/contact"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick} // Close menu on click
           >
             Contact
           </Link>
@@ -122,7 +133,7 @@ export default function Navbar() {
       </div>
 
       {/* User Authentication */}
-      <div className="flex-shrink-0">
+      <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0">
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

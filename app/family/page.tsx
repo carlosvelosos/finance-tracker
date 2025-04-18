@@ -24,7 +24,9 @@ export default function FamilyFinancePage() {
     const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>([]);
     const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
     const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
-    const [showComments, setShowComments] = useState(true); // State to toggle "Comment" column visibility
+    const [showComments, setShowComments] = useState(false); // State to toggle "Comment" column visibility
+    const [showDate, setShowDate] = useState(false); // State to toggle "Date" column visibility
+    const [showId, setShowId] = useState(false); // State to toggle "Id" column visibility
 
     // Helper function to adjust the amount based on the Balance
     const adjustTransactionAmounts = (transactions: Transaction[]): Transaction[] => {
@@ -202,14 +204,32 @@ export default function FamilyFinancePage() {
 
         </div>
 
-        {/* Switch to toggle "Comment" column */}
-        <div className="flex items-center mb-4">
-            <Switch
-            checked={showComments}
-            onCheckedChange={setShowComments}
-            className="mr-2"
-            />
-            <span className="text-sm">Show Comments</span>
+        {/* Switches to toggle columns */}
+        <div className="flex items-center mb-4 space-x-4">
+            <div className="flex items-center">
+                <Switch
+                    checked={showComments}
+                    onCheckedChange={setShowComments}
+                    className="mr-2"
+                />
+                <span className="text-sm">Show Comments</span>
+            </div>
+            <div className="flex items-center">
+                <Switch
+                    checked={showDate}
+                    onCheckedChange={setShowDate}
+                    className="mr-2"
+                />
+                <span className="text-sm">Show Date</span>
+            </div>
+            <div className="flex items-center">
+                <Switch
+                    checked={showId}
+                    onCheckedChange={setShowId}
+                    className="mr-2"
+                />
+                <span className="text-sm">Show Id</span>
+            </div>
         </div>
 
         {/* Transactions Section */}
@@ -238,6 +258,8 @@ export default function FamilyFinancePage() {
                 },
                 ]}
                 showComments={showComments}
+                showDate={showDate}
+                showId={showId}
                 handleSort={handleSort}
                 sortTransactions={sortTransactions}
             />      
@@ -267,6 +289,8 @@ export default function FamilyFinancePage() {
                 ]}
                 showComments={showComments}
                 handleSort={handleSort}
+                showDate={showDate}
+                showId={showId}
                 sortTransactions={sortTransactions}
             /> 
         </div>

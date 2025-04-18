@@ -103,7 +103,7 @@ export default function FamilyFinancePage() {
         {/* Carlos' Transactions */}
         <Card>
             <CardHeader>
-                <CardTitle>Carlos' Transactions</CardTitle>
+                <CardTitle>Carlos&apos; Transactions</CardTitle>
             </CardHeader>
             <CardContent>
                 <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}> {/* Explicit monospace font */}
@@ -146,7 +146,7 @@ export default function FamilyFinancePage() {
         {/* Amanda's Transactions */}
         <Card>
           <CardHeader>
-            <CardTitle>Amanda's Transactions</CardTitle>
+            <CardTitle>Amanda&apos;s Transactions</CardTitle>
           </CardHeader>
           <CardContent>
             <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}> {/* Explicit monospace font */}

@@ -83,6 +83,13 @@ export default function Navbar() {
         {/* Navigation Links */}
         <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-200 lg:border-b lg:border-gray-200">
           <Link
+            href="/family"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
+            onClick={handleLinkClick} // Close menu on click
+            >
+            Family
+          </Link>
+          <Link
             href="/recurrent"
             className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click

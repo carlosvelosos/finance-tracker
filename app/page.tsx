@@ -24,15 +24,15 @@ export default function LandingPage() {
         Track your finances effortlessly. Manage your transactions, analyze your spending, and stay on top of your budget.
         </p>
         <nav className="flex justify-center gap-4 mt-8">
-        <Link href="/upload" className="text-[rgb(18,166,92)] hover:underline">
-          Upload expenses
+        <Link href="/upload" className="md:text-xl font-bold text-[rgb(18,166,92)] hover:bg-green-50 hover:border hover:border-gray-500 rounded-3xl px-4 py-2 transition duration-300 ease-in-out">
+          UPLOAD TRANSACTIONS
         </Link>
-        <Link href="/about" className="text-[rgb(18,166,92)] hover:underline">
+        {/* <Link href="/about" className="text-[rgb(18,166,92)] hover:underline">
           About Us
         </Link>
         <Link href="/contact" className="text-[rgb(18,166,92)] hover:underline">
           Contact
-        </Link>
+        </Link> */}
         </nav>
       </div>
       </div>

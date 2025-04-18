@@ -33,7 +33,7 @@ import { Switch } from "@/components/ui/switch";
   };
 
 export default function FamilyFinancePage() {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    // const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>([]);
     const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
     const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
@@ -48,7 +48,7 @@ export default function FamilyFinancePage() {
           if (error) {
             console.error('Error fetching transactions:', error);
           } else {
-            setTransactions(data as Transaction[]);
+            // setTransactions(data as Transaction[]);
             setAmandaTransactions(data.filter((transaction) => transaction.Person === 'Amanda'));
             setUsTransactions(data.filter((transaction) => transaction.Person === 'us'));
             setMeTransactions(data.filter((transaction) => transaction.Person === 'me'));

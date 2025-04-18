@@ -3,35 +3,22 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-    Accordion,
-    AccordionItem,
-    AccordionTrigger,
-    AccordionContent,
-  } from "@/components/ui/accordion";
 import { Switch } from "@/components/ui/switch";
 import TableCardFamily from "@/components/ui/table-card-family";
 
-  type Transaction = {
-    Datum: string | null;
-    Beskrivning: string | null;
-    Belopp: number | null;
-    Category: string | null;
-    Person: string | null;
-    Bank: string | null;
-    Id: number;
-    Comment: string | null;
-    Type: string | null;
-    user_id: string | null;
-  };
+type Transaction = {
+    id: number; // Corresponds to the `id` column (bigint, primary key)
+    created_at: string | null; // Corresponds to the `created_at` column (timestamp with time zone)
+    Date: string | null; // Corresponds to the `Date` column (date, nullable)
+    Description: string | null; // Corresponds to the `Description` column (text, nullable)
+    Amount: number | null; // Corresponds to the `Amount` column (numeric, nullable)
+    Balance: number | null; // Corresponds to the `Balance` column (numeric, nullable)
+    Category: string | null; // Corresponds to the `Category` column (text, default 'Unknown')
+    Responsible: string | null; // Corresponds to the `Responsible` column (text, default 'Carlos')
+    Bank: string | null; // Corresponds to the `Bank` column (text, default 'Inter Black')
+    Comment: string | null; // Corresponds to the `Comment` column (text, nullable)
+    user_id: string | null; // Corresponds to the `user_id` column (uuid, nullable)
+};
 
 export default function FamilyFinancePage() {
     const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>([]);
@@ -39,13 +26,13 @@ export default function FamilyFinancePage() {
     const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
     const [showComments, setShowComments] = useState(true); // State to toggle "Comment" column visibility
 
-    // Helper function to adjust the amount based on the Type
+    // Helper function to adjust the amount based on the Balance
     const adjustTransactionAmounts = (transactions: Transaction[]): Transaction[] => {
         return transactions.map((transaction) => {
-        if (transaction.Type === 'Outcome' && transaction.Belopp && transaction.Belopp > 0) {
-            return { ...transaction, Belopp: -Math.abs(transaction.Belopp) };
-        } else if (transaction.Type === 'Income' && transaction.Belopp && transaction.Belopp < 0) {
-            return { ...transaction, Belopp: Math.abs(transaction.Belopp) };
+        if (transaction.Comment?.includes('Outcome') && transaction.Amount && transaction.Amount > 0) {
+            return { ...transaction, Amount: -Math.abs(transaction.Amount) };
+        } else if (transaction.Comment?.includes('Income') && transaction.Amount && transaction.Amount < 0) {
+            return { ...transaction, Amount: Math.abs(transaction.Amount) };
         }
         return transaction;
         });
@@ -53,17 +40,23 @@ export default function FamilyFinancePage() {
 
     useEffect(() => {
         const fetchTransactions = async () => {
+            console.log('Fetching transactions from Supabase...'); // Debug log
+
             const { data, error } = await supabase
-                .from('BR_Inter_all_data')
+                .from('Brasil_transactions_agregated_2025')
                 .select('*');
     
             if (error) {
                 console.error('Error fetching transactions:', error);
             } else {
+                console.log('Fetched transactions:', data); // Log the fetched data
+
                 const adjustedTransactions = adjustTransactionAmounts(data as Transaction[]);
-                setAmandaTransactions(adjustedTransactions.filter((transaction) => transaction.Person === 'Amanda'));
-                setUsTransactions(adjustedTransactions.filter((transaction) => transaction.Person === 'us'));
-                setMeTransactions(adjustedTransactions.filter((transaction) => transaction.Person === 'me'));
+                console.log('Adjusted transactions:', adjustedTransactions);
+
+                setAmandaTransactions(adjustedTransactions.filter((transaction) => transaction.Responsible === 'Amanda'));
+                setUsTransactions(adjustedTransactions.filter((transaction) => transaction.Responsible === 'us'));
+                setMeTransactions(adjustedTransactions.filter((transaction) => transaction.Responsible === 'Carlos'));
             }
         };
     
@@ -71,32 +64,32 @@ export default function FamilyFinancePage() {
     }, []);
 
     const [usTransactionsAmanda] = useState<Transaction[]>([
-        { Id: 1, Beskrivning: 'Verde Mar', Datum: '2025-03-01', Category: 'Groceries', Belopp: -323.64, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 2, Beskrivning: 'iFood', Datum: '2025-03-03', Category: 'Food Delivery', Belopp: -51.01, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 3, Beskrivning: 'Verde Mar', Datum: '2025-03-04', Category: 'Groceries', Belopp: -281.70, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 4, Beskrivning: 'Verde Mar', Datum: '2025-03-04', Category: 'Groceries', Belopp: -5.69, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 5, Beskrivning: 'Uber', Datum: '2025-03-04', Category: 'Transport', Belopp: -9.52, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 6, Beskrivning: 'Verde Mar', Datum: '2025-03-05', Category: 'Groceries', Belopp: -57.47, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 7, Beskrivning: 'Uber', Datum: '2025-03-05', Category: 'Transport', Belopp: -8.91, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 8, Beskrivning: 'Grupo Kflit', Datum: '2025-03-06', Category: 'Shopping', Belopp: -89.90, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 9, Beskrivning: 'Pousada', Datum: '2025-03-06', Category: 'Lodging', Belopp: -598.00, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 10, Beskrivning: 'Tuna Pagamentos', Datum: '2025-03-07', Category: 'Other', Belopp: -18.00, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 11, Beskrivning: 'Café Geraes (Jantar)', Datum: '2025-03-07', Category: 'Dining Out', Belopp: -244.20, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 12, Beskrivning: 'Araujo OP', Datum: '2025-03-08', Category: 'Pharmacy', Belopp: -21.08, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 13, Beskrivning: 'Daki', Datum: '2025-03-11', Category: 'Groceries', Belopp: -87.38, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 14, Beskrivning: 'Uber', Datum: '2025-03-12', Category: 'Transport', Belopp: -10.88, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 15, Beskrivning: 'Verde Mar', Datum: '2025-03-14', Category: 'Groceries', Belopp: -98.35, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 16, Beskrivning: 'Uber', Datum: '2025-03-14', Category: 'Transport', Belopp: -34.79, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 17, Beskrivning: 'Restaurante 65', Datum: '2025-03-15', Category: 'Dining Out', Belopp: -56.39, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 18, Beskrivning: 'Três Irmãos', Datum: '2025-03-15', Category: 'Groceries', Belopp: -195.09, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 19, Beskrivning: 'Três Irmãos', Datum: '2025-03-16', Category: 'Groceries', Belopp: -77.42, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 20, Beskrivning: 'Picolito', Datum: '2025-03-16', Category: 'Snacks', Belopp: -19.25, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 21, Beskrivning: 'Três Irmãos', Datum: '2025-03-16', Category: 'Groceries', Belopp: -21.99, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 22, Beskrivning: 'iFood', Datum: '2025-03-17', Category: 'Food Delivery', Belopp: -27.80, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 23, Beskrivning: 'iFood', Datum: '2025-03-17', Category: 'Food Delivery', Belopp: -78.26, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 24, Beskrivning: 'iFood', Datum: '2025-03-19', Category: 'Food Delivery', Belopp: -49.89, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 25, Beskrivning: 'iFood', Datum: '2025-03-19', Category: 'Food Delivery', Belopp: -27.17, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
-        { Id: 26, Beskrivning: 'iFood', Datum: '2025-03-19', Category: 'Food Delivery', Belopp: -54.80, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { id: 1, created_at: null, Date: '2025-03-01', Description: 'Verde Mar', Amount: -323.64, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Alelo', user_id: null },
+        { id: 2, created_at: null, Date: '2025-03-03', Description: 'iFood', Amount: -51.01, Balance: null, Category: 'Food Delivery', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 3, created_at: null, Date: '2025-03-04', Description: 'Verde Mar', Amount: -281.70, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Alelo', user_id: null },
+        { id: 4, created_at: null, Date: '2025-03-04', Description: 'Verde Mar', Amount: -5.69, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Alelo', user_id: null },
+        { id: 5, created_at: null, Date: '2025-03-04', Description: 'Uber', Amount: -9.52, Balance: null, Category: 'Transport', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 6, created_at: null, Date: '2025-03-05', Description: 'Verde Mar', Amount: -57.47, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Alelo', user_id: null },
+        { id: 7, created_at: null, Date: '2025-03-05', Description: 'Uber', Amount: -8.91, Balance: null, Category: 'Transport', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 8, created_at: null, Date: '2025-03-06', Description: 'Grupo Kflit', Amount: -89.90, Balance: null, Category: 'Shopping', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 9, created_at: null, Date: '2025-03-06', Description: 'Pousada', Amount: -598.00, Balance: null, Category: 'Lodging', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 10, created_at: null, Date: '2025-03-07', Description: 'Tuna Pagamentos', Amount: -18.00, Balance: null, Category: 'Other', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 11, created_at: null, Date: '2025-03-07', Description: 'Café Geraes (Jantar)', Amount: -244.20, Balance: null, Category: 'Dining Out', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 12, created_at: null, Date: '2025-03-08', Description: 'Araujo OP', Amount: -21.08, Balance: null, Category: 'Pharmacy', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 13, created_at: null, Date: '2025-03-11', Description: 'Daki', Amount: -87.38, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 14, created_at: null, Date: '2025-03-12', Description: 'Uber', Amount: -10.88, Balance: null, Category: 'Transport', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 15, created_at: null, Date: '2025-03-14', Description: 'Verde Mar', Amount: -98.35, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Alelo', user_id: null },
+        { id: 16, created_at: null, Date: '2025-03-14', Description: 'Uber', Amount: -34.79, Balance: null, Category: 'Transport', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 17, created_at: null, Date: '2025-03-15', Description: 'Restaurante 65', Amount: -56.39, Balance: null, Category: 'Dining Out', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 18, created_at: null, Date: '2025-03-15', Description: 'Três Irmãos', Amount: -195.09, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 19, created_at: null, Date: '2025-03-16', Description: 'Três Irmãos', Amount: -77.42, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 20, created_at: null, Date: '2025-03-16', Description: 'Picolito', Amount: -19.25, Balance: null, Category: 'Snacks', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 21, created_at: null, Date: '2025-03-16', Description: 'Três Irmãos', Amount: -21.99, Balance: null, Category: 'Groceries', Responsible: 'us', Bank: null, Comment: 'Nubank', user_id: null },
+        { id: 22, created_at: null, Date: '2025-03-17', Description: 'iFood', Amount: -27.80, Balance: null, Category: 'Food Delivery', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 23, created_at: null, Date: '2025-03-17', Description: 'iFood', Amount: -78.26, Balance: null, Category: 'Food Delivery', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 24, created_at: null, Date: '2025-03-19', Description: 'iFood', Amount: -49.89, Balance: null, Category: 'Food Delivery', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 25, created_at: null, Date: '2025-03-19', Description: 'iFood', Amount: -27.17, Balance: null, Category: 'Food Delivery', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
+        { id: 26, created_at: null, Date: '2025-03-19', Description: 'iFood', Amount: -54.80, Balance: null, Category: 'Food Delivery', Responsible: 'us', Bank: null, Comment: 'Itaú', user_id: null },
       ]);
   
 
@@ -146,174 +139,137 @@ export default function FamilyFinancePage() {
 
   return (
     <div className="p-6">
-      {/* Main Summary Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Carlos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl">
-                <p className="text-xs mb-6"> 
-                    Amanda&apos;s table contains the transactions made using Carlos&apos; credit card for Amanda&apos;s purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda&apos;s visit to Sweden.
-                </p>
-                <p className="text-xs mb-6"> 
-                    The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
-                </p>
-                <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
+        {/* Main Summary Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card>
+            <CardHeader>
+                <CardTitle>Carlos</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-xl">
+                    <p className="text-xs mb-6"> 
+                        Amanda&apos;s table contains the transactions made using Carlos&apos; credit card for Amanda&apos;s purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda&apos;s visit to Sweden.
+                    </p>
+                    <p className="text-xs mb-6"> 
+                        The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
+                    </p>
+                    <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                        )}
+                    </p>
+                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                        )}
+                    </p>
+                    <p className={`${(amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        Amanda + (Us / 2): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
+                        (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
+                        )}
+                    </p>
+                {/* <p className={`${meTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    Me: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                    meTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
                     )}
-                </p>
-                <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
-                    )}
-                </p>
-                <p className={`${(amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) + (usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) / 2)) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    Amanda + (Us / 2): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) + 
-                    (usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) / 2)
-                    )}
-                </p>
-              {/* <p className={`${meTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                Me: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                  meTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
-                )}
-              </p> */}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Income</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl text-blue-600">$4,500.00</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Amanda</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className={`text-xl ${usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Belopp ?? 0), 0)
-                )}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+                </p> */}
+                </div>
+            </CardContent>
+            </Card>
 
-      {/* Switch to toggle "Comment" column */}
-      <div className="flex items-center mb-4">
-        <Switch
-          checked={showComments}
-          onCheckedChange={setShowComments}
-          className="mr-2"
-        />
-        <span className="text-sm">Show Comments</span>
-      </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Monthly Income</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-xl text-blue-600">$4,500.00</p>
+                </CardContent>
+            </Card>
 
-      {/* Transactions Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Carlos' Transactions */}
-        <TableCardFamily
-            title="Carlos' Transactions"
-            sections={[
-                {
-                name: 'Amanda',
-                transactions: amandaTransactions,
-                sortConfig: amandaSortConfig,
-                setSortConfig: setAmandaSortConfig,
+            <Card>
+                <CardHeader>
+                    <CardTitle>Amanda</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className={`text-xl ${usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                            usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount ?? 0), 0)
+                        )}
+                    </p>
+                </CardContent>
+            </Card>
+
+        </div>
+
+        {/* Switch to toggle "Comment" column */}
+        <div className="flex items-center mb-4">
+            <Switch
+            checked={showComments}
+            onCheckedChange={setShowComments}
+            className="mr-2"
+            />
+            <span className="text-sm">Show Comments</span>
+        </div>
+
+        {/* Transactions Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Carlos' Transactions */}
+            <TableCardFamily
+                title="Carlos' Transactions"
+                sections={[
+                    {
+                    name: 'Amanda',
+                    transactions: amandaTransactions,
+                    sortConfig: amandaSortConfig,
+                    setSortConfig: setAmandaSortConfig,
+                        },
+                    {
+                    name: 'US',
+                    transactions: usTransactions,
+                    sortConfig: usSortConfig,
+                    setSortConfig: setUsSortConfig,
                     },
-                {
-                name: 'US',
-                transactions: usTransactions,
-                sortConfig: usSortConfig,
-                setSortConfig: setUsSortConfig,
+                    {
+                    name: 'Carlos',
+                    transactions: meTransactions,
+                    sortConfig: meSortConfig,
+                    setSortConfig: setMeSortConfig,
                 },
-                {
-                name: 'Carlos',
-                transactions: meTransactions,
-                sortConfig: meSortConfig,
-                setSortConfig: setMeSortConfig,
-            },
-            ]}
-            showComments={showComments}
-            handleSort={handleSort}
-            sortTransactions={sortTransactions}
-        />      
+                ]}
+                showComments={showComments}
+                handleSort={handleSort}
+                sortTransactions={sortTransactions}
+            />      
 
             {/* Amanda's Transactions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Amanda&apos;s Transactions</CardTitle>
-          </CardHeader>
-            <CardContent>
-                    <Accordion type="single" collapsible>
-                        {/* Amanda Section */}
-                        <AccordionItem value="Amanda">
-                            <AccordionTrigger>Amanda</AccordionTrigger>
-                            <AccordionContent>
-                                No content yet.
-                            </AccordionContent>
-                    </AccordionItem>
-
-                    {/* Us Section */}
-                    <AccordionItem value="US">
-                        <AccordionTrigger>US</AccordionTrigger>
-                        <AccordionContent>
-                            <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
-                                <TableHeader>
-                                    <TableRow className="border-b-4 border-gray-600">
-                                        <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('Id', setUsAmandaSortConfig)}>
-                                            Id {usAmandaSortConfig?.key === 'Id' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>
-                                        <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('Datum', setUsAmandaSortConfig)}>
-                                            Date {usAmandaSortConfig?.key === 'Datum' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>
-                                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setUsAmandaSortConfig)}>
-                                            Description {usAmandaSortConfig?.key === 'Beskrivning' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>
-                                        {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setUsAmandaSortConfig)}>
-                                            Comment {usAmandaSortConfig?.key === 'Comment' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>}
-                                        <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setUsAmandaSortConfig)}>
-                                            Amount {usAmandaSortConfig?.key === 'Belopp' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {sortTransactions(usTransactionsAmanda, usAmandaSortConfig).map((transaction) => (
-                                        <TableRow key={transaction.Id} className="text-xs">
-                                            <TableCell className="w-16">{transaction.Id}</TableCell>
-                                            <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
-                                            <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                                            {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
-                                            <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                                {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
-                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    {/* Me Section */}
-                    <AccordionItem value="Carlos">
-                        <AccordionTrigger>Carlos</AccordionTrigger>
-                        <AccordionContent>
-                            No content yet.
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </CardContent>
-        </Card>
-      </div>
+            <TableCardFamily
+                title="Amanda's Transactions"
+                sections={[
+                    {
+                    name: 'Amanda',
+                    transactions: [], // No data for this section
+                    sortConfig: null,
+                    setSortConfig: () => {}, // No sorting needed for an empty section
+                    },
+                    {
+                    name: 'US',
+                    transactions: usTransactionsAmanda,
+                    sortConfig: usAmandaSortConfig,
+                    setSortConfig: setUsAmandaSortConfig,
+                    },
+                    {
+                    name: 'Carlos',
+                    transactions: [], // No data for this section
+                    sortConfig: null,
+                    setSortConfig: () => {}, // No sorting needed for an empty section
+                    },
+                ]}
+                showComments={showComments}
+                handleSort={handleSort}
+                sortTransactions={sortTransactions}
+            /> 
+        </div>
     </div>
   );
 }

@@ -243,9 +243,9 @@ export default function FamilyFinancePage() {
                                         <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setUsSortConfig)}>
                                             Description {usSortConfig?.key === 'Beskrivning' && (usSortConfig.direction === 'asc' ? '↑' : '↓')}
                                         </TableHead>
-                                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setUsSortConfig)}>
+                                        {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setUsSortConfig)}>
                                             Comment {usSortConfig?.key === 'Comment' && (usSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>
+                                        </TableHead>}
                                         <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setUsSortConfig)}>
                                             Amount {usSortConfig?.key === 'Belopp' && (usSortConfig.direction === 'asc' ? '↑' : '↓')}
                                         </TableHead>
@@ -257,7 +257,7 @@ export default function FamilyFinancePage() {
                                         <TableCell className="w-16">{transaction.Id}</TableCell>
                                         <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
                                         <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                                        <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
+                                        {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
                                         <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
                                             {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
                                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
@@ -285,9 +285,9 @@ export default function FamilyFinancePage() {
                                         <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setMeSortConfig)}>
                                             Description {meSortConfig?.key === 'Beskrivning' && (meSortConfig.direction === 'asc' ? '↑' : '↓')}
                                         </TableHead>
-                                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setMeSortConfig)}>
+                                        {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setMeSortConfig)}>
                                             Comment {meSortConfig?.key === 'Comment' && (meSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                        </TableHead>
+                                        </TableHead>}
                                         <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setMeSortConfig)}>
                                             Amount {meSortConfig?.key === 'Belopp' && (meSortConfig.direction === 'asc' ? '↑' : '↓')}
                                         </TableHead>
@@ -299,7 +299,7 @@ export default function FamilyFinancePage() {
                                         <TableCell className="w-16">{transaction.Id}</TableCell>
                                         <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
                                         <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                                        <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
+                                        {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
                                         <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
                                             {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
                                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
@@ -337,9 +337,9 @@ export default function FamilyFinancePage() {
                                             <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setAmandaTransactionsamandaConfig)}>
                                                 Description {amandaTransactionsamandaConfig?.key === 'Beskrivning' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
                                             </TableHead>
-                                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setAmandaTransactionsamandaConfig)}>
+                                            {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setAmandaTransactionsamandaConfig)}>
                                                 Comment {amandaTransactionsamandaConfig?.key === 'Comment' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </TableHead>
+                                            </TableHead>}
                                             <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setAmandaTransactionsamandaConfig)}>
                                                 Amount {amandaTransactionsamandaConfig?.key === 'Belopp' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
                                             </TableHead>
@@ -351,7 +351,7 @@ export default function FamilyFinancePage() {
                                                 <TableCell className="w-16">{transaction.Id}</TableCell>
                                                 <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
                                                 <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                                                <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
+                                                {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
                                                 <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
                                                     {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
                                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}

@@ -109,19 +109,19 @@ export default function FamilyFinancePage() {
                 <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}> {/* Explicit monospace font */}
                 <TableHeader>
                     <TableRow className="border-b-2 border-gray-300">
-                    <TableHead className="cursor-pointer w-16" onClick={() => handleSort('id')}>
+                    <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
                         Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                     </TableHead>
-                    <TableHead className="cursor-pointer w-32" onClick={() => handleSort('date')}>
+                    <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
                         Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                     </TableHead>
-                    <TableHead className="cursor-pointer w-48" onClick={() => handleSort('description')}>
+                    <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
                         Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                     </TableHead>
-                    <TableHead className="cursor-pointer w-48" onClick={() => handleSort('comment')}>
+                    <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
                         Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                     </TableHead>
-                    <TableHead className="cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
+                    <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
                         Value {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                     </TableHead>
                     </TableRow>
@@ -152,19 +152,19 @@ export default function FamilyFinancePage() {
             <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}> {/* Explicit monospace font */}
               <TableHeader>
                 <TableRow className="border-b-2 border-gray-300">
-                  <TableHead className="cursor-pointer w-16" onClick={() => handleSort('id')}>
+                  <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
                     Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </TableHead>
-                  <TableHead className="cursor-pointer w-32" onClick={() => handleSort('date')}>
+                  <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
                     Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </TableHead>
-                  <TableHead className="cursor-pointer w-48" onClick={() => handleSort('description')}>
+                  <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
                     Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </TableHead>
-                  <TableHead className="cursor-pointer w-48" onClick={() => handleSort('comment')}>
+                  <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
                     Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </TableHead>
-                  <TableHead className="cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
+                  <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
                     Value {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </TableHead>
                 </TableRow>

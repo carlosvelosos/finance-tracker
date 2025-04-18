@@ -58,7 +58,7 @@ export default function FamilyFinancePage() {
         fetchTransactions();
     }, []);
 
-    const [amandaTransactionsamanda] = useState<Transaction[]>([
+    const [usTransactionsAmanda] = useState<Transaction[]>([
         { Id: 1, Beskrivning: 'Verde Mar', Datum: '2025-03-01', Category: 'Groceries', Belopp: -323.64, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
         { Id: 2, Beskrivning: 'iFood', Datum: '2025-03-03', Category: 'Food Delivery', Belopp: -51.01, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
         { Id: 3, Beskrivning: 'Verde Mar', Datum: '2025-03-04', Category: 'Groceries', Belopp: -281.70, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
@@ -91,7 +91,7 @@ export default function FamilyFinancePage() {
     const [amandaSortConfig, setAmandaSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
     const [usSortConfig, setUsSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
     const [meSortConfig, setMeSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
-    const [amandaTransactionsamandaConfig, setAmandaTransactionsamandaConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
+    const [usAmandaSortConfig, setUsAmandaSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
     
     const handleSort = (
     key: keyof Transaction,
@@ -157,9 +157,9 @@ export default function FamilyFinancePage() {
             <CardTitle>Amanda</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-xl ${amandaTransactionsamanda.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className={`text-xl ${usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    amandaTransactionsamanda.reduce((total, transaction) => total + (transaction.Belopp ?? 0), 0)
+                    usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Belopp ?? 0), 0)
                 )}
             </p>
           </CardContent>
@@ -325,41 +325,7 @@ export default function FamilyFinancePage() {
                         <AccordionItem value="Amanda">
                             <AccordionTrigger>Amanda</AccordionTrigger>
                             <AccordionContent>
-                                <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
-                                    <TableHeader>
-                                        <TableRow className="border-b-4 border-gray-600">
-                                            <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('Id', setAmandaTransactionsamandaConfig)}>
-                                                Id {amandaTransactionsamandaConfig?.key === 'Id' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </TableHead>
-                                            <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('Datum', setAmandaTransactionsamandaConfig)}>
-                                                Date {amandaTransactionsamandaConfig?.key === 'Datum' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </TableHead>
-                                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setAmandaTransactionsamandaConfig)}>
-                                                Description {amandaTransactionsamandaConfig?.key === 'Beskrivning' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </TableHead>
-                                            {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setAmandaTransactionsamandaConfig)}>
-                                                Comment {amandaTransactionsamandaConfig?.key === 'Comment' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </TableHead>}
-                                            <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setAmandaTransactionsamandaConfig)}>
-                                                Amount {amandaTransactionsamandaConfig?.key === 'Belopp' && (amandaTransactionsamandaConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {sortTransactions(amandaTransactionsamanda, amandaTransactionsamandaConfig).map((transaction) => (
-                                            <TableRow key={transaction.Id} className="text-xs">
-                                                <TableCell className="w-16">{transaction.Id}</TableCell>
-                                                <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
-                                                <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                                                {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
-                                                <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                                    {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
-                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                No content yet.
                             </AccordionContent>
                     </AccordionItem>
 
@@ -367,7 +333,41 @@ export default function FamilyFinancePage() {
                     <AccordionItem value="US">
                         <AccordionTrigger>US</AccordionTrigger>
                         <AccordionContent>
-                            No content yet.
+                            <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
+                                <TableHeader>
+                                    <TableRow className="border-b-4 border-gray-600">
+                                        <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('Id', setUsAmandaSortConfig)}>
+                                            Id {usAmandaSortConfig?.key === 'Id' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
+                                        </TableHead>
+                                        <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('Datum', setUsAmandaSortConfig)}>
+                                            Date {usAmandaSortConfig?.key === 'Datum' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
+                                        </TableHead>
+                                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setUsAmandaSortConfig)}>
+                                            Description {usAmandaSortConfig?.key === 'Beskrivning' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
+                                        </TableHead>
+                                        {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setUsAmandaSortConfig)}>
+                                            Comment {usAmandaSortConfig?.key === 'Comment' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
+                                        </TableHead>}
+                                        <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setUsAmandaSortConfig)}>
+                                            Amount {usAmandaSortConfig?.key === 'Belopp' && (usAmandaSortConfig.direction === 'asc' ? '↑' : '↓')}
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {sortTransactions(usTransactionsAmanda, usAmandaSortConfig).map((transaction) => (
+                                        <TableRow key={transaction.Id} className="text-xs">
+                                            <TableCell className="w-16">{transaction.Id}</TableCell>
+                                            <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
+                                            <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
+                                            {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
+                                            <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                                {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
+                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </AccordionContent>
                     </AccordionItem>
 

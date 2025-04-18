@@ -58,7 +58,7 @@ export default function Navbar() {
       {/* Logo or App Name */}
       {/* <div className="lg:w-210 text-lg font-bold"> */}
       <div className="text-lg font-bold">
-        <Link href="/" className="text-green-600 hover:underline">
+        <Link href="/" className="text-green-600 block px-4 py-2 hover:bg-green-50 hover:border hover:border-gray-500 rounded-3xl transition duration-300 ease-in-out">
           Finance Tracker
         </Link>
       </div>
@@ -84,49 +84,49 @@ export default function Navbar() {
         <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-200 lg:border-b lg:border-gray-200">
           <Link
             href="/recurrent"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             Recurrent
           </Link>
           <Link
             href="/sjprio"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             SJ Prio
           </Link>
           <Link
             href="/amex"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             Amex
           </Link>
           <Link
             href="/handelsbanken"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             Handelsbanken
           </Link>
           <Link
             href="/global"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             Transactions
           </Link>
           <Link
             href="/about"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             About
           </Link>
           <Link
             href="/contact"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200"
+            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
             onClick={handleLinkClick} // Close menu on click
           >
             Contact

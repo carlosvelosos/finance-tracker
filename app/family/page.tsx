@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -17,56 +18,77 @@ import {
     AccordionContent,
   } from "@/components/ui/accordion";
 
-type Transaction = {
-  id: number;
-  description: string;
-  date: string;
-  category: string;
-  amount: number;
-  comment?: string; // Optional field for comments
-};
+  type Transaction = {
+    Datum: string | null;
+    Beskrivning: string | null;
+    Belopp: number | null;
+    Category: string | null;
+    Person: string | null;
+    Bank: string | null;
+    Id: number;
+    Comment: string | null;
+    Type: string | null;
+    user_id: string | null;
+  };
 
 export default function FamilyFinancePage() {
-  const [carlosTransactions] = useState<Transaction[]>([
-    { id: 1, description: 'Groceries', date: '2025-04-01', category: 'Food', amount: -150, comment: 'Weekly groceries' },
-    { id: 2, description: 'Salary', date: '2025-04-05', category: 'Income', amount: 2500, comment: 'Monthly salary' },
-    { id: 3, description: 'Utilities', date: '2025-04-10', category: 'Bills', amount: -200, comment: 'Electricity bill' },
-  ]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>([]);
+    const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
+    const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
 
-//   const [amandaTransactions] = useState<Transaction[]>([
-//     { id: 1, description: 'Shopping', date: '2025-04-02', category: 'Clothing', amount: -300, comment: 'Clothes for kids' },
-//     { id: 2, description: 'Freelance Work', date: '2025-04-07', category: 'Income', amount: 1200, comment: 'Freelance project' },
-//     { id: 3, description: 'Dining Out', date: '2025-04-12', category: 'Food', amount: -100, comment: 'Dinner with family' },
-//   ]);
+    useEffect(() => {
+        const fetchTransactions = async () => {
+          const { data, error } = await supabase
+            .from('BR_Inter_all_data')
+            .select('*');
+    
+          if (error) {
+            console.error('Error fetching transactions:', error);
+          } else {
+            setTransactions(data as Transaction[]);
+            setAmandaTransactions(data.filter((transaction) => transaction.Person === 'Amanda'));
+            setUsTransactions(data.filter((transaction) => transaction.Person === 'us'));
+            setMeTransactions(data.filter((transaction) => transaction.Person === 'me'));
+          }
+        };
+    
+        fetchTransactions();
+    }, []);
+    
+    const formatCurrency = (value: number | null) => {
+        if (value === null) return 'N/A';
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    };
 
-const [amandaTransactions] = useState<Transaction[]>([
-    { id: 1, description: 'Verde Mar', date: '2025-03-01', category: 'Groceries', amount: -323.64, comment: 'Alelo' },
-    { id: 2, description: 'iFood', date: '2025-03-03', category: 'Food Delivery', amount: -51.01, comment: 'Nubank' },
-    { id: 3, description: 'Verde Mar', date: '2025-03-04', category: 'Groceries', amount: -281.70, comment: 'Alelo' },
-    { id: 4, description: 'Verde Mar', date: '2025-03-04', category: 'Groceries', amount: -5.69, comment: 'Alelo' },
-    { id: 5, description: 'Uber', date: '2025-03-04', category: 'Transport', amount: -9.52, comment: 'Nubank' },
-    { id: 6, description: 'Verde Mar', date: '2025-03-05', category: 'Groceries', amount: -57.47, comment: 'Alelo' },
-    { id: 7, description: 'Uber', date: '2025-03-05', category: 'Transport', amount: -8.91, comment: 'Nubank' },
-    { id: 8, description: 'Grupo Kflit', date: '2025-03-06', category: 'Shopping', amount: -89.90, comment: 'Itaú' },
-    { id: 9, description: 'Pousada', date: '2025-03-06', category: 'Lodging', amount: -598.00, comment: 'Itaú' },
-    { id: 10, description: 'Tuna Pagamentos', date: '2025-03-07', category: 'Other', amount: -18.00, comment: 'Nubank' },
-    { id: 11, description: 'Café Geraes (Jantar)', date: '2025-03-07', category: 'Dining Out', amount: -244.20, comment: 'Nubank' },
-    { id: 12, description: 'Araujo OP', date: '2025-03-08', category: 'Pharmacy', amount: -21.08, comment: 'Nubank' },
-    { id: 13, description: 'Daki', date: '2025-03-11', category: 'Groceries', amount: -87.38, comment: 'Itaú' },
-    { id: 14, description: 'Uber', date: '2025-03-12', category: 'Transport', amount: -10.88, comment: 'Nubank' },
-    { id: 15, description: 'Verde Mar', date: '2025-03-14', category: 'Groceries', amount: -98.35, comment: 'Alelo' },
-    { id: 16, description: 'Uber', date: '2025-03-14', category: 'Transport', amount: -34.79, comment: 'Nubank' },
-    { id: 17, description: 'Restaurante 65', date: '2025-03-15', category: 'Dining Out', amount: -56.39, comment: 'Nubank' },
-    { id: 18, description: 'Três Irmãos', date: '2025-03-15', category: 'Groceries', amount: -195.09, comment: 'Nubank' },
-    { id: 19, description: 'Três Irmãos', date: '2025-03-16', category: 'Groceries', amount: -77.42, comment: 'Itaú' },
-    { id: 20, description: 'Picolito', date: '2025-03-16', category: 'Snacks', amount: -19.25, comment: 'Itaú' },
-    { id: 21, description: 'Três Irmãos', date: '2025-03-16', category: 'Groceries', amount: -21.99, comment: 'Nubank' },
-    { id: 22, description: 'iFood', date: '2025-03-17', category: 'Food Delivery', amount: -27.80, comment: 'Itaú' },
-    { id: 23, description: 'iFood', date: '2025-03-17', category: 'Food Delivery', amount: -78.26, comment: 'Itaú' },
-    { id: 24, description: 'iFood', date: '2025-03-19', category: 'Food Delivery', amount: -49.89, comment: 'Itaú' },
-    { id: 25, description: 'iFood', date: '2025-03-19', category: 'Food Delivery', amount: -27.17, comment: 'Itaú' },
-    { id: 26, description: 'iFood', date: '2025-03-19', category: 'Food Delivery', amount: -54.80, comment: 'Itaú' }
-  ]);
+    const [amandaTransactionsamanda] = useState<Transaction[]>([
+        { Id: 1, Beskrivning: 'Verde Mar', Datum: '2025-03-01', Category: 'Groceries', Belopp: -323.64, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 2, Beskrivning: 'iFood', Datum: '2025-03-03', Category: 'Food Delivery', Belopp: -51.01, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 3, Beskrivning: 'Verde Mar', Datum: '2025-03-04', Category: 'Groceries', Belopp: -281.70, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 4, Beskrivning: 'Verde Mar', Datum: '2025-03-04', Category: 'Groceries', Belopp: -5.69, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 5, Beskrivning: 'Uber', Datum: '2025-03-04', Category: 'Transport', Belopp: -9.52, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 6, Beskrivning: 'Verde Mar', Datum: '2025-03-05', Category: 'Groceries', Belopp: -57.47, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 7, Beskrivning: 'Uber', Datum: '2025-03-05', Category: 'Transport', Belopp: -8.91, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 8, Beskrivning: 'Grupo Kflit', Datum: '2025-03-06', Category: 'Shopping', Belopp: -89.90, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 9, Beskrivning: 'Pousada', Datum: '2025-03-06', Category: 'Lodging', Belopp: -598.00, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 10, Beskrivning: 'Tuna Pagamentos', Datum: '2025-03-07', Category: 'Other', Belopp: -18.00, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 11, Beskrivning: 'Café Geraes (Jantar)', Datum: '2025-03-07', Category: 'Dining Out', Belopp: -244.20, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 12, Beskrivning: 'Araujo OP', Datum: '2025-03-08', Category: 'Pharmacy', Belopp: -21.08, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 13, Beskrivning: 'Daki', Datum: '2025-03-11', Category: 'Groceries', Belopp: -87.38, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 14, Beskrivning: 'Uber', Datum: '2025-03-12', Category: 'Transport', Belopp: -10.88, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 15, Beskrivning: 'Verde Mar', Datum: '2025-03-14', Category: 'Groceries', Belopp: -98.35, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 16, Beskrivning: 'Uber', Datum: '2025-03-14', Category: 'Transport', Belopp: -34.79, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 17, Beskrivning: 'Restaurante 65', Datum: '2025-03-15', Category: 'Dining Out', Belopp: -56.39, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 18, Beskrivning: 'Três Irmãos', Datum: '2025-03-15', Category: 'Groceries', Belopp: -195.09, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 19, Beskrivning: 'Três Irmãos', Datum: '2025-03-16', Category: 'Groceries', Belopp: -77.42, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 20, Beskrivning: 'Picolito', Datum: '2025-03-16', Category: 'Snacks', Belopp: -19.25, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 21, Beskrivning: 'Três Irmãos', Datum: '2025-03-16', Category: 'Groceries', Belopp: -21.99, Comment: 'Nubank', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 22, Beskrivning: 'iFood', Datum: '2025-03-17', Category: 'Food Delivery', Belopp: -27.80, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 23, Beskrivning: 'iFood', Datum: '2025-03-17', Category: 'Food Delivery', Belopp: -78.26, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 24, Beskrivning: 'iFood', Datum: '2025-03-19', Category: 'Food Delivery', Belopp: -49.89, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 25, Beskrivning: 'iFood', Datum: '2025-03-19', Category: 'Food Delivery', Belopp: -27.17, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+        { Id: 26, Beskrivning: 'iFood', Datum: '2025-03-19', Category: 'Food Delivery', Belopp: -54.80, Comment: 'Itaú', Person: 'Amanda', Bank: null, Type: null, user_id: null },
+      ]);
   
 
   const [sortConfig, setSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
@@ -129,9 +151,9 @@ const [amandaTransactions] = useState<Transaction[]>([
             <CardTitle>Amanda</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-xl ${amandaTransactions.reduce((total, transaction) => total + transaction.amount, 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className={`text-xl ${amandaTransactionsamanda.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    amandaTransactions.reduce((total, transaction) => total + transaction.amount, 0)
+                    amandaTransactionsamanda.reduce((total, transaction) => total + (transaction.Belopp ?? 0), 0)
                 )}
             </p>
           </CardContent>
@@ -147,63 +169,98 @@ const [amandaTransactions] = useState<Transaction[]>([
             </CardHeader>
             <CardContent>
                 <Accordion type="single" collapsible>
-                {/* Amanda Section */}
-                <AccordionItem value="amanda">
-                    <AccordionTrigger>Amanda</AccordionTrigger>
-                    <AccordionContent>
-                    <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
-                        <TableHeader>
-                        <TableRow className="border-b-4 border-gray-600">
-                            <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
-                            Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                            </TableHead>
-                            <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
-                            Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                            </TableHead>
-                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
-                            Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                            </TableHead>
-                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
-                            Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                            </TableHead>
-                            <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
-                            Amount {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                            </TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {sortTransactions(amandaTransactions).map((transaction) => (
-                            <TableRow key={transaction.id}>
-                            <TableCell className="w-16">{transaction.id}</TableCell>
-                            <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                            <TableCell className="w-48">{transaction.description}</TableCell>
-                            <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
-                            <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                {transaction.amount < 0 ? '-' : '+'}
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.amount))}
-                            </TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                    </Table>
-                    </AccordionContent>
-                </AccordionItem>
+                    {/* Amanda Section */}
+                    <AccordionItem value="amanda">
+                        <AccordionTrigger>Amanda</AccordionTrigger>
+                        <AccordionContent>
+                        <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Id</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Comment</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                            {amandaTransactions.map((transaction) => (
+                                <TableRow key={transaction.Id}>
+                                    <TableCell>{transaction.Id}</TableCell>
+                                    <TableCell>{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
+                                    <TableCell>{transaction.Beskrivning || 'N/A'}</TableCell>
+                                    <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                                    <TableCell>{formatCurrency(transaction.Belopp)}</TableCell>
+                                    <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                                </TableRow>
+                            ))}
+                            </TableBody>
+                        </Table>
+                        </AccordionContent>
+                    </AccordionItem>
 
-                {/* Us Section */}
-                <AccordionItem value="us">
-                    <AccordionTrigger>Us</AccordionTrigger>
-                    <AccordionContent>
-                    <p>This section is for shared transactions.</p>
-                    </AccordionContent>
-                </AccordionItem>
+                    {/* Us Section */}
+                    <AccordionItem value="us">
+                        <AccordionTrigger>Us</AccordionTrigger>
+                        <AccordionContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Id</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Comment</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                {usTransactions.map((transaction) => (
+                                    <TableRow key={transaction.Id}>
+                                        <TableCell>{transaction.Id}</TableCell>
+                                        <TableCell>{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
+                                        <TableCell>{transaction.Beskrivning || 'N/A'}</TableCell>
+                                        <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                                        <TableCell>{formatCurrency(transaction.Belopp)}</TableCell>
+                                        <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                                    </TableRow>
+                                ))}
+                                </TableBody>
+                            </Table>
+                        </AccordionContent>
+                    </AccordionItem>
 
-                {/* Me Section */}
-                <AccordionItem value="me">
-                    <AccordionTrigger>Me</AccordionTrigger>
-                    <AccordionContent>
-                    <p>This section is for personal transactions.</p>
-                    </AccordionContent>
-                </AccordionItem>
+                    {/* Me Section */}
+                    <AccordionItem value="me">
+                        <AccordionTrigger>Me</AccordionTrigger>
+                        <AccordionContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Id</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Comment</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                {meTransactions.map((transaction) => (
+                                    <TableRow key={transaction.Id}>
+                                        <TableCell>{transaction.Id}</TableCell>
+                                        <TableCell>{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
+                                        <TableCell>{transaction.Beskrivning || 'N/A'}</TableCell>
+                                        <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                                        <TableCell>{formatCurrency(transaction.Belopp)}</TableCell>
+                                        <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                                    </TableRow>
+                                ))}
+                                </TableBody>
+                            </Table>
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </CardContent>
         </Card>
@@ -217,33 +274,33 @@ const [amandaTransactions] = useState<Transaction[]>([
             <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
                 <TableHeader>
                     <TableRow className="border-b-4 border-gray-600">
-                        <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
-                            Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('Id')}>
+                            Id {sortConfig?.key === ('id' as keyof Transaction) && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                         </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
-                            Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('Datum')}>
+                            Date {sortConfig?.key === 'Datum' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                         </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
-                            Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning')}>
+                            Description {sortConfig?.key === 'Beskrivning' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                         </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
-                            Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment')}>
+                            Comment {sortConfig?.key === 'Comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                         </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
-                            Amount {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp')}>
+                            Amount {sortConfig?.key === 'Belopp' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                         </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {sortTransactions(amandaTransactions).map((transaction) => (
-                        <TableRow key={transaction.id}>
-                            <TableCell className="w-16">{transaction.id}</TableCell>
-                            <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                            <TableCell className="w-48">{transaction.description}</TableCell>
-                            <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
-                            <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                {transaction.amount < 0 ? '-' : '+'}
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.amount))}
+                    {sortTransactions(amandaTransactionsamanda).map((transaction) => (
+                        <TableRow key={transaction.Id}>
+                            <TableCell className="w-16">{transaction.Id}</TableCell>
+                            <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
+                            <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
+                            <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
+                            <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
                             </TableCell>
                         </TableRow>
                     ))}

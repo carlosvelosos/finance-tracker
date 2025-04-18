@@ -27,11 +27,41 @@ export default function FamilyFinancePage() {
     { id: 3, description: 'Utilities', date: '2025-04-10', category: 'Bills', amount: -200, comment: 'Electricity bill' },
   ]);
 
-  const [amandaTransactions] = useState<Transaction[]>([
-    { id: 1, description: 'Shopping', date: '2025-04-02', category: 'Clothing', amount: -300, comment: 'Clothes for kids' },
-    { id: 2, description: 'Freelance Work', date: '2025-04-07', category: 'Income', amount: 1200, comment: 'Freelance project' },
-    { id: 3, description: 'Dining Out', date: '2025-04-12', category: 'Food', amount: -100, comment: 'Dinner with family' },
+//   const [amandaTransactions] = useState<Transaction[]>([
+//     { id: 1, description: 'Shopping', date: '2025-04-02', category: 'Clothing', amount: -300, comment: 'Clothes for kids' },
+//     { id: 2, description: 'Freelance Work', date: '2025-04-07', category: 'Income', amount: 1200, comment: 'Freelance project' },
+//     { id: 3, description: 'Dining Out', date: '2025-04-12', category: 'Food', amount: -100, comment: 'Dinner with family' },
+//   ]);
+
+const [amandaTransactions] = useState<Transaction[]>([
+    { id: 1, description: 'Verde Mar', date: '2025-03-01', category: 'Groceries', amount: -323.64, comment: 'Alelo' },
+    { id: 2, description: 'iFood', date: '2025-03-03', category: 'Food Delivery', amount: -51.01, comment: 'Nubank' },
+    { id: 3, description: 'Verde Mar', date: '2025-03-04', category: 'Groceries', amount: -281.70, comment: 'Alelo' },
+    { id: 4, description: 'Verde Mar', date: '2025-03-04', category: 'Groceries', amount: -5.69, comment: 'Alelo' },
+    { id: 5, description: 'Uber', date: '2025-03-04', category: 'Transport', amount: -9.52, comment: 'Nubank' },
+    { id: 6, description: 'Verde Mar', date: '2025-03-05', category: 'Groceries', amount: -57.47, comment: 'Alelo' },
+    { id: 7, description: 'Uber', date: '2025-03-05', category: 'Transport', amount: -8.91, comment: 'Nubank' },
+    { id: 8, description: 'Grupo Kflit', date: '2025-03-06', category: 'Shopping', amount: -89.90, comment: 'Itaú' },
+    { id: 9, description: 'Pousada', date: '2025-03-06', category: 'Lodging', amount: -598.00, comment: 'Itaú' },
+    { id: 10, description: 'Tuna Pagamentos', date: '2025-03-07', category: 'Other', amount: -18.00, comment: 'Nubank' },
+    { id: 11, description: 'Café Geraes (Jantar)', date: '2025-03-07', category: 'Dining Out', amount: -244.20, comment: 'Nubank' },
+    { id: 12, description: 'Araujo OP', date: '2025-03-08', category: 'Pharmacy', amount: -21.08, comment: 'Nubank' },
+    { id: 13, description: 'Daki', date: '2025-03-11', category: 'Groceries', amount: -87.38, comment: 'Itaú' },
+    { id: 14, description: 'Uber', date: '2025-03-12', category: 'Transport', amount: -10.88, comment: 'Nubank' },
+    { id: 15, description: 'Verde Mar', date: '2025-03-14', category: 'Groceries', amount: -98.35, comment: 'Alelo' },
+    { id: 16, description: 'Uber', date: '2025-03-14', category: 'Transport', amount: -34.79, comment: 'Nubank' },
+    { id: 17, description: 'Restaurante 65', date: '2025-03-15', category: 'Dining Out', amount: -56.39, comment: 'Nubank' },
+    { id: 18, description: 'Três Irmãos', date: '2025-03-15', category: 'Groceries', amount: -195.09, comment: 'Nubank' },
+    { id: 19, description: 'Três Irmãos', date: '2025-03-16', category: 'Groceries', amount: -77.42, comment: 'Itaú' },
+    { id: 20, description: 'Picolito', date: '2025-03-16', category: 'Snacks', amount: -19.25, comment: 'Itaú' },
+    { id: 21, description: 'Três Irmãos', date: '2025-03-16', category: 'Groceries', amount: -21.99, comment: 'Nubank' },
+    { id: 22, description: 'iFood', date: '2025-03-17', category: 'Food Delivery', amount: -27.80, comment: 'Itaú' },
+    { id: 23, description: 'iFood', date: '2025-03-17', category: 'Food Delivery', amount: -78.26, comment: 'Itaú' },
+    { id: 24, description: 'iFood', date: '2025-03-19', category: 'Food Delivery', amount: -49.89, comment: 'Itaú' },
+    { id: 25, description: 'iFood', date: '2025-03-19', category: 'Food Delivery', amount: -27.17, comment: 'Itaú' },
+    { id: 26, description: 'iFood', date: '2025-03-19', category: 'Food Delivery', amount: -54.80, comment: 'Itaú' }
   ]);
+  
 
   const [sortConfig, setSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
 

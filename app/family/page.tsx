@@ -153,16 +153,28 @@ export default function FamilyFinancePage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl">
-              <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                  amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
-                )}
-              </p>
-              <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                  usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
-                )}
-              </p>
+                <p className="text-xs mb-6"> 
+                    Amanda's table contains the transactions made using Carlos' credit card for Amanda's purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda's visit to Sweden.
+                </p>
+                <p className="text-xs mb-6"> 
+                    The table "US" displays the shared expenses in Brasil, using Carlos' credit card.
+                </p>
+                <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                    amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
+                    )}
+                </p>
+                <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                    usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
+                    )}
+                </p>
+                <p className={`${(amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) + (usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) / 2)) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    Amanda + (Us / 2): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                    amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) + 
+                    (usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) / 2)
+                    )}
+                </p>
               {/* <p className={`${meTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
                 Me: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                   meTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)

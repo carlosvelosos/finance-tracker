@@ -17,6 +17,7 @@ import {
     AccordionTrigger,
     AccordionContent,
   } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";   
 
   type Transaction = {
     Datum: string | null;
@@ -36,6 +37,7 @@ export default function FamilyFinancePage() {
     const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>([]);
     const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
     const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
+    const [showComments, setShowComments] = useState(true); // State to toggle "Comment" column visibility
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -55,11 +57,6 @@ export default function FamilyFinancePage() {
     
         fetchTransactions();
     }, []);
-    
-    // const formatCurrency = (value: number | null) => {
-    //     if (value === null) return 'N/A';
-    //     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-    // };
 
     const [amandaTransactionsamanda] = useState<Transaction[]>([
         { Id: 1, Beskrivning: 'Verde Mar', Datum: '2025-03-01', Category: 'Groceries', Belopp: -323.64, Comment: 'Alelo', Person: 'Amanda', Bank: null, Type: null, user_id: null },
@@ -169,6 +166,16 @@ export default function FamilyFinancePage() {
         </Card>
       </div>
 
+      {/* Switch to toggle "Comment" column */}
+      <div className="flex items-center mb-4">
+        <Switch
+          checked={showComments}
+          onCheckedChange={setShowComments}
+          className="mr-2"
+        />
+        <span className="text-sm">Show Comments</span>
+      </div>
+
       {/* Transactions Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Carlos' Transactions */}
@@ -194,9 +201,9 @@ export default function FamilyFinancePage() {
                                     <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning', setAmandaSortConfig)}>
                                         Description {amandaSortConfig?.key === 'Beskrivning' && (amandaSortConfig.direction === 'asc' ? '↑' : '↓')}
                                     </TableHead>
-                                    <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setAmandaSortConfig)}>
+                                    {showComments && <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment', setAmandaSortConfig)}>
                                         Comment {amandaSortConfig?.key === 'Comment' && (amandaSortConfig.direction === 'asc' ? '↑' : '↓')}
-                                    </TableHead>
+                                    </TableHead>}
                                     <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp', setAmandaSortConfig)}>
                                         Amount {amandaSortConfig?.key === 'Belopp' && (amandaSortConfig.direction === 'asc' ? '↑' : '↓')}
                                     </TableHead>
@@ -208,7 +215,7 @@ export default function FamilyFinancePage() {
                                     <TableCell className="w-16">{transaction.Id}</TableCell>
                                     <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
                                     <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                                    <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
+                                    {showComments && <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>}
                                     <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
                                         {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}

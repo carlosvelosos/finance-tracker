@@ -10,6 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+    Accordion,
+    AccordionItem,
+    AccordionTrigger,
+    AccordionContent,
+  } from "@/components/ui/accordion";
 
 type Transaction = {
   id: number;
@@ -140,40 +146,65 @@ const [amandaTransactions] = useState<Transaction[]>([
                 <CardTitle>Carlos&apos; Transactions</CardTitle>
             </CardHeader>
             <CardContent>
-                <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
-                    <TableHeader>
+                <Accordion type="single" collapsible>
+                {/* Amanda Section */}
+                <AccordionItem value="amanda">
+                    <AccordionTrigger>Amanda</AccordionTrigger>
+                    <AccordionContent>
+                    <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
+                        <TableHeader>
                         <TableRow className="border-b-4 border-gray-600">
                             <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
-                                Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                             </TableHead>
                             <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
-                                Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                             </TableHead>
                             <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
-                                Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                             </TableHead>
                             <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
-                                Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                             </TableHead>
                             <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
-                                Amount {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            Amount {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                             </TableHead>
                         </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {sortTransactions(carlosTransactions).map((transaction) => (
+                        </TableHeader>
+                        <TableBody>
+                        {sortTransactions(amandaTransactions).map((transaction) => (
                             <TableRow key={transaction.id}>
-                                <TableCell className="w-16">{transaction.id}</TableCell>
-                                <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                                <TableCell className="w-48">{transaction.description}</TableCell>
-                                <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
-                                <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                    {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
-                                </TableCell>
+                            <TableCell className="w-16">{transaction.id}</TableCell>
+                            <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                            <TableCell className="w-48">{transaction.description}</TableCell>
+                            <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
+                            <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                {transaction.amount < 0 ? '-' : '+'}
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.amount))}
+                            </TableCell>
                             </TableRow>
                         ))}
-                    </TableBody>
-                </Table>
+                        </TableBody>
+                    </Table>
+                    </AccordionContent>
+                </AccordionItem>
+
+                {/* Us Section */}
+                <AccordionItem value="us">
+                    <AccordionTrigger>Us</AccordionTrigger>
+                    <AccordionContent>
+                    <p>This section is for shared transactions.</p>
+                    </AccordionContent>
+                </AccordionItem>
+
+                {/* Me Section */}
+                <AccordionItem value="me">
+                    <AccordionTrigger>Me</AccordionTrigger>
+                    <AccordionContent>
+                    <p>This section is for personal transactions.</p>
+                    </AccordionContent>
+                </AccordionItem>
+                </Accordion>
             </CardContent>
         </Card>
 

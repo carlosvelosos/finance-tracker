@@ -120,10 +120,14 @@ const [amandaTransactions] = useState<Transaction[]>([
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Monthly Expenses</CardTitle>
+            <CardTitle>Amanda</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl text-red-600">$3,200.00</p>
+            <p className={`text-xl ${amandaTransactions.reduce((total, transaction) => total + transaction.amount, 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                    amandaTransactions.reduce((total, transaction) => total + transaction.amount, 0)
+                )}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -136,39 +140,39 @@ const [amandaTransactions] = useState<Transaction[]>([
                 <CardTitle>Carlos&apos; Transactions</CardTitle>
             </CardHeader>
             <CardContent>
-                <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}> {/* Explicit monospace font */}
-                <TableHeader>
-                    <TableRow className="border-b-2 border-gray-300">
-                    <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
-                        Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </TableHead>
-                    <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
-                        Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </TableHead>
-                    <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
-                        Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </TableHead>
-                    <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
-                        Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </TableHead>
-                    <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
-                        Value {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {sortTransactions(carlosTransactions).map((transaction) => (
-                    <TableRow key={transaction.id}>
-                        <TableCell className="w-16">{transaction.id}</TableCell>
-                        <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                        <TableCell className="w-48">{transaction.description}</TableCell>
-                        <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
-                        <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
+                <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
+                    <TableHeader>
+                        <TableRow className="border-b-4 border-gray-600">
+                            <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
+                                Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            </TableHead>
+                            <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
+                                Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            </TableHead>
+                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
+                                Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            </TableHead>
+                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
+                                Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            </TableHead>
+                            <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
+                                Amount {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {sortTransactions(carlosTransactions).map((transaction) => (
+                            <TableRow key={transaction.id}>
+                                <TableCell className="w-16">{transaction.id}</TableCell>
+                                <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                                <TableCell className="w-48">{transaction.description}</TableCell>
+                                <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
+                                <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                    {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </CardContent>
         </Card>
@@ -179,39 +183,40 @@ const [amandaTransactions] = useState<Transaction[]>([
             <CardTitle>Amanda&apos;s Transactions</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}> {/* Explicit monospace font */}
-              <TableHeader>
-                <TableRow className="border-b-2 border-gray-300">
-                  <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
-                    Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
-                    Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
-                    Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
-                    Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
-                    Value {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortTransactions(amandaTransactions).map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="w-16">{transaction.id}</TableCell>
-                    <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="w-48">{transaction.description}</TableCell>
-                    <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
-                    <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+            <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
+                <TableHeader>
+                    <TableRow className="border-b-4 border-gray-600">
+                        <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('id')}>
+                            Id {sortConfig?.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('date')}>
+                            Date {sortConfig?.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('description')}>
+                            Description {sortConfig?.key === 'description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('comment')}>
+                            Comment {sortConfig?.key === 'comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('amount')}>
+                            Amount {sortConfig?.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {sortTransactions(amandaTransactions).map((transaction) => (
+                        <TableRow key={transaction.id}>
+                            <TableCell className="w-16">{transaction.id}</TableCell>
+                            <TableCell className="w-32">{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                            <TableCell className="w-48">{transaction.description}</TableCell>
+                            <TableCell className="w-48">{transaction.comment || 'N/A'}</TableCell>
+                            <TableCell className={`w-24 text-right ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                {transaction.amount < 0 ? '-' : '+'}
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.amount))}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
             </Table>
           </CardContent>
         </Card>

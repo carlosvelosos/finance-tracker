@@ -33,26 +33,37 @@ import { Switch } from "@/components/ui/switch";
   };
 
 export default function FamilyFinancePage() {
-    // const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>([]);
     const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
     const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
     const [showComments, setShowComments] = useState(true); // State to toggle "Comment" column visibility
 
+    // Helper function to adjust the amount based on the Type
+    const adjustTransactionAmounts = (transactions: Transaction[]): Transaction[] => {
+        return transactions.map((transaction) => {
+        if (transaction.Type === 'Outcome' && transaction.Belopp && transaction.Belopp > 0) {
+            return { ...transaction, Belopp: -Math.abs(transaction.Belopp) };
+        } else if (transaction.Type === 'Income' && transaction.Belopp && transaction.Belopp < 0) {
+            return { ...transaction, Belopp: Math.abs(transaction.Belopp) };
+        }
+        return transaction;
+        });
+    };
+
     useEffect(() => {
         const fetchTransactions = async () => {
-          const { data, error } = await supabase
-            .from('BR_Inter_all_data')
-            .select('*');
+            const { data, error } = await supabase
+                .from('BR_Inter_all_data')
+                .select('*');
     
-          if (error) {
-            console.error('Error fetching transactions:', error);
-          } else {
-            // setTransactions(data as Transaction[]);
-            setAmandaTransactions(data.filter((transaction) => transaction.Person === 'Amanda'));
-            setUsTransactions(data.filter((transaction) => transaction.Person === 'us'));
-            setMeTransactions(data.filter((transaction) => transaction.Person === 'me'));
-          }
+            if (error) {
+                console.error('Error fetching transactions:', error);
+            } else {
+                const adjustedTransactions = adjustTransactionAmounts(data as Transaction[]);
+                setAmandaTransactions(adjustedTransactions.filter((transaction) => transaction.Person === 'Amanda'));
+                setUsTransactions(adjustedTransactions.filter((transaction) => transaction.Person === 'us'));
+                setMeTransactions(adjustedTransactions.filter((transaction) => transaction.Person === 'me'));
+            }
         };
     
         fetchTransactions();
@@ -138,10 +149,26 @@ export default function FamilyFinancePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
-            <CardTitle>Total Balance</CardTitle>
+            <CardTitle>Carlos</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl text-green-600">$12,345.67</p>
+            <div className="text-xl">
+              <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                  amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
+                )}
+              </p>
+              <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                  usTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
+                )}
+              </p>
+              {/* <p className={`${meTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                Me: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                  meTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0)
+                )}
+              </p> */}
+            </div>
           </CardContent>
         </Card>
         <Card>

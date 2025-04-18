@@ -170,7 +170,7 @@ export default function FamilyFinancePage() {
             <CardContent>
                 <Accordion type="single" collapsible>
                     {/* Amanda Section */}
-                    <AccordionItem value="amanda">
+                    <AccordionItem value="Amanda">
                         <AccordionTrigger>Amanda</AccordionTrigger>
                         <AccordionContent>
                         <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
@@ -179,9 +179,8 @@ export default function FamilyFinancePage() {
                                     <TableHead>Id</TableHead>
                                     <TableHead>Date</TableHead>
                                     <TableHead>Description</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Amount</TableHead>
                                     <TableHead>Comment</TableHead>
+                                    <TableHead>Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -190,9 +189,8 @@ export default function FamilyFinancePage() {
                                     <TableCell>{transaction.Id}</TableCell>
                                     <TableCell>{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
                                     <TableCell>{transaction.Beskrivning || 'N/A'}</TableCell>
-                                    <TableCell>{transaction.Category || 'N/A'}</TableCell>
-                                    <TableCell>{formatCurrency(transaction.Belopp)}</TableCell>
                                     <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                                    <TableCell>{formatCurrency(transaction.Belopp)}</TableCell>
                                 </TableRow>
                             ))}
                             </TableBody>
@@ -201,8 +199,8 @@ export default function FamilyFinancePage() {
                     </AccordionItem>
 
                     {/* Us Section */}
-                    <AccordionItem value="us">
-                        <AccordionTrigger>Us</AccordionTrigger>
+                    <AccordionItem value="US">
+                        <AccordionTrigger>US</AccordionTrigger>
                         <AccordionContent>
                             <Table>
                                 <TableHeader>
@@ -232,8 +230,8 @@ export default function FamilyFinancePage() {
                     </AccordionItem>
 
                     {/* Me Section */}
-                    <AccordionItem value="me">
-                        <AccordionTrigger>Me</AccordionTrigger>
+                    <AccordionItem value="Carlos">
+                        <AccordionTrigger>Carlos</AccordionTrigger>
                         <AccordionContent>
                             <Table>
                                 <TableHeader>
@@ -270,43 +268,67 @@ export default function FamilyFinancePage() {
           <CardHeader>
             <CardTitle>Amanda&apos;s Transactions</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
-                <TableHeader>
-                    <TableRow className="border-b-4 border-gray-600">
-                        <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('Id')}>
-                            Id {sortConfig?.key === ('id' as keyof Transaction) && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                        </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('Datum')}>
-                            Date {sortConfig?.key === 'Datum' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                        </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning')}>
-                            Description {sortConfig?.key === 'Beskrivning' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                        </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment')}>
-                            Comment {sortConfig?.key === 'Comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                        </TableHead>
-                        <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp')}>
-                            Amount {sortConfig?.key === 'Belopp' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                        </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {sortTransactions(amandaTransactionsamanda).map((transaction) => (
-                        <TableRow key={transaction.Id}>
-                            <TableCell className="w-16">{transaction.Id}</TableCell>
-                            <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
-                            <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
-                            <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
-                            <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-          </CardContent>
+            <CardContent>
+                    <Accordion type="single" collapsible>
+                        {/* Amanda Section */}
+                        <AccordionItem value="Amanda">
+                            <AccordionTrigger>Amanda</AccordionTrigger>
+                            <AccordionContent>
+                                <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
+                                    <TableHeader>
+                                        <TableRow className="border-b-4 border-gray-600">
+                                            <TableHead className="font-bold cursor-pointer w-16" onClick={() => handleSort('Id')}>
+                                                Id {sortConfig?.key === ('id' as keyof Transaction) && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </TableHead>
+                                            <TableHead className="font-bold cursor-pointer w-32" onClick={() => handleSort('Datum')}>
+                                                Date {sortConfig?.key === 'Datum' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </TableHead>
+                                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Beskrivning')}>
+                                                Description {sortConfig?.key === 'Beskrivning' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </TableHead>
+                                            <TableHead className="font-bold cursor-pointer w-48" onClick={() => handleSort('Comment')}>
+                                                Comment {sortConfig?.key === 'Comment' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </TableHead>
+                                            <TableHead className="font-bold cursor-pointer w-24 text-right" onClick={() => handleSort('Belopp')}>
+                                                Amount {sortConfig?.key === 'Belopp' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {sortTransactions(amandaTransactionsamanda).map((transaction) => (
+                                            <TableRow key={transaction.Id}>
+                                                <TableCell className="w-16">{transaction.Id}</TableCell>
+                                                <TableCell className="w-32">{transaction.Datum ? new Date(transaction.Datum).toLocaleDateString() : 'N/A'}</TableCell>
+                                                <TableCell className="w-48">{transaction.Beskrivning}</TableCell>
+                                                <TableCell className="w-48">{transaction.Comment || 'N/A'}</TableCell>
+                                                <TableCell className={`w-24 text-right ${transaction.Belopp && transaction.Belopp < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                                    {transaction.Belopp && transaction.Belopp < 0 ? '-' : '+'}
+                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(transaction.Belopp ?? 0))}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </AccordionContent>
+                    </AccordionItem>
+
+                    {/* Us Section */}
+                    <AccordionItem value="US">
+                        <AccordionTrigger>US</AccordionTrigger>
+                        <AccordionContent>
+                            No content yet.
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    {/* Me Section */}
+                    <AccordionItem value="Carlos">
+                        <AccordionTrigger>Carlos</AccordionTrigger>
+                        <AccordionContent>
+                            No content yet.
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </CardContent>
         </Card>
       </div>
     </div>

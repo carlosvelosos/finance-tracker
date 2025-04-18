@@ -157,7 +157,7 @@ export default function FamilyFinancePage() {
                     Amanda&apos;s table contains the transactions made using Carlos&apos; credit card for Amanda&apos;s purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda&apos;s visit to Sweden.
                 </p>
                 <p className="text-xs mb-6"> 
-                    The table "US" displays the shared expenses in Brasil, using Carlos&apos; credit card.
+                    The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
                 </p>
                 <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Belopp || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
                     Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(

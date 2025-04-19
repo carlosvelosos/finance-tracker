@@ -164,6 +164,9 @@ export default function FamilyFinancePage() {
                     <p className="text-xs mb-6"> 
                         The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
                     </p>
+                    <p className="text-xs mb-6 bg-yellow-100 text-red-600"> 
+                        Check if the KLM flight ticked I bought for Amanda is taken into account.
+                    </p>
                     <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
                         Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                         amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)

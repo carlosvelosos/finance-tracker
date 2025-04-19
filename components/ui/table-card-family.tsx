@@ -113,7 +113,10 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
                         </TableHeader>
                         <TableBody>
                           {sortTransactions(section.transactions, section.sortConfig).map((transaction) => (
-                            <TableRow key={transaction.id} className="text-xs">
+                            <TableRow
+                            key={`${transaction.Date}-${transaction.id}`} // Combine Date and id for a unique key
+                            className="text-xs"
+                            >
                               {showId && <TableCell className="w-16">{transaction.id}</TableCell>}
                               {showDate && (
                                 <TableCell className="w-32">

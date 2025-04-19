@@ -43,19 +43,28 @@ export default function FamilyFinancePage() {
     useEffect(() => {
         const fetchTransactions = async () => {
             console.log('Fetching transactions from Supabase...'); // Debug log
+    
+            // Fetch data from both tables
+            const { data: data2024, error: error2024 } = await supabase
+                .from('Brasil_transactions_agregated_2024')
+                .select('*');
 
-            const { data, error } = await supabase
+            const { data: data2025, error: error2025 } = await supabase
                 .from('Brasil_transactions_agregated_2025')
                 .select('*');
     
-            if (error) {
-                console.error('Error fetching transactions:', error);
+            if (error2024 || error2025) {
+                console.error('Error fetching transactions:', error2024 || error2025);
             } else {
-                console.log('Fetched transactions:', data); // Log the fetched data
-
-                const adjustedTransactions = adjustTransactionAmounts(data as Transaction[]);
+                console.log('Fetched transactions from 2024:', data2024); // Log 2024 data
+                console.log('Fetched transactions from 2025:', data2025); // Log 2025 data
+    
+                // Combine data from both years
+                const combinedData = [...(data2024 || []), ...(data2025 || [])];
+    
+                const adjustedTransactions = adjustTransactionAmounts(combinedData as Transaction[]);
                 console.log('Adjusted transactions:', adjustedTransactions);
-
+    
                 setAmandaTransactions(adjustedTransactions.filter((transaction) => transaction.Responsible === 'Amanda'));
                 setUsTransactions(adjustedTransactions.filter((transaction) => transaction.Responsible === 'us'));
                 setMeTransactions(adjustedTransactions.filter((transaction) => transaction.Responsible === 'Carlos'));

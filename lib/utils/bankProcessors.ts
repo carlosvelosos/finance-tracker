@@ -65,7 +65,7 @@ export function processInterBR(data: string[][], fileName: string) {
 
     // Clean the description and comment fields
     const description = row[1]?.trim().replace(/"/g, "") || ""; // Remove quotes
-    const comment = row[3]?.trim().replace(/"/g, "") || ""; // Remove quotes
+    const comment = `Outcome - ${row[3]?.trim().replace(/"/g, "") || ""}`; // Add "Outcome - " prefix to the comment
 
     return {
       id: index + 1, // Sequential ID

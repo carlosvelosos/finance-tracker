@@ -126,28 +126,43 @@ export function processAmex(data: string[][], fileName: string) {
   const transactions = data.slice(1) // Skip header row
     .filter(row => row.length >= 3) // Ensure at least 3 columns
     .map((row, index) => {
-      let rawAmount = "";
-
-      // Use the final two columns for the amount, merging them with a dot separator
-      if (row.length >= 2) {
-        rawAmount = `${row[row.length - 2]}.${row[row.length - 1]}`; // Insert "." between the last two columns
-      } else {
-        rawAmount = String(row[2] || "").trim();
+      // Parse date (converting from MM/DD/YYYY to YYYY-MM-DD)
+      const rawDate = row[0]?.trim() || "";
+      let formattedDate = null;
+      if (rawDate) {
+        const dateParts = rawDate.split("/");
+        if (dateParts.length === 3) {
+          // Convert from MM/DD/YYYY to YYYY-MM-DD
+          formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`;
+        }
       }
 
-      // Remove unwanted characters (quotes, spaces)
-      const cleanAmount = rawAmount.replace(/[^0-9.-]/g, ""); 
+      // Clean description
+      const description = row[1]?.trim().replace(/"/g, "") || "";
 
-      // Convert to a floating-point number
-      const finalAmount = parseFloat(cleanAmount);
+      // Extract and clean the amount (Belopp column)
+      const rawAmount = row[2]?.trim().replace(/"/g, "") || "0";
+      console.log(`Row ${index + 1} - Raw Amount: "${rawAmount}"`);
 
-      console.log(`Row ${index + 1} - Raw: "${rawAmount}", Clean: "${cleanAmount}", Final: ${finalAmount}`);
+      // Clean amount - handle European format with comma as decimal separator
+      const cleanedAmount = rawAmount
+        .replace(/\s/g, "") // Remove spaces
+        .replace(/\./g, "") // Remove thousand separators (dots)
+        .replace(",", "."); // Replace comma with dot for decimal point
+      
+      console.log(`Row ${index + 1} - Cleaned Amount: "${cleanedAmount}"`);
+      
+      // Parse as float
+      const amount = parseFloat(cleanedAmount) || 0;
+      console.log(`Row ${index + 1} - Final Amount: ${amount}`);
 
       return {
         id: index + 1, // Sequential ID
-        Date: row[0], // Datum -> Date
-        Description: row[1].trim(), // Beskrivning -> Trimmed Description
-        Amount: finalAmount, // Convert to float
+        Date: formattedDate, // Formatted date in YYYY-MM-DD
+        Description: description, // Cleaned description
+        Amount: amount, // Parsed amount
+        // Additional fields from the new format can be added here if needed
+        // Comment: row[3]?.trim() || row[4]?.trim() || null // Using "Utökade specifikationer" or "Visas på ditt kontoutdrag som" as comment
       };
     });
 

@@ -105,7 +105,7 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
                   <AccordionTrigger className="flex justify-between">
                     <div className="flex w-full items-center justify-between">
                       <span>{section.name}</span>
-                      <div className="flex space-x-4">
+                      <div className="hidden lg:flex space-x-4">
                         <span className="text-green-600">+{formatCurrency(positiveSum)}</span>
                         <span className="text-red-600">-{formatCurrency(Math.abs(negativeSum))}</span>
                         <span className={`font-bold ${netTotal < 0 ? 'text-red-600' : 'text-green-600'}`}>

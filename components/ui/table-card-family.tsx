@@ -91,7 +91,7 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
     };
 
     return (
-      <Card>
+      <Card className='border-none shadow-none'>
         <CardHeader>
           <CardTitle>{title}</CardTitle>
         </CardHeader>

@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import TableCardFamily from "@/components/ui/table-card-family";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 type Transaction = {
     id: number; // Corresponds to the `id` column (bigint, primary key)
@@ -153,54 +154,76 @@ export default function FamilyFinancePage() {
         {/* Main Summary Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Card>
-            <CardHeader>
-                <CardTitle>Carlos</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="text-xl">
-                    <p className="text-xs mb-6"> 
-                        Amanda&apos;s table contains the transactions made using Carlos&apos; credit card for Amanda&apos;s purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda&apos;s visit to Sweden.
-                    </p>
-                    <p className="text-xs mb-6"> 
-                        The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
-                    </p>
-                    <p className="text-xs mb-6 bg-yellow-100 text-red-600"> 
-                        Check if the KLM flight ticked I bought for Amanda is taken into account.
-                    </p>
-                    <p>
-                        Carlos&apos; total expenses:
-                    </p>
-                    <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                        )}
-                    </p>
-                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                        )}
-                    </p>
-                    <p className={`${(amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        Amanda + (Us / 2): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
-                        (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
-                        )}
-                    </p>
-                    <p>
-                        Amanda&apos;s total expenses:
-                    </p>
-                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                        )}
-                    </p>
-                    <p className={`${(usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        Us / 2: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
-                        )}
-                    </p>
-                </div>
-            </CardContent>
+                <CardHeader>
+                    <CardTitle>Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-xl">
+                        <p>
+                            Amandas&apos; balance: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                            amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
+                            (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) - 
+                            (usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
+                            )}
+                        </p>
+                        <Accordion type="single" collapsible>
+                            <AccordionItem value="summary">
+                                <AccordionTrigger>Summary Details</AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="text-xs mb-6"> 
+                                        Amanda&apos;s table contains the transactions made using Carlos&apos; credit card for Amanda&apos;s purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda&apos;s visit to Sweden.
+                                    </p>
+                                    <p className="text-xs mb-6"> 
+                                        The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
+                                    </p>
+                                    <p className="text-xs mb-6 bg-yellow-100 text-red-600"> 
+                                        Check if the KLM flight ticked I bought for Amanda is taken into account.
+                                    </p>
+                                    <p>
+                                        Carlos&apos; total expenses:
+                                    </p>
+                                    <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                                        )}
+                                    </p>
+                                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                        usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                                        )}
+                                    </p>
+                                    <p className={`${(amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        Amanda + (Us / 2): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
+                                        (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
+                                        )}
+                                    </p>
+                                    <p>
+                                        Amanda&apos;s total expenses:
+                                    </p>
+                                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                        usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                                        )}
+                                    </p>
+                                    {(() => {
+                                        const usDividedByTwo = usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2;
+                                        return (
+                                            <>
+                                                <p className={`${usDividedByTwo < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                                    Us / 2: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(usDividedByTwo)}
+                                                </p>
+                                                {/* <p>
+                                                    Value saved for later use: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(usDividedByTwo)}
+                                                </p> */}
+                                            </>
+                                        );
+                                    })()}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                    </div>
+                </CardContent>
             </Card>
 
             <Card>

@@ -153,7 +153,7 @@ export default function FamilyFinancePage() {
     <div className="p-6">
         {/* Main Summary Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
+            <Card className='border-none shadow-none'>
                 <CardHeader>
                     <CardTitle>Summary</CardTitle>
                 </CardHeader>
@@ -226,7 +226,7 @@ export default function FamilyFinancePage() {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className='border-none shadow-none'>
                 <CardHeader>
                     <CardTitle>Sweden Dec 24 - Jan 25</CardTitle>
                 </CardHeader>
@@ -247,7 +247,7 @@ export default function FamilyFinancePage() {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className='border-none shadow-none'>
                 <CardHeader>
                     <CardTitle>Brasil Fev-Mar 25</CardTitle>
                 </CardHeader>

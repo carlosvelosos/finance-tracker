@@ -58,16 +58,62 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
     handleSort,
     sortTransactions,
   }) => {
+    // Function to calculate summary values for a section
+    const calculateSectionSummary = (transactions: Transaction[]) => {
+      let positiveSum = 0;
+      let negativeSum = 0;
+      
+      transactions.forEach(transaction => {
+        const amount = transaction.Amount || 0;
+        if (amount > 0) {
+          positiveSum += amount;
+        } else if (amount < 0) {
+          negativeSum += amount;
+        }
+      });
+      
+      const netTotal = positiveSum + negativeSum;
+      
+      return {
+        positiveSum,
+        negativeSum,
+        netTotal
+      };
+    };
+    
+    // Currency formatter
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL',
+        minimumFractionDigits: 2
+      }).format(Math.abs(amount));
+    };
+
     return (
-        <Card>
-          <CardHeader>
-            <CardTitle>{title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Accordion type="single" collapsible>
-              {sections.map((section) => (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Accordion type="single" collapsible>
+            {sections.map((section) => {
+              const { positiveSum, negativeSum, netTotal } = calculateSectionSummary(section.transactions);
+              
+              return (
                 <AccordionItem key={section.name} value={section.name}>
-                  <AccordionTrigger>{section.name}</AccordionTrigger>
+                  <AccordionTrigger className="flex justify-between">
+                    <div className="flex w-full items-center justify-between">
+                      <span>{section.name}</span>
+                      <div className="flex space-x-4">
+                        <span className="text-green-600">+{formatCurrency(positiveSum)}</span>
+                        <span className="text-red-600">-{formatCurrency(Math.abs(negativeSum))}</span>
+                        <span className={`font-bold ${netTotal < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {netTotal < 0 ? '-' : '+'}{formatCurrency(Math.abs(netTotal))}
+                        </span>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
                   <AccordionContent>
                     {section.transactions.length > 0 ? (
                       <Table style={{ fontFamily: 'Menlo, Monaco, Consolas, Courier New, monospace' }}>
@@ -144,10 +190,11 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
                     )}
                   </AccordionContent>
                 </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-        </Card>
+              );
+            })}
+          </Accordion>
+        </CardContent>
+      </Card>
       );
     };
     

@@ -167,6 +167,9 @@ export default function FamilyFinancePage() {
                     <p className="text-xs mb-6 bg-yellow-100 text-red-600"> 
                         Check if the KLM flight ticked I bought for Amanda is taken into account.
                     </p>
+                    <p>
+                        Carlos&apos; total expenses:
+                    </p>
                     <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
                         Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                         amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
@@ -183,11 +186,19 @@ export default function FamilyFinancePage() {
                         (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
                         )}
                     </p>
-                {/* <p className={`${meTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    Me: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                    meTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                    )}
-                </p> */}
+                    <p>
+                        Amanda&apos;s total expenses:
+                    </p>
+                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                        )}
+                    </p>
+                    <p className={`${(usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        Us / 2: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
+                        )}
+                    </p>
                 </div>
             </CardContent>
             </Card>

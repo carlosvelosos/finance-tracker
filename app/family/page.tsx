@@ -228,21 +228,41 @@ export default function FamilyFinancePage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Monthly Income</CardTitle>
+                    <CardTitle>Sweden Dec 24 - Jan 25</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-xl text-blue-600">$4,500.00</p>
+                    <p className="text-xl">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                            amandaTransactions
+                                .filter(transaction => transaction.Date && new Date(transaction.Date) <= new Date('2025-01-31'))
+                                .reduce((total, transaction) => total + (transaction.Amount || 0), 0) +
+                            usTransactions
+                                .filter(transaction => transaction.Date && new Date(transaction.Date) <= new Date('2025-01-31'))
+                                .reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2 -
+                                usTransactionsAmanda
+                                .filter(transaction => transaction.Date && new Date(transaction.Date) <= new Date('2025-01-31'))
+                                .reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
+                        )}
+                    </p>
                 </CardContent>
             </Card>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Amanda</CardTitle>
+                    <CardTitle>Brasil Fev-Mar 25</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className={`text-xl ${usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    <p className="text-xl">
                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                            usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount ?? 0), 0)
+                            amandaTransactions
+                                .filter(transaction => transaction.Date && new Date(transaction.Date) >= new Date('2025-02-01') && new Date(transaction.Date) <= new Date('2025-03-31'))
+                                .reduce((total, transaction) => total + (transaction.Amount || 0), 0) +
+                            usTransactions
+                                .filter(transaction => transaction.Date && new Date(transaction.Date) >= new Date('2025-02-01') && new Date(transaction.Date) <= new Date('2025-03-31'))
+                                .reduce((total, transaction) => total + (transaction.Amount || 0), 0) -
+                            usTransactionsAmanda
+                                .filter(transaction => transaction.Date && new Date(transaction.Date) >= new Date('2025-02-01') && new Date(transaction.Date) <= new Date('2025-03-31'))
+                                .reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
                         )}
                     </p>
                 </CardContent>

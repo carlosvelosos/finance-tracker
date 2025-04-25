@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ProtectedRoute from '@/components/protected-route';
 
 const BANK_OPTIONS = ["DEV", "Inter-BR", "Handelsbanken-SE", "AmericanExpress-SE", "SEB_SJ_Prio-SE"];
 

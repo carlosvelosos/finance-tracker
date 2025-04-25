@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import TableCardFamily from "@/components/ui/table-card-family";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import ProtectedRoute from '@/components/protected-route';
 
 type Transaction = {
     id: number; // Corresponds to the `id` column (bigint, primary key)

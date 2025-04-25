@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react'; // Icons for the hamburger menu
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {

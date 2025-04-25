@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../context/AuthContext';
 import { CustomBarChart } from '@/components/ui/custombarchart';
+import ProtectedRoute from '@/components/protected-route';
 
 type Transaction = {
   id: number;
@@ -42,6 +43,7 @@ export default function CategoryChartPage() {
   }
 
   return (
+    <ProtectedRoute>
     // <div className="container mx-auto p-4">
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="pt-8 pb-8">
@@ -54,5 +56,6 @@ export default function CategoryChartPage() {
         />
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

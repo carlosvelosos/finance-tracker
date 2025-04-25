@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ProtectedRoute from '@/components/protected-route';
 
 type Bill = {
   id: number;

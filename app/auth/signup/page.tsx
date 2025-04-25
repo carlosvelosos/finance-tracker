@@ -6,21 +6,80 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+// import supabase from "@/lib/supabase";
+import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+      toast.error("Passwords don't match!");
       return;
     }
-    console.log("Signup attempt:", { name, email, password });
-    // Add your registration logic here
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Sign up with email and password
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Registration successful! Please check your email for verification.");
+      router.push('/auth/login');
+      
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during registration");
+      console.error("Registration error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthSignup = async (provider: 'google' | 'apple') => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+      
+    } catch (error: any) {
+      toast.error(error.message || `Error signing up with ${provider}`);
+      console.error(`${provider} signup error:`, error);
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,7 +117,8 @@ export default function SignupPage() {
             <Button 
               variant="outline" 
               className="w-full mb-3 flex items-center justify-center"
-              onClick={() => console.log("Sign up with Apple")}
+              onClick={() => handleOAuthSignup('apple')}
+              disabled={loading}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                 <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
@@ -70,7 +130,8 @@ export default function SignupPage() {
             <Button 
               variant="outline" 
               className="w-full mb-6 flex items-center justify-center"
-              onClick={() => console.log("Sign up with Google")}
+              onClick={() => handleOAuthSignup('google')}
+              disabled={loading}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="mr-2">
                 <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115Z" />
@@ -102,6 +163,7 @@ export default function SignupPage() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   className="w-full"
+                  disabled={loading}
                 />
               </div>
               
@@ -117,6 +179,7 @@ export default function SignupPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full"
+                  disabled={loading}
                 />
               </div>
 
@@ -131,6 +194,7 @@ export default function SignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full"
+                  disabled={loading}
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   Must be at least 8 characters with a number and special character
@@ -148,11 +212,16 @@ export default function SignupPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   className="w-full"
+                  disabled={loading}
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-black hover:bg-gray-800 text-white">
-                Create account
+              <Button 
+                type="submit" 
+                className="w-full bg-black hover:bg-gray-800 text-white"
+                disabled={loading}
+              >
+                {loading ? "Creating account..." : "Create account"}
               </Button>
             </form>
 

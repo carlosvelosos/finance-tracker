@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
+import ProtectedRoute from '@/components/protected-route';
 
 type Transaction = {
   id: number;

@@ -14,6 +14,7 @@ import {
 // import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
+import ProtectedRoute from '@/components/protected-route';
 
 type Transaction = {
   id: number;
@@ -152,6 +153,7 @@ import {
     }
   
     return (
+      <ProtectedRoute>
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">American Express Transactions</h1>
 
@@ -330,5 +332,6 @@ import {
           </AccordionItem>
         </Accordion>
       </div>
+      </ProtectedRoute>
     );
   }

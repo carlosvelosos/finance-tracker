@@ -70,6 +70,7 @@ export default function BillsPage() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">Bills to Be Paid</h1>
 
@@ -131,5 +132,6 @@ export default function BillsPage() {
         </TableBody>
       </Table>
     </div>
+    </ProtectedRoute>
   );
 }

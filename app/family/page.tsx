@@ -151,6 +151,7 @@ export default function FamilyFinancePage() {
     };
 
   return (
+    <ProtectedRoute>
     <div className="p-6">
         {/* Main Summary Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -362,5 +363,6 @@ export default function FamilyFinancePage() {
             /> 
         </div>
     </div>
+    </ProtectedRoute>
   );
 }

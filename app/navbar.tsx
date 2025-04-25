@@ -166,13 +166,12 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button
-              onClick={handleLogin}
-              variant="ghost"
+            <Link
+              href="/login"
               className="text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 hover:underline hover:text-green-600 transition-colors duration-200 ml-auto"
             >
               Log In
-            </Button>
+            </Link>
           )}
         </div>
       </div>

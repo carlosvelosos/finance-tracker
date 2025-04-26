@@ -1,7 +1,7 @@
 import { AuthProvider } from '../context/AuthContext';
 import './globals.css';
-import Navbar from './navbar'; // Import Navbar as a separate client component
-import { Toaster } from '@/components/ui/sonner'; // Import the Sonner Toaster component
+import NavbarWrapper from './NavbarWrapper'; // We'll create this component
+import { Toaster } from '@/components/ui/sonner';
 
 export default function RootLayout({
   children,
@@ -12,8 +12,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <Navbar /> {/* Navbar is now a client component */}
-          <Toaster /> {/* Add the Sonner Toaster component here */}
+          <NavbarWrapper /> {/* Wrapper that conditionally renders the navbar */}
+          <Toaster />
           <main>{children}</main>
         </AuthProvider>
       </body>

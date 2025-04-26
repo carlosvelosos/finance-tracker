@@ -15,7 +15,7 @@ export function FinanceSummaryCard({
   usTransactionsAmanda 
 }: FinanceSummaryCardProps) {
   return (
-    <Card className='border-none shadow-none'>
+    <Card className='border border-gray-300 shadow-none'>
       <CardHeader>
         <CardTitle>Summary</CardTitle>
       </CardHeader>

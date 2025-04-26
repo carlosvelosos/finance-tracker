@@ -165,14 +165,14 @@ export default function FamilyFinancePage() {
       <div className="p-6">
         {/* Main Summary Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        {/* Left Column: Summary Card (25% width) */}
-        <div className="md:col-span-1">
-            <FinanceSummaryCard 
-            amandaTransactions={amandaTransactions}
-            usTransactions={usTransactions}
-            usTransactionsAmanda={usTransactionsAmanda}
-            />
-        </div>
+            {/* Left Column: Summary Card (25% width) */}
+            <div className="md:col-span-1">
+                <FinanceSummaryCard 
+                amandaTransactions={amandaTransactions}
+                usTransactions={usTransactions}
+                usTransactionsAmanda={usTransactionsAmanda}
+                />
+            </div>
         
             {/* Right Column: Detail Cards (75% width) */}
             <div className="md:col-span-3">

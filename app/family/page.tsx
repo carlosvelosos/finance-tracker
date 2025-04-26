@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import TableCardFamily from "@/components/ui/table-card-family";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import ProtectedRoute from '@/components/protected-route';
 import { Separator } from "@/components/ui/separator";
 import { FinanceSummaryCard } from '@/components/ui/finance-summary-card';

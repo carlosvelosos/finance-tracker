@@ -23,7 +23,15 @@ export function FinanceSummaryCard({
         <div className="text-xl">
             <p className="flex items-center gap-2">
             <span>Amanda&apos;s balance:</span>
-            <span className="whitespace-nowrap">
+            <span 
+              className={`whitespace-nowrap ${
+              amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
+              (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) - 
+              (usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) >= 0 
+              ? 'text-green-500' 
+              : 'text-red-500'
+              }`}
+            >
               {new Intl.NumberFormat('pt-BR', { 
               style: 'currency', 
               currency: 'BRL', 

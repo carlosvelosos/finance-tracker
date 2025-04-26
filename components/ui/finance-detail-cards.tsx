@@ -205,7 +205,7 @@ export function FinanceDetailCards({
               <AccordionTrigger className="text-xs">View All Merchants</AccordionTrigger>
               <AccordionContent>
                 <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
-                  {(() => {
+                    {(() => {
                     const amandaFiltered = amandaTransactions.filter(transaction => 
                       transaction.Date && 
                       new Date(transaction.Date) <= new Date('2025-01-31') &&
@@ -220,7 +220,7 @@ export function FinanceDetailCards({
                     const merchants = amandaFiltered.reduce((acc, transaction) => {
                       const key = transaction.Description || 'Unknown';
                       if (!acc[key]) {
-                        acc[key] = 0;
+                      acc[key] = 0;
                       }
                       acc[key] += transaction.Amount || 0;
                       return acc;
@@ -230,14 +230,14 @@ export function FinanceDetailCards({
                     return Object.entries(merchants)
                       .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
                       .map(([name, amount]) => (
-                        <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
-                          <span className="truncate mr-2">{name}</span>
-                          <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
-                          </span>
-                        </div>
+                      <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                        <span className="truncate w-3/5 pr-2">{name}</span>
+                        <span className={`w-2/5 text-right ${amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                        </span>
+                      </div>
                       ));
-                  })()}
+                    })()}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -367,17 +367,17 @@ export function FinanceDetailCards({
               <AccordionTrigger className="text-xs">View All Brazil Merchants</AccordionTrigger>
               <AccordionContent>
                 <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
-                  {(() => {
+                    {(() => {
                     const allTransactions = [
                       ...usTransactions.filter(transaction => 
-                        transaction.Date && 
-                        new Date(transaction.Date) >= new Date('2025-02-01') && 
-                        new Date(transaction.Date) <= new Date('2025-03-31')
+                      transaction.Date && 
+                      new Date(transaction.Date) >= new Date('2025-02-01') && 
+                      new Date(transaction.Date) <= new Date('2025-03-31')
                       ),
                       ...usTransactionsAmanda.filter(transaction => 
-                        transaction.Date && 
-                        new Date(transaction.Date) >= new Date('2025-02-01') && 
-                        new Date(transaction.Date) <= new Date('2025-03-31')
+                      transaction.Date && 
+                      new Date(transaction.Date) >= new Date('2025-02-01') && 
+                      new Date(transaction.Date) <= new Date('2025-03-31')
                       )
                     ];
                     
@@ -385,7 +385,7 @@ export function FinanceDetailCards({
                     const merchants = allTransactions.reduce((acc, transaction) => {
                       const key = transaction.Description || 'Unknown';
                       if (!acc[key]) {
-                        acc[key] = 0;
+                      acc[key] = 0;
                       }
                       acc[key] += transaction.Amount || 0;
                       return acc;
@@ -395,14 +395,14 @@ export function FinanceDetailCards({
                     return Object.entries(merchants)
                       .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
                       .map(([name, amount]) => (
-                        <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
-                          <span className="truncate mr-2">{name}</span>
-                          <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
-                          </span>
-                        </div>
+                      <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                      <span className="truncate w-3/5 pr-2">{name}</span>
+                      <span className={`w-2/5 text-right ${amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                      </span>
+                      </div>
                       ));
-                  })()}
+                    })()}
                 </div>
               </AccordionContent>
             </AccordionItem>

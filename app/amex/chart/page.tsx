@@ -44,18 +44,17 @@ export default function CategoryChartPage() {
 
   return (
     <ProtectedRoute>
-    // <div className="container mx-auto p-4">
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="pt-8 pb-8">
-        <CustomBarChart
-          data={transactions} // Pass raw transaction data
-          // height={400}
-          barColor="hsl(var(--chart-1))"
-          title="Total Amount per Category"
-          description="Showing totals for American Express transactions"
-        />
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="pt-8 pb-8">
+          <CustomBarChart
+            data={transactions} // Pass raw transaction data
+            // height={400}
+            barColor="hsl(var(--chart-1))"
+            title="Total Amount per Category"
+            description="Showing totals for American Express transactions"
+          />
+        </div>
       </div>
-    </div>
     </ProtectedRoute>
   );
 }

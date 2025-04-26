@@ -1,46 +1,128 @@
 'use client';
 
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export default function LandingPage() {
+  const { user, loading } = useAuth();
+
+  // Show loading state while authentication status is being determined
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  // Return different UI based on authentication status
   return (
     <div className="relative min-h-screen bg-gray-100">
-      {/* Background Layer */}
-      {/* <div
-      className="absolute inset-0 bg-cover bg-center"
-      style={{
-        backgroundImage: "url('/micheile-henderson-lZ_4nPFKcV8-unsplash.jpg')", // Use the correct path for GitHub Pages
-        filter: 'saturate(0.75) brightness(0.75) contrast(1.05) grayscale(0.25)', // Apply filters only to the background
-      }}
-      ></div> */}
+      {user ? (
+        <AuthenticatedLandingPage />
+      ) : (
+        <UnauthenticatedLandingPage />
+      )}
 
-      {/* Content Layer */}
-      <div className="relative flex flex-col items-center justify-center min-h-screen">
+      {/* Footer - common to both versions */}
+      <footer className="absolute bottom-0 w-full text-center py-4 bg-black bg-opacity-50 text-white text-sm">
+        © {new Date().getFullYear()} Finance Tracker. All rights reserved.
+      </footer>
+    </div>
+  );
+}
+
+// Landing page for logged-in users
+function AuthenticatedLandingPage() {
+  return (
+    <div className="relative flex flex-col items-center py-16 px-4">
+      <h1 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#303030' }}>
+        Welcome back to Finance Tracker
+      </h1>
+      
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h2 className="text-xl font-bold mb-3 text-[#12A65C]">Upload Transactions</h2>
+          <p className="text-gray-600 mb-4">Import new transactions from your bank statements or credit cards.</p>
+          <Link href="/upload" className="inline-block text-[#12A65C] font-medium hover:underline">
+            Upload now →
+          </Link>
+        </Card>
+        
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h2 className="text-xl font-bold mb-3 text-[#12A65C]">View Insights</h2>
+          <p className="text-gray-600 mb-4">Analyze your spending habits and track your financial progress.</p>
+          <Link href="/insights" className="inline-block text-[#12A65C] font-medium hover:underline">
+            See insights →
+          </Link>
+        </Card>
+        
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h2 className="text-xl font-bold mb-3 text-[#12A65C]">Manage Family Expenses</h2>
+          <p className="text-gray-600 mb-4">Track and split shared expenses with your family members.</p>
+          <Link href="/family" className="inline-block text-[#12A65C] font-medium hover:underline">
+            Family dashboard →
+          </Link>
+        </Card>
+      </div>
+      
+      <div className="mt-12">
+        <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+        <div className="flex flex-wrap gap-4">
+          <Button asChild variant="outline">
+            <Link href="/transactions">View All Transactions</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/settings">Account Settings</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Landing page for non-logged-in users
+function UnauthenticatedLandingPage() {
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-4">
       <div className="text-center transform -translate-y-10 md:-translate-y-16">
         <h1 className="text-2xl md:text-6xl font-bold" style={{ color: '#303030' }}>
-        Welcome to Finance Tracker
+          Welcome to Finance Tracker
         </h1>
-        <p className="text-sm md:text-lg drop-shadow-lg mb-1" style={{ color: '#303030' }}>
-        Track your finances effortlessly. Manage your transactions, analyze your spending, and stay on top of your budget.
+        <p className="text-sm md:text-lg drop-shadow-lg mb-6 max-w-2xl mx-auto" style={{ color: '#303030' }}>
+          Track your finances effortlessly. Manage your transactions, analyze your spending, and stay on top of your budget.
         </p>
-        <nav className="flex justify-center gap-4 mt-8">
-        <Link href="/upload" className="md:text-xl font-bold text-[rgb(18,166,92)] hover:bg-green-50 hover:border hover:border-gray-500 rounded-3xl px-4 py-2 transition duration-300 ease-in-out">
-          UPLOAD TRANSACTIONS
-        </Link>
-        {/* <Link href="/about" className="text-[rgb(18,166,92)] hover:underline">
-          About Us
-        </Link>
-        <Link href="/contact" className="text-[rgb(18,166,92)] hover:underline">
-          Contact
-        </Link> */}
-        </nav>
+        
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+          <Button asChild className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white">
+            <Link href="/auth/signup">
+              Get Started
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/auth/login">
+              Log In
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-center">
+          <div className="p-4">
+            <h3 className="text-lg font-semibold mb-2 text-[#12A65C]">Simple Transaction Upload</h3>
+            <p className="text-gray-600">Upload your bank statements and credit card transactions with just a few clicks.</p>
+          </div>
+          <div className="p-4">
+            <h3 className="text-lg font-semibold mb-2 text-[#12A65C]">Powerful Analytics</h3>
+            <p className="text-gray-600">Gain insights into your spending habits and track financial patterns over time.</p>
+          </div>
+          <div className="p-4">
+            <h3 className="text-lg font-semibold mb-2 text-[#12A65C]">Family Expense Tracking</h3>
+            <p className="text-gray-600">Easily manage shared expenses and split costs between family members.</p>
+          </div>
+        </div>
       </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="absolute bottom-0 w-full text-center py-4 bg-black bg-opacity-50 text-white text-sm">
-      © {new Date().getFullYear()} Finance Tracker. All rights reserved.
-      </footer>
     </div>
   );
 }

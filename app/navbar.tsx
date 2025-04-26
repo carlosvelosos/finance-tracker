@@ -10,12 +10,48 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react'; // Icons for the hamburger menu
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
+
+// Define user types or roles
+type NavLink = {
+  href: string;
+  label: string;
+};
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
+
+  useEffect(() => {
+    // Determine which links to show based on the user's ID or metadata
+    if (user) {
+      // The specific user that should only see limited navigation
+      const restrictedUserId = '0a29c8db-018c-49cb-ac35-7ccf1719be2c';
+      
+      if (user.id === restrictedUserId) {
+        // Limited navigation for the specific user
+        setNavLinks([
+          { href: '/family', label: 'Family' },
+          { href: '/about', label: 'About' },
+          { href: '/contact', label: 'Contact' },
+        ]);
+      } else {
+        // Full navigation for all other users
+        setNavLinks([
+          { href: '/family', label: 'Family' },
+          { href: '/recurrent', label: 'Recurrent' },
+          { href: '/sjprio', label: 'SJ Prio' },
+          { href: '/amex', label: 'Amex' },
+          { href: '/handelsbanken', label: 'Handelsbanken' },
+          { href: '/global', label: 'Transactions' },
+          { href: '/about', label: 'About' },
+          { href: '/contact', label: 'Contact' },
+        ]);
+      }
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -26,29 +62,6 @@ export default function Navbar() {
     }
   };
 
-  const handleLogin = async () => {
-    const email = prompt('Please enter your email:');
-    if (email) {
-      const redirectUrl =
-        process.env.NODE_ENV === 'production'
-          ? 'https://finance-tracker-steel-five.vercel.app/' // Deployed version
-          : 'http://localhost:3000'; // Local development version
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      });
-
-      if (error) {
-        console.error('Error sending magic link:', error);
-      } else {
-        console.log('Magic link sent to your email!');
-      }
-    }
-  };
-
   const handleLinkClick = () => {
     setIsMenuOpen(false); // Close the menu
   };
@@ -56,7 +69,6 @@ export default function Navbar() {
   return (
     <nav className="bg-gray-100 text-gray-800 p-4 flex justify-between items-center shadow-md relative">
       {/* Logo or App Name */}
-      {/* <div className="lg:w-210 text-lg font-bold"> */}
       <div className="text-lg font-bold">
         <Link href="/" className="text-green-600 block px-4 py-2 hover:bg-green-50 hover:border hover:border-gray-500 rounded-3xl transition duration-300 ease-in-out">
           Finance Tracker
@@ -77,72 +89,23 @@ export default function Navbar() {
       <div
         className={`${
           isMenuOpen ? 'block' : 'hidden'
-        // } absolute top-full left-0 w-full bg-white shadow-md lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto lg:rounded-md z-50 border border-red-500`}
         } absolute top-full left-0 w-full bg-white lg:bg-transparent lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto z-50`}
       >
-        {/* Navigation Links */}
+        {/* Dynamic Navigation Links */}
         <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-200 lg:border-b lg:border-gray-200">
-          <Link
-            href="/family"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
+              onClick={handleLinkClick}
             >
-            Family
-          </Link>
-          <Link
-            href="/recurrent"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            Recurrent
-          </Link>
-          <Link
-            href="/sjprio"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            SJ Prio
-          </Link>
-          <Link
-            href="/amex"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            Amex
-          </Link>
-          <Link
-            href="/handelsbanken"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            Handelsbanken
-          </Link>
-          <Link
-            href="/global"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            Transactions
-          </Link>
-          <Link
-            href="/about"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            About
-          </Link>
-          <Link
-            href="/contact"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
-            onClick={handleLinkClick} // Close menu on click
-          >
-            Contact
-          </Link>
+              {link.label}
+            </Link>
+          ))}
         </div>
 
         {/* User Authentication */}
-        {/* <div className="lg:w-60 flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0 text-right"> */}
-        {/* <div className="lg:w-210 flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0"> */}
         <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0">
           {user ? (
             <DropdownMenu>

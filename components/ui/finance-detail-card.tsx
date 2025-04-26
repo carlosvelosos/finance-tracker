@@ -224,17 +224,17 @@ export function FinanceDetailCard({
                         return acc;
                       }, {} as Record<string, number>);
                       
-                      // Convert to array and sort by amount
+                      // Update the merchant list item in each accordion
                       return Object.entries(merchants)
-                        .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
-                        .map(([name, amount]) => (
-                          <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
-                            <span className="truncate mr-2">{name}</span>
-                            <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
-                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
-                            </span>
-                          </div>
-                        ));
+                      .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                      .map(([name, amount]) => (
+                        <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                          <span className="truncate w-1/2 pr-2">{name}</span>
+                          <span className={`w-1/2 text-right ${amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                          </span>
+                        </div>
+                      ));
                     })()}
                   </div>
                 </AccordionContent>
@@ -386,17 +386,17 @@ export function FinanceDetailCard({
                         return acc;
                       }, {} as Record<string, number>);
                       
-                      // Convert to array and sort by amount
+                      // Update the merchant list item in each accordion
                       return Object.entries(merchants)
-                        .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
-                        .map(([name, amount]) => (
-                          <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
-                            <span className="truncate mr-2">{name}</span>
-                            <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
-                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
-                            </span>
-                          </div>
-                        ));
+                      .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                      .map(([name, amount]) => (
+                        <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                          <span className="truncate w-1/2 pr-2">{name}</span>
+                          <span className={`w-1/2 text-right ${amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                          </span>
+                        </div>
+                      ));
                     })()}
                   </div>
                 </AccordionContent>

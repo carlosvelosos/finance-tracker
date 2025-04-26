@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -58,6 +58,17 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
     handleSort,
     sortTransactions,
   }) => {
+    // Add state to track which accordion items are open
+    const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+    
+    // Function to handle accordion toggle
+    const handleAccordionToggle = (sectionName: string) => {
+      setOpenItems(prev => ({
+        ...prev,
+        [sectionName]: !prev[sectionName]
+      }));
+    };
+    
     // Function to calculate summary values for a section
     const calculateSectionSummary = (transactions: Transaction[]) => {
       let positiveSum = 0;
@@ -96,22 +107,48 @@ const TableCardFamily: React.FC<TransactionCardProps> = ({
           <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Accordion type="single" collapsible>
-            {sections.map((section) => {
-              const { positiveSum, negativeSum, netTotal } = calculateSectionSummary(section.transactions);
+          <Accordion 
+              type="multiple" 
+              value={Object.keys(openItems).filter(key => openItems[key])}
+              onValueChange={(value) => {
+                const newOpenItems: Record<string, boolean> = {};
+                value.forEach(item => {
+                  newOpenItems[item] = true;
+                });
+                setOpenItems(newOpenItems);
+              }}
+            >
+              {sections.map((section) => {
+                const { positiveSum, negativeSum, netTotal } = calculateSectionSummary(section.transactions);
+                const isOpen = !!openItems[section.name];
               
               return (
                 <AccordionItem key={section.name} value={section.name}>
-                  <AccordionTrigger className="flex justify-between">
+                  <AccordionTrigger 
+                    className="flex justify-between"
+                    onClick={() => handleAccordionToggle(section.name)}
+                  >
                     <div className="flex w-full items-center justify-between">
                       <span>{section.name}</span>
-                      <div className="hidden lg:flex space-x-4">
+
+                      {/* <div className="hidden lg:flex space-x-4">
                         <span className="text-green-600">+{formatCurrency(positiveSum)}</span>
                         <span className="text-red-600">-{formatCurrency(Math.abs(negativeSum))}</span>
                         <span className={`font-bold ${netTotal < 0 ? 'text-red-600' : 'text-green-600'}`}>
                           {netTotal < 0 ? '-' : '+'}{formatCurrency(Math.abs(netTotal))}
                         </span>
-                      </div>
+                      </div> */}
+                      
+                      {/* Only show currency values when expanded */}
+                      {isOpen && (
+                        <div className="hidden lg:flex space-x-4 ml-4">
+                          <span className="text-green-600">+{formatCurrency(positiveSum)}</span>
+                          <span className="text-red-600">-{formatCurrency(Math.abs(negativeSum))}</span>
+                          <span className={`font-bold ${netTotal < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {netTotal < 0 ? '-' : '+'}{formatCurrency(Math.abs(netTotal))}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>

@@ -420,7 +420,7 @@ export default function FamilyFinancePage() {
             {/* Expenses in Brasil card */}
             <Card className='border border-gray-300 shadow-none'>
                 <CardHeader>
-                    <CardTitle>Brasil Fev-Mar 25</CardTitle>
+                    <CardTitle>Brasil Fev - Mar 25</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-xl font-bold mb-4">

@@ -27,11 +27,15 @@ export default function Navbar() {
   useEffect(() => {
     // Determine which links to show based on the user's ID or metadata
     if (user) {
-      // The specific user that should only see limited navigation
-      const restrictedUserId = '0a29c8db-018c-49cb-ac35-7ccf1719be2c';
+      // List of users that should only see limited navigation
+      const restrictedUserIds = [
+        '0a29c8db-018c-49cb-ac35-7ccf1719be2c', 
+        '382714ae-4c7c-4a32-9a7d-8b530fbd7ab3'
+      ];
       
-      if (user.id === restrictedUserId) {
-        // Limited navigation for the specific user
+      // Check if the current user's ID is in the restricted list
+      if (restrictedUserIds.includes(user.id as string)) {
+        // Limited navigation for restricted users
         setNavLinks([
           { href: '/family', label: 'Family' },
           { href: '/about', label: 'About' },

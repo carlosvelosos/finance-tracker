@@ -320,7 +320,7 @@ export default function FamilyFinancePage() {
                     
                     {/* Amanda's transactions */}
                     <div className="flex justify-between text-sm mb-2">
-                        <span>Amanda&aposs expenses:</span>
+                        <span>Amanda&apos;s expenses:</span>
                         <span>
                             {(() => {
                                 const amandaFiltered = amandaTransactions.filter(transaction => 
@@ -341,7 +341,7 @@ export default function FamilyFinancePage() {
                     
                     {/* Carlos' shared expenses */}
                     <div className="flex justify-between text-sm mb-2">
-                        <span>Carlos&apos shared (÷2):</span>
+                        <span>Carlos&apos; shared (÷2):</span>
                         <span>
                             {(() => {
                                 const usFiltered = usTransactions.filter(transaction => 
@@ -357,7 +357,7 @@ export default function FamilyFinancePage() {
                     
                     {/* Amanda's shared expenses */}
                     <div className="flex justify-between text-sm">
-                        <span>Amanda&aposs shared (÷2):</span>
+                        <span>Amanda&apos;s shared (÷2):</span>
                         <span>
                             {(() => {
                                 const usAmandaFiltered = usTransactionsAmanda.filter(transaction => 
@@ -469,7 +469,7 @@ export default function FamilyFinancePage() {
                     
                     {/* Amanda's transactions */}
                     <div className="flex justify-between text-sm mb-2">
-                        <span>Amanda&aposs expenses:</span>
+                        <span>Amanda&apos;s expenses:</span>
                         <span>
                             {(() => {
                                 const amandaFiltered = amandaTransactions.filter(transaction => 
@@ -491,7 +491,7 @@ export default function FamilyFinancePage() {
                     
                     {/* Carlos' shared expenses */}
                     <div className="flex justify-between text-sm mb-2">
-                        <span>Carlos&apos shared (÷2):</span>
+                        <span>Carlos&apos; shared (÷2):</span>
                         <span>
                             {(() => {
                                 const usFiltered = usTransactions.filter(transaction => 
@@ -513,7 +513,7 @@ export default function FamilyFinancePage() {
                     
                     {/* Amanda's shared expenses */}
                     <div className="flex justify-between text-sm">
-                        <span>Amanda&aposs shared (÷2):</span>
+                        <span>Amanda&apos;s shared (÷2):</span>
                         <span>
                             {(() => {
                                 const usAmandaFiltered = usTransactionsAmanda.filter(transaction => 

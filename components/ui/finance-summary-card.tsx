@@ -37,7 +37,7 @@ export function FinanceSummaryCard({
             </p>
           <Accordion type="single" collapsible>
             <AccordionItem value="summary">
-              <AccordionTrigger>Summary Details</AccordionTrigger>
+              <AccordionTrigger>Summary Description</AccordionTrigger>
               <AccordionContent>
                 <p className="text-xs mb-6"> 
                   This page provides a detailed breakdown of Amanda&apos;s and Carlos&apos; shared and individual expenses. Amanda can view her personal transactions, shared expenses, and the total amounts calculated for each category.

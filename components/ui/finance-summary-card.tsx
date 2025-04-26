@@ -21,13 +21,20 @@ export function FinanceSummaryCard({
       </CardHeader>
       <CardContent>
         <div className="text-xl">
-          <p>
-            Amanda&apos;s balance: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+            <p className="flex items-center gap-2">
+            <span>Amanda&apos;s balance:</span>
+            <span className="whitespace-nowrap">
+              {new Intl.NumberFormat('pt-BR', { 
+              style: 'currency', 
+              currency: 'BRL', 
+              signDisplay: 'always' 
+              }).format(
               amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
               (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) - 
               (usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
-            )}
-          </p>
+              )}
+            </span>
+            </p>
           <Accordion type="single" collapsible>
             <AccordionItem value="summary">
               <AccordionTrigger>Summary Details</AccordionTrigger>

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { AuthError } from "@supabase/supabase-js";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -31,8 +32,11 @@ export default function LoginPage() {
       toast.success("Logged in successfully!");
       router.push('/');
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || "Login failed");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof AuthError 
+        ? error.message 
+        : "Login failed";
+      toast.error(errorMessage);
       console.error("Login error:", error);
     } finally {
       setLoading(false);
@@ -43,7 +47,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -52,8 +56,11 @@ export default function LoginPage() {
       
       if (error) throw error;
       
-    } catch (error: any) {
-      toast.error(error.message || `Error signing in with ${provider}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof AuthError 
+        ? error.message 
+        : `Error signing in with ${provider}`;
+      toast.error(errorMessage);
       console.error(`${provider} login error:`, error);
       setLoading(false);
     }
@@ -174,7 +181,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-4 text-center">
-              <span className="text-sm">Don't have an account? </span>
+              <span className="text-sm">Don&apos;t have an account? </span>
               <Link href="/auth/signup" className="text-sm text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>

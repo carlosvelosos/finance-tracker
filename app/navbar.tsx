@@ -20,7 +20,7 @@ type NavLink = {
 };
 
 export default function Navbar() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
 

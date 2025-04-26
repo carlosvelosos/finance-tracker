@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-// import supabase from "@/lib/supabase";
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { AuthError } from "@supabase/supabase-js";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -36,7 +36,7 @@ export default function SignupPage() {
       setLoading(true);
       
       // Sign up with email and password
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -54,8 +54,11 @@ export default function SignupPage() {
       toast.success("Registration successful! Please check your email for verification.");
       router.push('/auth/login');
       
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred during registration");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof AuthError 
+        ? error.message 
+        : "An error occurred during registration";
+      toast.error(errorMessage);
       console.error("Registration error:", error);
     } finally {
       setLoading(false);
@@ -66,7 +69,7 @@ export default function SignupPage() {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -75,8 +78,11 @@ export default function SignupPage() {
 
       if (error) throw error;
       
-    } catch (error: any) {
-      toast.error(error.message || `Error signing up with ${provider}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof AuthError 
+        ? error.message 
+        : `Error signing up with ${provider}`;
+      toast.error(errorMessage);
       console.error(`${provider} signup error:`, error);
       setLoading(false);
     }

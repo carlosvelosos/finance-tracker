@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { AuthError } from "@supabase/supabase-js"; // Add this import
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -38,8 +39,13 @@ export default function ResetPasswordPage() {
       
       toast.success("Password updated successfully");
       router.push('/auth/login');
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update password");
+    } catch (error: unknown) { // Change 'any' to 'unknown' for better type safety
+      // Type guard to check if it's a specific error type
+      const errorMessage = error instanceof AuthError 
+        ? error.message 
+        : "Failed to update password";
+      
+      toast.error(errorMessage);
       console.error("Password reset error:", error);
     } finally {
       setLoading(false);

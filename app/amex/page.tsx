@@ -153,7 +153,9 @@ import {
     }
   
     return (
-      <ProtectedRoute>
+      <ProtectedRoute 
+            allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
+          >
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">American Express Transactions</h1>
 

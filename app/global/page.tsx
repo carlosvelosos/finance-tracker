@@ -100,75 +100,79 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold text-center mb-6">Your Transactions</h1>
+    <ProtectedRoute 
+      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
+    >
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold text-center mb-6">Your Transactions</h1>
 
-      {/* Category Chart */}
-      <div className="text-right mb-4">
-        <Button
-           onClick={() => window.location.href = './chart'}
-          className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
-        >
-          Go to Chart Page
-        </Button>
-      </div>
+        {/* Category Chart */}
+        <div className="text-right mb-4">
+          <Button
+            onClick={() => window.location.href = './chart'}
+            className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
+          >
+            Go to Chart Page
+          </Button>
+        </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead onClick={() => handleSort('id')}>
-              ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Date')}>
-              Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Description')}>
-              Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Amount')}>
-              Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Balance')}>
-              Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Category')}>
-              Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Responsable')}>
-              Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Bank')}>
-              Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Comment')}>
-              Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedTransactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{transaction.id}</TableCell>
-              <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
-              <TableCell>{transaction.Description || 'N/A'}</TableCell>
-              <TableCell className="text-right">
-                {transaction.Amount !== null
-                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
-                  : 'N/A'}
-              </TableCell>
-              <TableCell>
-                {transaction.Balance !== null
-                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
-                  : 'N/A'}
-              </TableCell>
-              <TableCell>{transaction.Category || 'N/A'}</TableCell>
-              <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
-              <TableCell>{transaction.Bank || 'N/A'}</TableCell>
-              <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead onClick={() => handleSort('id')}>
+                ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Date')}>
+                Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Description')}>
+                Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Amount')}>
+                Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Balance')}>
+                Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Category')}>
+                Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Responsable')}>
+                Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Bank')}>
+                Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Comment')}>
+                Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {sortedTransactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{transaction.id}</TableCell>
+                <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
+                <TableCell>{transaction.Description || 'N/A'}</TableCell>
+                <TableCell className="text-right">
+                  {transaction.Amount !== null
+                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
+                    : 'N/A'}
+                </TableCell>
+                <TableCell>
+                  {transaction.Balance !== null
+                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
+                    : 'N/A'}
+                </TableCell>
+                <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
+                <TableCell>{transaction.Bank || 'N/A'}</TableCell>
+                <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </ProtectedRoute>
   );
 }

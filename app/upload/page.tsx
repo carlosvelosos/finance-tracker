@@ -56,35 +56,39 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold">Upload Bank Statement</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {/* Bank selection dropdown */}
-          <Select onValueChange={setSelectedBank}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a bank account" />
-            </SelectTrigger>
-            <SelectContent>
-              {BANK_OPTIONS.map((bank) => (
-                <SelectItem key={bank} value={bank}>
-                  {bank}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <ProtectedRoute 
+      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7', '0a29c8db-018c-49cb-ac35-7ccf1719be2c']}
+    >
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold">Upload Bank Statement</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {/* Bank selection dropdown */}
+            <Select onValueChange={setSelectedBank}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a bank account" />
+              </SelectTrigger>
+              <SelectContent>
+                {BANK_OPTIONS.map((bank) => (
+                  <SelectItem key={bank} value={bank}>
+                    {bank}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {/* File input field */}
-          <Input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
+            {/* File input field */}
+            <Input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
 
-          {/* Upload button */}
-          <Button onClick={handleUpload} disabled={uploading} className="w-full">
-            {uploading ? "Uploading..." : "Upload"}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+            {/* Upload button */}
+            <Button onClick={handleUpload} disabled={uploading} className="w-full">
+              {uploading ? "Uploading..." : "Upload"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </ProtectedRoute>
   );
 }

@@ -43,7 +43,9 @@ export default function CategoryChartPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute 
+      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
+    >
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="pt-8 pb-8">
           <CustomBarChart

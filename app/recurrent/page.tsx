@@ -70,68 +70,70 @@ export default function BillsPage() {
   };
 
   return (
-    <ProtectedRoute>
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold text-center mb-6">Bills to Be Paid</h1>
+    <ProtectedRoute 
+      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
+    >
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold text-center mb-6">Bills to Be Paid</h1>
 
-      {/* Display totals per country */}
-      <div className="mb-4 flex gap-4 bg-gray-50 p-4 rounded-md">
-        {Object.entries(totalsPerCountry).map(([country, total]) => (
-            <div key={country} className="text-lg font-medium">
-                <span className="font-bold">{country}:</span>{' '}
-                {total.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: countryCurrencyMap[country] || 'USD', // Default to USD if country is not mapped
-                })}
-            </div>
-        ))}
-    </div>
-
-    <Table>
-        <TableHeader>
-          <TableRow className="border-b-4 border-gray-600">
-            <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('description')}>
-              Description
-            </TableHead>
-            <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('dueDay')}>
-              Due Day
-            </TableHead>
-            <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('paymentMethod')}>
-              Payment Method
-            </TableHead>
-            <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('country')}>
-              Country
-            </TableHead>
-            <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('value')}>
-              Value
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedBills.map((bill) => (
-            <TableRow key={bill.id}>
-              <TableCell>{bill.description}</TableCell>
-              <TableCell>{new Date(bill.dueDay).toLocaleDateString()}</TableCell>
-              <TableCell>{bill.paymentMethod}</TableCell>
-              <TableCell
-                style={{
-                  color: bill.country === 'Brazil' ? 'green' : bill.country === 'Sweden' ? 'blue' : 'black',
-                  fontWeight: 'bold',
-                }}
-              >
-                {bill.country}
-              </TableCell>
-              <TableCell>
-                {bill.value.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: countryCurrencyMap[bill.country] || 'USD',
-                })}
-              </TableCell>
-            </TableRow>
+        {/* Display totals per country */}
+        <div className="mb-4 flex gap-4 bg-gray-50 p-4 rounded-md">
+          {Object.entries(totalsPerCountry).map(([country, total]) => (
+              <div key={country} className="text-lg font-medium">
+                  <span className="font-bold">{country}:</span>{' '}
+                  {total.toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: countryCurrencyMap[country] || 'USD', // Default to USD if country is not mapped
+                  })}
+              </div>
           ))}
-        </TableBody>
-      </Table>
-    </div>
+      </div>
+
+      <Table>
+          <TableHeader>
+            <TableRow className="border-b-4 border-gray-600">
+              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('description')}>
+                Description
+              </TableHead>
+              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('dueDay')}>
+                Due Day
+              </TableHead>
+              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('paymentMethod')}>
+                Payment Method
+              </TableHead>
+              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('country')}>
+                Country
+              </TableHead>
+              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('value')}>
+                Value
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedBills.map((bill) => (
+              <TableRow key={bill.id}>
+                <TableCell>{bill.description}</TableCell>
+                <TableCell>{new Date(bill.dueDay).toLocaleDateString()}</TableCell>
+                <TableCell>{bill.paymentMethod}</TableCell>
+                <TableCell
+                  style={{
+                    color: bill.country === 'Brazil' ? 'green' : bill.country === 'Sweden' ? 'blue' : 'black',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {bill.country}
+                </TableCell>
+                <TableCell>
+                  {bill.value.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: countryCurrencyMap[bill.country] || 'USD',
+                  })}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </ProtectedRoute>
   );
 }

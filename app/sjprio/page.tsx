@@ -135,126 +135,130 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold text-center mb-6">SEB SJ Prio Transactions</h1>
+    <ProtectedRoute 
+      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
+    >
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold text-center mb-6">SEB SJ Prio Transactions</h1>
 
-      {/* Category Chart */}
-      <div className="text-right mb-4">
-        <Button
-           onClick={() => window.location.href = './chart'}
-          className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
+        {/* Category Chart */}
+        <div className="text-right mb-4">
+          <Button
+            onClick={() => window.location.href = './chart'}
+            className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
+          >
+            Go to Chart Page
+          </Button>
+        </div>
+
+        {/* Total Amount */}
+        <div className="mt-4 text-right font-bold">
+          Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
+        </div>
+
+        {/* Tabs for Month Selection */}
+        <Tabs
+          defaultValue="All"
+          onValueChange={(value) => setSelectedMonth(value)}
+          className="mb-4"
         >
-          Go to Chart Page
-        </Button>
-      </div>
+          <TabsList>
+            <TabsTrigger value="All">All</TabsTrigger>
+            <TabsTrigger value="Jan">Jan</TabsTrigger>
+            <TabsTrigger value="Fev">Fev</TabsTrigger>
+            <TabsTrigger value="Mar">Mar</TabsTrigger>
+            <TabsTrigger value="Apr">Apr</TabsTrigger>
+            <TabsTrigger value="Mai">Mai</TabsTrigger>
+            <TabsTrigger value="Jun">Jun</TabsTrigger>
+            <TabsTrigger value="Jul">Jul</TabsTrigger>
+            <TabsTrigger value="Ago">Ago</TabsTrigger>
+            <TabsTrigger value="Sep">Sep</TabsTrigger>
+            <TabsTrigger value="Oct">Oct</TabsTrigger>
+            <TabsTrigger value="Nov">Nov</TabsTrigger>
+            <TabsTrigger value="Dez">Dez</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-      {/* Total Amount */}
-      <div className="mt-4 text-right font-bold">
-        Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
-      </div>
+        {/* Filter Inputs */}
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            placeholder="Filter by Category"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+          <input
+            type="text"
+            placeholder="Filter by Description"
+            value={descriptionFilter}
+            onChange={(e) => setDescriptionFilter(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+        </div>
 
-      {/* Tabs for Month Selection */}
-      <Tabs
-        defaultValue="All"
-        onValueChange={(value) => setSelectedMonth(value)}
-        className="mb-4"
-      >
-        <TabsList>
-          <TabsTrigger value="All">All</TabsTrigger>
-          <TabsTrigger value="Jan">Jan</TabsTrigger>
-          <TabsTrigger value="Fev">Fev</TabsTrigger>
-          <TabsTrigger value="Mar">Mar</TabsTrigger>
-          <TabsTrigger value="Apr">Apr</TabsTrigger>
-          <TabsTrigger value="Mai">Mai</TabsTrigger>
-          <TabsTrigger value="Jun">Jun</TabsTrigger>
-          <TabsTrigger value="Jul">Jul</TabsTrigger>
-          <TabsTrigger value="Ago">Ago</TabsTrigger>
-          <TabsTrigger value="Sep">Sep</TabsTrigger>
-          <TabsTrigger value="Oct">Oct</TabsTrigger>
-          <TabsTrigger value="Nov">Nov</TabsTrigger>
-          <TabsTrigger value="Dez">Dez</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Filter Inputs */}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          placeholder="Filter by Category"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
-        <input
-          type="text"
-          placeholder="Filter by Description"
-          value={descriptionFilter}
-          onChange={(e) => setDescriptionFilter(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
-      </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead onClick={() => handleSort('id')}>
-              ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Date')}>
-              Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Description')}>
-              Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Amount')}>
-              Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Balance')}>
-              Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Category')}>
-              Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Responsable')}>
-              Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Bank')}>
-              Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-            <TableHead onClick={() => handleSort('Comment')}>
-              Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedTransactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{transaction.id}</TableCell>
-              <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
-              <TableCell>{transaction.Description || 'N/A'}</TableCell>
-              <TableCell className="text-right">
-                {transaction.Amount !== null
-                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
-                  : 'N/A'}
-              </TableCell>
-              <TableCell>
-                {transaction.Balance !== null
-                  ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
-                  : 'N/A'}
-              </TableCell>
-              <TableCell>{transaction.Category || 'N/A'}</TableCell>
-              <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
-              <TableCell>{transaction.Bank || 'N/A'}</TableCell>
-              <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead onClick={() => handleSort('id')}>
+                ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Date')}>
+                Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Description')}>
+                Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Amount')}>
+                Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Balance')}>
+                Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Category')}>
+                Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Responsable')}>
+                Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Bank')}>
+                Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead onClick={() => handleSort('Comment')}>
+                Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {sortedTransactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{transaction.id}</TableCell>
+                <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
+                <TableCell>{transaction.Description || 'N/A'}</TableCell>
+                <TableCell className="text-right">
+                  {transaction.Amount !== null
+                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
+                    : 'N/A'}
+                </TableCell>
+                <TableCell>
+                  {transaction.Balance !== null
+                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
+                    : 'N/A'}
+                </TableCell>
+                <TableCell>{transaction.Category || 'N/A'}</TableCell>
+                <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
+                <TableCell>{transaction.Bank || 'N/A'}</TableCell>
+                <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {/* Total Amount */}
-      <div className="mt-4 text-right font-bold">
-        Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
+        {/* Total Amount */}
+        <div className="mt-4 text-right font-bold">
+          Total Amount: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(totalAmount)}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

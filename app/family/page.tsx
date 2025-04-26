@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import TableCardFamily from "@/components/ui/table-card-family";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import ProtectedRoute from '@/components/protected-route';
+import { Separator } from "@/components/ui/separator";
 
 type Transaction = {
     id: number; // Corresponds to the `id` column (bigint, primary key)
@@ -174,54 +175,8 @@ export default function FamilyFinancePage() {
                                 <AccordionTrigger>Summary Details</AccordionTrigger>
                                 <AccordionContent>
                                     <p className="text-xs mb-6"> 
-                                        Amanda&apos;s table contains the transactions made using Carlos&apos; credit card for Amanda&apos;s purchases and the amount transferred by Amanda to Carlos. It also includes half of the expenses on Carlos swedish credit card during Amanda&apos;s visit to Sweden.
+                                        This page provides a detailed breakdown of Amanda&apos;s and Carlos&apos; shared and individual expenses. Amanda can view her personal transactions, shared expenses, and the total amounts calculated for each category.
                                     </p>
-                                    <p className="text-xs mb-6"> 
-                                        The table &ldquo;US&ldquo; displays the shared expenses in Brasil, using Carlos&apos; credit card.
-                                    </p>
-                                    <p className="text-xs mb-6 bg-yellow-100 text-red-600"> 
-                                        Check if the KLM flight ticked I bought for Amanda is taken into account.
-                                    </p>
-                                    <p>
-                                        Carlos&apos; total expenses:
-                                    </p>
-                                    <p className={`${amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                        Amanda: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                                        )}
-                                    </p>
-                                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                                        )}
-                                    </p>
-                                    <p className={`${(amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                        Amanda + (Us / 2): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
-                                        (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
-                                        )}
-                                    </p>
-                                    <p>
-                                        Amanda&apos;s total expenses:
-                                    </p>
-                                    <p className={`${usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                        Us: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
-                                        )}
-                                    </p>
-                                    {(() => {
-                                        const usDividedByTwo = usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2;
-                                        return (
-                                            <>
-                                                <p className={`${usDividedByTwo < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                                    Us / 2: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(usDividedByTwo)}
-                                                </p>
-                                                {/* <p>
-                                                    Value saved for later use: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(usDividedByTwo)}
-                                                </p> */}
-                                            </>
-                                        );
-                                    })()}
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
@@ -628,6 +583,9 @@ export default function FamilyFinancePage() {
             </Card>
 
         </div>
+
+        {/* Separator between sections */}
+        <Separator className="my-12" />
 
         {/* Switches to toggle columns */}
         <div className="flex items-center mb-4 space-x-4">

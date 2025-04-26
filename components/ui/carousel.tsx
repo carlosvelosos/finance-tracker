@@ -244,17 +244,25 @@ function CarouselDots({
   React.useEffect(() => {
     if (!api) return
     
-    setSlideCount(api.scrollSnapList().length)
+    // Force a more reliable slide count detection
+    const updateSlideCount = () => {
+      // Get the actual number of slides from DOM if API method fails
+      const slides = document.querySelectorAll('[data-slot="carousel-item"]');
+      setSlideCount(slides.length || api.slideNodes().length || 3);
+    }
     
     const onSelect = () => {
       setSelectedIndex(api.selectedScrollSnap())
     }
     
+    updateSlideCount();
     api.on("select", onSelect)
+    api.on("reInit", updateSlideCount)
     onSelect() // Initialize with current selection
     
     return () => {
       api.off("select", onSelect)
+      api.off("reInit", updateSlideCount)
     }
   }, [api])
 
@@ -265,12 +273,15 @@ function CarouselDots({
     [api]
   )
 
+  // Ensure we always render at least the number of carousel items we know we have
+  const dotsToRender = Math.max(slideCount, 3); // You have 3 slides
+
   return (
     <div 
       className={cn("flex justify-center items-center gap-2", className)} 
       {...props}
     >
-      {Array.from({ length: slideCount }).map((_, index) => (
+      {Array.from({ length: dotsToRender }).map((_, index) => (
         <button
           key={index}
           className={cn(

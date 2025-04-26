@@ -14,35 +14,36 @@ export function FinanceSummaryCard({
   usTransactions, 
   usTransactionsAmanda 
 }: FinanceSummaryCardProps) {
+  // Calculate the balance once to avoid repetition
+  const amandaBalance = amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
+    (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) - 
+    (usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2);
+  
+  // Format the balance
+  const formattedBalance = new Intl.NumberFormat('pt-BR', { 
+    style: 'currency', 
+    currency: 'BRL',
+    signDisplay: 'always' 
+  }).format(amandaBalance);
+  
   return (
     <Card className='border border-gray-300 shadow-none'>
       <CardHeader>
         <CardTitle>Summary</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-xl">
-            <p className="flex items-center gap-2">
-            <span>Amanda&apos;s balance:</span>
+        <div className="space-y-4">
+          {/* Stack vertically on all screens for simplicity */}
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm font-medium">Amanda&apos;s balance:</span>
             <span 
-              className={`whitespace-nowrap ${
-              amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
-              (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) - 
-              (usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) >= 0 
-              ? 'text-green-500' 
-              : 'text-red-500'
+              className={`font-semibold text-lg break-words ${
+                amandaBalance >= 0 ? 'text-green-500' : 'text-red-500'
               }`}
             >
-              {new Intl.NumberFormat('pt-BR', { 
-              style: 'currency', 
-              currency: 'BRL', 
-              signDisplay: 'always' 
-              }).format(
-              amandaTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) + 
-              (usTransactions.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2) - 
-              (usTransactionsAmanda.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2)
-              )}
+              {formattedBalance}
             </span>
-            </p>
+          </div>
           <Accordion type="single" collapsible>
             <AccordionItem value="summary">
               <AccordionTrigger>Summary Description</AccordionTrigger>

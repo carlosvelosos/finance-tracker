@@ -57,7 +57,7 @@ export default function UploadPage() {
 
   return (
     <ProtectedRoute 
-      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7', '0a29c8db-018c-49cb-ac35-7ccf1719be2c']}
+      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7', '0a29c8db-018c-49cb-ac35-7ccf1719be2c', '382714ae-4c7c-4a32-9a7d-8b530fbd7ab3']}
     >
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Card className="w-full max-w-md shadow-lg">

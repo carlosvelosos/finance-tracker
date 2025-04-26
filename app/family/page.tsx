@@ -14,7 +14,8 @@ import {
   CarouselContent, 
   CarouselItem, 
   CarouselPrevious, 
-  CarouselNext 
+  CarouselNext,
+  CarouselDots
 } from '@/components/ui/carousel';
 
 type Transaction = {
@@ -176,45 +177,62 @@ export default function FamilyFinancePage() {
             {/* Right Column: Detail Cards (75% width) */}
             <div className="md:col-span-3">
                 {/* Carousel on medium/large screens, grid on 2xl screens */}
-                <div className="hidden md:block 2xl:hidden">
-                    <Carousel
-                    opts={{ align: "start" }}
-                    className="w-full"
-                    >
+                <div className="hidden md:block 2xl:hidden px-4"> {/* Added px-4 for padding */}
+                <Carousel
+                    opts={{ 
+                    align: "center",
+                    loop: false,
+                    containScroll: "trimSnaps"
+                    }}
+                    className="w-full relative"
+                >
                     <CarouselContent>
-                        <CarouselItem className="md:basis-full">
-                        <FinanceDetailCard
+                        <CarouselItem className="basis-[98%] md:basis-full">
+                            <FinanceDetailCard
                             title="Amanda - Personal"
                             amandaTransactions={amandaTransactions}
                             usTransactions={usTransactions}
                             usTransactionsAmanda={usTransactionsAmanda}
                             cardType="personal"
-                        />
+                            />
                         </CarouselItem>
-                        <CarouselItem className="md:basis-full">
-                        <FinanceDetailCard
+                        <CarouselItem className="basis-[98%] md:basis-full">
+                            <FinanceDetailCard
                             title="Sweden Dec 24 - Jan 25"
                             amandaTransactions={amandaTransactions}
                             usTransactions={usTransactions}
                             usTransactionsAmanda={usTransactionsAmanda}
                             cardType="sweden"
-                        />
+                            />
                         </CarouselItem>
-                        <CarouselItem className="md:basis-full">
-                        <FinanceDetailCard
+                        <CarouselItem className="basis-[98%] md:basis-full">
+                            <FinanceDetailCard
                             title="Brasil Fev - Mar 25"
                             amandaTransactions={amandaTransactions}
                             usTransactions={usTransactions}
                             usTransactionsAmanda={usTransactionsAmanda}
                             cardType="brasil"
-                        />
+                            />
                         </CarouselItem>
                     </CarouselContent>
-                    <div className="flex justify-center mt-4">
-                        <CarouselPrevious className="static translate-y-0 mx-2" />
-                        <CarouselNext className="static translate-y-0 mx-2" />
+                    
+                    {/* Navigation row with aligned elements */}
+                    <div className="flex items-center justify-between mt-4 px-2">
+                        <CarouselPrevious 
+                        className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto" 
+                        variant="ghost"
+                        size="sm"
+                        />
+                        
+                        <CarouselDots className="flex-1" />
+                        
+                        <CarouselNext 
+                        className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto" 
+                        variant="ghost"
+                        size="sm"
+                        />
                     </div>
-                    </Carousel>
+                </Carousel>
                 </div>
                 
                 {/* Grid layout only on 2XL screens */}

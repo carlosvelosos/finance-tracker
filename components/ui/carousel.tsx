@@ -185,10 +185,11 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
-        orientation === "horizontal"
-          ? "top-1/2 -left-12 -translate-y-1/2"
-          : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+        "size-8 rounded-full",
+        // Remove absolute positioning when className is provided
+        !className && orientation === "horizontal"
+          ? "absolute top-1/2 -left-12 -translate-y-1/2"
+          : !className && "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
       disabled={!canScrollPrev}
@@ -215,10 +216,11 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
-        orientation === "horizontal"
-          ? "top-1/2 -right-12 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+        "size-8 rounded-full",
+        // Remove absolute positioning when className is provided
+        !className && orientation === "horizontal"
+          ? "absolute top-1/2 -right-12 -translate-y-1/2"
+          : !className && "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
       disabled={!canScrollNext}
@@ -231,6 +233,60 @@ function CarouselNext({
   )
 }
 
+function CarouselDots({ 
+  className,
+  ...props 
+}: React.ComponentProps<"div">) {
+  const { api } = useCarousel()
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [slideCount, setSlideCount] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) return
+    
+    setSlideCount(api.scrollSnapList().length)
+    
+    const onSelect = () => {
+      setSelectedIndex(api.selectedScrollSnap())
+    }
+    
+    api.on("select", onSelect)
+    onSelect() // Initialize with current selection
+    
+    return () => {
+      api.off("select", onSelect)
+    }
+  }, [api])
+
+  const handleDotClick = React.useCallback(
+    (index: number) => {
+      api?.scrollTo(index)
+    },
+    [api]
+  )
+
+  return (
+    <div 
+      className={cn("flex justify-center items-center gap-2", className)} 
+      {...props}
+    >
+      {Array.from({ length: slideCount }).map((_, index) => (
+        <button
+          key={index}
+          className={cn(
+            "transition-all",
+            selectedIndex === index 
+              ? "h-1.5 w-8 rounded-full bg-primary" // Line shape for active
+              : "h-2 w-2 rounded-full bg-gray-400" // Circle shape for inactive
+          )}
+          onClick={() => handleDotClick(index)}
+          aria-label={`Go to slide ${index + 1}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 export {
   type CarouselApi,
   Carousel,
@@ -238,4 +294,5 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselDots,
 }

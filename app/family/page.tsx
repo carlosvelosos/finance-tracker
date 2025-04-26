@@ -184,7 +184,7 @@ export default function FamilyFinancePage() {
                     className="w-full"
                     >
                     <CarouselContent>
-                        <CarouselItem className="md:basis-full lg:basis-1/2">
+                        <CarouselItem className="md:basis-full">
                         <FinanceDetailCard
                             title="Amanda - Personal"
                             amandaTransactions={amandaTransactions}
@@ -193,7 +193,7 @@ export default function FamilyFinancePage() {
                             cardType="personal"
                         />
                         </CarouselItem>
-                        <CarouselItem className="md:basis-full lg:basis-1/2">
+                        <CarouselItem className="md:basis-full">
                         <FinanceDetailCard
                             title="Sweden Dec 24 - Jan 25"
                             amandaTransactions={amandaTransactions}
@@ -202,7 +202,7 @@ export default function FamilyFinancePage() {
                             cardType="sweden"
                         />
                         </CarouselItem>
-                        <CarouselItem className="md:basis-full lg:basis-1/2">
+                        <CarouselItem className="md:basis-full">
                         <FinanceDetailCard
                             title="Brasil Fev - Mar 25"
                             amandaTransactions={amandaTransactions}

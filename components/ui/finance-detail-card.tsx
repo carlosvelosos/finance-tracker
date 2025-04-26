@@ -411,7 +411,7 @@ export function FinanceDetailCard({
   };
 
   return (
-    <Card className='border border-gray-300 shadow-none h-full'>
+    <Card className='border border-gray-300 shadow-none h-full mx-1'>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

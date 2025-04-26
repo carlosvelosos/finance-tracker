@@ -263,7 +263,7 @@ export default function FamilyFinancePage() {
                         })()}
                     </p>
                     {/* Bagaggio's total */}
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm mb-2">
                         <span>Bagaggio:</span>
                         <span>
                             {(() => {
@@ -278,7 +278,7 @@ export default function FamilyFinancePage() {
                         </span>
                     </div>
                     {/* Unibh's total */}
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm mb-2">
                         <span>Unibh:</span>
                         <span>
                             {(() => {
@@ -293,7 +293,7 @@ export default function FamilyFinancePage() {
                         </span>
                     </div>
                     {/* Gynpass's total */}
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm mb-2">
                         <span>Gympass:</span>
                         <span>
                             {(() => {
@@ -416,45 +416,46 @@ export default function FamilyFinancePage() {
                         </span>
                     </div>
                     
-                    {/* Optional: Display top merchants */}
+                    {/* Optional: Display all merchants with scrolling */}
                     <Accordion type="single" collapsible className="mt-2">
                         <AccordionItem value="details">
-                            <AccordionTrigger className="text-xs">View Merchants</AccordionTrigger>
+                            <AccordionTrigger className="text-xs">View All Merchants</AccordionTrigger>
                             <AccordionContent>
-                                {(() => {
-                                    const amandaFiltered = amandaTransactions.filter(transaction => 
-                                        transaction.Date && 
-                                        new Date(transaction.Date) <= new Date('2025-01-31') &&
-                                        !transaction.Description?.toLowerCase().includes('bagaggio') &&
-                                        !transaction.Description?.toLowerCase().includes('unibh') &&
-                                        !transaction.Description?.toLowerCase().includes('gympass') &&
-                                        !transaction.Description?.toLowerCase().includes('iphone') &&
-                                        !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
-                                    );
-                                    
-                                    // Group by description and sum amounts
-                                    const merchants = amandaFiltered.reduce((acc, transaction) => {
-                                        const key = transaction.Description || 'Unknown';
-                                        if (!acc[key]) {
-                                            acc[key] = 0;
-                                        }
-                                        acc[key] += transaction.Amount || 0;
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    
-                                    // Convert to array and sort by amount
-                                    return Object.entries(merchants)
-                                        .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
-                                        .slice(0, 5) // Show top 5
-                                        .map(([name, amount]) => (
-                                            <div key={name} className="flex justify-between text-xs mb-1">
-                                                <span className="truncate mr-2">{name}</span>
-                                                <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
-                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
-                                                </span>
-                                            </div>
-                                        ));
-                                })()}
+                                <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
+                                    {(() => {
+                                        const amandaFiltered = amandaTransactions.filter(transaction => 
+                                            transaction.Date && 
+                                            new Date(transaction.Date) <= new Date('2025-01-31') &&
+                                            !transaction.Description?.toLowerCase().includes('bagaggio') &&
+                                            !transaction.Description?.toLowerCase().includes('unibh') &&
+                                            !transaction.Description?.toLowerCase().includes('gympass') &&
+                                            !transaction.Description?.toLowerCase().includes('iphone') &&
+                                            !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
+                                        );
+                                        
+                                        // Group by description and sum amounts
+                                        const merchants = amandaFiltered.reduce((acc, transaction) => {
+                                            const key = transaction.Description || 'Unknown';
+                                            if (!acc[key]) {
+                                                acc[key] = 0;
+                                            }
+                                            acc[key] += transaction.Amount || 0;
+                                            return acc;
+                                        }, {} as Record<string, number>);
+                                        
+                                        // Convert to array and sort by amount (but don't slice to 5)
+                                        return Object.entries(merchants)
+                                            .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                                            .map(([name, amount]) => (
+                                                <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                                                    <span className="truncate mr-2">{name}</span>
+                                                    <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
+                                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                                                    </span>
+                                                </div>
+                                            ));
+                                    })()}
+                                </div>
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
@@ -577,48 +578,49 @@ export default function FamilyFinancePage() {
                         </span>
                     </div>
                     
-                    {/* Common Brazil merchants */}
+                    {/* Common Brazil merchants with scrolling */}
                     <Accordion type="single" collapsible className="mt-2">
                         <AccordionItem value="details">
-                            <AccordionTrigger className="text-xs">View Top Merchants</AccordionTrigger>
+                            <AccordionTrigger className="text-xs">View All Brazil Merchants</AccordionTrigger>
                             <AccordionContent>
-                                {(() => {
-                                    const allTransactions = [
-                                        ...usTransactions.filter(transaction => 
-                                            transaction.Date && 
-                                            new Date(transaction.Date) >= new Date('2025-02-01') && 
-                                            new Date(transaction.Date) <= new Date('2025-03-31')
-                                        ),
-                                        ...usTransactionsAmanda.filter(transaction => 
-                                            transaction.Date && 
-                                            new Date(transaction.Date) >= new Date('2025-02-01') && 
-                                            new Date(transaction.Date) <= new Date('2025-03-31')
-                                        )
-                                    ];
-                                    
-                                    // Group by description and sum amounts
-                                    const merchants = allTransactions.reduce((acc, transaction) => {
-                                        const key = transaction.Description || 'Unknown';
-                                        if (!acc[key]) {
-                                            acc[key] = 0;
-                                        }
-                                        acc[key] += transaction.Amount || 0;
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    
-                                    // Convert to array and sort by amount
-                                    return Object.entries(merchants)
-                                        .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
-                                        .slice(0, 5) // Show top 5
-                                        .map(([name, amount]) => (
-                                            <div key={name} className="flex justify-between text-xs mb-1">
-                                                <span className="truncate mr-2">{name}</span>
-                                                <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
-                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
-                                                </span>
-                                            </div>
-                                        ));
-                                })()}
+                                <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
+                                    {(() => {
+                                        const allTransactions = [
+                                            ...usTransactions.filter(transaction => 
+                                                transaction.Date && 
+                                                new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                                new Date(transaction.Date) <= new Date('2025-03-31')
+                                            ),
+                                            ...usTransactionsAmanda.filter(transaction => 
+                                                transaction.Date && 
+                                                new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                                new Date(transaction.Date) <= new Date('2025-03-31')
+                                            )
+                                        ];
+                                        
+                                        // Group by description and sum amounts
+                                        const merchants = allTransactions.reduce((acc, transaction) => {
+                                            const key = transaction.Description || 'Unknown';
+                                            if (!acc[key]) {
+                                                acc[key] = 0;
+                                            }
+                                            acc[key] += transaction.Amount || 0;
+                                            return acc;
+                                        }, {} as Record<string, number>);
+                                        
+                                        // Convert to array and sort by amount (don't slice to show all)
+                                        return Object.entries(merchants)
+                                            .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                                            .map(([name, amount]) => (
+                                                <div key={name} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                                                    <span className="truncate mr-2">{name}</span>
+                                                    <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
+                                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                                                    </span>
+                                                </div>
+                                            ));
+                                    })()}
+                                </div>
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>

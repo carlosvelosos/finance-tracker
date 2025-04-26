@@ -332,7 +332,7 @@ export default function FamilyFinancePage() {
                     <CardTitle>Sweden Dec 24 - Jan 25</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-xl">
+                    <p className="text-xl font-bold mb-4">
                         {(() => {
                             const amandaFiltered = amandaTransactions.filter(transaction => 
                                 transaction.Date && 
@@ -359,17 +359,105 @@ export default function FamilyFinancePage() {
 
                             const finalTotal = amandaTotal + usTotal - usAmandaTotal;
 
-                            console.log('Amanda Filtered Transactions:', amandaFiltered);
-                            console.log('Amanda Total:', amandaTotal);
-                            console.log('US Filtered Transactions:', usFiltered);
-                            console.log('US Total:', usTotal);
-                            console.log('US Amanda Filtered Transactions:', usAmandaFiltered);
-                            console.log('US Amanda Total:', usAmandaTotal);
-                            console.log('Final Total:', finalTotal);
-
-                            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(finalTotal);
+                            return `Total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(finalTotal)}`;
                         })()}
                     </p>
+                    
+                    {/* Amanda's transactions */}
+                    <div className="flex justify-between text-sm mb-2">
+                        <span>Amanda's expenses:</span>
+                        <span>
+                            {(() => {
+                                const amandaFiltered = amandaTransactions.filter(transaction => 
+                                    transaction.Date && 
+                                    new Date(transaction.Date) <= new Date('2025-01-31') &&
+                                    !transaction.Description?.toLowerCase().includes('bagaggio') &&
+                                    !transaction.Description?.toLowerCase().includes('unibh') &&
+                                    !transaction.Description?.toLowerCase().includes('gympass') &&
+                                    !transaction.Description?.toLowerCase().includes('iphone') &&
+                                    !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
+                                );
+                                return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    amandaFiltered.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                                )}`;
+                            })()}
+                        </span>
+                    </div>
+                    
+                    {/* Carlos' shared expenses */}
+                    <div className="flex justify-between text-sm mb-2">
+                        <span>Carlos' shared (÷2):</span>
+                        <span>
+                            {(() => {
+                                const usFiltered = usTransactions.filter(transaction => 
+                                    transaction.Date && 
+                                    new Date(transaction.Date) <= new Date('2025-01-31')
+                                );
+                                return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    usFiltered.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
+                                )}`;
+                            })()}
+                        </span>
+                    </div>
+                    
+                    {/* Amanda's shared expenses */}
+                    <div className="flex justify-between text-sm">
+                        <span>Amanda's shared (÷2):</span>
+                        <span>
+                            {(() => {
+                                const usAmandaFiltered = usTransactionsAmanda.filter(transaction => 
+                                    transaction.Date && 
+                                    new Date(transaction.Date) <= new Date('2025-01-31')
+                                );
+                                return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    usAmandaFiltered.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
+                                )}`;
+                            })()}
+                        </span>
+                    </div>
+                    
+                    {/* Optional: Display top merchants */}
+                    <Accordion type="single" collapsible className="mt-2">
+                        <AccordionItem value="details">
+                            <AccordionTrigger className="text-xs">View Merchants</AccordionTrigger>
+                            <AccordionContent>
+                                {(() => {
+                                    const amandaFiltered = amandaTransactions.filter(transaction => 
+                                        transaction.Date && 
+                                        new Date(transaction.Date) <= new Date('2025-01-31') &&
+                                        !transaction.Description?.toLowerCase().includes('bagaggio') &&
+                                        !transaction.Description?.toLowerCase().includes('unibh') &&
+                                        !transaction.Description?.toLowerCase().includes('gympass') &&
+                                        !transaction.Description?.toLowerCase().includes('iphone') &&
+                                        !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
+                                    );
+                                    
+                                    // Group by description and sum amounts
+                                    const merchants = amandaFiltered.reduce((acc, transaction) => {
+                                        const key = transaction.Description || 'Unknown';
+                                        if (!acc[key]) {
+                                            acc[key] = 0;
+                                        }
+                                        acc[key] += transaction.Amount || 0;
+                                        return acc;
+                                    }, {} as Record<string, number>);
+                                    
+                                    // Convert to array and sort by amount
+                                    return Object.entries(merchants)
+                                        .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                                        .slice(0, 5) // Show top 5
+                                        .map(([name, amount]) => (
+                                            <div key={name} className="flex justify-between text-xs mb-1">
+                                                <span className="truncate mr-2">{name}</span>
+                                                <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
+                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                                                </span>
+                                            </div>
+                                        ));
+                                })()}
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
                 </CardContent>
             </Card>
 
@@ -379,7 +467,7 @@ export default function FamilyFinancePage() {
                     <CardTitle>Brasil Fev-Mar 25</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-xl">
+                    <p className="text-xl font-bold mb-4">
                         {(() => {
                             const amandaFiltered = amandaTransactions.filter(transaction => 
                                 transaction.Date && 
@@ -419,17 +507,121 @@ export default function FamilyFinancePage() {
 
                             const finalTotal = amandaTotal + usTotal - usAmandaTotal;
 
-                            console.log('Amanda Filtered Transactions:', amandaFiltered);
-                            console.log('Amanda Total:', amandaTotal);
-                            console.log('US Filtered Transactions:', usFiltered);
-                            console.log('US Total:', usTotal);
-                            console.log('US Amanda Filtered Transactions:', usAmandaFiltered);
-                            console.log('US Amanda Total:', usAmandaTotal);
-                            console.log('Final Total:', finalTotal);
-
-                            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(finalTotal);
+                            return `Total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(finalTotal)}`;
                         })()}
                     </p>
+                    
+                    {/* Amanda's transactions */}
+                    <div className="flex justify-between text-sm mb-2">
+                        <span>Amanda's expenses:</span>
+                        <span>
+                            {(() => {
+                                const amandaFiltered = amandaTransactions.filter(transaction => 
+                                    transaction.Date && 
+                                    new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                    new Date(transaction.Date) <= new Date('2025-03-31') &&
+                                    !transaction.Description?.toLowerCase().includes('bagaggio') &&
+                                    !transaction.Description?.toLowerCase().includes('unibh') &&
+                                    !transaction.Description?.toLowerCase().includes('gympass') &&
+                                    !transaction.Description?.toLowerCase().includes('iphone') &&
+                                    !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
+                                );
+                                return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    amandaFiltered.reduce((total, transaction) => total + (transaction.Amount || 0), 0)
+                                )}`;
+                            })()}
+                        </span>
+                    </div>
+                    
+                    {/* Carlos' shared expenses */}
+                    <div className="flex justify-between text-sm mb-2">
+                        <span>Carlos' shared (÷2):</span>
+                        <span>
+                            {(() => {
+                                const usFiltered = usTransactions.filter(transaction => 
+                                    transaction.Date && 
+                                    new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                    new Date(transaction.Date) <= new Date('2025-03-31') &&
+                                    !transaction.Description?.toLowerCase().includes('bagaggio') &&
+                                    !transaction.Description?.toLowerCase().includes('unibh') &&
+                                    !transaction.Description?.toLowerCase().includes('gympass') &&
+                                    !transaction.Description?.toLowerCase().includes('iphone') &&
+                                    !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
+                                );
+                                return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    usFiltered.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
+                                )}`;
+                            })()}
+                        </span>
+                    </div>
+                    
+                    {/* Amanda's shared expenses */}
+                    <div className="flex justify-between text-sm">
+                        <span>Amanda's shared (÷2):</span>
+                        <span>
+                            {(() => {
+                                const usAmandaFiltered = usTransactionsAmanda.filter(transaction => 
+                                    transaction.Date && 
+                                    new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                    new Date(transaction.Date) <= new Date('2025-03-31') &&
+                                    !transaction.Description?.toLowerCase().includes('bagaggio') &&
+                                    !transaction.Description?.toLowerCase().includes('unibh') &&
+                                    !transaction.Description?.toLowerCase().includes('gympass') &&
+                                    !transaction.Description?.toLowerCase().includes('iphone') &&
+                                    !transaction.Description?.toLowerCase().includes('casas bahia - 111240002982009-01')
+                                );
+                                return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    usAmandaFiltered.reduce((total, transaction) => total + (transaction.Amount || 0), 0) / 2
+                                )}`;
+                            })()}
+                        </span>
+                    </div>
+                    
+                    {/* Common Brazil merchants */}
+                    <Accordion type="single" collapsible className="mt-2">
+                        <AccordionItem value="details">
+                            <AccordionTrigger className="text-xs">View Top Merchants</AccordionTrigger>
+                            <AccordionContent>
+                                {(() => {
+                                    const allTransactions = [
+                                        ...usTransactions.filter(transaction => 
+                                            transaction.Date && 
+                                            new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                            new Date(transaction.Date) <= new Date('2025-03-31')
+                                        ),
+                                        ...usTransactionsAmanda.filter(transaction => 
+                                            transaction.Date && 
+                                            new Date(transaction.Date) >= new Date('2025-02-01') && 
+                                            new Date(transaction.Date) <= new Date('2025-03-31')
+                                        )
+                                    ];
+                                    
+                                    // Group by description and sum amounts
+                                    const merchants = allTransactions.reduce((acc, transaction) => {
+                                        const key = transaction.Description || 'Unknown';
+                                        if (!acc[key]) {
+                                            acc[key] = 0;
+                                        }
+                                        acc[key] += transaction.Amount || 0;
+                                        return acc;
+                                    }, {} as Record<string, number>);
+                                    
+                                    // Convert to array and sort by amount
+                                    return Object.entries(merchants)
+                                        .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                                        .slice(0, 5) // Show top 5
+                                        .map(([name, amount]) => (
+                                            <div key={name} className="flex justify-between text-xs mb-1">
+                                                <span className="truncate mr-2">{name}</span>
+                                                <span className={amount < 0 ? 'text-red-600' : 'text-green-600'}>
+                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                                                </span>
+                                            </div>
+                                        ));
+                                })()}
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
                 </CardContent>
             </Card>
 

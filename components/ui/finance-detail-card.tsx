@@ -105,107 +105,143 @@ export function FinanceDetailCard({
                   0
                 );
 
-                return `Total: ${new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(totalAmount)}`;
+                const isPositive = totalAmount >= 0;
+
+                return (
+                  <span
+                    className={`${
+                      isPositive ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {`Total: ${new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(totalAmount)}`}
+                  </span>
+                );
               })()}
             </p>
-            {/* Bagaggio's total */}
-            <div className="flex justify-between text-sm mb-2">
-              <span>Bagaggio:</span>
-              <span>
-                {(() => {
-                  const bagaggioTransactions = amandaTransactions.filter(
-                    (transaction) =>
-                      transaction.Description?.toLowerCase().includes(
-                        "bagaggio".toLowerCase()
-                      )
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
+
+            {[
+              {
+                label: "Amanda's expenses:",
+                transactions: amandaTransactions.filter((transaction) =>
+                  [
+                    "bagaggio",
+                    "unibh",
+                    "gympass",
+                    "iphone",
+                    "casas bahia - 111240002982009-01",
+                  ].some((keyword) =>
+                    transaction.Description?.toLowerCase().includes(
+                      keyword.toLowerCase()
+                    )
+                  )
+                ),
+              },
+              {
+                label: "Carlos' shared (÷2):",
+                transactions: [],
+                divideBy: 2,
+              },
+              {
+                label: "Amanda's shared (÷2):",
+                transactions: [],
+                divideBy: 2,
+              },
+            ].map(({ label, transactions, divideBy = 1 }, index) => (
+              <div
+                key={index}
+                className={`flex justify-between text-sm ${
+                  index < 2 ? "mb-2" : ""
+                }`}
+              >
+                <span>{label}</span>
+                <span>
+                  {new Intl.NumberFormat("pt-BR", {
                     style: "currency",
                     currency: "BRL",
-                  }).format(
-                    bagaggioTransactions.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
-                    )
-                  )}`;
-                })()}
-              </span>
-            </div>
-            {/* Unibh's total */}
-            <div className="flex justify-between text-sm mb-2">
-              <span>Unibh:</span>
-              <span>
-                {(() => {
-                  const unibhTransactions = amandaTransactions.filter(
-                    (transaction) =>
-                      transaction.Description?.toLowerCase().includes(
-                        "unibh".toLowerCase()
-                      )
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(
-                    unibhTransactions.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
-                    )
-                  )}`;
-                })()}
-              </span>
-            </div>
-            {/* Gynpass's total */}
-            <div className="flex justify-between text-sm mb-2">
-              <span>Gympass:</span>
-              <span>
-                {(() => {
-                  const gympassTransactions = amandaTransactions.filter(
-                    (transaction) =>
-                      transaction.Description?.toLowerCase().includes(
-                        "gympass".toLowerCase()
-                      )
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(
-                    gympassTransactions.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
-                    )
-                  )}`;
-                })()}
-              </span>
-            </div>
-            {/* Iphone's total */}
-            <div className="flex justify-between text-sm">
-              <span>iPhone and Casas Bahia:</span>
-              <span>
-                {(() => {
-                  const iphoneTransactions = amandaTransactions.filter(
-                    (transaction) =>
-                      transaction.Description?.toLowerCase().includes(
-                        "iphone".toLowerCase()
-                      ) ||
-                      transaction.Description?.toLowerCase().includes(
-                        "casas bahia - 111240002982009-01".toLowerCase()
-                      )
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(
-                    iphoneTransactions.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
-                    )
-                  )}`;
-                })()}
-              </span>
-            </div>
+                  }).format(calculateTotal(transactions) / divideBy)}
+                </span>
+              </div>
+            ))}
+            <Accordion type="single" collapsible className="mt-2">
+              <AccordionItem value="personalDetails">
+                <AccordionTrigger className="text-xs">
+                  View All Personal Transactions
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
+                    {(() => {
+                      const allPersonalTransactions = [
+                        ...amandaTransactions.filter(
+                          (transaction) =>
+                            transaction.Description?.toLowerCase().includes(
+                              "bagaggio"
+                            ) ||
+                            transaction.Description?.toLowerCase().includes(
+                              "unibh"
+                            ) ||
+                            transaction.Description?.toLowerCase().includes(
+                              "gympass"
+                            ) ||
+                            transaction.Description?.toLowerCase().includes(
+                              "iphone"
+                            ) ||
+                            transaction.Description?.toLowerCase().includes(
+                              "casas bahia - 111240002982009-01"
+                            )
+                        ),
+                      ];
+
+                      return allPersonalTransactions
+                        .sort((a, b) => {
+                          if (!a.Date || !b.Date) return 0;
+                          return (
+                            new Date(b.Date).getTime() -
+                            new Date(a.Date).getTime()
+                          );
+                        })
+                        .map((transaction, index) => (
+                          <div
+                            key={index}
+                            className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0"
+                          >
+                            <div className="flex flex-col w-3/5">
+                              <span className="truncate font-mono">
+                                {transaction.Description}
+                              </span>
+                              <span className="text-gray-500 text-[10px]">
+                                {transaction.Date &&
+                                  new Date(transaction.Date).toLocaleDateString(
+                                    "pt-BR",
+                                    {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                    }
+                                  )}
+                              </span>
+                            </div>
+                            <span
+                              className={`w-2/5 text-right ${
+                                transaction.Amount && transaction.Amount > 0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              {new Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              }).format(transaction.Amount || 0)}
+                            </span>
+                          </div>
+                        ));
+                    })()}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </>
         );
 
@@ -217,19 +253,21 @@ export function FinanceDetailCard({
                 const amandaFiltered = amandaTransactions.filter(
                   (transaction) =>
                     transaction.Date &&
+                    new Date(transaction.Date) >= new Date("2024-11-01") &&
                     new Date(transaction.Date) <= new Date("2025-01-31") &&
-                    !transaction.Description?.toLowerCase().includes(
-                      "bagaggio"
-                    ) &&
-                    !transaction.Description?.toLowerCase().includes("unibh") &&
-                    !transaction.Description?.toLowerCase().includes(
-                      "gympass"
-                    ) &&
-                    !transaction.Description?.toLowerCase().includes(
-                      "iphone"
-                    ) &&
-                    !transaction.Description?.toLowerCase().includes(
-                      "casas bahia - 111240002982009-01"
+                    ![
+                      "bagaggio",
+                      "unibh",
+                      "gympass",
+                      "iphone",
+                      "casas bahia - 111240002982009-01",
+                      "pix", // Added to exclude PIX transactions
+                      "recebido", // Added to exclude incoming transfers
+                      "POUSADA DA CYSSA       ARMACAO DOS B BRA", // Exclude wedding transactions
+                    ].some((keyword) =>
+                      transaction.Description?.toLowerCase().includes(
+                        keyword.toLowerCase()
+                      )
                     )
                 );
                 const amandaTotal = amandaFiltered.reduce(
@@ -240,7 +278,17 @@ export function FinanceDetailCard({
                 const usFiltered = usTransactions.filter(
                   (transaction) =>
                     transaction.Date &&
-                    new Date(transaction.Date) <= new Date("2025-01-31")
+                    new Date(transaction.Date) >= new Date("2024-11-01") &&
+                    new Date(transaction.Date) <= new Date("2025-01-31") &&
+                    ![
+                      "pix", // Added to exclude PIX transactions
+                      "recebido", // Added to exclude incoming transfers
+                      "POUSADA DA CYSSA       ARMACAO DOS B BRA", // Exclude wedding transactions
+                    ].some((keyword) =>
+                      transaction.Description?.toLowerCase().includes(
+                        keyword.toLowerCase()
+                      )
+                    )
                 );
                 const usTotal =
                   usFiltered.reduce(
@@ -251,7 +299,17 @@ export function FinanceDetailCard({
                 const usAmandaFiltered = usTransactionsAmanda.filter(
                   (transaction) =>
                     transaction.Date &&
-                    new Date(transaction.Date) <= new Date("2025-01-31")
+                    new Date(transaction.Date) >= new Date("2024-11-01") &&
+                    new Date(transaction.Date) <= new Date("2025-01-31") &&
+                    ![
+                      "pix", // Added to exclude PIX transactions
+                      "recebido", // Added to exclude incoming transfers
+                      "POUSADA DA CYSSA       ARMACAO DOS B BRA", // Exclude wedding transactions
+                    ].some((keyword) =>
+                      transaction.Description?.toLowerCase().includes(
+                        keyword.toLowerCase()
+                      )
+                    )
                 );
                 const usAmandaTotal =
                   usAmandaFiltered.reduce(
@@ -260,11 +318,20 @@ export function FinanceDetailCard({
                   ) / 2;
 
                 const finalTotal = amandaTotal + usTotal - usAmandaTotal;
+                const isPositive = finalTotal >= 0;
 
-                return `Total: ${new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(finalTotal)}`;
+                return (
+                  <span
+                    className={`${
+                      isPositive ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {`Total: ${new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(finalTotal)}`}
+                  </span>
+                );
               })()}
             </p>
 
@@ -272,37 +339,23 @@ export function FinanceDetailCard({
             <div className="flex justify-between text-sm mb-2">
               <span>Amanda&apos;s expenses:</span>
               <span>
-                {(() => {
-                  const amandaFiltered = amandaTransactions.filter(
-                    (transaction) =>
-                      transaction.Date &&
-                      new Date(transaction.Date) <= new Date("2025-01-31") &&
-                      !transaction.Description?.toLowerCase().includes(
-                        "bagaggio"
-                      ) &&
-                      !transaction.Description?.toLowerCase().includes(
-                        "unibh"
-                      ) &&
-                      !transaction.Description?.toLowerCase().includes(
-                        "gympass"
-                      ) &&
-                      !transaction.Description?.toLowerCase().includes(
-                        "iphone"
-                      ) &&
-                      !transaction.Description?.toLowerCase().includes(
-                        "casas bahia - 111240002982009-01"
-                      )
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(
-                    amandaFiltered.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(
+                  calculateTotal(
+                    filterTransactions(
+                      amandaTransactions,
+                      "2024-11-01",
+                      "2025-01-31"
+                    ).filter(
+                      (transaction) =>
+                        !transaction.Description?.includes(
+                          "POUSADA DA CYSSA       ARMACAO DOS B BRA"
+                        )
                     )
-                  )}`;
-                })()}
+                  )
+                )}
               </span>
             </div>
 
@@ -310,22 +363,23 @@ export function FinanceDetailCard({
             <div className="flex justify-between text-sm mb-2">
               <span>Carlos&apos; shared (÷2):</span>
               <span>
-                {(() => {
-                  const usFiltered = usTransactions.filter(
-                    (transaction) =>
-                      transaction.Date &&
-                      new Date(transaction.Date) <= new Date("2025-01-31")
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(
-                    usFiltered.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
-                    ) / 2
-                  )}`;
-                })()}
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(
+                  calculateTotal(
+                    filterTransactions(
+                      usTransactions,
+                      "2024-11-01",
+                      "2025-01-31"
+                    ).filter(
+                      (transaction) =>
+                        !transaction.Description?.includes(
+                          "POUSADA DA CYSSA       ARMACAO DOS B BRA"
+                        )
+                    )
+                  ) / 2
+                )}
               </span>
             </div>
 
@@ -333,22 +387,23 @@ export function FinanceDetailCard({
             <div className="flex justify-between text-sm">
               <span>Amanda&apos;s shared (÷2):</span>
               <span>
-                {(() => {
-                  const usAmandaFiltered = usTransactionsAmanda.filter(
-                    (transaction) =>
-                      transaction.Date &&
-                      new Date(transaction.Date) <= new Date("2025-01-31")
-                  );
-                  return `${new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(
-                    usAmandaFiltered.reduce(
-                      (total, transaction) => total + (transaction.Amount || 0),
-                      0
-                    ) / 2
-                  )}`;
-                })()}
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(
+                  calculateTotal(
+                    filterTransactions(
+                      usTransactionsAmanda,
+                      "2024-11-01",
+                      "2025-01-31"
+                    ).filter(
+                      (transaction) =>
+                        !transaction.Description?.includes(
+                          "POUSADA DA CYSSA       ARMACAO DOS B BRA"
+                        )
+                    )
+                  ) / 2
+                )}
               </span>
             </div>
 
@@ -361,30 +416,35 @@ export function FinanceDetailCard({
                 <AccordionContent>
                   <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
                     {(() => {
-                      const amandaFiltered = amandaTransactions.filter(
+                      const allTransactions = [
+                        ...amandaTransactions,
+                        ...usTransactions,
+                        ...usTransactionsAmanda,
+                      ].filter(
                         (transaction) =>
                           transaction.Date &&
+                          new Date(transaction.Date) >=
+                            new Date("2024-11-01") &&
                           new Date(transaction.Date) <=
                             new Date("2025-01-31") &&
-                          !transaction.Description?.toLowerCase().includes(
-                            "bagaggio"
-                          ) &&
-                          !transaction.Description?.toLowerCase().includes(
-                            "unibh"
-                          ) &&
-                          !transaction.Description?.toLowerCase().includes(
-                            "gympass"
-                          ) &&
-                          !transaction.Description?.toLowerCase().includes(
-                            "iphone"
-                          ) &&
-                          !transaction.Description?.toLowerCase().includes(
-                            "casas bahia - 111240002982009-01"
+                          ![
+                            "bagaggio",
+                            "unibh",
+                            "gympass",
+                            "iphone",
+                            "casas bahia - 111240002982009-01",
+                            "pix", // Added to exclude PIX transactions
+                            "recebido", // Added to exclude incoming transfers
+                            "POUSADA DA CYSSA       ARMACAO DOS B BRA", // Exclude wedding transactions
+                          ].some((keyword) =>
+                            transaction.Description?.toLowerCase().includes(
+                              keyword.toLowerCase()
+                            )
                           )
                       );
 
                       // Group by description and sum amounts
-                      const merchants = amandaFiltered.reduce(
+                      const merchants = allTransactions.reduce(
                         (acc, transaction) => {
                           const key = transaction.Description || "Unknown";
                           if (!acc[key]) {
@@ -629,13 +689,6 @@ export function FinanceDetailCard({
                     transaction.Amount
                 );
 
-                const incomingPixTransactions = amandaTransactions.filter(
-                  (transaction) =>
-                    transaction.Description?.toLowerCase().includes(
-                      "recebido"
-                    ) && transaction.Amount
-                );
-
                 const carlosShared = usTransactions.filter(
                   (transaction) =>
                     transaction.Description?.toLowerCase().includes("pix") &&
@@ -648,9 +701,9 @@ export function FinanceDetailCard({
                     transaction.Amount
                 );
 
+                // Updated calculation to match the values shown in the card
                 const totalAmount =
                   calculateTotal(amandaPixTransactions) +
-                  calculateTotal(incomingPixTransactions) +
                   calculateTotal(carlosShared) / 2 +
                   calculateTotal(amandaShared) / 2;
 
@@ -676,7 +729,10 @@ export function FinanceDetailCard({
                 label: "Amanda's expenses:",
                 transactions: amandaTransactions.filter(
                   (transaction) =>
-                    transaction.Description?.toLowerCase().includes("pix") &&
+                    (transaction.Description?.toLowerCase().includes("pix") ||
+                      transaction.Description?.toLowerCase().includes(
+                        "recebido"
+                      )) &&
                     transaction.Amount
                 ),
                 divideBy: 1,
@@ -703,7 +759,7 @@ export function FinanceDetailCard({
               <div
                 key={index}
                 className={`flex justify-between text-sm ${
-                  index < 3 ? "mb-2" : ""
+                  index < 2 ? "mb-2" : ""
                 }`}
               >
                 <span>{label}</span>

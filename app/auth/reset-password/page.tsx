@@ -7,13 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-import { AuthError } from "@supabase/supabase-js"; // Add this import
+// Remove unused AuthError import
+// import { AuthError } from "@supabase/supabase-js";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  // Keep isTokenInUrl state as it's used in your form submission logic
   const [isTokenInUrl, setIsTokenInUrl] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +32,8 @@ export default function ResetPasswordPage() {
       const token = urlParams.get("token");
 
       let result;
-      if (token) {
+      if (token || isTokenInUrl) {
+        // Use isTokenInUrl state here
         // Use token directly from URL
         console.log("Using token from URL for password reset");
         result = await supabase.auth.updateUser(
@@ -50,6 +53,10 @@ export default function ResetPasswordPage() {
       router.push("/auth/login?message=password_updated");
     } catch (error: unknown) {
       // Error handling...
+      console.error("Password update error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update password"
+      );
     } finally {
       setLoading(false);
     }
@@ -61,10 +68,10 @@ export default function ResetPasswordPage() {
       console.log("Checking session on reset password page");
 
       try {
-        const { data, error } = await supabase.auth.getSession();
+        const { data, error: sessionError } = await supabase.auth.getSession(); // Rename to avoid unused variable
 
-        if (error) {
-          console.error("Session error:", error);
+        if (sessionError) {
+          console.error("Session error:", sessionError);
           toast.error("Invalid or expired reset link");
           router.push("/auth/login");
           return;

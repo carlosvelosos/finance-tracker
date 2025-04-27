@@ -857,17 +857,6 @@ export function FinanceDetailCard({
             <p className="text-xl font-bold mb-4">
               {(() => {
                 // Filter transactions with exact description match
-                const weddingTransactions = [
-                  ...amandaTransactions,
-                  ...usTransactions,
-                  ...usTransactionsAmanda,
-                ].filter(
-                  (transaction) =>
-                    transaction.Description &&
-                    transaction.Description.includes(
-                      "POUSADA DA CYSSA       ARMACAO DOS B BRA"
-                    )
-                );
 
                 const amandaExpenses = amandaTransactions.filter(
                   (transaction) =>

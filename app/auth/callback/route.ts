@@ -35,6 +35,8 @@ export async function GET(request: Request) {
       }
     } catch (e) {
       console.error("Auth callback error:", e);
+      // Add error handling redirect
+      return NextResponse.redirect(new URL('/auth/login?error=unexpected', requestUrl.origin));
     }
   }
 

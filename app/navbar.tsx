@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { toast } from "sonner";
 
 // Define user types or roles
 type NavLink = {
@@ -57,12 +58,34 @@ export default function Navbar() {
     }
   }, [user]);
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error logging out:", error);
-    } else {
-      console.log("Logged out successfully");
+  // Modify the handleLogout function to ensure it works on mobile
+  const handleLogout = async (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent default behavior and stop propagation
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      // Show loading state to give feedback to user
+      toast.loading("Logging out...");
+
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Error logging out:", error);
+        toast.error("Failed to log out. Please try again.");
+      } else {
+        console.log("Logged out successfully");
+        toast.success("Logged out successfully");
+
+        // Force a hard refresh after a brief delay
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Unexpected error during logout:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -187,6 +210,7 @@ export default function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
+                  onTouchEnd={handleLogout} // Add touch event handler
                   className="flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-red-50"
                 >
                   <svg

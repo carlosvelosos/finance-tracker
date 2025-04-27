@@ -65,27 +65,24 @@ export default function Navbar() {
     e.stopPropagation();
 
     try {
-      // Show loading state to give feedback to user
-      toast.loading("Logging out...");
-
       // Sign out from Supabase
+      console.log("Attempting to log out...");
       const { error } = await supabase.auth.signOut();
 
       if (error) {
         console.error("Error logging out:", error);
-        toast.error("Failed to log out. Please try again.");
+        // Simple alert as fallback to ensure it works everywhere
+        window.alert("Failed to log out. Please try again.");
       } else {
         console.log("Logged out successfully");
-        toast.success("Logged out successfully");
 
-        // Force a hard refresh after a brief delay
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 500);
+        // Critical: Force redirect to login page
+        window.location.href = "/auth/login";
       }
     } catch (error) {
       console.error("Unexpected error during logout:", error);
-      toast.error("Something went wrong. Please try again.");
+      // Simple alert as fallback
+      window.alert("Something went wrong during logout. Please try again.");
     }
   };
 

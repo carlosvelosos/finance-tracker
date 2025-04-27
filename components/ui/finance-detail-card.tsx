@@ -623,19 +623,36 @@ export function FinanceDetailCard({
             <p className="text-xl font-bold mb-4">
               {(() => {
                 // Filter transactions containing "pix" or "recebido" in the description
-                const pixTransactions = amandaTransactions.filter(
+                const amandaPixTransactions = amandaTransactions.filter(
                   (transaction) =>
-                    (transaction.Description?.toLowerCase().includes("pix") ||
-                      transaction.Description?.toLowerCase().includes(
-                        "recebido"
-                      )) &&
+                    transaction.Description?.toLowerCase().includes("pix") &&
                     transaction.Amount
                 );
 
-                const totalAmount = pixTransactions.reduce(
-                  (total, transaction) => total + (transaction.Amount || 0),
-                  0
+                const incomingPixTransactions = amandaTransactions.filter(
+                  (transaction) =>
+                    transaction.Description?.toLowerCase().includes(
+                      "recebido"
+                    ) && transaction.Amount
                 );
+
+                const carlosShared = usTransactions.filter(
+                  (transaction) =>
+                    transaction.Description?.toLowerCase().includes("pix") &&
+                    transaction.Amount
+                );
+
+                const amandaShared = usTransactionsAmanda.filter(
+                  (transaction) =>
+                    transaction.Description?.toLowerCase().includes("pix") &&
+                    transaction.Amount
+                );
+
+                const totalAmount =
+                  calculateTotal(amandaPixTransactions) +
+                  calculateTotal(incomingPixTransactions) +
+                  calculateTotal(carlosShared) / 2 +
+                  calculateTotal(amandaShared) / 2;
 
                 const isPositive = totalAmount >= 0;
 
@@ -654,6 +671,51 @@ export function FinanceDetailCard({
               })()}
             </p>
 
+            {[
+              {
+                label: "Amanda's expenses:",
+                transactions: amandaTransactions.filter(
+                  (transaction) =>
+                    transaction.Description?.toLowerCase().includes("pix") &&
+                    transaction.Amount
+                ),
+                divideBy: 1,
+              },
+              {
+                label: "Carlos' shared (÷2):",
+                transactions: usTransactions.filter(
+                  (transaction) =>
+                    transaction.Description?.toLowerCase().includes("pix") &&
+                    transaction.Amount
+                ),
+                divideBy: 2,
+              },
+              {
+                label: "Amanda's shared (÷2):",
+                transactions: usTransactionsAmanda.filter(
+                  (transaction) =>
+                    transaction.Description?.toLowerCase().includes("pix") &&
+                    transaction.Amount
+                ),
+                divideBy: 2,
+              },
+            ].map(({ label, transactions, divideBy = 1 }, index) => (
+              <div
+                key={index}
+                className={`flex justify-between text-sm ${
+                  index < 3 ? "mb-2" : ""
+                }`}
+              >
+                <span>{label}</span>
+                <span>
+                  {new Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }).format(calculateTotal(transactions) / divideBy)}
+                </span>
+              </div>
+            ))}
+
             {/* View All PIX Transactions */}
             <Accordion type="single" collapsible className="mt-4">
               <AccordionItem value="pixDetails">
@@ -663,16 +725,24 @@ export function FinanceDetailCard({
                 <AccordionContent>
                   <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
                     {(() => {
-                      // Update this to include all PIX transactions, both incoming and outgoing
-                      const pixTransactions = amandaTransactions.filter(
-                        (transaction) =>
-                          transaction.Description?.toLowerCase().includes(
-                            "pix"
-                          ) ||
-                          transaction.Description?.toLowerCase().includes(
-                            "recebido"
-                          )
-                      );
+                      // Include all PIX transactions, both incoming and outgoing
+                      const pixTransactions = [
+                        ...amandaTransactions.filter(
+                          (transaction) =>
+                            transaction.Description?.toLowerCase().includes(
+                              "pix"
+                            ) ||
+                            transaction.Description?.toLowerCase().includes(
+                              "recebido"
+                            )
+                        ),
+                        ...usTransactions.filter((transaction) =>
+                          transaction.Description?.toLowerCase().includes("pix")
+                        ),
+                        ...usTransactionsAmanda.filter((transaction) =>
+                          transaction.Description?.toLowerCase().includes("pix")
+                        ),
+                      ];
 
                       return pixTransactions
                         .sort((a, b) => {

@@ -14,37 +14,39 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast.error("Passwords don't match");
       return;
     }
-    
+
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters");
       return;
     }
-    
+
     try {
       setLoading(true);
-      
+
       const { error } = await supabase.auth.updateUser({
         password,
       });
-      
+
       if (error) throw error;
-      
+
       toast.success("Password updated successfully");
-      router.push('/auth/login');
-    } catch (error: unknown) { // Change 'any' to 'unknown' for better type safety
+      router.push("/auth/login");
+    } catch (error: unknown) {
+      // Change 'any' to 'unknown' for better type safety
       // Type guard to check if it's a specific error type
-      const errorMessage = error instanceof AuthError 
-        ? error.message 
-        : "Failed to update password";
-      
+      const errorMessage =
+        error instanceof AuthError
+          ? error.message
+          : "Failed to update password";
+
       toast.error(errorMessage);
       console.error("Password reset error:", error);
     } finally {
@@ -56,13 +58,29 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const checkSession = async () => {
       const { data, error } = await supabase.auth.getSession();
-      
-      if (error || !data.session) {
+
+      if (error) {
         toast.error("Invalid or expired reset link");
-        router.push('/auth/login');
+        router.push("/auth/login");
+        return;
       }
+
+      if (!data.session) {
+        toast.error("No active session found");
+        router.push("/auth/login");
+        return;
+      }
+
+      // Check context to ensure this is a password reset flow
+      const accessToken = data.session?.access_token;
+      if (!accessToken) {
+        toast.error("Invalid session token");
+        router.push("/auth/login");
+      }
+
+      console.log("Valid recovery session detected");
     };
-    
+
     checkSession();
   }, [router]);
 
@@ -91,12 +109,17 @@ export default function ResetPasswordPage() {
 
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Set new password</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">
+              Set new password
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   New password
                 </label>
                 <Input
@@ -109,12 +132,16 @@ export default function ResetPasswordPage() {
                   disabled={loading}
                 />
                 <p className="mt-1 text-xs text-gray-500">
-                  Must be at least 8 characters with a number and special character
+                  Must be at least 8 characters with a number and special
+                  character
                 </p>
               </div>
-              
+
               <div className="mb-6">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Confirm new password
                 </label>
                 <Input

@@ -1,45 +1,45 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
-} from "embla-carousel-react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+} from "embla-carousel-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-type CarouselApi = UseEmblaCarouselType[1]
-type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
-type CarouselOptions = UseCarouselParameters[0]
-type CarouselPlugin = UseCarouselParameters[1]
+type CarouselApi = UseEmblaCarouselType[1];
+type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
+type CarouselOptions = UseCarouselParameters[0];
+type CarouselPlugin = UseCarouselParameters[1];
 
 type CarouselProps = {
-  opts?: CarouselOptions
-  plugins?: CarouselPlugin
-  orientation?: "horizontal" | "vertical"
-  setApi?: (api: CarouselApi) => void
-}
+  opts?: CarouselOptions;
+  plugins?: CarouselPlugin;
+  orientation?: "horizontal" | "vertical";
+  setApi?: (api: CarouselApi) => void;
+};
 
 type CarouselContextProps = {
-  carouselRef: ReturnType<typeof useEmblaCarousel>[0]
-  api: ReturnType<typeof useEmblaCarousel>[1]
-  scrollPrev: () => void
-  scrollNext: () => void
-  canScrollPrev: boolean
-  canScrollNext: boolean
-} & CarouselProps
+  carouselRef: ReturnType<typeof useEmblaCarousel>[0];
+  api: ReturnType<typeof useEmblaCarousel>[1];
+  scrollPrev: () => void;
+  scrollNext: () => void;
+  canScrollPrev: boolean;
+  canScrollNext: boolean;
+} & CarouselProps;
 
-const CarouselContext = React.createContext<CarouselContextProps | null>(null)
+const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
 function useCarousel() {
-  const context = React.useContext(CarouselContext)
+  const context = React.useContext(CarouselContext);
 
   if (!context) {
-    throw new Error("useCarousel must be used within a <Carousel />")
+    throw new Error("useCarousel must be used within a <Carousel />");
   }
 
-  return context
+  return context;
 }
 
 function Carousel({
@@ -57,52 +57,52 @@ function Carousel({
       axis: orientation === "horizontal" ? "x" : "y",
     },
     plugins
-  )
-  const [canScrollPrev, setCanScrollPrev] = React.useState(false)
-  const [canScrollNext, setCanScrollNext] = React.useState(false)
+  );
+  const [canScrollPrev, setCanScrollPrev] = React.useState(false);
+  const [canScrollNext, setCanScrollNext] = React.useState(false);
 
   const onSelect = React.useCallback((api: CarouselApi) => {
-    if (!api) return
-    setCanScrollPrev(api.canScrollPrev())
-    setCanScrollNext(api.canScrollNext())
-  }, [])
+    if (!api) return;
+    setCanScrollPrev(api.canScrollPrev());
+    setCanScrollNext(api.canScrollNext());
+  }, []);
 
   const scrollPrev = React.useCallback(() => {
-    api?.scrollPrev()
-  }, [api])
+    api?.scrollPrev();
+  }, [api]);
 
   const scrollNext = React.useCallback(() => {
-    api?.scrollNext()
-  }, [api])
+    api?.scrollNext();
+  }, [api]);
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === "ArrowLeft") {
-        event.preventDefault()
-        scrollPrev()
+        event.preventDefault();
+        scrollPrev();
       } else if (event.key === "ArrowRight") {
-        event.preventDefault()
-        scrollNext()
+        event.preventDefault();
+        scrollNext();
       }
     },
     [scrollPrev, scrollNext]
-  )
+  );
 
   React.useEffect(() => {
-    if (!api || !setApi) return
-    setApi(api)
-  }, [api, setApi])
+    if (!api || !setApi) return;
+    setApi(api);
+  }, [api, setApi]);
 
   React.useEffect(() => {
-    if (!api) return
-    onSelect(api)
-    api.on("reInit", onSelect)
-    api.on("select", onSelect)
+    if (!api) return;
+    onSelect(api);
+    api.on("reInit", onSelect);
+    api.on("select", onSelect);
 
     return () => {
-      api?.off("select", onSelect)
-    }
-  }, [api, onSelect])
+      api?.off("select", onSelect);
+    };
+  }, [api, onSelect]);
 
   return (
     <CarouselContext.Provider
@@ -129,11 +129,11 @@ function Carousel({
         {children}
       </div>
     </CarouselContext.Provider>
-  )
+  );
 }
 
 function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
-  const { carouselRef, orientation } = useCarousel()
+  const { carouselRef, orientation } = useCarousel();
 
   return (
     <div
@@ -150,11 +150,11 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
         {...props}
       />
     </div>
-  )
+  );
 }
 
 function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
-  const { orientation } = useCarousel()
+  const { orientation } = useCarousel();
 
   return (
     <div
@@ -168,7 +168,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CarouselPrevious({
@@ -177,7 +177,7 @@ function CarouselPrevious({
   size = "icon",
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { orientation, scrollPrev, canScrollPrev } = useCarousel()
+  const { orientation, scrollPrev, canScrollPrev } = useCarousel();
 
   return (
     <Button
@@ -199,7 +199,7 @@ function CarouselPrevious({
       <ArrowLeft />
       <span className="sr-only">Previous slide</span>
     </Button>
-  )
+  );
 }
 
 function CarouselNext({
@@ -208,7 +208,7 @@ function CarouselNext({
   size = "icon",
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { orientation, scrollNext, canScrollNext } = useCarousel()
+  const { orientation, scrollNext, canScrollNext } = useCarousel();
 
   return (
     <Button
@@ -230,55 +230,52 @@ function CarouselNext({
       <ArrowRight />
       <span className="sr-only">Next slide</span>
     </Button>
-  )
+  );
 }
 
-function CarouselDots({ 
-  className,
-  ...props 
-}: React.ComponentProps<"div">) {
-  const { api } = useCarousel()
-  const [selectedIndex, setSelectedIndex] = React.useState(0)
-  const [slideCount, setSlideCount] = React.useState(0)
+function CarouselDots({ className, ...props }: React.ComponentProps<"div">) {
+  const { api } = useCarousel();
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [slideCount, setSlideCount] = React.useState(0);
 
   React.useEffect(() => {
-    if (!api) return
-    
+    if (!api) return;
+
     // Force a more reliable slide count detection
     const updateSlideCount = () => {
       // Get the actual number of slides from DOM if API method fails
       const slides = document.querySelectorAll('[data-slot="carousel-item"]');
       setSlideCount(slides.length || api.slideNodes().length || 3);
-    }
-    
+    };
+
     const onSelect = () => {
-      setSelectedIndex(api.selectedScrollSnap())
-    }
-    
+      setSelectedIndex(api.selectedScrollSnap());
+    };
+
     updateSlideCount();
-    api.on("select", onSelect)
-    api.on("reInit", updateSlideCount)
-    onSelect() // Initialize with current selection
-    
+    api.on("select", onSelect);
+    api.on("reInit", updateSlideCount);
+    onSelect(); // Initialize with current selection
+
     return () => {
-      api.off("select", onSelect)
-      api.off("reInit", updateSlideCount)
-    }
-  }, [api])
+      api.off("select", onSelect);
+      api.off("reInit", updateSlideCount);
+    };
+  }, [api]);
 
   const handleDotClick = React.useCallback(
     (index: number) => {
-      api?.scrollTo(index)
+      api?.scrollTo(index);
     },
     [api]
-  )
+  );
 
   // Ensure we always render at least the number of carousel items we know we have
   const dotsToRender = Math.max(slideCount, 3); // You have 3 slides
 
   return (
-    <div 
-      className={cn("flex justify-center items-center gap-2", className)} 
+    <div
+      className={cn("flex justify-center items-center gap-2", className)}
       {...props}
     >
       {Array.from({ length: dotsToRender }).map((_, index) => (
@@ -286,7 +283,7 @@ function CarouselDots({
           key={index}
           className={cn(
             "transition-all",
-            selectedIndex === index 
+            selectedIndex === index
               ? "h-1.5 w-8 rounded-full bg-primary" // Line shape for active
               : "h-2 w-2 rounded-full bg-gray-400" // Circle shape for inactive
           )}
@@ -295,17 +292,20 @@ function CarouselDots({
         />
       ))}
     </div>
-  )
+  );
 }
 
-function CarouselDotsResponsive({ className, ...props }: React.ComponentProps<"div">) {
-  const { api } = useCarousel()
-  const [selectedIndex, setSelectedIndex] = React.useState(0)
-  const [is2XL, setIs2XL] = React.useState(false)
+function CarouselDotsResponsive({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  const { api } = useCarousel();
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [is2XL, setIs2XL] = React.useState(false);
 
   React.useEffect(() => {
-    if (!api) return
-    
+    if (!api) return;
+
     // Function to update the selected index
     const updateSelectedIndex = () => {
       const currentIndex = api.selectedScrollSnap();
@@ -320,40 +320,43 @@ function CarouselDotsResponsive({ className, ...props }: React.ComponentProps<"d
     // Initial setup
     updateScreenSize();
     updateSelectedIndex();
-    
+
     // Create a more robust event handler system
     const onSelectHandler = () => {
       window.requestAnimationFrame(updateSelectedIndex);
     };
-    
+
     const onResizeHandler = () => {
       updateScreenSize();
     };
-    
+
     // Listen to ALL relevant events
     api.on("select", onSelectHandler);
     api.on("settle", onSelectHandler);
     window.addEventListener("resize", onResizeHandler);
-    
+
     return () => {
       api.off("select", onSelectHandler);
       api.off("settle", onSelectHandler);
       window.removeEventListener("resize", onResizeHandler);
     };
   }, [api]);
-  
+
   // Click handler
-  const handleDotClick = React.useCallback((index: number) => {
-    if (!api) return;
-    
-    // If 2XL screen and clicking second dot, go to slide 3
-    const targetIndex = is2XL && index === 1 ? 3 : index;
-    api.scrollTo(targetIndex);
-  }, [api, is2XL]);
-  
+  const handleDotClick = React.useCallback(
+    (index: number) => {
+      if (!api) return;
+
+      // If 2XL screen and clicking second dot, go to slide 3
+      const targetIndex = is2XL && index === 1 ? 3 : index;
+      api.scrollTo(targetIndex);
+    },
+    [api, is2XL]
+  );
+
   // Determine which indicators to show based on screen size
-  const indicators = is2XL ? [0, 1] : [0, 1, 2, 3];
-  
+  const indicators = is2XL ? [0, 1, 2] : [0, 1, 2, 3, 4];
+
   // Calculate active indicator based on current slide
   const activeIndicatorIndex = React.useMemo(() => {
     // if (is2XL) {
@@ -363,36 +366,50 @@ function CarouselDotsResponsive({ className, ...props }: React.ComponentProps<"d
     //   return result;
     // }
     // On smaller screens: direct mapping
-    console.log(`[Regular Mode] Selected slide: ${selectedIndex}, Active indicator: ${selectedIndex}`);
+    console.log(
+      `[Regular Mode] Selected slide: ${selectedIndex}, Active indicator: ${selectedIndex}`
+    );
     return selectedIndex;
   }, [selectedIndex, is2XL]);
 
   // Log when the component renders
-  console.log(`Rendering indicators - selectedIndex: ${selectedIndex}, is2XL: ${is2XL}, activeIndicatorIndex: ${activeIndicatorIndex}`);
+  console.log(
+    `Rendering indicators - selectedIndex: ${selectedIndex}, is2XL: ${is2XL}, activeIndicatorIndex: ${activeIndicatorIndex}`
+  );
 
   return (
-    <div 
-      className={cn("flex justify-center items-center gap-2", className)} 
+    <div
+      className={cn("flex justify-center items-center gap-2", className)}
       {...props}
     >
       {indicators.map((_, index) => {
         // Log for each indicator during render
-        console.log(`  Rendering indicator ${index}, active: ${index === activeIndicatorIndex}`);
-        
+        console.log(
+          `  Rendering indicator ${index}, active: ${
+            index === activeIndicatorIndex
+          }`
+        );
+
         return (
           <button
             key={index}
             className={cn(
               "transition-all",
               index === activeIndicatorIndex
-                ? "h-1.5 w-8 rounded-full bg-primary" 
+                ? "h-1.5 w-8 rounded-full bg-primary"
                 : "h-2 w-2 rounded-full bg-gray-400"
             )}
             onClick={() => {
-              console.log(`Clicked indicator ${index}, will scroll to: ${is2XL && index === 1 ? 3 : index}`);
+              console.log(
+                `Clicked indicator ${index}, will scroll to: ${
+                  is2XL && index === 1 ? 3 : index
+                }`
+              );
               handleDotClick(index);
             }}
-            aria-label={`Go to ${is2XL && index === 1 ? 'card 4' : `slide ${index + 1}`}`}
+            aria-label={`Go to ${
+              is2XL && index === 1 ? "card 4" : `slide ${index + 1}`
+            }`}
           />
         );
       })}
@@ -409,4 +426,4 @@ export {
   CarouselNext,
   CarouselDots,
   CarouselDotsResponsive, // Add the new component to exports
-}
+};

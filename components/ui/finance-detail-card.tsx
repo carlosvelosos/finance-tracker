@@ -540,7 +540,11 @@ export function FinanceDetailCard({
                             <div className="flex flex-col w-3/5">
                               <span className="truncate font-mono">{transaction.Description}</span>
                               <span className="text-gray-500 text-[10px]">
-                                {transaction.Date && new Date(transaction.Date).toLocaleDateString()}
+                                {transaction.Date && new Date(transaction.Date).toLocaleDateString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit', 
+                                  year: 'numeric'
+                                })}
                               </span>
                             </div>
                             <span className={`w-2/5 text-right ${transaction.Amount && transaction.Amount > 0 ? 'text-green-600' : 'text-red-600'}`}>

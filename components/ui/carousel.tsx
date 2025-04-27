@@ -298,6 +298,108 @@ function CarouselDots({
   )
 }
 
+function CarouselDotsResponsive({ className, ...props }: React.ComponentProps<"div">) {
+  const { api } = useCarousel()
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [is2XL, setIs2XL] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!api) return
+    
+    // Function to update the selected index
+    const updateSelectedIndex = () => {
+      const currentIndex = api.selectedScrollSnap();
+      setSelectedIndex(currentIndex);
+    };
+
+    // Function to check screen size
+    const updateScreenSize = () => {
+      setIs2XL(window.innerWidth >= 1536);
+    };
+
+    // Initial setup
+    updateScreenSize();
+    updateSelectedIndex();
+    
+    // Create a more robust event handler system
+    const onSelectHandler = () => {
+      window.requestAnimationFrame(updateSelectedIndex);
+    };
+    
+    const onResizeHandler = () => {
+      updateScreenSize();
+    };
+    
+    // Listen to ALL relevant events
+    api.on("select", onSelectHandler);
+    api.on("settle", onSelectHandler);
+    window.addEventListener("resize", onResizeHandler);
+    
+    return () => {
+      api.off("select", onSelectHandler);
+      api.off("settle", onSelectHandler);
+      window.removeEventListener("resize", onResizeHandler);
+    };
+  }, [api]);
+  
+  // Click handler
+  const handleDotClick = React.useCallback((index: number) => {
+    if (!api) return;
+    
+    // If 2XL screen and clicking second dot, go to slide 3
+    const targetIndex = is2XL && index === 1 ? 3 : index;
+    api.scrollTo(targetIndex);
+  }, [api, is2XL]);
+  
+  // Determine which indicators to show based on screen size
+  const indicators = is2XL ? [0, 1] : [0, 1, 2, 3];
+  
+  // Calculate active indicator based on current slide
+  const activeIndicatorIndex = React.useMemo(() => {
+    // if (is2XL) {
+    //   // On 2XL screens: 0 for slides 0-2, 1 for slide 3
+    //   const result = selectedIndex >= 3 ? 1 : 0;
+    //   console.log(`[2XL Mode] Selected slide: ${selectedIndex}, Active indicator: ${result}`);
+    //   return result;
+    // }
+    // On smaller screens: direct mapping
+    console.log(`[Regular Mode] Selected slide: ${selectedIndex}, Active indicator: ${selectedIndex}`);
+    return selectedIndex;
+  }, [selectedIndex, is2XL]);
+
+  // Log when the component renders
+  console.log(`Rendering indicators - selectedIndex: ${selectedIndex}, is2XL: ${is2XL}, activeIndicatorIndex: ${activeIndicatorIndex}`);
+
+  return (
+    <div 
+      className={cn("flex justify-center items-center gap-2", className)} 
+      {...props}
+    >
+      {indicators.map((_, index) => {
+        // Log for each indicator during render
+        console.log(`  Rendering indicator ${index}, active: ${index === activeIndicatorIndex}`);
+        
+        return (
+          <button
+            key={index}
+            className={cn(
+              "transition-all",
+              index === activeIndicatorIndex
+                ? "h-1.5 w-8 rounded-full bg-primary" 
+                : "h-2 w-2 rounded-full bg-gray-400"
+            )}
+            onClick={() => {
+              console.log(`Clicked indicator ${index}, will scroll to: ${is2XL && index === 1 ? 3 : index}`);
+              handleDotClick(index);
+            }}
+            aria-label={`Go to ${is2XL && index === 1 ? 'card 4' : `slide ${index + 1}`}`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 export {
   type CarouselApi,
   Carousel,
@@ -306,4 +408,5 @@ export {
   CarouselPrevious,
   CarouselNext,
   CarouselDots,
+  CarouselDotsResponsive, // Add the new component to exports
 }

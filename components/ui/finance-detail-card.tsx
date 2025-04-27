@@ -5,7 +5,7 @@ import { Transaction } from '@/types/transaction';
 
 interface FinanceDetailCardProps {
   title: string;
-  cardType: 'personal' | 'sweden' | 'brasil';
+  cardType: 'personal' | 'sweden' | 'brasil' | 'pix';
   amandaTransactions: Transaction[];
   usTransactions: Transaction[];
   usTransactionsAmanda: Transaction[];
@@ -405,6 +405,157 @@ export function FinanceDetailCard({
           </>
         );
       
+      case 'pix':
+        return (
+          <>
+            <p className="text-xl font-bold mb-4">
+              {(() => {
+                // Filter transactions containing "pix" or "PIX" in the description
+                const pixTransactions = amandaTransactions.filter(transaction => 
+                  transaction.Description?.toLowerCase().includes('pix') && 
+                  transaction.Amount && 
+                  transaction.Amount < 0 // Only outgoing PIX
+                );
+                
+                const totalAmount = pixTransactions.reduce(
+                  (total, transaction) => total + (transaction.Amount || 0), 
+                  0
+                );
+      
+                return `Total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalAmount)}`;
+              })()}
+            </p>
+            
+            {/* Top PIX Recipients */}
+            <div className="flex flex-col space-y-2 mb-4">
+              <h3 className="text-sm font-medium">Top PIX Recipients</h3>
+              {(() => {
+                // Get all PIX transactions
+                const pixTransactions = amandaTransactions.filter(transaction => 
+                  transaction.Description?.toLowerCase().includes('pix') && 
+                  transaction.Amount && 
+                  transaction.Amount < 0
+                );
+                
+                // Group by recipient (we'll assume recipient is part of description)
+                const recipients: Record<string, number> = {};
+                
+                pixTransactions.forEach(transaction => {
+                  let recipient = transaction.Description || 'Unknown';
+                  // Try to extract recipient name from PIX description
+                  const pixMatch = recipient.match(/PIX\s+(?:para|to|sent)\s+([\w\s]+)/i);
+                  if (pixMatch && pixMatch[1]) {
+                    recipient = pixMatch[1].trim();
+                  }
+                  
+                  if (!recipients[recipient]) {
+                    recipients[recipient] = 0;
+                  }
+                  recipients[recipient] += transaction.Amount || 0;
+                });
+                
+                // Sort and display top 5 recipients
+                return Object.entries(recipients)
+                  .sort(([, amountA], [, amountB]) => Math.abs(amountB) - Math.abs(amountA))
+                  .slice(0, 5)
+                  .map(([name, amount], index) => (
+                    <div key={index} className="flex justify-between text-sm">
+                      <span className="truncate pr-2">{name}</span>
+                      <span className="text-red-600">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                      </span>
+                    </div>
+                  ));
+              })()}
+            </div>
+            
+            {/* Monthly PIX Activity */}
+            <div className="flex flex-col space-y-2">
+              <h3 className="text-sm font-medium">Monthly PIX Activity</h3>
+              {(() => {
+                // Get all PIX transactions
+                const pixTransactions = amandaTransactions.filter(transaction => 
+                  transaction.Description?.toLowerCase().includes('pix') && 
+                  transaction.Date && 
+                  transaction.Amount && 
+                  transaction.Amount < 0
+                );
+                
+                // Group by month
+                const monthlyTotals: Record<string, number> = {};
+                
+                pixTransactions.forEach(transaction => {
+                  if (!transaction.Date) return;
+                  
+                  const date = new Date(transaction.Date);
+                  const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
+                  
+                  if (!monthlyTotals[monthYear]) {
+                    monthlyTotals[monthYear] = 0;
+                  }
+                  monthlyTotals[monthYear] += transaction.Amount || 0;
+                });
+                
+                // Sort by date and display
+                return Object.entries(monthlyTotals)
+                  .sort((a, b) => {
+                    const [monthA, yearA] = a[0].split('/').map(Number);
+                    const [monthB, yearB] = b[0].split('/').map(Number);
+                    
+                    if (yearA !== yearB) return yearB - yearA;
+                    return monthB - monthA;
+                  })
+                  .slice(0, 4) // Show last 4 months
+                  .map(([monthYear, amount], index) => (
+                    <div key={index} className="flex justify-between text-sm">
+                      <span>{monthYear}</span>
+                      <span className="text-red-600">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)}
+                      </span>
+                    </div>
+                  ));
+              })()}
+            </div>
+            
+            {/* View All PIX Transactions */}
+            <Accordion type="single" collapsible className="mt-4">
+              <AccordionItem value="pixDetails">
+                <AccordionTrigger className="text-xs">View All PIX Transactions</AccordionTrigger>
+                <AccordionContent>
+                  <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
+                    {(() => {
+                      const pixTransactions = amandaTransactions.filter(transaction => 
+                        transaction.Description?.toLowerCase().includes('pix') && 
+                        transaction.Amount && 
+                        transaction.Amount < 0
+                      );
+                      
+                      return pixTransactions
+                        .sort((a, b) => {
+                          if (!a.Date || !b.Date) return 0;
+                          return new Date(b.Date).getTime() - new Date(a.Date).getTime();
+                        })
+                        .map((transaction, index) => (
+                          <div key={index} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
+                            <div className="flex flex-col w-3/5">
+                              <span className="truncate">{transaction.Description}</span>
+                              <span className="text-gray-500 text-[10px]">
+                                {transaction.Date && new Date(transaction.Date).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <span className="w-2/5 text-right text-red-600">
+                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(transaction.Amount || 0)}
+                            </span>
+                          </div>
+                        ));
+                    })()}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </>
+        );
+
       default:
         return null;
     }

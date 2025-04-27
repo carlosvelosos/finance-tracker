@@ -7,7 +7,6 @@ import TableCardFamily from "@/components/ui/table-card-family";
 import ProtectedRoute from '@/components/protected-route';
 import { Separator } from "@/components/ui/separator";
 import { FinanceSummaryCard } from '@/components/ui/finance-summary-card';
-import { FinanceDetailCards } from '@/components/ui/finance-detail-cards';
 import { FinanceDetailCard } from '@/components/ui/finance-detail-card';
 import { 
   Carousel, 
@@ -15,7 +14,7 @@ import {
   CarouselItem, 
   CarouselPrevious, 
   CarouselNext,
-  CarouselDots
+  CarouselDotsResponsive
 } from '@/components/ui/carousel';
 
 type Transaction = {
@@ -176,80 +175,120 @@ export default function FamilyFinancePage() {
         
             {/* Right Column: Detail Cards (75% width) */}
             <div className="md:col-span-3">
-                {/* Carousel on medium/large screens, grid on 2xl screens */}
-                <div className="hidden md:block 2xl:hidden px-4"> {/* Added px-4 for padding */}
-                <Carousel
-                    opts={{ 
-                    align: "center",
-                    loop: false,
-                    containScroll: "trimSnaps"
-                    }}
-                    className="w-full relative"
-                >
-                    <CarouselContent>
-                        <CarouselItem className="basis-[98%] md:basis-full">
-                            <FinanceDetailCard
-                            title="Amanda - Personal"
-                            amandaTransactions={amandaTransactions}
-                            usTransactions={usTransactions}
-                            usTransactionsAmanda={usTransactionsAmanda}
-                            cardType="personal"
-                            />
-                        </CarouselItem>
-                        <CarouselItem className="basis-[98%] md:basis-full">
-                            <FinanceDetailCard
-                            title="Sweden Dec 24 - Jan 25"
-                            amandaTransactions={amandaTransactions}
-                            usTransactions={usTransactions}
-                            usTransactionsAmanda={usTransactionsAmanda}
-                            cardType="sweden"
-                            />
-                        </CarouselItem>
-                        <CarouselItem className="basis-[98%] md:basis-full">
-                            <FinanceDetailCard
-                            title="Brasil Fev - Mar 25"
-                            amandaTransactions={amandaTransactions}
-                            usTransactions={usTransactions}
-                            usTransactionsAmanda={usTransactionsAmanda}
-                            cardType="brasil"
-                            />
-                        </CarouselItem>
-                    </CarouselContent>
-                    
-                    {/* Navigation row with aligned elements */}
-                    <div className="flex items-center justify-between mt-4 px-2">
-                        <CarouselPrevious 
-                        className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto" 
-                        variant="ghost"
-                        size="sm"
-                        />
+                {/* Carousel on all screens except mobile */}
+                <div className="hidden md:block px-4">
+                    <Carousel
+                        opts={{ 
+                            align: "center",
+                            loop: false,
+                            containScroll: "trimSnaps",
+                            slidesToScroll: 1
+                        }}
+                        className="w-full relative"
+                    >
+                        {/* Carousel content with responsive behavior */}
+                        <CarouselContent>
+                            {/* Amanda Personal Card */}
+                            <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                                <FinanceDetailCard
+                                    title="Amanda - Personal"
+                                    amandaTransactions={amandaTransactions}
+                                    usTransactions={usTransactions}
+                                    usTransactionsAmanda={usTransactionsAmanda}
+                                    cardType="personal"
+                                />
+                            </CarouselItem>
+                            
+                            {/* Sweden Card */}
+                            <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                                <FinanceDetailCard
+                                    title="Sweden Dec 24 - Jan 25"
+                                    amandaTransactions={amandaTransactions}
+                                    usTransactions={usTransactions}
+                                    usTransactionsAmanda={usTransactionsAmanda}
+                                    cardType="sweden"
+                                />
+                            </CarouselItem>
+                            
+                            {/* Brasil Card */}
+                            <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                                <FinanceDetailCard
+                                    title="Brasil Fev - Mar 25"
+                                    amandaTransactions={amandaTransactions}
+                                    usTransactions={usTransactions}
+                                    usTransactionsAmanda={usTransactionsAmanda}
+                                    cardType="brasil"
+                                />
+                            </CarouselItem>
+                            
+                            {/* PIX Card */}
+                            <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                                <FinanceDetailCard
+                                    title="Amanda's PIX"
+                                    amandaTransactions={amandaTransactions}
+                                    usTransactions={usTransactions}
+                                    usTransactionsAmanda={usTransactionsAmanda}
+                                    cardType="pix"
+                                />
+                            </CarouselItem>
+                        </CarouselContent>
                         
-                        <CarouselDots className="flex-1" />
-                        
-                        <CarouselNext 
-                        className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto" 
-                        variant="ghost"
-                        size="sm"
-                        />
-                    </div>
-                </Carousel>
+                        {/* Navigation row with aligned elements */}
+                        <div className="flex items-center justify-between mt-4 px-2">
+                            <CarouselPrevious 
+                                className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto" 
+                                variant="ghost"
+                                size="sm"
+                            />
+                            
+                            {/* Replace standard dots with responsive dots */}
+                            <CarouselDotsResponsive className="flex-1" />
+                            
+                            <CarouselNext 
+                                className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto" 
+                                variant="ghost"
+                                size="sm"
+                            />
+                        </div>
+                    </Carousel>
                 </div>
                 
-                {/* Grid layout only on 2XL screens */}
-                <div className="hidden 2xl:grid grid-cols-3 gap-4">
-                    <FinanceDetailCards 
-                    amandaTransactions={amandaTransactions}
-                    usTransactions={usTransactions}
-                    usTransactionsAmanda={usTransactionsAmanda}
-                    />
-                </div>
-                
-                {/* Mobile view - stack the cards vertically */}
+                {/* Mobile view - stack the cards vertically (unchanged) */}
                 <div className="md:hidden space-y-4">
-                    <FinanceDetailCards 
-                    amandaTransactions={amandaTransactions}
-                    usTransactions={usTransactions}
-                    usTransactionsAmanda={usTransactionsAmanda}
+                    {/* Personal Card */}
+                    <FinanceDetailCard
+                        title="Amanda - Personal"
+                        amandaTransactions={amandaTransactions}
+                        usTransactions={usTransactions}
+                        usTransactionsAmanda={usTransactionsAmanda}
+                        cardType="personal"
+                    />
+                    
+                    {/* Sweden Card */}
+                    <FinanceDetailCard
+                        title="Sweden Dec 24 - Jan 25"
+                        amandaTransactions={amandaTransactions}
+                        usTransactions={usTransactions}
+                        usTransactionsAmanda={usTransactionsAmanda}
+                        cardType="sweden"
+                    />
+                    
+                    {/* Brazil Card */}
+                    <FinanceDetailCard
+                        title="Brasil Fev - Mar 25"
+                        amandaTransactions={amandaTransactions}
+                        usTransactions={usTransactions}
+                        usTransactionsAmanda={usTransactionsAmanda}
+                        cardType="brasil"
+                    />
+                    
+                    {/* PIX Card */}
+                    <FinanceDetailCard
+                        title="Amanda's PIX"
+                        amandaTransactions={amandaTransactions}
+                        usTransactions={usTransactions}
+                        usTransactionsAmanda={usTransactionsAmanda}
+                        cardType="pix"
                     />
                 </div>
             </div>

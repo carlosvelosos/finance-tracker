@@ -524,10 +524,10 @@ export function FinanceDetailCard({
                 <AccordionContent>
                   <div className="max-h-40 overflow-y-auto pr-1 custom-scrollbar monospace-font">
                     {(() => {
+                      // Update this to include all PIX transactions, both incoming and outgoing
                       const pixTransactions = amandaTransactions.filter(transaction => 
-                        transaction.Description?.toLowerCase().includes('pix') && 
-                        transaction.Amount && 
-                        transaction.Amount < 0
+                        transaction.Description?.toLowerCase().includes('pix') || 
+                        transaction.Description?.toLowerCase().includes('recebido')
                       );
                       
                       return pixTransactions
@@ -538,12 +538,12 @@ export function FinanceDetailCard({
                         .map((transaction, index) => (
                           <div key={index} className="flex justify-between text-xs mb-1 py-1 border-b border-gray-100 last:border-0">
                             <div className="flex flex-col w-3/5">
-                              <span className="truncate">{transaction.Description}</span>
+                              <span className="truncate font-mono">{transaction.Description}</span>
                               <span className="text-gray-500 text-[10px]">
                                 {transaction.Date && new Date(transaction.Date).toLocaleDateString()}
                               </span>
                             </div>
-                            <span className="w-2/5 text-right text-red-600">
+                            <span className={`w-2/5 text-right ${transaction.Amount && transaction.Amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(transaction.Amount || 0)}
                             </span>
                           </div>

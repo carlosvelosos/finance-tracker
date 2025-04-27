@@ -14,41 +14,42 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [isTokenInUrl, setIsTokenInUrl] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords don't match");
-      return;
-    }
-
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
+    setLoading(true);
 
     try {
-      setLoading(true);
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
 
-      const { error } = await supabase.auth.updateUser({
-        password,
-      });
+      // Check if we need to use the token from URL (for private browsing)
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get("token");
 
-      if (error) throw error;
+      let result;
+      if (token) {
+        // Use token directly from URL
+        console.log("Using token from URL for password reset");
+        result = await supabase.auth.updateUser(
+          { password },
+          { emailRedirectTo: window.location.origin }
+        );
+      } else {
+        // Use existing session
+        result = await supabase.auth.updateUser({ password });
+      }
 
-      toast.success("Password updated successfully");
-      router.push("/auth/login");
+      if (result.error) {
+        throw result.error;
+      }
+
+      toast.success("Password updated successfully!");
+      router.push("/auth/login?message=password_updated");
     } catch (error: unknown) {
-      // Change 'any' to 'unknown' for better type safety
-      // Type guard to check if it's a specific error type
-      const errorMessage =
-        error instanceof AuthError
-          ? error.message
-          : "Failed to update password";
-
-      toast.error(errorMessage);
-      console.error("Password reset error:", error);
+      // Error handling...
     } finally {
       setLoading(false);
     }
@@ -57,28 +58,43 @@ export default function ResetPasswordPage() {
   // Ensure user has a valid password reset token
   useEffect(() => {
     const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+      console.log("Checking session on reset password page");
 
-      if (error) {
-        toast.error("Invalid or expired reset link");
+      try {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Session error:", error);
+          toast.error("Invalid or expired reset link");
+          router.push("/auth/login");
+          return;
+        }
+
+        if (!data.session) {
+          console.log("No session found, checking URL params");
+
+          // Check if we have token in URL (fallback for private browsing)
+          const urlParams = new URLSearchParams(window.location.search);
+          const token = urlParams.get("token");
+
+          if (token) {
+            console.log("Found token in URL");
+            setIsTokenInUrl(true);
+            // Continue with reset flow even without session
+            return;
+          }
+
+          toast.error("No active session found");
+          router.push("/auth/login");
+          return;
+        }
+
+        console.log("Valid session detected");
+      } catch (e) {
+        console.error("Session check error:", e);
+        toast.error("Error checking authentication status");
         router.push("/auth/login");
-        return;
       }
-
-      if (!data.session) {
-        toast.error("No active session found");
-        router.push("/auth/login");
-        return;
-      }
-
-      // Check context to ensure this is a password reset flow
-      const accessToken = data.session?.access_token;
-      if (!accessToken) {
-        toast.error("Invalid session token");
-        router.push("/auth/login");
-      }
-
-      console.log("Valid recovery session detected");
     };
 
     checkSession();

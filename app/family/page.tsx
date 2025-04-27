@@ -515,7 +515,7 @@ export default function FamilyFinancePage() {
 
   return (
     <ProtectedRoute>
-      <div className="p-6 bg-gray-100">
+      <div className="p-6 bg-gray-100 min-h-screen">
         {/* Main Summary Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-gray-100">
           {/* Left Column: Summary Card (25% width) */}

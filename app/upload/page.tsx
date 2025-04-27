@@ -6,10 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ProtectedRoute from '@/components/protected-route';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import ProtectedRoute from "@/components/protected-route";
 
-const BANK_OPTIONS = ["DEV", "Inter-BR", "Handelsbanken-SE", "AmericanExpress-SE", "SEB_SJ_Prio-SE"];
+const BANK_OPTIONS = [
+  "DEV",
+  "Inter-BR",
+  "Handelsbanken-SE",
+  "AmericanExpress-SE",
+  "SEB_SJ_Prio-SE",
+];
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -56,13 +68,13 @@ export default function UploadPage() {
   };
 
   return (
-    <ProtectedRoute 
-      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7', '0a29c8db-018c-49cb-ac35-7ccf1719be2c', '382714ae-4c7c-4a32-9a7d-8b530fbd7ab3']}
-    >
+    <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl font-bold">Upload Bank Statement</CardTitle>
+            <CardTitle className="text-xl font-bold">
+              Upload Bank Statement
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             {/* Bank selection dropdown */}
@@ -80,10 +92,18 @@ export default function UploadPage() {
             </Select>
 
             {/* File input field */}
-            <Input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
+            <Input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileChange}
+            />
 
             {/* Upload button */}
-            <Button onClick={handleUpload} disabled={uploading} className="w-full">
+            <Button
+              onClick={handleUpload}
+              disabled={uploading}
+              className="w-full"
+            >
               {uploading ? "Uploading..." : "Upload"}
             </Button>
           </CardContent>

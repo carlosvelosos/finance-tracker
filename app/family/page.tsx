@@ -515,9 +515,9 @@ export default function FamilyFinancePage() {
 
   return (
     <ProtectedRoute>
-      <div className="p-6">
+      <div className="p-6 bg-gray-100">
         {/* Main Summary Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-gray-100">
           {/* Left Column: Summary Card (25% width) */}
           <div className="md:col-span-1">
             <FinanceSummaryCard
@@ -601,7 +601,7 @@ export default function FamilyFinancePage() {
                 {/* Navigation row with aligned elements */}
                 <div className="flex items-center justify-between mt-4 px-2">
                   <CarouselPrevious
-                    className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto"
+                    className="static translate-y-0 opacity-70 hover:opacity-100 hover:bg-white transition-all pointer-events-auto"
                     variant="ghost"
                     size="sm"
                   />
@@ -610,7 +610,7 @@ export default function FamilyFinancePage() {
                   <CarouselDotsResponsive className="flex-1" />
 
                   <CarouselNext
-                    className="static translate-y-0 opacity-70 hover:opacity-100 pointer-events-auto"
+                    className="static translate-y-0 opacity-70 hover:opacity-100 hover:bg-white transition-all pointer-events-auto"
                     variant="ghost"
                     size="sm"
                   />

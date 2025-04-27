@@ -166,9 +166,11 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                align="end"
-                className="w-56 p-1.5 bg-white border border-gray-200 shadow-lg rounded-lg mt-1"
+                align="center"
+                sideOffset={10}
+                className="w-[calc(100vw-40px)] max-w-[300px] lg:max-w-[300px] lg:w-56 p-1.5 bg-white border border-gray-200 border-b-4 border-b-green-600 shadow-lg rounded-lg mt-1 mx-auto"
               >
+                {/* Rest of your dropdown content remains unchanged */}
                 <div className="px-3 py-2 mb-1 border-b border-gray-100">
                   <p className="text-sm font-medium text-gray-900">
                     {user.email}

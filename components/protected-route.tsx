@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -12,11 +12,11 @@ type ProtectedRouteProps = {
   fallbackUrl?: string;
 };
 
-export default function ProtectedRoute({ 
-  children, 
-  allowedRoles = [], 
+export default function ProtectedRoute({
+  children,
+  allowedRoles = [],
   allowedUserIds = [],
-  fallbackUrl = '/unauthorized'
+  fallbackUrl = "/unauthorized",
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -25,8 +25,11 @@ export default function ProtectedRoute({
 
   // Check authorization immediately and in useEffect
   useEffect(() => {
-    // Skip authorization checks for auth-related pages
-    if (pathname.startsWith('/auth/')) {
+    // Skip authorization checks for auth-related pages except reset password
+    if (
+      pathname.startsWith("/auth/") &&
+      !pathname.includes("/auth/reset-password")
+    ) {
       setIsAuthorized(true);
       return;
     }
@@ -35,10 +38,10 @@ export default function ProtectedRoute({
       // Not authenticated
       if (!user) {
         setIsAuthorized(false);
-        router.push('/auth/login');
+        router.push("/auth/login");
         return;
       }
-      
+
       // Check user ID restrictions
       if (allowedUserIds.length > 0) {
         const hasAccess = allowedUserIds.includes(user.id);
@@ -49,28 +52,38 @@ export default function ProtectedRoute({
           return;
         }
       }
-      
+
       // Check role restrictions
       if (allowedRoles.length > 0) {
-        const userRole = user.user_metadata?.role || 'standard';
+        const userRole = user.user_metadata?.role || "standard";
         const hasRoleAccess = allowedRoles.includes(userRole);
         if (!hasRoleAccess) {
-          console.log(`User role ${userRole} not authorized to access ${pathname}`);
+          console.log(
+            `User role ${userRole} not authorized to access ${pathname}`
+          );
           setIsAuthorized(false);
           router.push(fallbackUrl);
           return;
         }
       }
-      
+
       // If we get here, the user is authorized
       setIsAuthorized(true);
     }
-  }, [user, loading, router, pathname, allowedRoles, allowedUserIds, fallbackUrl]);
+  }, [
+    user,
+    loading,
+    router,
+    pathname,
+    allowedRoles,
+    allowedUserIds,
+    fallbackUrl,
+  ]);
 
   // Early auth check - never render content until we know the user is authorized
   const checkAuthorizationSync = () => {
     // Always allow auth pages
-    if (pathname.startsWith('/auth/')) {
+    if (pathname.startsWith("/auth/")) {
       return true;
     }
 

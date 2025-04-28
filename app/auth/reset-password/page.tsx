@@ -49,6 +49,9 @@ export default function ResetPasswordPage() {
         throw result.error;
       }
 
+      // Sign out the user after successful password reset
+      await supabase.auth.signOut();
+
       toast.success("Password updated successfully!");
       router.push("/auth/login?message=password_updated");
     } catch (error: unknown) {

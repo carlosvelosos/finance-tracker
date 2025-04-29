@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,38 +9,132 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ProtectedRoute from '@/components/protected-route';
-
-type Bill = {
-  id: number;
-  description: string;
-  dueDay: string;
-  paymentMethod: string;
-  country: string; // Field for country
-  value: number; // Field for value
-};
+import ProtectedRoute from "@/components/protected-route";
+import BillCard from "../components/bill-card";
+import { Bill } from "../types/bill";
 
 // Mapping of countries to their respective currencies
 const countryCurrencyMap: Record<string, string> = {
-  Sweden: 'SEK',
-  Brazil: 'BRL',
+  Sweden: "SEK",
+  Brazil: "BRL",
 };
 
 export default function BillsPage() {
-//   const [bills, setBills] = useState<Bill[]>([
+  //   const [bills, setBills] = useState<Bill[]>([
   const [bills] = useState<Bill[]>([
-    { id: 1, description: 'Home Rent - lundbergs fastigheter', dueDay: '2025-04-30', paymentMethod: 'Betalo - Amex', country: 'Sweden', value: 12000 },
-    { id: 2, description: 'Home Internet - Telia', dueDay: '2025-04-30', paymentMethod: '???', country: 'Sweden', value: 500 },
-    { id: 3, description: 'Home Electricity - Tekniska verken', dueDay: '2025-04-30', paymentMethod: 'Kivra?', country: 'Sweden', value: 800 },
-    { id: 4, description: 'Home Electricity - Bixia', dueDay: '2025-04-30', paymentMethod: '???', country: 'Sweden', value: 900 },
-    { id: 5, description: 'Credit card - Amex', dueDay: '2025-04-27', paymentMethod: 'Handelsbanken', country: 'Sweden', value: 15000 },
-    { id: 6, description: 'Credit card - SJ Prio', dueDay: '2025-04-30', paymentMethod: 'Handelsbanken', country: 'Sweden', value: 10000 },
-    { id: 7, description: 'Union - Unionen a-kassa', dueDay: '2025-04-30', paymentMethod: 'Kivra', country: 'Sweden', value: 300 },
-    { id: 8, description: 'Union - Sveriges Ingenjörer', dueDay: '2025-04-30', paymentMethod: 'Kivra?', country: 'Sweden', value: 400 },
-    { id: 9, description: 'Riachuelo', dueDay: '2025-04-25', paymentMethod: 'Direct Debit', country: 'Brazil', value: 200 },
-    { id: 10, description: 'Credit card - Inter', dueDay: '2025-04-15', paymentMethod: 'Inter débito automático', country: 'Brazil', value: 4765.66 },
-    { id: 11, description: 'Credit card - Rico', dueDay: '2025-04-15', paymentMethod: 'Inter', country: 'Brazil', value: 689.70 },
+    {
+      id: 1,
+      description: "Home Rent - lundbergs fastigheter",
+      dueDay: "2025-04-30",
+      paymentMethod: "Betalo - Amex",
+      country: "Sweden",
+      value: 12000,
+    },
+    {
+      id: 2,
+      description: "Home Internet - Telia",
+      dueDay: "2025-04-30",
+      paymentMethod: "???",
+      country: "Sweden",
+      value: 500,
+    },
+    {
+      id: 3,
+      description: "Home Electricity - Tekniska verken",
+      dueDay: "2025-04-30",
+      paymentMethod: "Kivra?",
+      country: "Sweden",
+      value: 800,
+    },
+    {
+      id: 4,
+      description: "Home Electricity - Bixia",
+      dueDay: "2025-04-30",
+      paymentMethod: "???",
+      country: "Sweden",
+      value: 900,
+    },
+    {
+      id: 5,
+      description: "Credit card - Amex",
+      dueDay: "2025-04-27",
+      paymentMethod: "Handelsbanken",
+      country: "Sweden",
+      value: 15000,
+    },
+    {
+      id: 6,
+      description: "Credit card - SJ Prio",
+      dueDay: "2025-04-30",
+      paymentMethod: "Handelsbanken",
+      country: "Sweden",
+      value: 10000,
+    },
+    {
+      id: 7,
+      description: "Union - Unionen a-kassa",
+      dueDay: "2025-04-30",
+      paymentMethod: "Kivra",
+      country: "Sweden",
+      value: 300,
+    },
+    {
+      id: 8,
+      description: "Union - Sveriges Ingenjörer",
+      dueDay: "2025-04-30",
+      paymentMethod: "Kivra?",
+      country: "Sweden",
+      value: 400,
+    },
+    {
+      id: 9,
+      description: "Riachuelo",
+      dueDay: "2025-04-25",
+      paymentMethod: "Direct Debit",
+      country: "Brazil",
+      value: 200,
+    },
+    {
+      id: 10,
+      description: "Credit card - Inter",
+      dueDay: "2025-04-15",
+      paymentMethod: "Inter débito automático",
+      country: "Brazil",
+      value: 4765.66,
+    },
+    {
+      id: 11,
+      description: "Credit card - Rico",
+      dueDay: "2025-04-15",
+      paymentMethod: "Inter",
+      country: "Brazil",
+      value: 689.7,
+    },
   ]);
+
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const nextMonth = () => {
+    setCurrentMonthIndex((prev) => (prev + 1) % 12);
+  };
+
+  const prevMonth = () => {
+    setCurrentMonthIndex((prev) => (prev - 1 + 12) % 12);
+  };
 
   // Calculate total per country
   const totalsPerCountry = bills.reduce((acc, bill) => {
@@ -48,12 +142,15 @@ export default function BillsPage() {
     return acc;
   }, {} as Record<string, number>);
 
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Bill; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Bill;
+    direction: "asc" | "desc";
+  } | null>(null);
 
   const sortedBills = [...bills].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
-    const order = direction === 'asc' ? 1 : -1;
+    const order = direction === "asc" ? 1 : -1;
 
     if (a[key] < b[key]) return -1 * order;
     if (a[key] > b[key]) return 1 * order;
@@ -62,49 +159,86 @@ export default function BillsPage() {
 
   const handleSort = (key: keyof Bill) => {
     setSortConfig((prev) => {
-      if (prev?.key === key && prev.direction === 'asc') {
-        return { key, direction: 'desc' };
+      if (prev?.key === key && prev.direction === "asc") {
+        return { key, direction: "desc" };
       }
-      return { key, direction: 'asc' };
+      return { key, direction: "asc" };
     });
   };
 
   return (
-    <ProtectedRoute 
-      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
-    >
+    <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold text-center mb-6">Bills to Be Paid</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Bills to Be Paid
+        </h1>
+
+        {/* Cards Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <BillCard
+            month={months[currentMonthIndex]}
+            bills={bills}
+            onNextMonth={nextMonth}
+            onPrevMonth={prevMonth}
+            title="Sweden Bills"
+            country="Sweden"
+            valueColor="text-blue-600"
+          />
+          <BillCard
+            month={months[currentMonthIndex]}
+            bills={bills}
+            onNextMonth={nextMonth}
+            onPrevMonth={prevMonth}
+            title="Brazil Bills"
+            country="Brazil"
+            valueColor="text-green-600"
+          />
+        </div>
 
         {/* Display totals per country */}
         <div className="mb-4 flex gap-4 bg-gray-50 p-4 rounded-md">
           {Object.entries(totalsPerCountry).map(([country, total]) => (
-              <div key={country} className="text-lg font-medium">
-                  <span className="font-bold">{country}:</span>{' '}
-                  {total.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: countryCurrencyMap[country] || 'USD', // Default to USD if country is not mapped
-                  })}
-              </div>
+            <div key={country} className="text-lg font-medium">
+              <span className="font-bold">{country}:</span>{" "}
+              {total.toLocaleString("en-US", {
+                style: "currency",
+                currency: countryCurrencyMap[country] || "USD", // Default to USD if country is not mapped
+              })}
+            </div>
           ))}
-      </div>
+        </div>
 
-      <Table>
+        <Table>
           <TableHeader>
             <TableRow className="border-b-4 border-gray-600">
-              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('description')}>
+              <TableHead
+                className="font-bold cursor-pointer"
+                onClick={() => handleSort("description")}
+              >
                 Description
               </TableHead>
-              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('dueDay')}>
+              <TableHead
+                className="font-bold cursor-pointer"
+                onClick={() => handleSort("dueDay")}
+              >
                 Due Day
               </TableHead>
-              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('paymentMethod')}>
+              <TableHead
+                className="font-bold cursor-pointer"
+                onClick={() => handleSort("paymentMethod")}
+              >
                 Payment Method
               </TableHead>
-              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('country')}>
+              <TableHead
+                className="font-bold cursor-pointer"
+                onClick={() => handleSort("country")}
+              >
                 Country
               </TableHead>
-              <TableHead className="font-bold cursor-pointer" onClick={() => handleSort('value')}>
+              <TableHead
+                className="font-bold cursor-pointer"
+                onClick={() => handleSort("value")}
+              >
                 Value
               </TableHead>
             </TableRow>
@@ -113,20 +247,27 @@ export default function BillsPage() {
             {sortedBills.map((bill) => (
               <TableRow key={bill.id}>
                 <TableCell>{bill.description}</TableCell>
-                <TableCell>{new Date(bill.dueDay).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(bill.dueDay).toLocaleDateString()}
+                </TableCell>
                 <TableCell>{bill.paymentMethod}</TableCell>
                 <TableCell
                   style={{
-                    color: bill.country === 'Brazil' ? 'green' : bill.country === 'Sweden' ? 'blue' : 'black',
-                    fontWeight: 'bold',
+                    color:
+                      bill.country === "Brazil"
+                        ? "green"
+                        : bill.country === "Sweden"
+                        ? "blue"
+                        : "black",
+                    fontWeight: "bold",
                   }}
                 >
                   {bill.country}
                 </TableCell>
                 <TableCell>
-                  {bill.value.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: countryCurrencyMap[bill.country] || 'USD',
+                  {bill.value.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: countryCurrencyMap[bill.country] || "USD",
                   })}
                 </TableCell>
               </TableRow>

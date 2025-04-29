@@ -21,10 +21,12 @@ export default function BillItem({ bill, onTogglePaid }: BillItemProps) {
     });
   };
 
+  const currentValue = bill.current_month_value || bill.base_value;
+
   return (
     <div
       className={`p-4 rounded-lg border transition-colors cursor-pointer ${
-        bill.paid
+        bill.current_month_status
           ? "bg-gray-200 border-gray-300 text-gray-500"
           : "bg-gray-50 border-gray-200 hover:bg-gray-100"
       }`}
@@ -32,26 +34,34 @@ export default function BillItem({ bill, onTogglePaid }: BillItemProps) {
     >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className={`font-medium ${bill.paid ? "line-through" : ""}`}>
+          <h3
+            className={`font-medium ${
+              bill.current_month_status ? "line-through" : ""
+            }`}
+          >
             {bill.description}
           </h3>
           <p
             className={`text-sm ${
-              bill.paid ? "text-gray-400" : "text-gray-600"
+              bill.current_month_status ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            Due: {new Date(bill.dueDay).toLocaleDateString()}
+            Due: {bill.due_day}
           </p>
           <p
             className={`text-sm ${
-              bill.paid ? "text-gray-400" : "text-gray-600"
+              bill.current_month_status ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            Payment: {bill.paymentMethod}
+            Payment: {bill.payment_method}
           </p>
         </div>
-        <p className={`font-bold text-lg ${bill.paid ? "text-gray-500" : ""}`}>
-          {formatCurrency(bill.value, bill.country)}
+        <p
+          className={`font-bold text-lg ${
+            bill.current_month_status ? "text-gray-500" : ""
+          }`}
+        >
+          {formatCurrency(currentValue, bill.country)}
         </p>
       </div>
     </div>

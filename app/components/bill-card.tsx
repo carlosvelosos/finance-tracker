@@ -26,8 +26,11 @@ export default function BillCard({
 }: BillCardProps) {
   const countryBills = bills.filter((bill) => bill.country === country);
   const totalValue = countryBills
-    .filter((bill) => !bill.paid)
-    .reduce((sum, bill) => sum + bill.value, 0);
+    .filter((bill) => !bill.current_month_status)
+    .reduce(
+      (sum, bill) => sum + (bill.current_month_value || bill.base_value),
+      0
+    );
 
   const formatCurrency = (value: number, country: string) => {
     if (country === "Brazil") {
@@ -42,7 +45,9 @@ export default function BillCard({
     });
   };
 
-  const unpaidBillsCount = countryBills.filter((bill) => !bill.paid).length;
+  const unpaidBillsCount = countryBills.filter(
+    (bill) => !bill.current_month_status
+  ).length;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">

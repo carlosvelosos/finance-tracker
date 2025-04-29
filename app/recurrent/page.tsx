@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,6 +12,7 @@ import {
 import ProtectedRoute from "@/components/protected-route";
 import BillCard from "../components/bill-card";
 import { Bill } from "../types/bill";
+import { supabase } from "@/lib/supabaseClient";
 
 // Mapping of countries to their respective currencies
 const countryCurrencyMap: Record<string, string> = {
@@ -20,109 +21,12 @@ const countryCurrencyMap: Record<string, string> = {
 };
 
 export default function BillsPage() {
-  const [bills, setBills] = useState<Bill[]>([
-    {
-      id: 1,
-      description: "Home Rent - lundbergs fastigheter",
-      dueDay: "2025-04-30",
-      paymentMethod: "Betalo - Amex",
-      country: "Sweden",
-      value: 12000,
-      paid: false,
-    },
-    {
-      id: 2,
-      description: "Home Internet - Telia",
-      dueDay: "2025-04-30",
-      paymentMethod: "???",
-      country: "Sweden",
-      value: 500,
-      paid: false,
-    },
-    {
-      id: 3,
-      description: "Home Electricity - Tekniska verken",
-      dueDay: "2025-04-30",
-      paymentMethod: "Kivra?",
-      country: "Sweden",
-      value: 800,
-      paid: false,
-    },
-    {
-      id: 4,
-      description: "Home Electricity - Bixia",
-      dueDay: "2025-04-30",
-      paymentMethod: "???",
-      country: "Sweden",
-      value: 900,
-      paid: false,
-    },
-    {
-      id: 5,
-      description: "Credit card - Amex",
-      dueDay: "2025-04-27",
-      paymentMethod: "Handelsbanken",
-      country: "Sweden",
-      value: 15000,
-      paid: false,
-    },
-    {
-      id: 6,
-      description: "Credit card - SJ Prio",
-      dueDay: "2025-04-30",
-      paymentMethod: "Handelsbanken",
-      country: "Sweden",
-      value: 10000,
-      paid: false,
-    },
-    {
-      id: 7,
-      description: "Union - Unionen a-kassa",
-      dueDay: "2025-04-30",
-      paymentMethod: "Kivra",
-      country: "Sweden",
-      value: 300,
-      paid: false,
-    },
-    {
-      id: 8,
-      description: "Union - Sveriges Ingenjörer",
-      dueDay: "2025-04-30",
-      paymentMethod: "Kivra?",
-      country: "Sweden",
-      value: 400,
-      paid: false,
-    },
-    {
-      id: 9,
-      description: "Riachuelo",
-      dueDay: "2025-04-25",
-      paymentMethod: "Direct Debit",
-      country: "Brazil",
-      value: 200,
-      paid: false,
-    },
-    {
-      id: 10,
-      description: "Credit card - Inter",
-      dueDay: "2025-04-15",
-      paymentMethod: "Inter débito automático",
-      country: "Brazil",
-      value: 4765.66,
-      paid: false,
-    },
-    {
-      id: 11,
-      description: "Credit card - Rico",
-      dueDay: "2025-04-15",
-      paymentMethod: "Inter",
-      country: "Brazil",
-      value: 689.7,
-      paid: false,
-    },
-  ]);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(
+    new Date().getMonth()
+  );
 
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
   const months = [
     "January",
     "February",
@@ -138,6 +42,25 @@ export default function BillsPage() {
     "December",
   ];
 
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
+  const fetchBills = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("current_month_bills")
+        .select("*");
+
+      if (error) throw error;
+      setBills(data || []);
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const nextMonth = () => {
     setCurrentMonthIndex((prev) => (prev + 1) % 12);
   };
@@ -146,45 +69,32 @@ export default function BillsPage() {
     setCurrentMonthIndex((prev) => (prev - 1 + 12) % 12);
   };
 
-  const handleTogglePaid = (id: number) => {
-    setBills((prevBills) =>
-      prevBills.map((bill) =>
-        bill.id === id ? { ...bill, paid: !bill.paid } : bill
-      )
-    );
+  const handleTogglePaid = async (id: number) => {
+    try {
+      const { error } = await supabase.rpc("toggle_current_month_status", {
+        bill_id: id,
+      });
+
+      if (error) throw error;
+      await fetchBills(); // Refresh the bills after update
+    } catch (error) {
+      console.error("Error toggling bill status:", error);
+    }
   };
 
   // Calculate total per country
   const totalsPerCountry = bills.reduce((acc, bill) => {
-    if (!bill.paid) {
-      acc[bill.country] = (acc[bill.country] || 0) + bill.value;
+    if (!bill.current_month_status) {
+      acc[bill.country] =
+        (acc[bill.country] || 0) +
+        (bill.current_month_value || bill.base_value);
     }
     return acc;
   }, {} as Record<string, number>);
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof Bill;
-    direction: "asc" | "desc";
-  } | null>(null);
-
-  const sortedBills = [...bills].sort((a, b) => {
-    if (!sortConfig) return 0;
-    const { key, direction } = sortConfig;
-    const order = direction === "asc" ? 1 : -1;
-
-    if (a[key] < b[key]) return -1 * order;
-    if (a[key] > b[key]) return 1 * order;
-    return 0;
-  });
-
-  const handleSort = (key: keyof Bill) => {
-    setSortConfig((prev) => {
-      if (prev?.key === key && prev.direction === "asc") {
-        return { key, direction: "desc" };
-      }
-      return { key, direction: "asc" };
-    });
-  };
+  if (loading) {
+    return <div className="container mx-auto p-4">Loading...</div>;
+  }
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
@@ -233,52 +143,29 @@ export default function BillsPage() {
         <Table>
           <TableHeader>
             <TableRow className="border-b-4 border-gray-600">
-              <TableHead
-                className="font-bold cursor-pointer"
-                onClick={() => handleSort("description")}
-              >
-                Description
-              </TableHead>
-              <TableHead
-                className="font-bold cursor-pointer"
-                onClick={() => handleSort("dueDay")}
-              >
-                Due Day
-              </TableHead>
-              <TableHead
-                className="font-bold cursor-pointer"
-                onClick={() => handleSort("paymentMethod")}
-              >
-                Payment Method
-              </TableHead>
-              <TableHead
-                className="font-bold cursor-pointer"
-                onClick={() => handleSort("country")}
-              >
-                Country
-              </TableHead>
-              <TableHead
-                className="font-bold cursor-pointer"
-                onClick={() => handleSort("value")}
-              >
-                Value
-              </TableHead>
+              <TableHead className="font-bold">Description</TableHead>
+              <TableHead className="font-bold">Due Day</TableHead>
+              <TableHead className="font-bold">Payment Method</TableHead>
+              <TableHead className="font-bold">Country</TableHead>
+              <TableHead className="font-bold">Value</TableHead>
               <TableHead className="font-bold">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedBills.map((bill) => (
+            {bills.map((bill) => (
               <TableRow
                 key={bill.id}
-                className={bill.paid ? "bg-gray-100 text-gray-500" : ""}
+                className={
+                  bill.current_month_status ? "bg-gray-100 text-gray-500" : ""
+                }
               >
-                <TableCell className={bill.paid ? "line-through" : ""}>
+                <TableCell
+                  className={bill.current_month_status ? "line-through" : ""}
+                >
                   {bill.description}
                 </TableCell>
-                <TableCell>
-                  {new Date(bill.dueDay).toLocaleDateString()}
-                </TableCell>
-                <TableCell>{bill.paymentMethod}</TableCell>
+                <TableCell>{bill.due_day}</TableCell>
+                <TableCell>{bill.payment_method}</TableCell>
                 <TableCell
                   style={{
                     color:
@@ -293,12 +180,17 @@ export default function BillsPage() {
                   {bill.country}
                 </TableCell>
                 <TableCell>
-                  {bill.value.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: countryCurrencyMap[bill.country] || "USD",
-                  })}
+                  {(bill.current_month_value || bill.base_value).toLocaleString(
+                    "en-US",
+                    {
+                      style: "currency",
+                      currency: countryCurrencyMap[bill.country] || "USD",
+                    }
+                  )}
                 </TableCell>
-                <TableCell>{bill.paid ? "Paid" : "Pending"}</TableCell>
+                <TableCell>
+                  {bill.current_month_status ? "Paid" : "Pending"}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

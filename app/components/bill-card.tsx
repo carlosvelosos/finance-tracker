@@ -8,6 +8,7 @@ interface BillCardProps {
   bills: Bill[];
   onNextMonth: () => void;
   onPrevMonth: () => void;
+  onTogglePaid: (id: number) => void;
   title: string;
   country: string;
   valueColor?: string;
@@ -18,12 +19,15 @@ export default function BillCard({
   bills,
   onNextMonth,
   onPrevMonth,
+  onTogglePaid,
   title,
   country,
   valueColor = "text-blue-600",
 }: BillCardProps) {
   const countryBills = bills.filter((bill) => bill.country === country);
-  const totalValue = countryBills.reduce((sum, bill) => sum + bill.value, 0);
+  const totalValue = countryBills
+    .filter((bill) => !bill.paid)
+    .reduce((sum, bill) => sum + bill.value, 0);
 
   const formatCurrency = (value: number, country: string) => {
     if (country === "Brazil") {
@@ -37,6 +41,8 @@ export default function BillCard({
       currency: "SEK",
     });
   };
+
+  const unpaidBillsCount = countryBills.filter((bill) => !bill.paid).length;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
@@ -61,11 +67,13 @@ export default function BillCard({
           <p className={`text-3xl font-bold ${valueColor}`}>
             {formatCurrency(totalValue, country)}
           </p>
-          <p className="text-sm text-gray-600">{countryBills.length} bills</p>
+          <p className="text-sm text-gray-600">
+            {unpaidBillsCount} unpaid bills
+          </p>
         </div>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {countryBills.map((bill) => (
-            <BillItem key={bill.id} bill={bill} />
+            <BillItem key={bill.id} bill={bill} onTogglePaid={onTogglePaid} />
           ))}
         </div>
       </div>

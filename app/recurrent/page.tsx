@@ -20,8 +20,7 @@ const countryCurrencyMap: Record<string, string> = {
 };
 
 export default function BillsPage() {
-  //   const [bills, setBills] = useState<Bill[]>([
-  const [bills] = useState<Bill[]>([
+  const [bills, setBills] = useState<Bill[]>([
     {
       id: 1,
       description: "Home Rent - lundbergs fastigheter",
@@ -29,6 +28,7 @@ export default function BillsPage() {
       paymentMethod: "Betalo - Amex",
       country: "Sweden",
       value: 12000,
+      paid: false,
     },
     {
       id: 2,
@@ -37,6 +37,7 @@ export default function BillsPage() {
       paymentMethod: "???",
       country: "Sweden",
       value: 500,
+      paid: false,
     },
     {
       id: 3,
@@ -45,6 +46,7 @@ export default function BillsPage() {
       paymentMethod: "Kivra?",
       country: "Sweden",
       value: 800,
+      paid: false,
     },
     {
       id: 4,
@@ -53,6 +55,7 @@ export default function BillsPage() {
       paymentMethod: "???",
       country: "Sweden",
       value: 900,
+      paid: false,
     },
     {
       id: 5,
@@ -61,6 +64,7 @@ export default function BillsPage() {
       paymentMethod: "Handelsbanken",
       country: "Sweden",
       value: 15000,
+      paid: false,
     },
     {
       id: 6,
@@ -69,6 +73,7 @@ export default function BillsPage() {
       paymentMethod: "Handelsbanken",
       country: "Sweden",
       value: 10000,
+      paid: false,
     },
     {
       id: 7,
@@ -77,6 +82,7 @@ export default function BillsPage() {
       paymentMethod: "Kivra",
       country: "Sweden",
       value: 300,
+      paid: false,
     },
     {
       id: 8,
@@ -85,6 +91,7 @@ export default function BillsPage() {
       paymentMethod: "Kivra?",
       country: "Sweden",
       value: 400,
+      paid: false,
     },
     {
       id: 9,
@@ -93,6 +100,7 @@ export default function BillsPage() {
       paymentMethod: "Direct Debit",
       country: "Brazil",
       value: 200,
+      paid: false,
     },
     {
       id: 10,
@@ -101,6 +109,7 @@ export default function BillsPage() {
       paymentMethod: "Inter débito automático",
       country: "Brazil",
       value: 4765.66,
+      paid: false,
     },
     {
       id: 11,
@@ -109,6 +118,7 @@ export default function BillsPage() {
       paymentMethod: "Inter",
       country: "Brazil",
       value: 689.7,
+      paid: false,
     },
   ]);
 
@@ -136,9 +146,19 @@ export default function BillsPage() {
     setCurrentMonthIndex((prev) => (prev - 1 + 12) % 12);
   };
 
+  const handleTogglePaid = (id: number) => {
+    setBills((prevBills) =>
+      prevBills.map((bill) =>
+        bill.id === id ? { ...bill, paid: !bill.paid } : bill
+      )
+    );
+  };
+
   // Calculate total per country
   const totalsPerCountry = bills.reduce((acc, bill) => {
-    acc[bill.country] = (acc[bill.country] || 0) + bill.value;
+    if (!bill.paid) {
+      acc[bill.country] = (acc[bill.country] || 0) + bill.value;
+    }
     return acc;
   }, {} as Record<string, number>);
 
@@ -180,6 +200,7 @@ export default function BillsPage() {
             bills={bills}
             onNextMonth={nextMonth}
             onPrevMonth={prevMonth}
+            onTogglePaid={handleTogglePaid}
             title="Sweden Bills"
             country="Sweden"
             valueColor="text-blue-600"
@@ -189,6 +210,7 @@ export default function BillsPage() {
             bills={bills}
             onNextMonth={nextMonth}
             onPrevMonth={prevMonth}
+            onTogglePaid={handleTogglePaid}
             title="Brazil Bills"
             country="Brazil"
             valueColor="text-green-600"
@@ -241,12 +263,18 @@ export default function BillsPage() {
               >
                 Value
               </TableHead>
+              <TableHead className="font-bold">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedBills.map((bill) => (
-              <TableRow key={bill.id}>
-                <TableCell>{bill.description}</TableCell>
+              <TableRow
+                key={bill.id}
+                className={bill.paid ? "bg-gray-100 text-gray-500" : ""}
+              >
+                <TableCell className={bill.paid ? "line-through" : ""}>
+                  {bill.description}
+                </TableCell>
                 <TableCell>
                   {new Date(bill.dueDay).toLocaleDateString()}
                 </TableCell>
@@ -270,6 +298,7 @@ export default function BillsPage() {
                     currency: countryCurrencyMap[bill.country] || "USD",
                   })}
                 </TableCell>
+                <TableCell>{bill.paid ? "Paid" : "Pending"}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -5,4 +5,5 @@ export type Bill = {
   paymentMethod: string;
   country: string;
   value: number;
+  paid: boolean;
 }; 

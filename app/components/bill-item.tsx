@@ -7,6 +7,19 @@ interface BillItemProps {
 }
 
 export default function BillItem({ bill }: BillItemProps) {
+  const formatCurrency = (value: number, country: string) => {
+    if (country === "Brazil") {
+      return `R$ ${value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+    return value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "SEK",
+    });
+  };
+
   return (
     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
       <div className="flex justify-between items-start">
@@ -18,10 +31,7 @@ export default function BillItem({ bill }: BillItemProps) {
           <p className="text-sm text-gray-600">Payment: {bill.paymentMethod}</p>
         </div>
         <p className="font-bold text-lg">
-          {bill.value.toLocaleString("en-US", {
-            style: "currency",
-            currency: bill.country === "Sweden" ? "SEK" : "BRL",
-          })}
+          {formatCurrency(bill.value, bill.country)}
         </p>
       </div>
     </div>

@@ -25,6 +25,19 @@ export default function BillCard({
   const countryBills = bills.filter((bill) => bill.country === country);
   const totalValue = countryBills.reduce((sum, bill) => sum + bill.value, 0);
 
+  const formatCurrency = (value: number, country: string) => {
+    if (country === "Brazil") {
+      return `R$ ${value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+    return value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "SEK",
+    });
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
       <h2 className="text-xl font-semibold mb-2">{title}</h2>
@@ -46,10 +59,7 @@ export default function BillCard({
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <p className={`text-3xl font-bold ${valueColor}`}>
-            {totalValue.toLocaleString("en-US", {
-              style: "currency",
-              currency: country === "Sweden" ? "SEK" : "BRL",
-            })}
+            {formatCurrency(totalValue, country)}
           </p>
           <p className="text-sm text-gray-600">{countryBills.length} bills</p>
         </div>

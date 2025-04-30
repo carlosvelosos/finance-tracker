@@ -23,6 +23,7 @@ const countryCurrencyMap: Record<string, string> = {
 export default function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(
     new Date().getMonth()
   );
@@ -42,24 +43,79 @@ export default function BillsPage() {
     "December",
   ];
 
-  useEffect(() => {
-    fetchBills();
-  }, []);
-
   const fetchBills = async () => {
     try {
-      const { data, error } = await supabase
-        .from("current_month_bills")
-        .select("*");
+      const { data, error } = await supabase.from("recurrent_2025").select("*");
 
       if (error) throw error;
       setBills(data || []);
     } catch (error) {
-      console.error("Error fetching bills:", error);
+      if (typeof error === "object" && error !== null) {
+        console.error("Error fetching bills:", JSON.stringify(error, null, 2));
+      } else {
+        console.error("Error fetching bills:", error);
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const handleTogglePaid = async (id: number) => {
+    if (updating) return; // Prevent multiple simultaneous updates
+    try {
+      setUpdating(true);
+      const monthField = months[currentMonthIndex]
+        .toLowerCase()
+        .substring(0, 3);
+      const statusField = `${monthField}_status` as keyof Bill;
+      const currentBill = bills.find((bill) => bill.id === id);
+      if (!currentBill) throw new Error("Bill not found");
+
+      const newStatus = !currentBill[statusField];
+      if (typeof newStatus !== "boolean") return;
+
+      // Optimistically update UI
+      setBills((prevBills) =>
+        prevBills.map((bill) =>
+          bill.id === id
+            ? ({ ...bill, [statusField]: newStatus } as Bill)
+            : bill
+        )
+      );
+
+      const { error } = await supabase
+        .from("recurrent_2025")
+        .update({ [statusField]: newStatus })
+        .eq("id", id);
+
+      if (error) {
+        // Revert optimistic update on error
+        setBills((prevBills) =>
+          prevBills.map((bill) =>
+            bill.id === id
+              ? ({ ...bill, [statusField]: currentBill[statusField] } as Bill)
+              : bill
+          )
+        );
+        throw error;
+      }
+    } catch (error) {
+      if (typeof error === "object" && error !== null) {
+        console.error(
+          "Error toggling bill status:",
+          JSON.stringify(error, null, 2)
+        );
+      } else {
+        console.error("Error toggling bill status:", error);
+      }
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
 
   const nextMonth = () => {
     setCurrentMonthIndex((prev) => (prev + 1) % 12);
@@ -69,25 +125,17 @@ export default function BillsPage() {
     setCurrentMonthIndex((prev) => (prev - 1 + 12) % 12);
   };
 
-  const handleTogglePaid = async (id: number) => {
-    try {
-      const { error } = await supabase.rpc("toggle_current_month_status", {
-        bill_id: id,
-      });
-
-      if (error) throw error;
-      await fetchBills(); // Refresh the bills after update
-    } catch (error) {
-      console.error("Error toggling bill status:", error);
-    }
-  };
-
   // Calculate total per country
+  const monthAbbr = months[currentMonthIndex].toLowerCase().substring(0, 3);
+  const statusField = `${monthAbbr}_status` as keyof Bill;
+  const valueField = `${monthAbbr}_value` as keyof Bill;
+
   const totalsPerCountry = bills.reduce((acc, bill) => {
-    if (!bill.current_month_status) {
+    if (!bill[statusField]) {
+      const monthValue = bill[valueField];
       acc[bill.country] =
         (acc[bill.country] || 0) +
-        (bill.current_month_value || bill.base_value);
+        (typeof monthValue === "number" ? monthValue : bill.base_value);
     }
     return acc;
   }, {} as Record<string, number>);
@@ -142,57 +190,54 @@ export default function BillsPage() {
 
         <Table>
           <TableHeader>
-            <TableRow className="border-b-4 border-gray-600">
-              <TableHead className="font-bold">Description</TableHead>
-              <TableHead className="font-bold">Due Day</TableHead>
-              <TableHead className="font-bold">Payment Method</TableHead>
-              <TableHead className="font-bold">Country</TableHead>
-              <TableHead className="font-bold">Value</TableHead>
-              <TableHead className="font-bold">Status</TableHead>
+            <TableRow>
+              <TableHead>Description</TableHead>
+              <TableHead>Due Day</TableHead>
+              <TableHead>Payment Method</TableHead>
+              <TableHead>Country</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {bills.map((bill) => (
-              <TableRow
-                key={bill.id}
-                className={
-                  bill.current_month_status ? "bg-gray-100 text-gray-500" : ""
-                }
-              >
-                <TableCell
-                  className={bill.current_month_status ? "line-through" : ""}
+            {bills.map((bill) => {
+              const monthAbbr = months[currentMonthIndex]
+                .toLowerCase()
+                .substring(0, 3);
+              const statusField = `${monthAbbr}_status` as keyof Bill;
+              const valueField = `${monthAbbr}_value` as keyof Bill;
+              const currentValue =
+                typeof bill[valueField] === "number"
+                  ? (bill[valueField] as number)
+                  : bill.base_value;
+              const isPaid = bill[statusField];
+
+              return (
+                <TableRow
+                  key={bill.id}
+                  className={isPaid ? "bg-gray-100 text-gray-500" : ""}
                 >
-                  {bill.description}
-                </TableCell>
-                <TableCell>{bill.due_day}</TableCell>
-                <TableCell>{bill.payment_method}</TableCell>
-                <TableCell
-                  style={{
-                    color:
-                      bill.country === "Brazil"
-                        ? "green"
-                        : bill.country === "Sweden"
-                        ? "blue"
-                        : "black",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {bill.country}
-                </TableCell>
-                <TableCell>
-                  {(bill.current_month_value || bill.base_value).toLocaleString(
-                    "en-US",
-                    {
-                      style: "currency",
-                      currency: countryCurrencyMap[bill.country] || "USD",
-                    }
-                  )}
-                </TableCell>
-                <TableCell>
-                  {bill.current_month_status ? "Paid" : "Pending"}
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell className={isPaid ? "line-through" : ""}>
+                    {bill.description}
+                  </TableCell>
+                  <TableCell>{bill.due_day}</TableCell>
+                  <TableCell>{bill.payment_method}</TableCell>
+                  <TableCell>{bill.country}</TableCell>
+                  <TableCell>
+                    {bill.country === "Brazil"
+                      ? `R$ ${currentValue.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}`
+                      : currentValue.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "SEK",
+                        })}
+                  </TableCell>
+                  <TableCell>{isPaid ? "Paid" : "Pending"}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

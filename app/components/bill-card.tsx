@@ -24,13 +24,19 @@ export default function BillCard({
   country,
   valueColor = "text-blue-600",
 }: BillCardProps) {
+  const monthAbbr = month.toLowerCase().substring(0, 3);
+  const statusField = `${monthAbbr}_status` as keyof Bill;
+  const valueField = `${monthAbbr}_value` as keyof Bill;
+
   const countryBills = bills.filter((bill) => bill.country === country);
   const totalValue = countryBills
-    .filter((bill) => !bill.current_month_status)
-    .reduce(
-      (sum, bill) => sum + (bill.current_month_value || bill.base_value),
-      0
-    );
+    .filter((bill) => !bill[statusField])
+    .reduce((sum, bill) => {
+      const monthValue = bill[valueField];
+      return (
+        sum + (typeof monthValue === "number" ? monthValue : bill.base_value)
+      );
+    }, 0);
 
   const formatCurrency = (value: number, country: string) => {
     if (country === "Brazil") {
@@ -46,7 +52,7 @@ export default function BillCard({
   };
 
   const unpaidBillsCount = countryBills.filter(
-    (bill) => !bill.current_month_status
+    (bill) => !bill[statusField]
   ).length;
 
   return (
@@ -78,7 +84,12 @@ export default function BillCard({
         </div>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {countryBills.map((bill) => (
-            <BillItem key={bill.id} bill={bill} onTogglePaid={onTogglePaid} />
+            <BillItem
+              key={bill.id}
+              bill={bill}
+              onTogglePaid={onTogglePaid}
+              month={month}
+            />
           ))}
         </div>
       </div>

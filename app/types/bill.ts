@@ -29,8 +29,6 @@ export type Bill = {
   oct_status: boolean;
   nov_status: boolean;
   dec_status: boolean;
-  current_month_status: boolean;
-  current_month_value: number | null;
   created_at: string;
   updated_at: string;
 }; 

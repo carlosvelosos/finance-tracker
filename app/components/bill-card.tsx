@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bill } from "../types/bill";
 import BillItem from "./bill-item";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ interface BillCardProps {
   title: string;
   country: string;
   valueColor?: string;
+  onMonthChange?: (newMonthName: string) => void;
 }
 
 export default function BillCard({
@@ -32,6 +33,7 @@ export default function BillCard({
   title,
   country,
   valueColor = "text-blue-600",
+  onMonthChange,
 }: BillCardProps) {
   const [selectedMonth, setSelectedMonth] = useState(month);
   const [carouselApi, setCarouselApi] = useState<any>(null);
@@ -56,48 +58,62 @@ export default function BillCard({
   // Find the index of the current month
   const currentMonthIndex = months.findIndex((m) => m === month);
 
+  // Update carousel when month changes from parent component
   useEffect(() => {
     if (!carouselApi) return;
 
-    // Set the carousel to the current month when it changes
     const monthIndex = months.findIndex((m) => m === month);
-    if (monthIndex !== -1) {
+    if (monthIndex !== -1 && monthIndex !== currentSlide) {
       carouselApi.scrollTo(monthIndex);
       setCurrentSlide(monthIndex);
     }
-  }, [month, carouselApi, months]);
+  }, [month, carouselApi, months, currentSlide]);
 
-  // Handle carousel change
-  const handleCarouselChange = () => {
+  // Use useCallback for stable event handlers
+  const syncCarouselState = useCallback(() => {
     if (!carouselApi) return;
 
     const index = carouselApi.selectedScrollSnap();
-    setCurrentSlide(index);
+    if (index !== currentSlide) {
+      // Update our state
+      setCurrentSlide(index);
+      const newMonth = months[index];
+      setSelectedMonth(newMonth);
 
-    const newMonth = months[index];
-    setSelectedMonth(newMonth);
-  };
+      // Notify parent of month change (only if the index changed and we have a callback)
+      if (onMonthChange) {
+        onMonthChange(newMonth);
+      }
+    }
+  }, [carouselApi, currentSlide, months, onMonthChange]);
 
-  // Handle navigation with parent component awareness
-  const handlePrevious = () => {
+  // Use effect to attach all relevant carousel events
+  useEffect(() => {
     if (!carouselApi) return;
 
-    // First update the carousel to show the visual transition
+    // Add event listeners for all carousel interactions
+    carouselApi.on("select", syncCarouselState);
+    carouselApi.on("settle", syncCarouselState);
+
+    return () => {
+      // Clean up event listeners
+      carouselApi.off("select", syncCarouselState);
+      carouselApi.off("settle", syncCarouselState);
+    };
+  }, [carouselApi, syncCarouselState]);
+
+  // Modified handlers that leverage the carousel API
+  const handlePrevious = useCallback(() => {
+    if (!carouselApi) return;
     carouselApi.scrollPrev();
-
-    // Then inform the parent component
     onPrevMonth();
-  };
+  }, [carouselApi, onPrevMonth]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (!carouselApi) return;
-
-    // First update the carousel to show the visual transition
     carouselApi.scrollNext();
-
-    // Then inform the parent component
     onNextMonth();
-  };
+  }, [carouselApi, onNextMonth]);
 
   // Function to get bill details for a specific month
   const getBillDetailsForMonth = (monthName: string) => {
@@ -142,11 +158,11 @@ export default function BillCard({
       <Carousel
         opts={{
           align: "center",
-          loop: false, // Changed from true to false to prevent looping from December to January
+          loop: false,
           containScroll: "trimSnaps",
         }}
         setApi={setCarouselApi}
-        onSelect={handleCarouselChange}
+        onSelect={syncCarouselState}
         className="w-full relative"
       >
         <CarouselContent>
@@ -201,26 +217,11 @@ export default function BillCard({
                 className={cn(
                   "transition-all",
                   currentSlide === index
-                    ? "h-1.5 w-8 rounded-full bg-primary" // Line shape for active slide
-                    : "h-2 w-2 rounded-full bg-gray-300" // Circle shape for inactive slides
+                    ? "h-1.5 w-8 rounded-full bg-primary"
+                    : "h-2 w-2 rounded-full bg-gray-300"
                 )}
                 onClick={() => {
-                  // First update the carousel
                   carouselApi?.scrollTo(index);
-
-                  // Then inform the parent component about the month change
-                  // If moving forward
-                  if (index > currentSlide) {
-                    for (let i = currentSlide; i < index; i++) {
-                      onNextMonth();
-                    }
-                  }
-                  // If moving backward
-                  else if (index < currentSlide) {
-                    for (let i = currentSlide; i > index; i--) {
-                      onPrevMonth();
-                    }
-                  }
                 }}
                 aria-label={`Go to ${name}`}
               />

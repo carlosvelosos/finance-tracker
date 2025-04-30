@@ -21,13 +21,6 @@ const countryCurrencyMap: Record<string, string> = {
 };
 
 export default function BillsPage() {
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(
-    new Date().getMonth()
-  );
-
   const months = [
     "January",
     "February",
@@ -42,6 +35,16 @@ export default function BillsPage() {
     "November",
     "December",
   ];
+
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(
+    months[new Date().getMonth()]
+  );
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(
+    new Date().getMonth()
+  );
 
   const fetchBills = async () => {
     try {
@@ -113,16 +116,29 @@ export default function BillsPage() {
     }
   };
 
+  // Handler for direct month selection from carousel
+  const handleMonthChange = (monthName: string) => {
+    const newIndex = months.findIndex((m) => m === monthName);
+    if (newIndex !== -1 && newIndex !== currentMonthIndex) {
+      setCurrentMonthIndex(newIndex);
+      setCurrentMonth(monthName);
+    }
+  };
+
   useEffect(() => {
     fetchBills();
   }, []);
 
   const nextMonth = () => {
-    setCurrentMonthIndex((prev) => (prev + 1) % 12);
+    const newIndex = (currentMonthIndex + 1) % 12;
+    setCurrentMonthIndex(newIndex);
+    setCurrentMonth(months[newIndex]);
   };
 
   const prevMonth = () => {
-    setCurrentMonthIndex((prev) => (prev - 1 + 12) % 12);
+    const newIndex = (currentMonthIndex - 1 + 12) % 12;
+    setCurrentMonthIndex(newIndex);
+    setCurrentMonth(months[newIndex]);
   };
 
   // Calculate total per country
@@ -154,7 +170,7 @@ export default function BillsPage() {
         {/* Cards Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <BillCard
-            month={months[currentMonthIndex]}
+            month={currentMonth}
             bills={bills}
             onNextMonth={nextMonth}
             onPrevMonth={prevMonth}
@@ -162,9 +178,10 @@ export default function BillsPage() {
             title="Sweden Bills"
             country="Sweden"
             valueColor="text-blue-600"
+            onMonthChange={handleMonthChange}
           />
           <BillCard
-            month={months[currentMonthIndex]}
+            month={currentMonth}
             bills={bills}
             onNextMonth={nextMonth}
             onPrevMonth={prevMonth}
@@ -172,6 +189,7 @@ export default function BillsPage() {
             title="Brazil Bills"
             country="Brazil"
             valueColor="text-green-600"
+            onMonthChange={handleMonthChange}
           />
         </div>
 

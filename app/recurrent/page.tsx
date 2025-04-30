@@ -168,7 +168,7 @@ export default function BillsPage() {
         </h1>
 
         {/* Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 gap-4 mb-6">
           <BillCard
             month={currentMonth}
             bills={bills}

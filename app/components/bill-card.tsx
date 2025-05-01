@@ -152,7 +152,7 @@ export default function BillCard({
   };
 
   return (
-    <div className="bg-[#171717] p-6 rounded-lg shadow-md border border-gray-800 text-white">
+    <div className="bg-[#171717] p-6 rounded-lg shadow-md border border-gray-800 text-[#898989]">
       <h2 className="text-xl font-semibold mb-2">{title}</h2>
 
       <Carousel
@@ -210,15 +210,15 @@ export default function BillCard({
           />
 
           {/* Month indicator dots with active line style */}
-          <div className="flex space-x-1 justify-center">
+          <div className="flex space-x-1 justify-center items-center">
             {months.map((name, index) => (
               <button
                 key={name}
                 className={cn(
-                  "transition-all",
+                  "transition-all flex items-center",
                   currentSlide === index
-                    ? "h-1.5 w-8 rounded-full bg-primary"
-                    : "h-2 w-2 rounded-full bg-gray-300"
+                    ? "h-2 w-8 rounded-full bg-green-600" // Adjusted height to match inactive dots
+                    : "h-2 w-2 rounded-full bg-[#898989]"
                 )}
                 onClick={() => {
                   carouselApi?.scrollTo(index);

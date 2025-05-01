@@ -282,10 +282,10 @@ function CarouselDots({ className, ...props }: React.ComponentProps<"div">) {
         <button
           key={index}
           className={cn(
-            "transition-all",
+            "transition-all flex items-center",
             selectedIndex === index
-              ? "h-1.5 w-8 rounded-full bg-primary" // Line shape for active
-              : "h-2 w-2 rounded-full bg-gray-400" // Circle shape for inactive
+              ? "h-2 w-8 rounded-full bg-green-600" // Updated height to match inactive dots
+              : "h-2 w-2 rounded-full bg-[#898989]"
           )}
           onClick={() => handleDotClick(index)}
           aria-label={`Go to slide ${index + 1}`}
@@ -394,10 +394,10 @@ function CarouselDotsResponsive({
           <button
             key={index}
             className={cn(
-              "transition-all",
+              "transition-all flex items-center",
               index === activeIndicatorIndex
-                ? "h-1.5 w-8 rounded-full bg-primary"
-                : "h-2 w-2 rounded-full bg-gray-400"
+                ? "h-2 w-8 rounded-full bg-green-600" // Updated height to match inactive dots
+                : "h-2 w-2 rounded-full bg-[#898989]"
             )}
             onClick={() => {
               console.log(

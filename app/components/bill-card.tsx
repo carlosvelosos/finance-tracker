@@ -49,6 +49,11 @@ export default function BillCard({
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Create a wrapper function to handle the type mismatch
+  const handleApiChange = useCallback((api: any) => {
+    setCarouselApi(api);
+  }, []);
+
   // List of all months wrapped in useMemo to fix the dependencies warning
   const months = useMemo(
     () => [
@@ -171,7 +176,7 @@ export default function BillCard({
           loop: false,
           containScroll: "trimSnaps",
         }}
-        setApi={setCarouselApi}
+        setApi={handleApiChange}
         onSelect={syncCarouselState}
         className="w-full relative"
       >

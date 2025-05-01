@@ -13,6 +13,7 @@ import ProtectedRoute from "@/components/protected-route";
 import BillCard from "../components/bill-card";
 import { Bill } from "../types/bill";
 import { supabase } from "@/lib/supabaseClient";
+import { BillChart } from "@/components/ui/bill-chart";
 
 // Mapping of countries to their respective currencies
 const countryCurrencyMap: Record<string, string> = {
@@ -166,6 +167,11 @@ export default function BillsPage() {
         <h1 className="text-2xl font-bold text-center mb-6 text-[#898989]">
           Bills to Be Paid
         </h1>
+
+        {/* Line Chart Section */}
+        <div className="mb-8">
+          <BillChart bills={bills} months={months} />
+        </div>
 
         {/* Cards Section */}
         <div className="grid grid-cols-1 gap-4 mb-6">

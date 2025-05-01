@@ -152,7 +152,7 @@ export default function BillCard({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+    <div className="bg-[#171717] p-6 rounded-lg shadow-md border border-gray-800 text-white">
       <h2 className="text-xl font-semibold mb-2">{title}</h2>
 
       <Carousel
@@ -177,7 +177,7 @@ export default function BillCard({
                     <p className={`text-3xl font-bold ${valueColor}`}>
                       {formatCurrency(totalValue, country)}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-300">
                       {unpaidBillsCount} unpaid bills
                     </p>
                   </div>

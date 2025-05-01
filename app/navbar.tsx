@@ -90,12 +90,12 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gray-100 text-gray-800 p-4 flex justify-between items-center relative">
+    <nav className="bg-transparent text-white p-4 flex justify-between items-center relative">
       {/* Logo or App Name */}
       <div className="text-lg font-bold">
         <Link
           href="/"
-          className="text-green-600 block px-4 py-2 hover:bg-green-50 hover:border hover:border-gray-500 rounded-3xl transition duration-300 ease-in-out"
+          className="text-green-400 block px-4 py-2 hover:bg-black hover:bg-opacity-20 hover:border hover:border-gray-400 rounded-3xl transition duration-300 ease-in-out"
         >
           Finance Tracker
         </Link>
@@ -105,7 +105,7 @@ export default function Navbar() {
       <div className="lg:hidden">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="text-gray-800 focus:outline-none"
+          className="text-white focus:outline-none"
         >
           {isMenuOpen ? (
             <X className="w-6 h-6" />
@@ -119,15 +119,15 @@ export default function Navbar() {
       <div
         className={`${
           isMenuOpen ? "block" : "hidden"
-        } absolute top-full left-0 w-full bg-white lg:bg-transparent lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto z-50`}
+        } absolute top-full left-0 w-full bg-[#121212] lg:bg-transparent lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto z-50`}
       >
         {/* Dynamic Navigation Links */}
-        <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-200 lg:border-b lg:border-gray-200">
+        <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-700 lg:border-b lg:border-gray-700">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-green-600 transition-colors duration-200 hover:font-bold hover:bg-green-50 rounded-3xl"
+              className="block px-4 py-2 text-gray-200 hover:bg-black hover:bg-opacity-30 hover:text-green-400 transition-colors duration-200 hover:font-bold rounded-3xl"
               onClick={handleLinkClick}
             >
               {link.label}
@@ -136,15 +136,15 @@ export default function Navbar() {
         </div>
 
         {/* User Authentication */}
-        <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-200 lg:border-none lg:flex-row lg:gap-4 lg:p-0">
+        <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-700 lg:border-none lg:flex-row lg:gap-4 lg:p-0">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 lg:ml-auto"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E1E1E] border border-gray-700 hover:bg-[#2A2A2A] text-gray-200 lg:ml-auto"
                 >
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold">
+                  <div className="w-8 h-8 rounded-full bg-green-900 flex items-center justify-center text-green-300 font-semibold">
                     {user.email?.charAt(0).toUpperCase()}
                   </div>
                   <span className="max-w-[150px] truncate">{user.email}</span>
@@ -168,19 +168,19 @@ export default function Navbar() {
               <DropdownMenuContent
                 align="center"
                 sideOffset={10}
-                className="w-[calc(100vw-40px)] max-w-[300px] lg:max-w-[300px] lg:w-56 p-1.5 bg-white border border-gray-200 border-b-4 border-b-green-600 shadow-lg rounded-lg mt-1 mx-auto"
+                className="w-[calc(100vw-40px)] max-w-[300px] lg:max-w-[300px] lg:w-56 p-1.5 bg-[#1E1E1E] border border-gray-700 border-b-4 border-b-green-700 shadow-lg rounded-lg mt-1 mx-auto"
               >
-                {/* Rest of your dropdown content remains unchanged */}
-                <div className="px-3 py-2 mb-1 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">
+                {/* Rest of your dropdown content updated for dark theme */}
+                <div className="px-3 py-2 mb-1 border-b border-gray-700">
+                  <p className="text-sm font-medium text-gray-200">
                     {user.email}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">
+                  <p className="text-xs text-gray-400 mt-0.5 truncate">
                     Account ID: {user.id?.substring(0, 8)}...
                   </p>
                 </div>
 
-                <DropdownMenuItem className="flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-gray-50">
+                <DropdownMenuItem className="flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-[#2A2A2A]">
                   <svg
                     width="16"
                     height="16"
@@ -190,26 +190,26 @@ export default function Navbar() {
                   >
                     <path
                       d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
-                      stroke="#4B5563"
+                      stroke="#9CA3AF"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                     <path
                       d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22"
-                      stroke="#4B5563"
+                      stroke="#9CA3AF"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <span className="font-medium text-gray-700">Profile</span>
+                  <span className="font-medium text-gray-300">Profile</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
                   onClick={handleLogout}
                   onTouchEnd={handleLogout} // Add touch event handler
-                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-red-50"
+                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-red-900"
                 >
                   <svg
                     width="16"
@@ -220,34 +220,34 @@ export default function Navbar() {
                   >
                     <path
                       d="M8.90002 7.55999C9.21002 3.95999 11.06 2.48999 15.11 2.48999H15.24C19.71 2.48999 21.5 4.27999 21.5 8.74999V15.27C21.5 19.74 19.71 21.53 15.24 21.53H15.11C11.09 21.53 9.24002 20.08 8.91002 16.54"
-                      stroke="#EF4444"
+                      stroke="#F87171"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                     <path
                       d="M15 12H3.62"
-                      stroke="#EF4444"
+                      stroke="#F87171"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                     <path
                       d="M5.85 8.6499L2.5 11.9999L5.85 15.3499"
-                      stroke="#EF4444"
+                      stroke="#F87171"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <span className="font-medium text-red-600">Log Out</span>
+                  <span className="font-medium text-red-400">Log Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Link
               href="/auth/login"
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 transition-colors duration-200 font-medium lg:ml-auto"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-900 border border-green-700 text-green-300 hover:bg-green-800 transition-colors duration-200 font-medium lg:ml-auto"
             >
               <svg
                 width="16"
@@ -258,21 +258,21 @@ export default function Navbar() {
               >
                 <path
                   d="M8.90002 16.44C9.21002 20.04 11.06 21.51 15.11 21.51H15.24C19.71 21.51 21.5 19.72 21.5 15.25V8.73C21.5 4.26 19.71 2.47 15.24 2.47H15.11C11.09 2.47 9.24002 3.92 8.91002 7.46"
-                  stroke="#059669"
+                  stroke="#10B981"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M15 12H3.62"
-                  stroke="#059669"
+                  stroke="#10B981"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M5.85 8.6499L2.5 11.9999L5.85 15.3499"
-                  stroke="#059669"
+                  stroke="#10B981"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"

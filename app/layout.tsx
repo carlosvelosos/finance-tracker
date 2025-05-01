@@ -1,7 +1,7 @@
-import { AuthProvider } from '../context/AuthContext';
-import './globals.css';
-import NavbarWrapper from './NavbarWrapper'; // We'll create this component
-import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from "../context/AuthContext";
+import "./globals.css";
+import NavbarWrapper from "./NavbarWrapper"; // We'll create this component
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({
   children,
@@ -10,9 +10,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-[#121212] text-white">
         <AuthProvider>
-          <NavbarWrapper /> {/* Wrapper that conditionally renders the navbar */}
+          <NavbarWrapper />{" "}
+          {/* Wrapper that conditionally renders the navbar */}
           <Toaster />
           <main>{children}</main>
         </AuthProvider>

@@ -47,70 +47,80 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
         <div
           className={`p-4 rounded-lg border transition-colors cursor-pointer ${
             isPaid
-              ? "bg-gray-200 border-gray-300 text-gray-500"
-              : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+              ? "bg-gray-800 border-gray-700 text-gray-400"
+              : "bg-[#2f2f2f] border-gray-700 hover:bg-gray-800"
           }`}
           onClick={() => onTogglePaid(bill.id)}
         >
           <div className="flex justify-between items-start">
             <div>
-              <h3 className={`font-medium ${isPaid ? "line-through" : ""}`}>
+              <h3
+                className={`font-medium text-gray-200 ${
+                  isPaid ? "line-through" : ""
+                }`}
+              >
                 {bill.description}
               </h3>
               <p
                 className={`text-sm ${
-                  isPaid ? "text-gray-400" : "text-gray-600"
+                  isPaid ? "text-gray-500" : "text-gray-400"
                 }`}
               >
                 Due: {bill.due_day}
               </p>
               <p
                 className={`text-sm ${
-                  isPaid ? "text-gray-400" : "text-gray-600"
+                  isPaid ? "text-gray-500" : "text-gray-400"
                 }`}
               >
                 Payment: {bill.payment_method}
               </p>
             </div>
-            <p className={`font-bold text-lg ${isPaid ? "text-gray-500" : ""}`}>
+            <p
+              className={`font-bold text-lg ${
+                isPaid ? "text-gray-500" : "text-gray-200"
+              }`}
+            >
               {formatCurrency(currentValue, bill.country)}
             </p>
           </div>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-80">
+      <HoverCardContent className="w-80 bg-[#212121] border-gray-700 text-gray-200">
         <div className="space-y-2">
-          <h4 className="text-lg font-semibold">{bill.description}</h4>
+          <h4 className="text-lg font-semibold text-white">
+            {bill.description}
+          </h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="font-medium">Country:</div>
+            <div className="font-medium text-gray-300">Country:</div>
             <div>{bill.country}</div>
 
-            <div className="font-medium">Due Day:</div>
+            <div className="font-medium text-gray-300">Due Day:</div>
             <div>{bill.due_day}</div>
 
-            <div className="font-medium">Payment Method:</div>
+            <div className="font-medium text-gray-300">Payment Method:</div>
             <div>{bill.payment_method}</div>
 
-            <div className="font-medium">Base Value:</div>
+            <div className="font-medium text-gray-300">Base Value:</div>
             <div>{formatCurrency(bill.base_value, bill.country)}</div>
 
-            <div className="font-medium">Current Value:</div>
+            <div className="font-medium text-gray-300">Current Value:</div>
             <div>{formatCurrency(currentValue, bill.country)}</div>
 
-            <div className="font-medium">Current Status:</div>
-            <div className={isPaid ? "text-green-600" : "text-red-600"}>
+            <div className="font-medium text-gray-300">Current Status:</div>
+            <div className={isPaid ? "text-green-400" : "text-red-400"}>
               {isPaid ? "Paid" : "Pending"}
             </div>
 
-            <div className="font-medium">Created:</div>
+            <div className="font-medium text-gray-300">Created:</div>
             <div>{formatDate(bill.created_at)}</div>
 
-            <div className="font-medium">Last Updated:</div>
+            <div className="font-medium text-gray-300">Last Updated:</div>
             <div>{formatDate(bill.updated_at)}</div>
           </div>
 
-          <div className="mt-2 pt-2 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
+          <div className="mt-2 pt-2 border-t border-gray-700">
+            <p className="text-xs text-gray-400">
               Click to toggle payment status
             </p>
           </div>

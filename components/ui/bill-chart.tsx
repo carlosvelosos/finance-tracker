@@ -41,25 +41,40 @@ export function BillChart({
   className = "",
   color,
 }: BillChartProps) {
-  // Chart data preparation for a single country
+  // Chart data preparation for a single country with cumulative values
   const chartData = useMemo(() => {
     if (!bills.length) {
-      // Demo data for preview
-      return months.slice(0, 6).map((month, index) => ({
-        name: month.substring(0, 3),
-        value:
-          country === "Sweden"
-            ? [2000, 3000, 1000, 2500, 1800, 3200][index]
-            : [1000, 1500, 2000, 900, 1200, 1100][index],
-      }));
+      // Demo data for preview with cumulative values
+      const monthlyValues =
+        country === "Sweden"
+          ? [
+              2000, 3000, 1000, 2500, 1800, 3200, 2200, 1900, 2700, 3100, 2600,
+              3500,
+            ]
+          : [
+              1000, 1500, 2000, 900, 1200, 1100, 1300, 1800, 1600, 1400, 1700,
+              2000,
+            ];
+
+      // Calculate cumulative values
+      let cumulative = 0;
+      return months.map((month, index) => {
+        cumulative += monthlyValues[index] || 0;
+        return {
+          name: month.substring(0, 3),
+          value: cumulative,
+        };
+      });
     }
 
+    // For actual data, calculate cumulative values throughout the year
+    let cumulativeTotal = 0;
     return months.map((month) => {
       const monthAbbr = month.toLowerCase().substring(0, 3);
       const valueField = `${monthAbbr}_value` as keyof Bill;
 
-      // Calculate total for selected country for ALL bills (regardless of payment status)
-      const countryTotal = bills
+      // Calculate monthly total for selected country
+      const monthlyTotal = bills
         .filter((bill) => bill.country === country)
         .reduce((sum, bill) => {
           const monthValue = bill[valueField];
@@ -69,9 +84,12 @@ export function BillChart({
           );
         }, 0);
 
+      // Add to cumulative total
+      cumulativeTotal += monthlyTotal;
+
       return {
         name: month.substring(0, 3),
-        value: countryTotal,
+        value: cumulativeTotal,
       };
     });
   }, [bills, months, country]);
@@ -109,18 +127,16 @@ export function BillChart({
 
   return (
     <Card
-      className={`bg-[#171717] text-[#898989] rounded-lg shadow-md border border-gray-800 flex flex-col h-[350px] ${className}`}
+      className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col h-[350px] ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
-        <CardTitle>{country} Monthly Bills</CardTitle>
-        <CardDescription>
-          All bills for 2025 (regardless of payment status)
-        </CardDescription>
+        <CardTitle>{country} Cumulative Bills</CardTitle>
+        <CardDescription>Accumulated expenses over 2025</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4">
         <div className="h-full rounded-lg p-3">
           <div className="text-sm font-medium mb-1">{country}</div>
-          <ChartContainer config={chartConfig} className="h-[90%] w-full">
+          <ChartContainer config={chartConfig} className="h-[90%]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
@@ -171,14 +187,14 @@ export function BillChart({
           </ChartContainer>
         </div>
       </CardContent>
-      {/* <CardFooter className="flex-col items-start gap-2 text-sm py-2 shrink-0">
+      <CardFooter className="flex-col items-start gap-2 text-sm py-2 shrink-0">
         <div className="flex gap-2 font-medium leading-none">
-          <TrendingUp className="h-4 w-4" /> Monthly bill obligations
+          <TrendingUp className="h-4 w-4" /> Cumulative expenses
         </div>
         <div className="leading-none text-muted-foreground">
-          Total bill amounts regardless of payment status
+          Total accumulated bill expenses over the year
         </div>
-      </CardFooter> */}
+      </CardFooter>
     </Card>
   );
 }

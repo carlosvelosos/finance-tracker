@@ -153,7 +153,7 @@ export default function BillCard({
 
   return (
     <div className="bg-[#171717] p-6 rounded-lg shadow-md border border-gray-800 text-[#898989]">
-      <h2 className="text-xl font-semibold mb-2">{title}</h2>
+      <h2 className="text-xl font-semibold mb-2 text-center">{title}</h2>
 
       <Carousel
         opts={{
@@ -174,7 +174,7 @@ export default function BillCard({
               <CarouselItem key={monthName} className="basis-full pl-4">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <p className={`text-3xl font-bold ${valueColor}`}>
+                    <p className="text-3xl font-bold text-[#898989]">
                       {formatCurrency(totalValue, country)}
                     </p>
                     <p className="text-sm text-gray-300">

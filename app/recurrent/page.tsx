@@ -175,7 +175,7 @@ export default function BillsPage() {
             onNextMonth={nextMonth}
             onPrevMonth={prevMonth}
             onTogglePaid={handleTogglePaid}
-            title="Sweden Bills"
+            title="Sweden"
             country="Sweden"
             valueColor="text-blue-600"
             onMonthChange={handleMonthChange}
@@ -186,7 +186,7 @@ export default function BillsPage() {
             onNextMonth={nextMonth}
             onPrevMonth={prevMonth}
             onTogglePaid={handleTogglePaid}
-            title="Brazil Bills"
+            title="Brazil"
             country="Brazil"
             valueColor="text-green-600"
             onMonthChange={handleMonthChange}

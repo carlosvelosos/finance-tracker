@@ -10,6 +10,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 
 interface BillCardProps {
@@ -22,16 +23,6 @@ interface BillCardProps {
   country: string;
   valueColor?: string; // Keeping this for backward compatibility
   onMonthChange?: (newMonthName: string) => void;
-}
-
-// Define the type for carousel API
-interface CarouselApi {
-  scrollTo: (index: number) => void;
-  scrollPrev: () => void;
-  scrollNext: () => void;
-  selectedScrollSnap: () => number;
-  on: (event: string, callback: () => void) => void;
-  off: (event: string, callback: () => void) => void;
 }
 
 export default function BillCard({
@@ -50,8 +41,8 @@ export default function BillCard({
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Create a wrapper function to handle the type mismatch
-  const handleApiChange = useCallback((api: any) => {
-    setCarouselApi(api);
+  const handleApiChange = useCallback((api: CarouselApi | undefined) => {
+    setCarouselApi(api || null);
   }, []);
 
   // List of all months wrapped in useMemo to fix the dependencies warning

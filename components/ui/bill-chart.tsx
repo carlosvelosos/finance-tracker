@@ -100,7 +100,7 @@ export function BillChart({ bills, months, className = "" }: BillChartProps) {
         <CardDescription>January - December 2025</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4">
-        <ChartContainer config={chartConfig} className="h-full">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}

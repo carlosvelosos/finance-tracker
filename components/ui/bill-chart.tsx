@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { TrendingUp } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -10,13 +9,17 @@ import {
   YAxis,
   ResponsiveContainer,
   Dot,
+  TooltipProps,
 } from "recharts";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -42,8 +45,17 @@ interface ChartDataPoint {
   isPast: boolean;
 }
 
+// Define a type for our dot component props
+interface DotProps {
+  cx?: number;
+  cy?: number;
+  payload?: {
+    isPast: boolean;
+  };
+}
+
 // Define a custom dot component properly typed
-const PastFutureDot = (props: any) => {
+const PastFutureDot = (props: DotProps) => {
   const { cx, cy, payload } = props;
   if (!cx || !cy || !payload) return null;
 
@@ -60,7 +72,7 @@ const PastFutureDot = (props: any) => {
 };
 
 // Define a custom active dot component
-const PastFutureActiveDot = (props: any) => {
+const PastFutureActiveDot = (props: DotProps) => {
   const { cx, cy, payload } = props;
   if (!cx || !cy || !payload) return null;
 
@@ -151,7 +163,10 @@ export function BillChart({
   } satisfies ChartConfig;
 
   // Custom tooltip content with position at top of chart
-  const renderTooltipContent = ({ payload, coordinate }: any) => {
+  const renderTooltipContent = ({
+    payload,
+    coordinate,
+  }: TooltipProps<ValueType, NameType>) => {
     if (payload && payload.length > 0 && coordinate) {
       const value = payload[0].value as number;
 

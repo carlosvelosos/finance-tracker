@@ -153,6 +153,20 @@ export function BillChart({
   // Custom tooltip content
   const renderTooltipContent = ({ payload }: any) => {
     if (payload && payload.length > 0) {
+      const value = payload[0].value as number;
+
+      // Format currency based on country
+      const formattedValue =
+        country === "Sweden"
+          ? new Intl.NumberFormat("sv-SE", {
+              style: "currency",
+              currency: "SEK",
+            }).format(value)
+          : new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(value);
+
       return (
         <div className="p-2 bg-white dark:bg-gray-800 shadow-md rounded">
           <div className="flex items-center gap-2">
@@ -160,11 +174,7 @@ export function BillChart({
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: payload[0].color }}
             />
-            <span className="font-medium">
-              {new Intl.NumberFormat("en-US").format(
-                payload[0].value as number
-              )}
-            </span>
+            <span className="font-medium">{formattedValue}</span>
           </div>
         </div>
       );

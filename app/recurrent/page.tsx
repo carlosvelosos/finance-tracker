@@ -205,13 +205,13 @@ export default function BillsPage() {
             >
               <ToggleGroupItem
                 value="Sweden"
-                className="border-none rounded-md"
+                className="border-none rounded-md text-[#4d4d4d] data-[state=on]:bg-[#00fd42]"
               >
                 Sweden
               </ToggleGroupItem>
               <ToggleGroupItem
                 value="Brazil"
-                className="border-none rounded-md"
+                className="border-none rounded-md text-[#4d4d4d] data-[state=on]:bg-[#00fd42]"
               >
                 Brazil
               </ToggleGroupItem>

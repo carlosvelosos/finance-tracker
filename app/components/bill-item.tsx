@@ -71,7 +71,13 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
           </div>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-80 bg-[#1e3925] border-[#365341] text-gray-200">
+      <HoverCardContent
+        className={`w-80 ${
+          isPaid
+            ? "bg-gray-800 border-[#0d172b] text-gray-300"
+            : "bg-[#1e3925] border-[#365341] text-gray-200"
+        }`}
+      >
         <div className="space-y-2">
           <h4 className="text-lg font-semibold text-white">
             {bill.description}

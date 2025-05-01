@@ -201,10 +201,20 @@ export default function BillsPage() {
                   setSelectedCountry("Brazil");
                 }
               }}
-              variant="outline"
+              className="border-none flex gap-3"
             >
-              <ToggleGroupItem value="Sweden">Sweden</ToggleGroupItem>
-              <ToggleGroupItem value="Brazil">Brazil</ToggleGroupItem>
+              <ToggleGroupItem
+                value="Sweden"
+                className="border-none rounded-md"
+              >
+                Sweden
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="Brazil"
+                className="border-none rounded-md"
+              >
+                Brazil
+              </ToggleGroupItem>
             </ToggleGroup>
           </div>
 

@@ -94,7 +94,7 @@ export function BillChart({ bills, months, className = "" }: BillChartProps) {
   } satisfies ChartConfig;
 
   return (
-    <Card className={`flex flex-col h-[350px] ${className}`}>
+    <Card className={`flex flex-col h-[500px] ${className}`}>
       <CardHeader className="pb-2 shrink-0">
         <CardTitle>Monthly Bill Amounts</CardTitle>
         <CardDescription>January - December 2025</CardDescription>

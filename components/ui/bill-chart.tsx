@@ -238,7 +238,7 @@ export function BillChart({
                 {/* Define gradient to handle color split */}
                 <defs>
                   <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset={gradientOffset} stopColor="#1E40AF" />
+                    <stop offset={gradientOffset} stopColor="#0c51b5" />
                     <stop offset={gradientOffset} stopColor="#333333" />
                   </linearGradient>
                 </defs>

@@ -14,6 +14,8 @@ import BillCard from "../components/bill-card";
 import { Bill } from "../types/bill";
 import { supabase } from "@/lib/supabaseClient";
 import { BillChart } from "@/components/ui/bill-chart";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "../../components/ui/label";
 
 // Mapping of countries to their respective currencies
 const countryCurrencyMap: Record<string, string> = {
@@ -46,6 +48,9 @@ export default function BillsPage() {
   const [currentMonthIndex, setCurrentMonthIndex] = useState(
     new Date().getMonth()
   );
+  const [selectedCountry, setSelectedCountry] = useState<
+    "Sweden" | "Brazil" | "Both"
+  >("Both");
 
   const fetchBills = async () => {
     try {
@@ -168,48 +173,109 @@ export default function BillsPage() {
           Bills to Be Paid
         </h1>
 
+        {/* Country Selection */}
+        <div className="flex items-center justify-between mb-4 bg-gray-50 p-4 rounded-md">
+          <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4 md:items-center">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="sweden-switch"
+                checked={selectedCountry === "Sweden"}
+                onCheckedChange={() =>
+                  setSelectedCountry(
+                    selectedCountry === "Sweden" ? "Both" : "Sweden"
+                  )
+                }
+              />
+              <Label htmlFor="sweden-switch">Sweden Only</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="brazil-switch"
+                checked={selectedCountry === "Brazil"}
+                onCheckedChange={() =>
+                  setSelectedCountry(
+                    selectedCountry === "Brazil" ? "Both" : "Brazil"
+                  )
+                }
+              />
+              <Label htmlFor="brazil-switch">Brazil Only</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="both-switch"
+                checked={selectedCountry === "Both"}
+                onCheckedChange={() => setSelectedCountry("Both")}
+              />
+              <Label htmlFor="both-switch">Show Both</Label>
+            </div>
+          </div>
+
+          {/* Display totals per country */}
+          <div className="flex gap-4">
+            {Object.entries(totalsPerCountry).map(([country, total]) => (
+              <div key={country} className="text-lg font-medium">
+                <span className="font-bold">{country}:</span>{" "}
+                {total.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: countryCurrencyMap[country] || "USD",
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Line Chart Section */}
         <div className="mb-8">
-          <BillChart bills={bills} months={months} />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {(selectedCountry === "Sweden" || selectedCountry === "Both") && (
+              <BillChart
+                bills={bills}
+                months={months}
+                country="Sweden"
+                className={selectedCountry === "Both" ? "" : "md:col-span-2"}
+                color="hsl(var(--chart-1))"
+              />
+            )}
+            {(selectedCountry === "Brazil" || selectedCountry === "Both") && (
+              <BillChart
+                bills={bills}
+                months={months}
+                country="Brazil"
+                className={selectedCountry === "Both" ? "" : "md:col-span-2"}
+                color="hsl(var(--chart-3))"
+              />
+            )}
+          </div>
         </div>
 
         {/* Cards Section */}
         <div className="grid grid-cols-1 gap-4 mb-6">
-          <BillCard
-            month={currentMonth}
-            bills={bills}
-            onNextMonth={nextMonth}
-            onPrevMonth={prevMonth}
-            onTogglePaid={handleTogglePaid}
-            title="Sweden"
-            country="Sweden"
-            valueColor="text-blue-600"
-            onMonthChange={handleMonthChange}
-          />
-          <BillCard
-            month={currentMonth}
-            bills={bills}
-            onNextMonth={nextMonth}
-            onPrevMonth={prevMonth}
-            onTogglePaid={handleTogglePaid}
-            title="Brazil"
-            country="Brazil"
-            valueColor="text-green-600"
-            onMonthChange={handleMonthChange}
-          />
-        </div>
-
-        {/* Display totals per country */}
-        <div className="mb-4 flex gap-4 bg-gray-50 p-4 rounded-md">
-          {Object.entries(totalsPerCountry).map(([country, total]) => (
-            <div key={country} className="text-lg font-medium">
-              <span className="font-bold">{country}:</span>{" "}
-              {total.toLocaleString("en-US", {
-                style: "currency",
-                currency: countryCurrencyMap[country] || "USD", // Default to USD if country is not mapped
-              })}
-            </div>
-          ))}
+          {(selectedCountry === "Sweden" || selectedCountry === "Both") && (
+            <BillCard
+              month={currentMonth}
+              bills={bills}
+              onNextMonth={nextMonth}
+              onPrevMonth={prevMonth}
+              onTogglePaid={handleTogglePaid}
+              title="Sweden"
+              country="Sweden"
+              valueColor="text-blue-600"
+              onMonthChange={handleMonthChange}
+            />
+          )}
+          {(selectedCountry === "Brazil" || selectedCountry === "Both") && (
+            <BillCard
+              month={currentMonth}
+              bills={bills}
+              onNextMonth={nextMonth}
+              onPrevMonth={prevMonth}
+              onTogglePaid={handleTogglePaid}
+              title="Brazil"
+              country="Brazil"
+              valueColor="text-green-600"
+              onMonthChange={handleMonthChange}
+            />
+          )}
         </div>
 
         <Table>

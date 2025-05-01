@@ -165,11 +165,14 @@ export function BillChart({
   // Split the data for past and future months
   const currentMonthIndex = new Date().getMonth();
 
-  // Create data segments with proper month divisions
-  const pastData = chartData.filter((_, idx) => idx <= currentMonthIndex);
+  // Instead of filtering the data, we'll modify it to create a visual break
+  // by setting the stroke color based on the month index
 
-  // Future data starts from currentMonthIndex (to create connection)
-  const futureData = chartData.filter((_, idx) => idx >= currentMonthIndex);
+  // Create a single dataset with a property indicating if it's past or future
+  const enhancedData = chartData.map((item, idx) => ({
+    ...item,
+    isPast: idx <= currentMonthIndex,
+  }));
 
   return (
     <Card
@@ -185,6 +188,7 @@ export function BillChart({
           <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
+                data={enhancedData}
                 margin={{
                   left: 0,
                   right: 20,
@@ -216,33 +220,61 @@ export function BillChart({
                 />
                 <ChartTooltip cursor={true} content={renderTooltipContent} />
 
-                {/* Past months line (Dark Blue) */}
+                {/* Single line with custom dot and stroke colors based on month */}
                 <Line
                   type="monotone"
-                  data={pastData}
                   dataKey="value"
-                  name="Past"
+                  name="Value"
                   strokeWidth={2}
-                  stroke="#1E40AF" // Dark blue
+                  stroke="#1E40AF" // This will be overridden by the strokeColor function
                   connectNulls
-                  dot={CustomDot}
-                  activeDot={CustomActiveDot}
-                  isAnimationActive={false}
-                />
+                  dot={(props) => {
+                    const { cx, cy, index, payload } = props;
+                    if (!cx || !cy || index === undefined || !payload)
+                      return null;
 
-                {/* Future months line (Gray) */}
-                <Line
-                  type="monotone"
-                  data={futureData}
-                  dataKey="value"
-                  name="Future"
+                    const isPastOrCurrentMonth = payload.isPast;
+
+                    return (
+                      <circle
+                        key={`dot-${index}`}
+                        cx={cx}
+                        cy={cy}
+                        r={4}
+                        fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+                        stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+                      />
+                    );
+                  }}
+                  activeDot={(props) => {
+                    const { cx, cy, index, payload } = props;
+                    if (!cx || !cy || index === undefined || !payload)
+                      return null;
+
+                    const isPastOrCurrentMonth = payload.isPast;
+
+                    return (
+                      <circle
+                        key={`active-dot-${index}`}
+                        cx={cx}
+                        cy={cy}
+                        r={6}
+                        fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+                        stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+                      />
+                    );
+                  }}
                   strokeWidth={2}
-                  stroke="#6B7280" // Gray
-                  connectNulls
-                  dot={CustomDot}
-                  activeDot={CustomActiveDot}
-                  isAnimationActive={false}
+                  className="transition-all duration-300"
+                  stroke="url(#splitColor)"
                 />
+                {/* Define gradient to handle color split */}
+                <defs>
+                  <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset={currentMonthIndex / 11} stopColor="#1E40AF" />
+                    <stop offset={currentMonthIndex / 11} stopColor="#6B7280" />
+                  </linearGradient>
+                </defs>
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>

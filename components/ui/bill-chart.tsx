@@ -134,7 +134,7 @@ export function BillChart({ bills, months, className = "" }: BillChartProps) {
                 width={40}
               />
               <ChartTooltip
-                cursor={false}
+                cursor={true}
                 content={({ payload }) => {
                   if (payload && payload.length > 0) {
                     return (

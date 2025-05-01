@@ -47,7 +47,7 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
         <div
           className={`p-4 rounded-lg border transition-colors cursor-pointer ${
             isPaid
-              ? "bg-gray-800 border-[#365341] text-gray-400"
+              ? "bg-gray-800 border-[#0d172b] text-gray-400"
               : "bg-[#2f2f2f] border-[#365341] hover:bg-[#1e3925]"
           }`}
           onClick={() => onTogglePaid(bill.id)}

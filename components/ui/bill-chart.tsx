@@ -136,7 +136,7 @@ export function BillChart({
       <CardContent className="flex-grow overflow-hidden px-4">
         <div className="h-full rounded-lg p-3">
           <div className="text-sm font-medium mb-1">{country}</div>
-          <ChartContainer config={chartConfig} className="h-[90%]">
+          <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}

@@ -38,12 +38,12 @@ interface BillChartProps {
   color?: string;
 }
 
-// Define chart data point type
-interface ChartDataPoint {
-  name: string;
-  value: number;
-  isPast: boolean;
-}
+// // Define chart data point type
+// interface ChartDataPoint {
+//   name: string;
+//   value: number;
+//   isPast: boolean;
+// }
 
 // Define a type for our dot component props
 interface DotProps {

@@ -47,8 +47,8 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
         <div
           className={`p-4 rounded-lg border transition-colors cursor-pointer ${
             isPaid
-              ? "bg-gray-800 border-gray-700 text-gray-400"
-              : "bg-[#2f2f2f] border-gray-700 hover:bg-gray-800"
+              ? "bg-gray-800 border-[#365341] text-gray-400"
+              : "bg-[#2f2f2f] border-[#365341] hover:bg-[#1e3925]"
           }`}
           onClick={() => onTogglePaid(bill.id)}
         >
@@ -71,7 +71,7 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
           </div>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-80 bg-[#212121] border-gray-700 text-gray-200">
+      <HoverCardContent className="w-80 bg-[#1e3925] border-[#365341] text-gray-200">
         <div className="space-y-2">
           <h4 className="text-lg font-semibold text-white">
             {bill.description}

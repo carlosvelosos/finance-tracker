@@ -34,6 +34,43 @@ interface BillChartProps {
   color?: string;
 }
 
+// Custom Dot Component that follows Recharts expected format
+const CustomDot = (props: any) => {
+  const { cx, cy, index, payload, key } = props;
+  // Check today's date (May 2025)
+  const currentMonthIndex = new Date().getMonth();
+  const isPastOrCurrentMonth = index <= currentMonthIndex;
+
+  return (
+    <circle
+      key={`dot-${index}`}
+      cx={cx}
+      cy={cy}
+      r={4}
+      fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+      stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+    />
+  );
+};
+
+// Custom Active Dot Component
+const CustomActiveDot = (props: any) => {
+  const { cx, cy, index } = props;
+  const currentMonthIndex = new Date().getMonth();
+  const isPastOrCurrentMonth = index <= currentMonthIndex;
+
+  return (
+    <circle
+      key={`active-dot-${index}`}
+      cx={cx}
+      cy={cy}
+      r={6}
+      fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+      stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+    />
+  );
+};
+
 export function BillChart({
   bills,
   months,
@@ -69,7 +106,7 @@ export function BillChart({
 
     // For actual data, calculate cumulative values throughout the year
     let cumulativeTotal = 0;
-    return months.map((month) => {
+    return months.map((month, monthIndex) => {
       const monthAbbr = month.toLowerCase().substring(0, 3);
       const valueField = `${monthAbbr}_value` as keyof Bill;
 
@@ -125,6 +162,15 @@ export function BillChart({
     return null;
   };
 
+  // Split the data for past and future months
+  const currentMonthIndex = new Date().getMonth();
+
+  // Create data segments with proper month divisions
+  const pastData = chartData.filter((_, idx) => idx <= currentMonthIndex);
+
+  // Future data starts from currentMonthIndex (to create connection)
+  const futureData = chartData.filter((_, idx) => idx >= currentMonthIndex);
+
   return (
     <Card
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col h-[350px] ${className}`}
@@ -139,7 +185,6 @@ export function BillChart({
           <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={chartData}
                 margin={{
                   left: 0,
                   right: 20,
@@ -170,17 +215,33 @@ export function BillChart({
                   width={40}
                 />
                 <ChartTooltip cursor={true} content={renderTooltipContent} />
+
+                {/* Past months line (Dark Blue) */}
                 <Line
                   type="monotone"
+                  data={pastData}
                   dataKey="value"
+                  name="Past"
                   strokeWidth={2}
-                  dot={{
-                    r: 4,
-                  }}
-                  activeDot={{
-                    r: 6,
-                  }}
+                  stroke="#1E40AF" // Dark blue
                   connectNulls
+                  dot={CustomDot}
+                  activeDot={CustomActiveDot}
+                  isAnimationActive={false}
+                />
+
+                {/* Future months line (Gray) */}
+                <Line
+                  type="monotone"
+                  data={futureData}
+                  dataKey="value"
+                  name="Future"
+                  strokeWidth={2}
+                  stroke="#6B7280" // Gray
+                  connectNulls
+                  dot={CustomDot}
+                  activeDot={CustomActiveDot}
+                  isAnimationActive={false}
                 />
               </LineChart>
             </ResponsiveContainer>

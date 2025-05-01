@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Bill } from "../types/bill";
 import BillItem from "./bill-item";
 import { cn } from "@/lib/utils";
@@ -20,8 +20,18 @@ interface BillCardProps {
   onTogglePaid: (id: number) => void;
   title: string;
   country: string;
-  valueColor?: string;
+  valueColor?: string; // Keeping this for backward compatibility
   onMonthChange?: (newMonthName: string) => void;
+}
+
+// Define the type for carousel API
+interface CarouselApi {
+  scrollTo: (index: number) => void;
+  scrollPrev: () => void;
+  scrollNext: () => void;
+  selectedScrollSnap: () => number;
+  on: (event: string, callback: () => void) => void;
+  off: (event: string, callback: () => void) => void;
 }
 
 export default function BillCard({
@@ -32,31 +42,31 @@ export default function BillCard({
   onTogglePaid,
   title,
   country,
-  valueColor = "text-blue-600",
   onMonthChange,
 }: BillCardProps) {
-  const [selectedMonth, setSelectedMonth] = useState(month);
-  const [carouselApi, setCarouselApi] = useState<any>(null);
+  // We don't use selectedMonth elsewhere, but we need it for the callback
+  const [, setSelectedMonth] = useState(month);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // List of all months
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  // Find the index of the current month
-  const currentMonthIndex = months.findIndex((m) => m === month);
+  // List of all months wrapped in useMemo to fix the dependencies warning
+  const months = useMemo(
+    () => [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    []
+  );
 
   // Update carousel when month changes from parent component
   useEffect(() => {

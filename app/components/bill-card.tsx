@@ -128,7 +128,11 @@ export default function BillCard({
     const valueField = `${monthAbbr}_value` as keyof Bill;
 
     const countryBills = bills.filter((bill) => bill.country === country);
-    const totalValue = countryBills
+
+    // Sort bills by due date (ascending)
+    const sortedBills = [...countryBills].sort((a, b) => a.due_day - b.due_day);
+
+    const totalValue = sortedBills
       .filter((bill) => !bill[statusField])
       .reduce((sum, bill) => {
         const monthValue = bill[valueField];
@@ -137,11 +141,11 @@ export default function BillCard({
         );
       }, 0);
 
-    const unpaidBillsCount = countryBills.filter(
+    const unpaidBillsCount = sortedBills.filter(
       (bill) => !bill[statusField]
     ).length;
 
-    return { totalValue, unpaidBillsCount, countryBills };
+    return { totalValue, unpaidBillsCount, countryBills: sortedBills };
   };
 
   const formatCurrency = (value: number, country: string) => {

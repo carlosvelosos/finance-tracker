@@ -49,7 +49,7 @@ export default function BillsPage() {
     new Date().getMonth()
   );
   const [selectedCountry, setSelectedCountry] = useState<
-    "Sweden" | "Brazil" | "Both"
+    "Sweden" | "Brazil" | "Both" | "None"
   >("Both");
 
   const fetchBills = async () => {
@@ -180,16 +180,16 @@ export default function BillsPage() {
             <ToggleGroup
               type="multiple"
               value={
-                Array.isArray(selectedCountry)
-                  ? selectedCountry
+                selectedCountry === "None"
+                  ? []
                   : selectedCountry === "Both"
                   ? ["Sweden", "Brazil"]
                   : [selectedCountry]
               }
               onValueChange={(values) => {
                 if (values.length === 0) {
-                  // If no values selected, default to "Both"
-                  setSelectedCountry("Both");
+                  // Allow "None" selection
+                  setSelectedCountry("None");
                 } else if (
                   values.includes("Sweden") &&
                   values.includes("Brazil")

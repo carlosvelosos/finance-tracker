@@ -186,7 +186,7 @@ export function BillChart({
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4">
         <div className="h-full rounded-lg p-3">
-          <div className="text-sm font-medium mb-1">{country}</div>
+          {/* <div className="text-sm font-medium mb-1">{country}</div> */}
           <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
@@ -247,14 +247,14 @@ export function BillChart({
           </ChartContainer>
         </div>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm py-2 shrink-0">
+      {/* <CardFooter className="flex-col items-start gap-2 text-sm py-2 shrink-0">
         <div className="flex gap-2 font-medium leading-none">
           <TrendingUp className="h-4 w-4" /> Cumulative expenses
         </div>
         <div className="leading-none text-muted-foreground">
           Total accumulated bill expenses over the year
         </div>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 }

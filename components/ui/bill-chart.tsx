@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
   ResponsiveContainer,
+  Dot,
 } from "recharts";
 
 import {
@@ -34,39 +35,41 @@ interface BillChartProps {
   color?: string;
 }
 
-// Custom Dot Component that follows Recharts expected format
-const CustomDot = (props: any) => {
-  const { cx, cy, index, payload, key } = props;
-  // Check today's date (May 2025)
-  const currentMonthIndex = new Date().getMonth();
-  const isPastOrCurrentMonth = index <= currentMonthIndex;
+// Define chart data point type
+interface ChartDataPoint {
+  name: string;
+  value: number;
+  isPast: boolean;
+}
+
+// Define a custom dot component properly typed
+const PastFutureDot = (props: any) => {
+  const { cx, cy, payload } = props;
+  if (!cx || !cy || !payload) return null;
 
   return (
-    <circle
-      key={`dot-${index}`}
+    <Dot
       cx={cx}
       cy={cy}
       r={4}
-      fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
-      stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+      fill={payload.isPast ? "#1E40AF" : "#6B7280"}
+      stroke={payload.isPast ? "#1E40AF" : "#6B7280"}
     />
   );
 };
 
-// Custom Active Dot Component
-const CustomActiveDot = (props: any) => {
-  const { cx, cy, index } = props;
-  const currentMonthIndex = new Date().getMonth();
-  const isPastOrCurrentMonth = index <= currentMonthIndex;
+// Define a custom active dot component
+const PastFutureActiveDot = (props: any) => {
+  const { cx, cy, payload } = props;
+  if (!cx || !cy || !payload) return null;
 
   return (
-    <circle
-      key={`active-dot-${index}`}
+    <Dot
       cx={cx}
       cy={cy}
       r={6}
-      fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
-      stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
+      fill={payload.isPast ? "#1E40AF" : "#6B7280"}
+      stroke={payload.isPast ? "#1E40AF" : "#6B7280"}
     />
   );
 };
@@ -95,17 +98,22 @@ export function BillChart({
 
       // Calculate cumulative values
       let cumulative = 0;
+      const currentMonthIndex = new Date().getMonth();
+
       return months.map((month, index) => {
         cumulative += monthlyValues[index] || 0;
         return {
           name: month.substring(0, 3),
           value: cumulative,
+          isPast: index <= currentMonthIndex,
         };
       });
     }
 
     // For actual data, calculate cumulative values throughout the year
     let cumulativeTotal = 0;
+    const currentMonthIndex = new Date().getMonth();
+
     return months.map((month, monthIndex) => {
       const monthAbbr = month.toLowerCase().substring(0, 3);
       const valueField = `${monthAbbr}_value` as keyof Bill;
@@ -127,6 +135,7 @@ export function BillChart({
       return {
         name: month.substring(0, 3),
         value: cumulativeTotal,
+        isPast: monthIndex <= currentMonthIndex,
       };
     });
   }, [bills, months, country]);
@@ -162,17 +171,9 @@ export function BillChart({
     return null;
   };
 
-  // Split the data for past and future months
+  // Get the current month index for gradient calculation
   const currentMonthIndex = new Date().getMonth();
-
-  // Instead of filtering the data, we'll modify it to create a visual break
-  // by setting the stroke color based on the month index
-
-  // Create a single dataset with a property indicating if it's past or future
-  const enhancedData = chartData.map((item, idx) => ({
-    ...item,
-    isPast: idx <= currentMonthIndex,
-  }));
+  const gradientOffset = currentMonthIndex / 11; // Position as percentage along x-axis
 
   return (
     <Card
@@ -188,7 +189,7 @@ export function BillChart({
           <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={enhancedData}
+                data={chartData}
                 margin={{
                   left: 0,
                   right: 20,
@@ -220,59 +221,24 @@ export function BillChart({
                 />
                 <ChartTooltip cursor={true} content={renderTooltipContent} />
 
-                {/* Single line with custom dot and stroke colors based on month */}
+                {/* Single line with gradient stroke color */}
                 <Line
                   type="monotone"
                   dataKey="value"
                   name="Value"
                   strokeWidth={2}
-                  stroke="#1E40AF" // This will be overridden by the strokeColor function
-                  connectNulls
-                  dot={(props) => {
-                    const { cx, cy, index, payload } = props;
-                    if (!cx || !cy || index === undefined || !payload)
-                      return null;
-
-                    const isPastOrCurrentMonth = payload.isPast;
-
-                    return (
-                      <circle
-                        key={`dot-${index}`}
-                        cx={cx}
-                        cy={cy}
-                        r={4}
-                        fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
-                        stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
-                      />
-                    );
-                  }}
-                  activeDot={(props) => {
-                    const { cx, cy, index, payload } = props;
-                    if (!cx || !cy || index === undefined || !payload)
-                      return null;
-
-                    const isPastOrCurrentMonth = payload.isPast;
-
-                    return (
-                      <circle
-                        key={`active-dot-${index}`}
-                        cx={cx}
-                        cy={cy}
-                        r={6}
-                        fill={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
-                        stroke={isPastOrCurrentMonth ? "#1E40AF" : "#6B7280"}
-                      />
-                    );
-                  }}
-                  strokeWidth={2}
-                  className="transition-all duration-300"
                   stroke="url(#splitColor)"
+                  connectNulls
+                  dot={<PastFutureDot />}
+                  activeDot={<PastFutureActiveDot />}
+                  isAnimationActive={false}
                 />
+
                 {/* Define gradient to handle color split */}
                 <defs>
                   <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset={currentMonthIndex / 11} stopColor="#1E40AF" />
-                    <stop offset={currentMonthIndex / 11} stopColor="#6B7280" />
+                    <stop offset={gradientOffset} stopColor="#1E40AF" />
+                    <stop offset={gradientOffset} stopColor="#6B7280" />
                   </linearGradient>
                 </defs>
               </LineChart>

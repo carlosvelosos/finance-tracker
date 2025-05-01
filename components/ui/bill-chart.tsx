@@ -150,9 +150,9 @@ export function BillChart({
     },
   } satisfies ChartConfig;
 
-  // Custom tooltip content
-  const renderTooltipContent = ({ payload }: any) => {
-    if (payload && payload.length > 0) {
+  // Custom tooltip content with fixed vertical position
+  const renderTooltipContent = ({ payload, coordinate }: any) => {
+    if (payload && payload.length > 0 && coordinate) {
       const value = payload[0].value as number;
 
       // Format currency based on country
@@ -167,12 +167,22 @@ export function BillChart({
               currency: "BRL",
             }).format(value);
 
+      // Use coordinate.x for horizontal positioning but fix the vertical position
+      // The '10px' value can be adjusted as needed
       return (
-        <div className="p-2 bg-white dark:bg-gray-800 shadow-md rounded">
+        <div
+          className="p-2 bg-white dark:bg-gray-800 shadow-md rounded absolute pointer-events-none"
+          style={{
+            transform: `translate(${coordinate.x}px, 10px)`,
+            transition: "transform 0.1s ease-out",
+          }}
+        >
           <div className="flex items-center gap-2">
             <div
               className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: payload[0].color }}
+              style={{
+                backgroundColor: payload[0].isPast ? "#1E40AF" : "#333333",
+              }}
             />
             <span className="font-medium">{formattedValue}</span>
           </div>

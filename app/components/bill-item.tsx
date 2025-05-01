@@ -52,37 +52,22 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
           }`}
           onClick={() => onTogglePaid(bill.id)}
         >
-          <div className="flex justify-between items-start">
-            <div>
-              <h3
-                className={`font-medium text-gray-200 ${
-                  isPaid ? "line-through" : ""
-                }`}
-              >
-                {bill.description}
-              </h3>
-              <p
-                className={`text-sm ${
-                  isPaid ? "text-gray-500" : "text-gray-400"
-                }`}
-              >
-                Due: {bill.due_day}
-              </p>
-              <p
-                className={`text-sm ${
-                  isPaid ? "text-gray-500" : "text-gray-400"
-                }`}
-              >
-                Payment: {bill.payment_method}
-              </p>
-            </div>
+          <div className="flex items-center">
             <p
-              className={`font-bold text-lg ${
-                isPaid ? "text-gray-500" : "text-gray-200"
+              className={`font-medium text-gray-400 ${
+                isPaid ? "line-through" : ""
               }`}
             >
-              {formatCurrency(currentValue, bill.country)}
+              {bill.due_day}
             </p>
+            <span className="mx-2 text-gray-500">|</span>
+            <h3
+              className={`font-medium text-gray-200 ${
+                isPaid ? "line-through" : ""
+              }`}
+            >
+              {bill.description}
+            </h3>
           </div>
         </div>
       </HoverCardTrigger>

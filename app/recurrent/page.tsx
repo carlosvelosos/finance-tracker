@@ -163,7 +163,7 @@ export default function BillsPage() {
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold text-center mb-6">
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#898989]">
           Bills to Be Paid
         </h1>
 

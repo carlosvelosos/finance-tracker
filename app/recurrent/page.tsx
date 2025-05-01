@@ -174,21 +174,37 @@ export default function BillsPage() {
         </h1>
 
         {/* Country Selection with ToggleGroup */}
-        <div className="flex items-center justify-between mb-4 bg-gray-50 p-4 rounded-md">
+        <div className="flex items-center justify-between mb-4 p-4 rounded-md text-[#898989]">
           <div className="flex items-center">
             <Label className="mr-3 font-medium">Select Country:</Label>
             <ToggleGroup
-              type="single"
-              value={selectedCountry}
-              onValueChange={(value) => {
-                if (value)
-                  setSelectedCountry(value as "Sweden" | "Brazil" | "Both");
+              type="multiple"
+              value={
+                Array.isArray(selectedCountry)
+                  ? selectedCountry
+                  : selectedCountry === "Both"
+                  ? ["Sweden", "Brazil"]
+                  : [selectedCountry]
+              }
+              onValueChange={(values) => {
+                if (values.length === 0) {
+                  // If no values selected, default to "Both"
+                  setSelectedCountry("Both");
+                } else if (
+                  values.includes("Sweden") &&
+                  values.includes("Brazil")
+                ) {
+                  setSelectedCountry("Both");
+                } else if (values.includes("Sweden")) {
+                  setSelectedCountry("Sweden");
+                } else if (values.includes("Brazil")) {
+                  setSelectedCountry("Brazil");
+                }
               }}
               variant="outline"
             >
               <ToggleGroupItem value="Sweden">Sweden</ToggleGroupItem>
               <ToggleGroupItem value="Brazil">Brazil</ToggleGroupItem>
-              <ToggleGroupItem value="Both">Both</ToggleGroupItem>
             </ToggleGroup>
           </div>
 

@@ -150,7 +150,7 @@ export function BillChart({
     },
   } satisfies ChartConfig;
 
-  // Custom tooltip content with fixed vertical position
+  // Custom tooltip content with position at top of chart
   const renderTooltipContent = ({ payload, coordinate }: any) => {
     if (payload && payload.length > 0 && coordinate) {
       const value = payload[0].value as number;
@@ -167,14 +167,14 @@ export function BillChart({
               currency: "BRL",
             }).format(value);
 
-      // Use coordinate.x for horizontal positioning but fix the vertical position
-      // The '10px' value can be adjusted as needed
       return (
         <div
-          className="p-2 bg-white dark:bg-gray-800 shadow-md rounded absolute pointer-events-none"
+          className="absolute bg-white dark:bg-gray-800 shadow-md rounded p-2 pointer-events-none z-[100]"
           style={{
-            transform: `translate(${coordinate.x}px, 10px)`,
-            transition: "transform 0.1s ease-out",
+            left: `${coordinate.x}px`,
+            top: "10px", // Fixed position at top of chart
+            transform: "translateX(-50%)", // Center horizontally
+            maxWidth: "200px",
           }}
         >
           <div className="flex items-center gap-2">

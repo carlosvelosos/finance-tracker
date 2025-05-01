@@ -52,7 +52,8 @@ const PastFutureDot = (props: any) => {
       cx={cx}
       cy={cy}
       r={4}
-      fill={payload.isPast ? "#1E40AF" : "#6B7280"}
+      //   fill={payload.isPast ? "#1E40AF" : "#6B7280"}
+      fill={payload.isPast ? "#aaaaaa" : "#333333"}
       stroke={payload.isPast ? "#1E40AF" : "#6B7280"}
     />
   );
@@ -238,7 +239,7 @@ export function BillChart({
                 <defs>
                   <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
                     <stop offset={gradientOffset} stopColor="#1E40AF" />
-                    <stop offset={gradientOffset} stopColor="#6B7280" />
+                    <stop offset={gradientOffset} stopColor="#333333" />
                   </linearGradient>
                 </defs>
               </LineChart>

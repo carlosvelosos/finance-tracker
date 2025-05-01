@@ -184,14 +184,15 @@ export default function BillCard({
                   <p className="text-2xl font-medium text-center">
                     {monthName}
                   </p>
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  <div className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto">
                     {countryBills.map((bill) => (
-                      <BillItem
-                        key={bill.id}
-                        bill={bill}
-                        onTogglePaid={onTogglePaid}
-                        month={monthName}
-                      />
+                      <div key={bill.id} className="w-auto md:w-auto lg:w-auto">
+                        <BillItem
+                          bill={bill}
+                          onTogglePaid={onTogglePaid}
+                          month={monthName}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>

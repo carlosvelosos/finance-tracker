@@ -45,7 +45,7 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
     <HoverCard>
       <HoverCardTrigger asChild>
         <div
-          className={`p-4 rounded-lg border transition-colors cursor-pointer ${
+          className={`p-3 rounded-lg border transition-colors cursor-pointer flex-shrink-0 w-auto ${
             isPaid
               ? "bg-gray-800 border-[#0d172b] text-gray-400"
               : "bg-[#2f2f2f] border-[#365341] hover:bg-[#1e3925]"

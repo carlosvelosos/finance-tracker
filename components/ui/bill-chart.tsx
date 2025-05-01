@@ -169,21 +169,21 @@ export function BillChart({
 
       return (
         <div
-          className="absolute bg-white dark:bg-gray-800 shadow-md rounded p-2 pointer-events-none z-[100]"
+          className="absolute shadow-md rounded p-2 pointer-events-none z-[100]"
           style={{
             left: `${coordinate.x}px`,
-            top: "10px", // Fixed position at top of chart
+            top: "-20px", // Fixed position at top of chart
             transform: "translateX(-50%)", // Center horizontally
             maxWidth: "200px",
           }}
         >
           <div className="flex items-center gap-2">
-            <div
+            {/* <div
               className="w-3 h-3 rounded-full"
               style={{
                 backgroundColor: payload[0].isPast ? "#1E40AF" : "#333333",
               }}
-            />
+            /> */}
             <span className="font-medium">{formattedValue}</span>
           </div>
         </div>
@@ -213,7 +213,7 @@ export function BillChart({
                 data={chartData}
                 margin={{
                   left: 0,
-                  right: 20,
+                  right: 40,
                   top: 10,
                   bottom: 0,
                 }}

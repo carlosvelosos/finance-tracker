@@ -108,7 +108,9 @@ export function BillChart({
   };
 
   return (
-    <Card className={`flex flex-col h-[350px] ${className}`}>
+    <Card
+      className={`bg-[#171717] text-[#898989] rounded-lg shadow-md border border-gray-800 flex flex-col h-[350px] ${className}`}
+    >
       <CardHeader className="pb-2 shrink-0">
         <CardTitle>{country} Monthly Bills</CardTitle>
         <CardDescription>
@@ -116,7 +118,7 @@ export function BillChart({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4">
-        <div className="h-full border rounded-lg p-3">
+        <div className="h-full rounded-lg p-3">
           <div className="text-sm font-medium mb-1">{country}</div>
           <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">

@@ -124,10 +124,8 @@ export default function BillsPage() {
 
   const handleBillUpdate = (updatedBill: Bill) => {
     // Update the bills array with the updated bill
-    setBills(prevBills => 
-      prevBills.map(bill => 
-        bill.id === updatedBill.id ? updatedBill : bill
-      )
+    setBills((prevBills) =>
+      prevBills.map((bill) => (bill.id === updatedBill.id ? updatedBill : bill))
     );
   };
 

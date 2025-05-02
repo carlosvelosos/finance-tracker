@@ -79,7 +79,7 @@ export default function BillItem({
       setIsSaving(true);
 
       // Update record in Supabase
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("recurrent_2025") // Using 2025 as it appears to be the current year based on your context
         .update({
           description: editBill.description,
@@ -102,11 +102,13 @@ export default function BillItem({
       }
 
       toast.success("Bill updated successfully");
-    } catch (error) {
+    } catch (error: unknown) {
       if (typeof error === "object" && error !== null) {
         console.error("Error updating bill:", JSON.stringify(error, null, 2));
         toast.error(
-          `Failed to update bill: ${(error as any).message || "Unknown error"}`
+          `Failed to update bill: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
         );
       } else {
         console.error("Error updating bill:", error);
@@ -183,7 +185,7 @@ export default function BillItem({
                   </SheetTitle>
                   <SheetDescription className="font-medium text-gray-300">
                     Make changes to your bill details here. Click save when
-                    you're done.
+                    you&apos;re done.
                   </SheetDescription>
                 </SheetHeader>
                 <div className="grid gap-4 py-4 px-4">

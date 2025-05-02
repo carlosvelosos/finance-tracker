@@ -60,31 +60,47 @@ interface DotProps {
 
 // Regular dot component
 const RegularDot = (props: DotProps) => {
-  const { cx, cy, dataKey } = props;
-  if (!cx || !cy || !dataKey) return null;
+  const { cx, cy, dataKey, payload } = props;
+  if (!cx || !cy || !dataKey || !payload) return null;
 
   let color;
+  let opacity = 1.0;
+
+  // Determine color based on data key
   if (dataKey === "positiveValue") {
     color = "#10B981"; // Green for income
+    // Make dot darker for negative transactions on income line
+    if (payload.amount < 0) opacity = 0.4;
   } else if (dataKey === "negativeValue") {
     color = "#EF4444"; // Red for expenses
+    // Make dot darker for positive transactions on expense line
+    if (payload.amount > 0) opacity = 0.4;
   } else {
     color = "#3B82F6"; // Blue for net value
   }
 
-  return <Dot cx={cx} cy={cy} r={3} fill={color} stroke={color} />;
+  return (
+    <Dot cx={cx} cy={cy} r={3} fill={color} stroke={color} opacity={opacity} />
+  );
 };
 
 // Active dot component (for hover state)
 const ActiveDot = (props: DotProps) => {
-  const { cx, cy, dataKey } = props;
-  if (!cx || !cy || !dataKey) return null;
+  const { cx, cy, dataKey, payload } = props;
+  if (!cx || !cy || !dataKey || !payload) return null;
 
   let color;
+  let opacity = 1.0;
+
+  // Determine color based on data key
   if (dataKey === "positiveValue") {
     color = "#10B981"; // Green for income
+    // Make dot darker for negative transactions on income line
+    if (payload.amount < 0) opacity = 0.3;
   } else if (dataKey === "negativeValue") {
     color = "#EF4444"; // Red for expenses
+    // Make dot darker for positive transactions on expense line
+    if (payload.amount > 0) opacity = 0.3;
   } else {
     color = "#3B82F6"; // Blue for net value
   }
@@ -92,7 +108,15 @@ const ActiveDot = (props: DotProps) => {
   return (
     <g>
       {/* Larger outer circle with white border */}
-      <Dot cx={cx} cy={cy} r={8} fill={color} stroke="white" strokeWidth={2} />
+      <Dot
+        cx={cx}
+        cy={cy}
+        r={8}
+        fill={color}
+        stroke="white"
+        strokeWidth={2}
+        opacity={opacity}
+      />
     </g>
   );
 };

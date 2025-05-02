@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useState, useEffect, useCallback } from "react";
 
 export default function LandingPage() {

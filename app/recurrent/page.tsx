@@ -297,18 +297,18 @@ export default function BillsPage() {
 
         {/* Table Section */}
         <Table>
-          <TableHeader>
+          <TableHeader className="[&_tr]:border-[#00fd42]">
             <TableRow>
-              <TableHead>Description</TableHead>
-              <TableHead>Due Day</TableHead>
-              <TableHead>Payment Method</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-white">Description</TableHead>
+              <TableHead className="text-white">Due Day</TableHead>
+              <TableHead className="text-white">Payment Method</TableHead>
+              <TableHead className="text-white">Country</TableHead>
+              <TableHead className="text-white">Value</TableHead>
+              <TableHead className="text-white">Status</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {bills.map((bill) => {
+          <TableBody className="[&_tr]:border-[#232323]">
+            {bills.map((bill, index) => {
               const monthAbbr = months[currentMonthIndex]
                 .toLowerCase()
                 .substring(0, 3);
@@ -319,11 +319,16 @@ export default function BillsPage() {
                   ? (bill[valueField] as number)
                   : bill.base_value;
               const isPaid = bill[statusField];
+              const isLastRow = index === bills.length - 1;
 
               return (
                 <TableRow
                   key={bill.id}
-                  className={isPaid ? "bg-gray-100 text-gray-500" : ""}
+                  className={`${isPaid ? "bg-gray-100 text-gray-500" : ""} ${
+                    isLastRow
+                      ? "b                    order-b border-[#232323]"
+                      : ""
+                  }`}
                 >
                   <TableCell className={isPaid ? "line-through" : ""}>
                     {bill.description}

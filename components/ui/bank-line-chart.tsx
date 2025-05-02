@@ -24,7 +24,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+} from "@/components/ui/chart";
 
 // Define our transaction type
 interface Transaction {
@@ -46,67 +50,50 @@ interface TransactionLineChartProps {
   netColor?: string;
 }
 
-// Custom dot component for our line chart
+// Define a type for our dot component props
 interface DotProps {
   cx?: number;
   cy?: number;
-  payload?: any;
   dataKey?: string;
+  payload?: any;
 }
 
-const CustomDot = (props: DotProps) => {
+// Regular dot component
+const RegularDot = (props: DotProps) => {
   const { cx, cy, dataKey } = props;
   if (!cx || !cy || !dataKey) return null;
 
-  let fillColor, strokeColor;
-
+  let color;
   if (dataKey === "positiveValue") {
-    fillColor = "#10B981";
-    strokeColor = "#059669";
+    color = "#10B981"; // Green for income
   } else if (dataKey === "negativeValue") {
-    fillColor = "#EF4444";
-    strokeColor = "#DC2626";
+    color = "#EF4444"; // Red for expenses
   } else {
-    fillColor = "#3B82F6";
-    strokeColor = "#2563EB";
+    color = "#3B82F6"; // Blue for net value
   }
 
-  return (
-    <Dot
-      cx={cx}
-      cy={cy}
-      r={3}
-      fill={fillColor}
-      stroke={strokeColor}
-      strokeWidth={1}
-    />
-  );
+  return <Dot cx={cx} cy={cy} r={3} fill={color} stroke={color} />;
 };
 
-// Custom active dot component
-const CustomActiveDot = (props: DotProps) => {
+// Active dot component (for hover state)
+const ActiveDot = (props: DotProps) => {
   const { cx, cy, dataKey } = props;
   if (!cx || !cy || !dataKey) return null;
 
-  let fillColor;
-
+  let color;
   if (dataKey === "positiveValue") {
-    fillColor = "#10B981";
+    color = "#10B981"; // Green for income
   } else if (dataKey === "negativeValue") {
-    fillColor = "#EF4444";
+    color = "#EF4444"; // Red for expenses
   } else {
-    fillColor = "#3B82F6";
+    color = "#3B82F6"; // Blue for net value
   }
 
   return (
-    <Dot
-      cx={cx}
-      cy={cy}
-      r={5}
-      fill={fillColor}
-      stroke="white"
-      strokeWidth={2}
-    />
+    <g>
+      {/* Larger outer circle with white border */}
+      <Dot cx={cx} cy={cy} r={8} fill={color} stroke="white" strokeWidth={2} />
+    </g>
   );
 };
 
@@ -332,29 +319,14 @@ export function TransactionLineChart({
                 />
                 <Legend verticalAlign="bottom" />
 
-                {/* Tooltip Cursor Line - Use a custom solution instead of ReferenceLine */}
-                {tooltipData?.xCoordinate &&
-                  !isNaN(tooltipData.xCoordinate) && (
-                    <svg
-                      width="100%"
-                      height="100%"
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <line
-                        x1={tooltipData.xCoordinate}
-                        y1={0}
-                        x2={tooltipData.xCoordinate}
-                        y2="90%"
-                        stroke="#888"
-                        strokeWidth={1}
-                      />
-                    </svg>
-                  )}
+                {/* Use the built-in ChartTooltip with cursor prop instead of our custom SVG cursor */}
+                <ChartTooltip
+                  cursor={true}
+                  content={({ active, payload }) => {
+                    // Empty tooltip content since we're using the static tooltip below
+                    return null;
+                  }}
+                />
 
                 {/* Positive transactions line */}
                 <Line
@@ -364,8 +336,8 @@ export function TransactionLineChart({
                   strokeWidth={2}
                   stroke="#10B981"
                   connectNulls
-                  dot={<CustomDot dataKey="positiveValue" />}
-                  activeDot={<CustomActiveDot dataKey="positiveValue" />}
+                  dot={<RegularDot dataKey="positiveValue" />}
+                  activeDot={<ActiveDot dataKey="positiveValue" />}
                   isAnimationActive={true}
                 />
 
@@ -377,8 +349,8 @@ export function TransactionLineChart({
                   strokeWidth={2}
                   stroke="#EF4444"
                   connectNulls
-                  dot={<CustomDot dataKey="negativeValue" />}
-                  activeDot={<CustomActiveDot dataKey="negativeValue" />}
+                  dot={<RegularDot dataKey="negativeValue" />}
+                  activeDot={<ActiveDot dataKey="negativeValue" />}
                   isAnimationActive={true}
                 />
 
@@ -390,8 +362,8 @@ export function TransactionLineChart({
                   strokeWidth={2.5}
                   stroke="#3B82F6"
                   connectNulls
-                  dot={<CustomDot dataKey="netValue" />}
-                  activeDot={<CustomActiveDot dataKey="netValue" />}
+                  dot={<RegularDot dataKey="netValue" />}
+                  activeDot={<ActiveDot dataKey="netValue" />}
                   isAnimationActive={true}
                 />
               </LineChart>

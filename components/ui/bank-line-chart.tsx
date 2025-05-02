@@ -280,7 +280,7 @@ export function TransactionLineChart({
             <CardDescription>{description}</CardDescription>
           </div>
 
-          <div className="ml-auto">
+          <div className="ml-auto mr-4">
             {/* Static tooltip at the bottom of the chart */}
             {tooltipData && (
               <div className="rounded-md text-sm max-w-[400px]">
@@ -377,6 +377,7 @@ export function TransactionLineChart({
           </div>
         </div>
       </CardHeader>
+
       <CardContent className="flex-grow overflow-hidden px-4 relative">
         <div className="h-[85%] rounded-lg">
           <ChartContainer config={chartConfig} className="h-[350px] w-full">

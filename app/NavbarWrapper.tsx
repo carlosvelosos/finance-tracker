@@ -10,14 +10,13 @@ export default function NavbarWrapper() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);
 
-  useEffect(() => {
-    // Check if we're on the home page (root path)
-    const isHomePage = pathname === "/";
+  // Check if current path is the landing page (root path)
+  const isLandingPage = pathname === "/";
 
-    if (isHomePage) {
-      // Create an effect to watch for the global showNavbar variable
+  useEffect(() => {
+    if (isLandingPage) {
+      // Only apply scroll-based visibility on landing page
       const checkNavbarVisibility = () => {
-        // Use type assertion to fix TypeScript error
         setIsVisible((window as any).showNavbar === true);
       };
 
@@ -33,7 +32,7 @@ export default function NavbarWrapper() {
       // On other pages, always show navbar
       setIsVisible(true);
     }
-  }, [pathname]);
+  }, [pathname, isLandingPage]);
 
   // Don't render anything while authentication is being checked
   if (loading) return null;
@@ -44,14 +43,21 @@ export default function NavbarWrapper() {
   // Only render the navbar if the user is authenticated
   if (!user) return null;
 
-  // Return the navbar with conditional styling for floating appearance
-  return (
-    <div
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
-      }`}
-    >
-      <Navbar />
-    </div>
-  );
+  if (isLandingPage) {
+    // Floating navbar with animation for landing page
+    return (
+      <div
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isVisible
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0"
+        }`}
+      >
+        <Navbar />
+      </div>
+    );
+  } else {
+    // Standard static navbar for all other pages
+    return <Navbar />;
+  }
 }

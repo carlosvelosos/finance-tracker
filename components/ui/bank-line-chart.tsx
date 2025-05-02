@@ -65,9 +65,10 @@ const CustomDot = (props: DotProps) => {
     <Dot
       cx={cx}
       cy={cy}
-      r={4}
+      r={3}
       fill={dataKey === "positiveValue" ? "#10B981" : "#EF4444"}
       stroke={dataKey === "positiveValue" ? "#059669" : "#DC2626"}
+      strokeWidth={1}
     />
   );
 };
@@ -81,7 +82,7 @@ const CustomActiveDot = (props: DotProps) => {
     <Dot
       cx={cx}
       cy={cy}
-      r={6}
+      r={5}
       fill={dataKey === "positiveValue" ? "#10B981" : "#EF4444"}
       stroke="white"
       strokeWidth={2}
@@ -97,70 +98,63 @@ export function TransactionLineChart({
   positiveColor = "hsl(var(--chart-2))",
   negativeColor = "hsl(var(--chart-4))",
 }: TransactionLineChartProps) {
-  // Chart data preparation - group by month and calculate cumulative values
+  // Chart data preparation - plot one data point per transaction
   const chartData = useMemo(() => {
     if (!transactions || !transactions.length) {
       // Demo data if no transactions
-      return Array.from({ length: 12 }, (_, i) => {
-        const positiveValue = Math.random() * 10000 * (i + 1);
-        const negativeValue = -Math.random() * 8000 * (i + 1);
-
+      return Array.from({ length: 30 }, (_, i) => {
+        const day = i + 1;
+        const date = new Date(2025, 4, day);
+        const positiveValue = Math.random() * 5000 * (i / 10 + 1);
+        const negativeValue = -Math.random() * 4000 * (i / 10 + 1);
+        
         return {
-          name: new Date(2025, i, 1).toLocaleString("default", {
-            month: "short",
-          }),
+          id: i,
+          date: date,
+          formattedDate: date.toLocaleDateString(),
           positiveValue,
           negativeValue,
           netValue: positiveValue + negativeValue,
+          description: `Demo transaction ${i+1}`
         };
       });
     }
 
-    // Sort transactions by date
-    const sortedTransactions = [...transactions].sort((a, b) => {
-      if (!a.Date || !b.Date) return 0;
-      return new Date(a.Date).getTime() - new Date(b.Date).getTime();
-    });
+    // Filter out transactions without dates and sort by date
+    const sortedTransactions = [...transactions]
+      .filter(t => t.Date)
+      .sort((a, b) => {
+        if (!a.Date || !b.Date) return 0;
+        return new Date(a.Date).getTime() - new Date(b.Date).getTime();
+      });
 
-    // Group transactions by month
-    const monthlyData: Record<string, { positive: number; negative: number }> =
-      {};
+    if (sortedTransactions.length === 0) return [];
 
-    sortedTransactions.forEach((transaction) => {
-      let date = transaction.Date ? new Date(transaction.Date) : new Date();
-      const monthKey =
-        new Date(date.getFullYear(), date.getMonth(), 1).toLocaleString(
-          "default",
-          { month: "short" }
-        ) +
-        " " +
-        date.getFullYear();
-
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { positive: 0, negative: 0 };
-      }
-
-      const amount = transaction.Amount || 0;
-      if (amount > 0) {
-        monthlyData[monthKey].positive += amount;
-      } else {
-        monthlyData[monthKey].negative += amount;
-      }
-    });
-
-    // Calculate cumulative values
+    // Initialize cumulative values
     let cumulativePositive = 0;
     let cumulativeNegative = 0;
 
-    return Object.entries(monthlyData).map(([month, data]) => {
-      cumulativePositive += data.positive;
-      cumulativeNegative += data.negative;
-
+    // Create a data point for each transaction
+    return sortedTransactions.map((transaction, index) => {
+      const amount = transaction.Amount || 0;
+      
+      // Update cumulative values based on amount
+      if (amount > 0) {
+        cumulativePositive += amount;
+      } else {
+        cumulativeNegative += amount;
+      }
+      
+      const date = transaction.Date ? new Date(transaction.Date) : new Date();
+      
       return {
-        name: month.substring(0, 3), // Abbreviate month name
+        id: transaction.id,
+        date: date,
+        formattedDate: date.toLocaleDateString(),
         positiveValue: cumulativePositive,
         negativeValue: cumulativeNegative,
         netValue: cumulativePositive + cumulativeNegative,
+        description: transaction.Description || `Transaction ${index+1}`
       };
     });
   }, [transactions]);
@@ -176,6 +170,15 @@ export function TransactionLineChart({
     },
   } satisfies ChartConfig;
 
+  // Format date for display on X-axis
+  const formatXAxis = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString(undefined, { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   // Custom tooltip content
   const renderTooltipContent = ({
     payload,
@@ -189,22 +192,23 @@ export function TransactionLineChart({
             left: `${coordinate.x}px`,
             top: "10px", // Fixed position at top of chart
             transform: "translateX(-50%)", // Center horizontally
-            maxWidth: "200px",
+            maxWidth: "220px",
           }}
         >
-          <div className="font-medium mb-1">{payload[0].payload.name}</div>
+          <div className="font-medium mb-1">{payload[0].payload.formattedDate}</div>
+          <div className="text-sm mb-1 truncate">{payload[0].payload.description}</div>
           {payload.map((entry, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
               <div
                 className="w-3 h-3 rounded-full"
                 style={{
-                  backgroundColor:
-                    entry.dataKey === "positiveValue" ? "#10B981" : "#EF4444",
+                  backgroundColor: entry.dataKey === "positiveValue" 
+                    ? "#10B981" 
+                    : "#EF4444",
                 }}
               />
               <span>
-                {entry.name}:{" "}
-                {new Intl.NumberFormat("sv-SE", {
+                {entry.name}: {new Intl.NumberFormat("sv-SE", {
                   style: "currency",
                   currency: "SEK",
                 }).format(entry.value as number)}
@@ -251,10 +255,13 @@ export function TransactionLineChart({
                   opacity={0.5}
                 />
                 <XAxis
-                  dataKey="name"
+                  dataKey="date"
+                  tickFormatter={formatXAxis}
+                  type="category"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
+                  minTickGap={30}
                 />
                 <YAxis
                   tickLine={false}

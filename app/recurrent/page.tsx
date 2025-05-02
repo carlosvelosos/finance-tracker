@@ -296,7 +296,7 @@ export default function BillsPage() {
         </div>
 
         {/* Table Section */}
-        <Table>
+        <Table className="mb-10">
           <TableHeader className="[&_tr]:border-[#00fd42]">
             <TableRow>
               <TableHead className="text-white">Description</TableHead>

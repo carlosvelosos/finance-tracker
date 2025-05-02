@@ -84,7 +84,10 @@ function AuthenticatedLandingPage() {
       </div>
 
       {/* Second section - Light background */}
-      <div className="w-full py-16 px-4" style={{ backgroundColor: "#f3f4f6" }}>
+      <div
+        className="w-full min-h-screen py-30 px-4"
+        style={{ backgroundColor: "#f3f4f6" }}
+      >
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <Card

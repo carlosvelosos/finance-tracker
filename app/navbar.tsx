@@ -138,7 +138,10 @@ export default function Navbar() {
         } absolute top-full left-0 w-full bg-[#121212] lg:bg-transparent lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto z-50`}
       >
         {/* Dynamic Navigation Links */}
-        <div className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-700 lg:border-b lg:border-gray-700">
+        <div
+          className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-700 lg:border-b lg:border-gray-700"
+          style={{ backgroundColor: "#121212" }}
+        >
           {navLinks.map((link) => (
             <Link
               key={link.href}

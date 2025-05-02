@@ -307,7 +307,7 @@ export default function BillsPage() {
               <TableHead className="text-white">Status</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="[&_tr]:border-[#232323]">
+          <TableBody className="[&_tr:not(:last-child)]:border-[#232323]">
             {bills.map((bill, index) => {
               const monthAbbr = months[currentMonthIndex]
                 .toLowerCase()
@@ -325,9 +325,7 @@ export default function BillsPage() {
                 <TableRow
                   key={bill.id}
                   className={`${isPaid ? "bg-gray-100 text-gray-500" : ""} ${
-                    isLastRow
-                      ? "b                    order-b border-[#232323]"
-                      : ""
+                    isLastRow ? "!border-b-2 !border-b-green-500" : ""
                   }`}
                 >
                   <TableCell className={isPaid ? "line-through" : ""}>

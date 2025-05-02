@@ -274,26 +274,31 @@ export function TransactionLineChart({
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row">
           <div>
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
 
-          <div>
+          <div className="ml-auto">
             {/* Static tooltip at the bottom of the chart */}
             {tooltipData && (
-              <div className="mt-2 p-2 rounded-md text-sm max-w-[400px] ml-auto">
-                <div className="flex flex-wrap gap-3">
+              <div className="rounded-md text-sm max-w-[400px]">
+                <div className="flex gap-4">
                   {/* Left Column */}
-                  {/* Transaction date and description */}
-                  <div className="flex flex-col gap-2 flex-1">
-                    <div className="flex items-center gap-2">
+                  <div
+                    className="flex flex-col gap-2 flex-1"
+                    style={{ width: "150px" }}
+                  >
+                    {/* Transaction date */}
+                    <div className="flex items-center">
                       <span className="text-xs whitespace-nowrap">
                         {tooltipData.formattedDate}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    {/* Transaction description */}
+                    <div className="flex items-center">
                       <span className="text-xs whitespace-nowrap">
                         {tooltipData.description}
                       </span>
@@ -302,14 +307,13 @@ export function TransactionLineChart({
                     {/* Transaction amount */}
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-2 rounded-full"
                         style={{
                           backgroundColor:
                             tooltipData.amount >= 0 ? "#10B981" : "#EF4444",
                         }}
                       />
                       <span className="text-xs whitespace-nowrap">
-                        Transaction:{" "}
                         {new Intl.NumberFormat("sv-SE", {
                           style: "currency",
                           currency: "SEK",
@@ -322,12 +326,17 @@ export function TransactionLineChart({
                   <div className="w-px bg-gray-700" />
 
                   {/* Right Column */}
-                  <div className="flex flex-col gap-2 flex-1">
+                  <div
+                    className="flex flex-col gap-2 flex-1"
+                    style={{ width: "200px" }}
+                  >
                     {/* Income */}
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#10B981]" />
-                      <span className="text-xs whitespace-nowrap">
-                        Income:{" "}
+                      <div className="w-1 h-3 rounded-full bg-[#10B981]" />
+                      <span className="text-xs whitespace-nowrap flex-1">
+                        Income:
+                      </span>
+                      <span className="text-xs whitespace-nowrap text-right">
                         {new Intl.NumberFormat("sv-SE", {
                           style: "currency",
                           currency: "SEK",
@@ -336,9 +345,11 @@ export function TransactionLineChart({
                     </div>
                     {/* Expenses */}
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#EF4444]" />
-                      <span className="text-xs whitespace-nowrap">
-                        Expenses:{" "}
+                      <div className="w-1 h-3 rounded-full bg-[#EF4444]" />
+                      <span className="text-xs whitespace-nowrap flex-1">
+                        Expenses:
+                      </span>
+                      <span className="text-xs whitespace-nowrap text-right">
                         {new Intl.NumberFormat("sv-SE", {
                           style: "currency",
                           currency: "SEK",
@@ -348,9 +359,11 @@ export function TransactionLineChart({
 
                     {/* Net value */}
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#3B82F6]" />
-                      <span className="text-xs whitespace-nowrap">
-                        Net:{" "}
+                      <div className="w-1 h-3 rounded-full bg-[#3B82F6]" />
+                      <span className="text-xs whitespace-nowrap flex-1">
+                        Net:
+                      </span>
+                      <span className="text-xs whitespace-nowrap text-right">
                         {new Intl.NumberFormat("sv-SE", {
                           style: "currency",
                           currency: "SEK",

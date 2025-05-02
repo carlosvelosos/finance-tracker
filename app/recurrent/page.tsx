@@ -307,7 +307,7 @@ export default function BillsPage() {
               <TableHead className="text-white">Status</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="[&_tr:not(:last-child)]:border-[#232323]">
+          <TableBody className="[&_tr:not(:last-child)]:border-[#232323] text-[#898989] hover:text-[#000000]">
             {bills.map((bill, index) => {
               const monthAbbr = months[currentMonthIndex]
                 .toLowerCase()

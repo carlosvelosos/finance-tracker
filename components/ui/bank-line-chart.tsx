@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -9,9 +9,9 @@ import {
   YAxis,
   ResponsiveContainer,
   Dot,
-  TooltipProps,
   Legend,
 } from "recharts";
+
 import {
   NameType,
   ValueType,
@@ -24,11 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-} from "@/components/ui/chart";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 // Define our transaction type
 interface Transaction {
@@ -123,6 +119,17 @@ export function TransactionLineChart({
   negativeColor = "hsl(var(--chart-4))",
   netColor = "hsl(var(--chart-1))",
 }: TransactionLineChartProps) {
+  // State for static tooltip
+  const [tooltipData, setTooltipData] = useState<{
+    formattedDate: string;
+    description: string;
+    amount: number;
+    positiveValue: number;
+    negativeValue: number;
+    netValue: number;
+    xCoordinate?: number;
+  } | null>(null);
+
   // Chart data preparation - plot one data point per transaction
   const chartData = useMemo(() => {
     if (!transactions || !transactions.length) {
@@ -130,6 +137,7 @@ export function TransactionLineChart({
       return Array.from({ length: 30 }, (_, i) => {
         const day = i + 1;
         const date = new Date(2025, 4, day);
+        const amount = Math.random() * 1000 * (Math.random() > 0.6 ? 1 : -1);
         const positiveValue = Math.random() * 5000 * (i / 10 + 1);
         const negativeValue = -Math.random() * 4000 * (i / 10 + 1);
         const netValue = positiveValue + negativeValue;
@@ -141,6 +149,7 @@ export function TransactionLineChart({
           positiveValue,
           negativeValue,
           netValue,
+          amount: amount,
           description: `Demo transaction ${i + 1}`,
         };
       });
@@ -181,6 +190,7 @@ export function TransactionLineChart({
         positiveValue: cumulativePositive,
         negativeValue: cumulativeNegative,
         netValue: netValue,
+        amount: amount,
         description: transaction.Description || `Transaction ${index + 1}`,
       };
     });
@@ -210,72 +220,79 @@ export function TransactionLineChart({
     });
   };
 
-  // Custom tooltip content
-  const renderTooltipContent = ({
-    payload,
-    coordinate,
-  }: TooltipProps<ValueType, NameType>) => {
-    if (payload && payload.length > 0 && coordinate) {
-      return (
-        <div
-          className="absolute shadow-md rounded p-2 bg-background border border-border pointer-events-none z-[100]"
-          style={{
-            left: `${coordinate.x}px`,
-            top: "10px", // Fixed position at top of chart
-            transform: "translateX(-50%)", // Center horizontally
-            maxWidth: "220px",
-          }}
-        >
-          <div className="font-medium mb-1">
-            {payload[0].payload.formattedDate}
-          </div>
-          <div className="text-sm mb-1 truncate">
-            {payload[0].payload.description}
-          </div>
-          {payload.map((entry, index) => {
-            // Get appropriate color based on data key
-            let dotColor;
-            if (entry.dataKey === "positiveValue") {
-              dotColor = "#10B981";
-            } else if (entry.dataKey === "negativeValue") {
-              dotColor = "#EF4444";
-            } else {
-              dotColor = "#3B82F6";
-            }
+  // Handler for mouse move on chart
+  const handleMouseMove = (data: any) => {
+    if (data && data.activePayload && data.activePayload.length) {
+      const payload = data.activePayload[0].payload;
+      const xCoord = data.activeCoordinate?.x;
 
-            return (
-              <div key={index} className="flex items-center gap-2 text-sm">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: dotColor }}
-                />
-                <span>
-                  {entry.name}:{" "}
-                  {new Intl.NumberFormat("sv-SE", {
-                    style: "currency",
-                    currency: "SEK",
-                  }).format(entry.value as number)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      );
+      // Debug logs
+      console.log("Mouse move data:", {
+        xCoordinate: xCoord,
+        isNumber: typeof xCoord === "number",
+        isNaN: isNaN(xCoord),
+        stringValue: String(xCoord),
+      });
+
+      setTooltipData({
+        formattedDate: payload.formattedDate,
+        description: payload.description,
+        amount: payload.amount,
+        positiveValue: payload.positiveValue,
+        negativeValue: payload.negativeValue,
+        netValue: payload.netValue,
+        xCoordinate: xCoord,
+      });
     }
-    return null;
   };
+
+  // Handler for mouse leave
+  const handleMouseLeave = () => {
+    // Keep the last tooltip data visible instead of setting to null
+    // setTooltipData(null);
+  };
+
+  // Set initial tooltip data to the first transaction if available
+  useMemo(() => {
+    if (chartData.length > 0 && !tooltipData) {
+      const firstItem = chartData[0]; // Use first transaction instead of last
+      const chartContainer = document.querySelector(".recharts-wrapper");
+      let initialXCoordinate;
+
+      if (chartContainer) {
+        // Get the first dot's position if possible
+        const firstDot = chartContainer.querySelector(".recharts-dot");
+        if (firstDot) {
+          const dotX = firstDot.getAttribute("cx");
+          initialXCoordinate = dotX ? parseFloat(dotX) : 50; // Default to 50 if not found
+        } else {
+          initialXCoordinate = 50; // Default position if dot not found
+        }
+      }
+
+      setTooltipData({
+        formattedDate: firstItem.formattedDate,
+        description: firstItem.description,
+        amount: firstItem.amount,
+        positiveValue: firstItem.positiveValue,
+        negativeValue: firstItem.negativeValue,
+        netValue: firstItem.netValue,
+        xCoordinate: initialXCoordinate,
+      });
+    }
+  }, [chartData, tooltipData]);
 
   return (
     <Card
-      className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col h-[350px] ${className}`}
+      className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow overflow-hidden px-4">
-        <div className="h-full rounded-lg p-3">
-          <ChartContainer config={chartConfig} className="h-[90%] w-full">
+      <CardContent className="flex-grow overflow-hidden px-4 relative">
+        <div className="h-[85%] rounded-lg">
+          <ChartContainer config={chartConfig} className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
@@ -285,6 +302,8 @@ export function TransactionLineChart({
                   top: 20,
                   bottom: 0,
                 }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
               >
                 <CartesianGrid
                   vertical={false}
@@ -311,8 +330,32 @@ export function TransactionLineChart({
                   }
                   width={40}
                 />
-                <ChartTooltip cursor={false} content={renderTooltipContent} />
                 <Legend verticalAlign="bottom" />
+
+                {/* Tooltip Cursor Line - Use a custom solution instead of ReferenceLine */}
+                {tooltipData?.xCoordinate &&
+                  !isNaN(tooltipData.xCoordinate) && (
+                    <svg
+                      width="100%"
+                      height="100%"
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <line
+                        x1={tooltipData.xCoordinate}
+                        y1={0}
+                        x2={tooltipData.xCoordinate}
+                        y2="100%"
+                        stroke="#888"
+                        strokeDasharray="3 3"
+                        strokeWidth={1}
+                      />
+                    </svg>
+                  )}
 
                 {/* Positive transactions line */}
                 <Line
@@ -356,6 +399,74 @@ export function TransactionLineChart({
             </ResponsiveContainer>
           </ChartContainer>
         </div>
+
+        {/* Static tooltip at the bottom of the chart */}
+        {tooltipData && (
+          <div className="mt-2 p-2 border border-gray-700 bg-gray-900 rounded-md text-sm">
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-medium">{tooltipData.formattedDate}</span>
+              <span className="text-xs truncate">
+                {tooltipData.description}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-3 justify-between">
+              {/* Transaction amount */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{
+                    backgroundColor:
+                      tooltipData.amount >= 0 ? "#10B981" : "#EF4444",
+                  }}
+                />
+                <span className="text-xs whitespace-nowrap">
+                  Transaction:{" "}
+                  {new Intl.NumberFormat("sv-SE", {
+                    style: "currency",
+                    currency: "SEK",
+                  }).format(tooltipData.amount)}
+                </span>
+              </div>
+
+              {/* Income */}
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#10B981]" />
+                <span className="text-xs whitespace-nowrap">
+                  Income:{" "}
+                  {new Intl.NumberFormat("sv-SE", {
+                    style: "currency",
+                    currency: "SEK",
+                  }).format(tooltipData.positiveValue)}
+                </span>
+              </div>
+
+              {/* Expenses */}
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#EF4444]" />
+                <span className="text-xs whitespace-nowrap">
+                  Expenses:{" "}
+                  {new Intl.NumberFormat("sv-SE", {
+                    style: "currency",
+                    currency: "SEK",
+                  }).format(tooltipData.negativeValue)}
+                </span>
+              </div>
+
+              {/* Net value */}
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#3B82F6]" />
+                <span className="text-xs whitespace-nowrap">
+                  Net:{" "}
+                  {new Intl.NumberFormat("sv-SE", {
+                    style: "currency",
+                    currency: "SEK",
+                  }).format(tooltipData.netValue)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

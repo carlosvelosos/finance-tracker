@@ -17,7 +17,7 @@ export default function NavbarWrapper() {
     if (isLandingPage) {
       // Only apply scroll-based visibility on landing page
       const checkNavbarVisibility = () => {
-        setIsVisible((window as any).showNavbar === true);
+        setIsVisible(window.showNavbar === true);
       };
 
       // Initial check

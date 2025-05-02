@@ -32,7 +32,7 @@ export default function Navbar() {
     if (typeof window !== "undefined") {
       // Only hide the navbar when we're at the top of the page
       if (window.scrollY <= 50) {
-        (window as any).showNavbar = false;
+        window.showNavbar = false;
       }
     }
   };

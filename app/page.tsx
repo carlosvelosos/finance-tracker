@@ -28,12 +28,12 @@ export default function LandingPage() {
     handleScroll();
 
     // Expose navbar state to global window for the NavbarWrapper to access
-    (window as any).showNavbar = showNavbar;
+    window.showNavbar = showNavbar;
 
     // Clean up
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      delete (window as any).showNavbar;
+      delete window.showNavbar;
     };
   }, [handleScroll, showNavbar]);
 

@@ -13,11 +13,6 @@ import {
 } from "recharts";
 
 import {
-  NameType,
-  ValueType,
-} from "recharts/types/component/DefaultTooltipContent";
-
-import {
   Card,
   CardContent,
   CardDescription,
@@ -40,6 +35,18 @@ interface Transaction {
   Date?: string | null;
 }
 
+// Define chart data point type
+interface DataPoint {
+  id: number;
+  date: Date;
+  formattedDate: string;
+  positiveValue: number;
+  negativeValue: number;
+  netValue: number;
+  amount: number;
+  description: string;
+}
+
 interface TransactionLineChartProps {
   transactions: Transaction[];
   title?: string;
@@ -55,7 +62,7 @@ interface DotProps {
   cx?: number;
   cy?: number;
   dataKey?: string;
-  payload?: any;
+  payload?: DataPoint;
 }
 
 // Regular dot component
@@ -120,6 +127,15 @@ const ActiveDot = (props: DotProps) => {
     </g>
   );
 };
+
+// Define types for chart event data
+interface ChartMouseEventData {
+  activePayload?: Array<{ payload: DataPoint }>;
+  activeCoordinate?: {
+    x: number;
+    y: number;
+  };
+}
 
 export function TransactionLineChart({
   transactions,
@@ -232,7 +248,7 @@ export function TransactionLineChart({
   };
 
   // Handler for mouse move on chart
-  const handleMouseMove = (data: any) => {
+  const handleMouseMove = (data: ChartMouseEventData) => {
     if (data && data.activePayload && data.activePayload.length) {
       const payload = data.activePayload[0].payload;
       const xCoord = data.activeCoordinate?.x;
@@ -241,7 +257,7 @@ export function TransactionLineChart({
       console.log("Mouse move data:", {
         xCoordinate: xCoord,
         isNumber: typeof xCoord === "number",
-        isNaN: isNaN(xCoord),
+        isNaN: xCoord !== undefined ? isNaN(xCoord) : true,
         stringValue: String(xCoord),
       });
 
@@ -445,13 +461,7 @@ export function TransactionLineChart({
                 <Legend verticalAlign="bottom" />
 
                 {/* Use the built-in ChartTooltip with cursor prop instead of our custom SVG cursor */}
-                <ChartTooltip
-                  cursor={true}
-                  content={({ active, payload }) => {
-                    // Empty tooltip content since we're using the static tooltip below
-                    return null;
-                  }}
-                />
+                <ChartTooltip cursor={true} />
 
                 {/* Positive transactions line */}
                 <Line

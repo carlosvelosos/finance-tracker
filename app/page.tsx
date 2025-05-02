@@ -68,11 +68,18 @@ function AuthenticatedLandingPage() {
     <div className="relative flex flex-col items-center px-4">
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1
-          className="text-3xl md:text-6xl font-bold mb-6"
+          className="text-3xl md:text-6xl font-bold"
           style={{ color: "#303030" }}
         >
           Welcome back to Finance Tracker
         </h1>
+        <p className="text-lg font-bold" style={{ color: "#303030" }}>
+          {new Date().toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
       </div>
 
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">

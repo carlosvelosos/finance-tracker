@@ -107,7 +107,7 @@ export function TransactionLineChart({
         const date = new Date(2025, 4, day);
         const positiveValue = Math.random() * 5000 * (i / 10 + 1);
         const negativeValue = -Math.random() * 4000 * (i / 10 + 1);
-        
+
         return {
           id: i,
           date: date,
@@ -115,14 +115,14 @@ export function TransactionLineChart({
           positiveValue,
           negativeValue,
           netValue: positiveValue + negativeValue,
-          description: `Demo transaction ${i+1}`
+          description: `Demo transaction ${i + 1}`,
         };
       });
     }
 
     // Filter out transactions without dates and sort by date
     const sortedTransactions = [...transactions]
-      .filter(t => t.Date)
+      .filter((t) => t.Date)
       .sort((a, b) => {
         if (!a.Date || !b.Date) return 0;
         return new Date(a.Date).getTime() - new Date(b.Date).getTime();
@@ -137,16 +137,16 @@ export function TransactionLineChart({
     // Create a data point for each transaction
     return sortedTransactions.map((transaction, index) => {
       const amount = transaction.Amount || 0;
-      
+
       // Update cumulative values based on amount
       if (amount > 0) {
         cumulativePositive += amount;
       } else {
         cumulativeNegative += amount;
       }
-      
+
       const date = transaction.Date ? new Date(transaction.Date) : new Date();
-      
+
       return {
         id: transaction.id,
         date: date,
@@ -154,7 +154,7 @@ export function TransactionLineChart({
         positiveValue: cumulativePositive,
         negativeValue: cumulativeNegative,
         netValue: cumulativePositive + cumulativeNegative,
-        description: transaction.Description || `Transaction ${index+1}`
+        description: transaction.Description || `Transaction ${index + 1}`,
       };
     });
   }, [transactions]);
@@ -173,9 +173,9 @@ export function TransactionLineChart({
   // Format date for display on X-axis
   const formatXAxis = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, { 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -195,20 +195,24 @@ export function TransactionLineChart({
             maxWidth: "220px",
           }}
         >
-          <div className="font-medium mb-1">{payload[0].payload.formattedDate}</div>
-          <div className="text-sm mb-1 truncate">{payload[0].payload.description}</div>
+          <div className="font-medium mb-1">
+            {payload[0].payload.formattedDate}
+          </div>
+          <div className="text-sm mb-1 truncate">
+            {payload[0].payload.description}
+          </div>
           {payload.map((entry, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
               <div
                 className="w-3 h-3 rounded-full"
                 style={{
-                  backgroundColor: entry.dataKey === "positiveValue" 
-                    ? "#10B981" 
-                    : "#EF4444",
+                  backgroundColor:
+                    entry.dataKey === "positiveValue" ? "#10B981" : "#EF4444",
                 }}
               />
               <span>
-                {entry.name}: {new Intl.NumberFormat("sv-SE", {
+                {entry.name}:{" "}
+                {new Intl.NumberFormat("sv-SE", {
                   style: "currency",
                   currency: "SEK",
                 }).format(entry.value as number)}

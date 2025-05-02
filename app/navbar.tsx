@@ -24,6 +24,15 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
 
+  // Handle mouse leave event for the navbar on the home page
+  const handleMouseLeave = () => {
+    // Only run this logic on the home page (where window.showNavbar exists)
+    if (typeof window !== "undefined") {
+      // Use type assertion to fix TypeScript error
+      (window as any).showNavbar = false;
+    }
+  };
+
   useEffect(() => {
     // Determine which links to show based on the user's ID or metadata
     if (user) {
@@ -90,7 +99,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-transparent text-white p-4 flex justify-between items-center relative">
+    <nav
+      className="text-white p-4 flex justify-between items-center relative shadow-none backdrop-filter-none"
+      onMouseLeave={handleMouseLeave}
+    >
       {/* Logo or App Name */}
       <div className="text-lg font-bold">
         <Link

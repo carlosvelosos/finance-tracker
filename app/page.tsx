@@ -13,10 +13,10 @@ export default function LandingPage() {
   // Create a stable callback function for scroll handling
   const handleScroll = useCallback(() => {
     // Show navbar when scrolled down (more than 50px), hide when at top
-    if (window.scrollY > 50) {
-      setShowNavbar(true);
-    } else {
+    if (window.scrollY <= 50) {
       setShowNavbar(false);
+    } else {
+      setShowNavbar(true);
     }
   }, []);
 

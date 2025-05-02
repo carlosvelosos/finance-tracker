@@ -27,9 +27,13 @@ export default function Navbar() {
   // Handle mouse leave event for the navbar on the home page
   const handleMouseLeave = () => {
     // Only run this logic on the home page (where window.showNavbar exists)
+    // Don't hide the navbar if the user is still interacting with it
+    // We'll detect this by checking if we're currently scrolled down
     if (typeof window !== "undefined") {
-      // Use type assertion to fix TypeScript error
-      (window as any).showNavbar = false;
+      // Only hide the navbar when we're at the top of the page
+      if (window.scrollY <= 50) {
+        (window as any).showNavbar = false;
+      }
     }
   };
 

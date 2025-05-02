@@ -157,13 +157,19 @@ export default function Home() {
           Handelsbanken Transactions
         </h1>
 
-        {/* Category Chart */}
-        <div className="text-right mb-4">
+        {/* Chart Buttons */}
+        <div className="flex justify-end mb-4 space-x-4">
           <Button
             onClick={() => (window.location.href = "./category/chart")}
             className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
           >
-            Go to Chart Page
+            Category Chart
+          </Button>
+          <Button
+            onClick={() => (window.location.href = "./overview/chart")}
+            className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
+          >
+            Overview Chart
           </Button>
         </div>
 

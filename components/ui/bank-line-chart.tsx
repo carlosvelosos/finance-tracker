@@ -349,9 +349,8 @@ export function TransactionLineChart({
                         x1={tooltipData.xCoordinate}
                         y1={0}
                         x2={tooltipData.xCoordinate}
-                        y2="100%"
+                        y2="90%"
                         stroke="#888"
-                        strokeDasharray="3 3"
                         strokeWidth={1}
                       />
                     </svg>

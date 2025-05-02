@@ -23,6 +23,7 @@ interface BillCardProps {
   country: string;
   valueColor?: string; // Keeping this for backward compatibility
   onMonthChange?: (newMonthName: string) => void;
+  onBillUpdate?: (updatedBill: Bill) => void;
 }
 
 export default function BillCard({
@@ -34,6 +35,7 @@ export default function BillCard({
   title,
   country,
   onMonthChange,
+  onBillUpdate,
 }: BillCardProps) {
   // We don't use selectedMonth elsewhere, but we need it for the callback
   const [, setSelectedMonth] = useState(month);
@@ -201,6 +203,7 @@ export default function BillCard({
                           bill={bill}
                           onTogglePaid={onTogglePaid}
                           month={monthName}
+                          onBillUpdate={onBillUpdate}
                         />
                       </div>
                     ))}

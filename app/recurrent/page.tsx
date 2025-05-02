@@ -122,6 +122,15 @@ export default function BillsPage() {
     }
   };
 
+  const handleBillUpdate = (updatedBill: Bill) => {
+    // Update the bills array with the updated bill
+    setBills(prevBills => 
+      prevBills.map(bill => 
+        bill.id === updatedBill.id ? updatedBill : bill
+      )
+    );
+  };
+
   // Handler for direct month selection from carousel
   const handleMonthChange = (monthName: string) => {
     const newIndex = months.findIndex((m) => m === monthName);
@@ -269,6 +278,7 @@ export default function BillsPage() {
               country="Sweden"
               valueColor="text-blue-600"
               onMonthChange={handleMonthChange}
+              onBillUpdate={handleBillUpdate}
             />
           )}
           {(selectedCountry === "Brazil" || selectedCountry === "Both") && (
@@ -282,6 +292,7 @@ export default function BillsPage() {
               country="Brazil"
               valueColor="text-green-600"
               onMonthChange={handleMonthChange}
+              onBillUpdate={handleBillUpdate}
             />
           )}
         </div>

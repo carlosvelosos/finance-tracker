@@ -21,14 +21,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 interface BillItemProps {
   bill: Bill;
   onTogglePaid: (id: number) => void;
   month: string;
+  onBillUpdate?: (updatedBill: Bill) => void;
 }
 
-export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
+export default function BillItem({
+  bill,
+  onTogglePaid,
+  month,
+  onBillUpdate,
+}: BillItemProps) {
   const monthAbbr = month.toLowerCase().substring(0, 3);
   const statusField = `${monthAbbr}_status` as keyof Bill;
   const valueField = `${monthAbbr}_value` as keyof Bill;
@@ -40,6 +48,7 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
       : bill.base_value;
 
   const [editBill, setEditBill] = useState<Bill>({ ...bill });
+  const [isSaving, setIsSaving] = useState(false);
 
   const formatCurrency = (value: number, country: string) => {
     if (country === "Brazil") {
@@ -65,10 +74,47 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
     }));
   };
 
-  const handleSave = () => {
-    // Here you would add the logic to save the bill changes to your database
-    console.log("Saving bill changes:", editBill);
-    // Then you would update the parent component with the new bill data
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+
+      // Update record in Supabase
+      const { data, error } = await supabase
+        .from("recurrent_2025") // Using 2025 as it appears to be the current year based on your context
+        .update({
+          description: editBill.description,
+          due_day: editBill.due_day,
+          payment_method: editBill.payment_method,
+          country: editBill.country,
+          base_value: editBill.base_value,
+          [valueField]: editBill[valueField],
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", editBill.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state if parent component provided a callback
+      if (onBillUpdate) {
+        onBillUpdate(editBill);
+      }
+
+      toast.success("Bill updated successfully");
+    } catch (error) {
+      if (typeof error === "object" && error !== null) {
+        console.error("Error updating bill:", JSON.stringify(error, null, 2));
+        toast.error(
+          `Failed to update bill: ${(error as any).message || "Unknown error"}`
+        );
+      } else {
+        console.error("Error updating bill:", error);
+        toast.error("Failed to update bill");
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -256,13 +302,14 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                     <Button
                       type="submit"
                       onClick={handleSave}
+                      disabled={isSaving}
                       className={`${
                         isPaid
                           ? "bg-black text-white hover:bg-gray-900"
                           : "bg-black text-white hover:bg-[#0d1a11]"
                       }`}
                     >
-                      Save changes
+                      {isSaving ? "Saving..." : "Save changes"}
                     </Button>
                   </SheetClose>
                 </SheetFooter>

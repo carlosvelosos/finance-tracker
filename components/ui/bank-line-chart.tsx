@@ -47,6 +47,7 @@ interface TransactionLineChartProps {
   className?: string;
   positiveColor?: string;
   negativeColor?: string;
+  netColor?: string;
 }
 
 // Custom dot component for our line chart
@@ -61,13 +62,26 @@ const CustomDot = (props: DotProps) => {
   const { cx, cy, dataKey } = props;
   if (!cx || !cy || !dataKey) return null;
 
+  let fillColor, strokeColor;
+
+  if (dataKey === "positiveValue") {
+    fillColor = "#10B981";
+    strokeColor = "#059669";
+  } else if (dataKey === "negativeValue") {
+    fillColor = "#EF4444";
+    strokeColor = "#DC2626";
+  } else {
+    fillColor = "#3B82F6";
+    strokeColor = "#2563EB";
+  }
+
   return (
     <Dot
       cx={cx}
       cy={cy}
       r={3}
-      fill={dataKey === "positiveValue" ? "#10B981" : "#EF4444"}
-      stroke={dataKey === "positiveValue" ? "#059669" : "#DC2626"}
+      fill={fillColor}
+      stroke={strokeColor}
       strokeWidth={1}
     />
   );
@@ -78,12 +92,22 @@ const CustomActiveDot = (props: DotProps) => {
   const { cx, cy, dataKey } = props;
   if (!cx || !cy || !dataKey) return null;
 
+  let fillColor;
+
+  if (dataKey === "positiveValue") {
+    fillColor = "#10B981";
+  } else if (dataKey === "negativeValue") {
+    fillColor = "#EF4444";
+  } else {
+    fillColor = "#3B82F6";
+  }
+
   return (
     <Dot
       cx={cx}
       cy={cy}
       r={5}
-      fill={dataKey === "positiveValue" ? "#10B981" : "#EF4444"}
+      fill={fillColor}
       stroke="white"
       strokeWidth={2}
     />
@@ -97,6 +121,7 @@ export function TransactionLineChart({
   className = "",
   positiveColor = "hsl(var(--chart-2))",
   negativeColor = "hsl(var(--chart-4))",
+  netColor = "hsl(var(--chart-1))",
 }: TransactionLineChartProps) {
   // Chart data preparation - plot one data point per transaction
   const chartData = useMemo(() => {
@@ -107,6 +132,7 @@ export function TransactionLineChart({
         const date = new Date(2025, 4, day);
         const positiveValue = Math.random() * 5000 * (i / 10 + 1);
         const negativeValue = -Math.random() * 4000 * (i / 10 + 1);
+        const netValue = positiveValue + negativeValue;
 
         return {
           id: i,
@@ -114,7 +140,7 @@ export function TransactionLineChart({
           formattedDate: date.toLocaleDateString(),
           positiveValue,
           negativeValue,
-          netValue: positiveValue + negativeValue,
+          netValue,
           description: `Demo transaction ${i + 1}`,
         };
       });
@@ -145,6 +171,7 @@ export function TransactionLineChart({
         cumulativeNegative += amount;
       }
 
+      const netValue = cumulativePositive + cumulativeNegative;
       const date = transaction.Date ? new Date(transaction.Date) : new Date();
 
       return {
@@ -153,7 +180,7 @@ export function TransactionLineChart({
         formattedDate: date.toLocaleDateString(),
         positiveValue: cumulativePositive,
         negativeValue: cumulativeNegative,
-        netValue: cumulativePositive + cumulativeNegative,
+        netValue: netValue,
         description: transaction.Description || `Transaction ${index + 1}`,
       };
     });
@@ -167,6 +194,10 @@ export function TransactionLineChart({
     negativeValue: {
       label: "Expenses",
       color: negativeColor,
+    },
+    netValue: {
+      label: "Net Value",
+      color: netColor,
     },
   } satisfies ChartConfig;
 
@@ -201,31 +232,33 @@ export function TransactionLineChart({
           <div className="text-sm mb-1 truncate">
             {payload[0].payload.description}
           </div>
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{
-                  backgroundColor:
-                    entry.dataKey === "positiveValue" ? "#10B981" : "#EF4444",
-                }}
-              />
-              <span>
-                {entry.name}:{" "}
-                {new Intl.NumberFormat("sv-SE", {
-                  style: "currency",
-                  currency: "SEK",
-                }).format(entry.value as number)}
-              </span>
-            </div>
-          ))}
-          <div className="border-t mt-1 pt-1 text-sm">
-            <span className="font-medium">Net: </span>
-            {new Intl.NumberFormat("sv-SE", {
-              style: "currency",
-              currency: "SEK",
-            }).format(payload[0].payload.netValue)}
-          </div>
+          {payload.map((entry, index) => {
+            // Get appropriate color based on data key
+            let dotColor;
+            if (entry.dataKey === "positiveValue") {
+              dotColor = "#10B981";
+            } else if (entry.dataKey === "negativeValue") {
+              dotColor = "#EF4444";
+            } else {
+              dotColor = "#3B82F6";
+            }
+
+            return (
+              <div key={index} className="flex items-center gap-2 text-sm">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: dotColor }}
+                />
+                <span>
+                  {entry.name}:{" "}
+                  {new Intl.NumberFormat("sv-SE", {
+                    style: "currency",
+                    currency: "SEK",
+                  }).format(entry.value as number)}
+                </span>
+              </div>
+            );
+          })}
         </div>
       );
     }
@@ -304,6 +337,19 @@ export function TransactionLineChart({
                   connectNulls
                   dot={<CustomDot dataKey="negativeValue" />}
                   activeDot={<CustomActiveDot dataKey="negativeValue" />}
+                  isAnimationActive={true}
+                />
+
+                {/* Net value line */}
+                <Line
+                  type="monotone"
+                  dataKey="netValue"
+                  name="Net Value"
+                  strokeWidth={2.5}
+                  stroke="#3B82F6"
+                  connectNulls
+                  dot={<CustomDot dataKey="netValue" />}
+                  activeDot={<CustomActiveDot dataKey="netValue" />}
                   isAnimationActive={true}
                 />
               </LineChart>

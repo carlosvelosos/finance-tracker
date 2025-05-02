@@ -274,8 +274,95 @@ export function TransactionLineChart({
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <div className="flex flex-row justify-between">
+          <div>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
+
+          <div>
+            {/* Static tooltip at the bottom of the chart */}
+            {tooltipData && (
+              <div className="mt-2 p-2 rounded-md text-sm max-w-[400px] ml-auto">
+                <div className="flex flex-wrap gap-3">
+                  {/* Left Column */}
+                  {/* Transaction date and description */}
+                  <div className="flex flex-col gap-2 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs whitespace-nowrap">
+                        {tooltipData.formattedDate}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs whitespace-nowrap">
+                        {tooltipData.description}
+                      </span>
+                    </div>
+
+                    {/* Transaction amount */}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{
+                          backgroundColor:
+                            tooltipData.amount >= 0 ? "#10B981" : "#EF4444",
+                        }}
+                      />
+                      <span className="text-xs whitespace-nowrap">
+                        Transaction:{" "}
+                        {new Intl.NumberFormat("sv-SE", {
+                          style: "currency",
+                          currency: "SEK",
+                        }).format(tooltipData.amount)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Separator */}
+                  <div className="w-px bg-gray-700" />
+
+                  {/* Right Column */}
+                  <div className="flex flex-col gap-2 flex-1">
+                    {/* Income */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#10B981]" />
+                      <span className="text-xs whitespace-nowrap">
+                        Income:{" "}
+                        {new Intl.NumberFormat("sv-SE", {
+                          style: "currency",
+                          currency: "SEK",
+                        }).format(tooltipData.positiveValue)}
+                      </span>
+                    </div>
+                    {/* Expenses */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#EF4444]" />
+                      <span className="text-xs whitespace-nowrap">
+                        Expenses:{" "}
+                        {new Intl.NumberFormat("sv-SE", {
+                          style: "currency",
+                          currency: "SEK",
+                        }).format(tooltipData.negativeValue)}
+                      </span>
+                    </div>
+
+                    {/* Net value */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#3B82F6]" />
+                      <span className="text-xs whitespace-nowrap">
+                        Net:{" "}
+                        {new Intl.NumberFormat("sv-SE", {
+                          style: "currency",
+                          currency: "SEK",
+                        }).format(tooltipData.netValue)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4 relative">
         <div className="h-[85%] rounded-lg">
@@ -370,74 +457,6 @@ export function TransactionLineChart({
             </ResponsiveContainer>
           </ChartContainer>
         </div>
-
-        {/* Static tooltip at the bottom of the chart */}
-        {tooltipData && (
-          <div className="mt-2 p-2 border border-gray-700 bg-gray-900 rounded-md text-sm">
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-medium">{tooltipData.formattedDate}</span>
-              <span className="text-xs truncate">
-                {tooltipData.description}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-3 justify-between">
-              {/* Transaction amount */}
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    backgroundColor:
-                      tooltipData.amount >= 0 ? "#10B981" : "#EF4444",
-                  }}
-                />
-                <span className="text-xs whitespace-nowrap">
-                  Transaction:{" "}
-                  {new Intl.NumberFormat("sv-SE", {
-                    style: "currency",
-                    currency: "SEK",
-                  }).format(tooltipData.amount)}
-                </span>
-              </div>
-
-              {/* Income */}
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#10B981]" />
-                <span className="text-xs whitespace-nowrap">
-                  Income:{" "}
-                  {new Intl.NumberFormat("sv-SE", {
-                    style: "currency",
-                    currency: "SEK",
-                  }).format(tooltipData.positiveValue)}
-                </span>
-              </div>
-
-              {/* Expenses */}
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#EF4444]" />
-                <span className="text-xs whitespace-nowrap">
-                  Expenses:{" "}
-                  {new Intl.NumberFormat("sv-SE", {
-                    style: "currency",
-                    currency: "SEK",
-                  }).format(tooltipData.negativeValue)}
-                </span>
-              </div>
-
-              {/* Net value */}
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#3B82F6]" />
-                <span className="text-xs whitespace-nowrap">
-                  Net:{" "}
-                  {new Intl.NumberFormat("sv-SE", {
-                    style: "currency",
-                    currency: "SEK",
-                  }).format(tooltipData.netValue)}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

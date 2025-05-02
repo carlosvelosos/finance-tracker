@@ -460,8 +460,8 @@ export function TransactionLineChart({
                 />
                 <Legend verticalAlign="bottom" />
 
-                {/* Use the built-in ChartTooltip with cursor prop instead of our custom SVG cursor */}
-                <ChartTooltip cursor={true} />
+                {/* Only keep cursor functionality for interaction, no tooltip */}
+                <ChartTooltip cursor={true} content={() => null} />
 
                 {/* Positive transactions line */}
                 <Line

@@ -63,8 +63,8 @@ export default function LandingPage() {
 function AuthenticatedLandingPage() {
   return (
     <div className="relative flex flex-col items-center">
-      {/* First section - Dark background */}
-      <div
+      {/* Hero section - Dark background */}
+      <section
         className="w-full flex flex-col items-center justify-center min-h-screen px-4"
         style={{ backgroundColor: "#121212" }}
       >
@@ -81,106 +81,177 @@ function AuthenticatedLandingPage() {
             day: "numeric",
           })}
         </p>
-      </div>
+      </section>
 
-      {/* Second section - Light background */}
-      <div
-        className="w-full min-h-screen py-30 px-4"
+      {/* Upload Transactions Section */}
+      <section
+        className="w-full py-20 px-4"
         style={{ backgroundColor: "#f3f4f6" }}
       >
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <Card
-              className="p-6 hover:shadow-lg transition-shadow"
-              style={{
-                backgroundColor: "#ffffff",
-                borderColor: "#e5e7eb",
-                borderWidth: "1px",
-              }}
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-1/2">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              Upload Transactions
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Import new transactions from your bank statements or credit cards.
+              Our system automatically categorizes and organizes your financial
+              data for easy tracking and analysis.
+            </p>
+            <Link
+              href="/upload"
+              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg bg-[#12A65C] text-white hover:bg-[#0d8d4e] transition-colors"
             >
-              <h2 className="text-xl font-bold mb-3 text-[#12A65C]">
-                Upload Transactions
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Import new transactions from your bank statements or credit
-                cards.
-              </p>
-              <Link
-                href="/upload"
-                className="inline-block text-[#12A65C] font-medium hover:underline"
-              >
-                Upload now →
-              </Link>
-            </Card>
-
-            <Card
-              className="p-6 hover:shadow-lg transition-shadow"
-              style={{
-                backgroundColor: "#ffffff",
-                borderColor: "#e5e7eb",
-                borderWidth: "1px",
-              }}
-            >
-              <h2 className="text-xl font-bold mb-3 text-[#12A65C]">
-                View Insights
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Analyze your spending habits and track your financial progress.
-              </p>
-              <Link
-                href="/insights"
-                className="inline-block text-[#12A65C] font-medium hover:underline"
-              >
-                See insights →
-              </Link>
-            </Card>
-
-            <Card
-              className="p-6 hover:shadow-lg transition-shadow"
-              style={{
-                backgroundColor: "#ffffff",
-                borderColor: "#e5e7eb",
-                borderWidth: "1px",
-              }}
-            >
-              <h2 className="text-xl font-bold mb-3 text-[#12A65C]">
-                Manage Family Expenses
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Track and split shared expenses with your family members.
-              </p>
-              <Link
-                href="/family"
-                className="inline-block text-[#12A65C] font-medium hover:underline"
-              >
-                Family dashboard →
-              </Link>
-            </Card>
+              Upload now →
+            </Link>
           </div>
-
-          <div className="pb-12">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">
-              Quick Actions
-            </h3>
-            <div className="flex flex-wrap gap-4">
-              <Button
-                asChild
-                variant="outline"
-                className="text-[#555555] border-gray-300 hover:bg-gray-100"
+          <div className="md:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12A65C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <Link href="/transactions">View All Transactions</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="text-[#555555] border-gray-300 hover:bg-gray-100"
-              >
-                <Link href="/settings">Account Settings</Link>
-              </Button>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* View Insights Section */}
+      <section
+        className="w-full py-20 px-4"
+        style={{ backgroundColor: "#ffffff" }}
+      >
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row-reverse items-center gap-8">
+          <div className="md:w-1/2">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              View Insights
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Analyze your spending habits and track your financial progress
+              with powerful visualizations and reports. Gain a deeper
+              understanding of where your money goes each month.
+            </p>
+            <Link
+              href="/insights"
+              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg bg-[#12A65C] text-white hover:bg-[#0d8d4e] transition-colors"
+            >
+              See insights →
+            </Link>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12A65C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 2v4"></path>
+                <path d="M12 18v4"></path>
+                <path d="M4.93 4.93l2.83 2.83"></path>
+                <path d="M16.24 16.24l2.83 2.83"></path>
+                <path d="M2 12h4"></path>
+                <path d="M18 12h4"></path>
+                <path d="M4.93 19.07l2.83-2.83"></path>
+                <path d="M16.24 7.76l2.83-2.83"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Family Expenses Section */}
+      <section
+        className="w-full py-20 px-4"
+        style={{ backgroundColor: "#f3f4f6" }}
+      >
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-1/2">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              Manage Family Expenses
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Track and split shared expenses with your family members. Easily
+              manage household bills, assign responsibilities, and ensure
+              everyone contributes their fair share.
+            </p>
+            <Link
+              href="/family"
+              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg bg-[#12A65C] text-white hover:bg-[#0d8d4e] transition-colors"
+            >
+              Family dashboard →
+            </Link>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12A65C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Actions Section */}
+      <section
+        className="w-full py-16 px-4"
+        style={{ backgroundColor: "#ffffff" }}
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800">
+            Quick Actions
+          </h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button
+              asChild
+              className="px-6 py-2 text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+            >
+              <Link href="/transactions">View All Transactions</Link>
+            </Button>
+            <Button
+              asChild
+              className="px-6 py-2 text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+            >
+              <Link href="/settings">Account Settings</Link>
+            </Button>
+            <Button
+              asChild
+              className="px-6 py-2 text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+            >
+              <Link href="/recurrent">Manage Recurring Expenses</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -189,8 +260,8 @@ function AuthenticatedLandingPage() {
 function UnauthenticatedLandingPage() {
   return (
     <div className="relative flex flex-col items-center">
-      {/* First section - Dark background */}
-      <div
+      {/* Hero section - Dark background */}
+      <section
         className="w-full flex flex-col items-center justify-center min-h-screen px-4"
         style={{ backgroundColor: "#121212" }}
       >
@@ -221,42 +292,147 @@ function UnauthenticatedLandingPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Second section - Light background */}
-      <div className="w-full py-16 px-4" style={{ backgroundColor: "#f3f4f6" }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div className="p-6 bg-white rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-2 text-[#12A65C]">
-                Simple Transaction Upload
-              </h3>
-              <p className="text-gray-600">
-                Upload your bank statements and credit card transactions with
-                just a few clicks.
-              </p>
-            </div>
-            <div className="p-6 bg-white rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-2 text-[#12A65C]">
-                Powerful Analytics
-              </h3>
-              <p className="text-gray-600">
-                Gain insights into your spending habits and track financial
-                patterns over time.
-              </p>
-            </div>
-            <div className="p-6 bg-white rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-2 text-[#12A65C]">
-                Family Expense Tracking
-              </h3>
-              <p className="text-gray-600">
-                Easily manage shared expenses and split costs between family
-                members.
-              </p>
+      {/* Transaction Upload Section */}
+      <section
+        className="w-full py-20 px-4"
+        style={{ backgroundColor: "#f3f4f6" }}
+      >
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-1/2">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              Simple Transaction Upload
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Upload your bank statements and credit card transactions with just
+              a few clicks. Our system automatically categorizes your expenses,
+              making it easy to track where your money goes.
+            </p>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12A65C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Analytics Section */}
+      <section
+        className="w-full py-20 px-4"
+        style={{ backgroundColor: "#ffffff" }}
+      >
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row-reverse items-center gap-8">
+          <div className="md:w-1/2">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              Powerful Analytics
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Gain insights into your spending habits and track financial
+              patterns over time. Our interactive charts and reports help you
+              make better financial decisions by visualizing your data.
+            </p>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12A65C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Family Expense Section */}
+      <section
+        className="w-full py-20 px-4"
+        style={{ backgroundColor: "#f3f4f6" }}
+      >
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-1/2">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              Family Expense Tracking
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Easily manage shared expenses and split costs between family
+              members. Keep track of who paid what and ensure everyone
+              contributes their fair share to household finances.
+            </p>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12A65C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section
+        className="w-full py-16 px-4"
+        style={{ backgroundColor: "#ffffff" }}
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+            Ready to Get Started?
+          </h3>
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            Join thousands of users who are taking control of their finances
+            with our tools. Sign up today and start your journey to better
+            financial health.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button
+              asChild
+              className="px-8 py-3 text-lg text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+            >
+              <Link href="/auth/signup">Create Free Account</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

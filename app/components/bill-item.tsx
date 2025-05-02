@@ -124,17 +124,28 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                   <span className="sr-only">Edit bill</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent
+                className={`${
+                  isPaid
+                    ? "bg-gray-800 border-[#0d172b] text-gray-300"
+                    : "bg-[#1e3925] border-[#365341] text-gray-200"
+                }`}
+              >
                 <SheetHeader>
-                  <SheetTitle>Edit Bill</SheetTitle>
-                  <SheetDescription>
+                  <SheetTitle className="text-lg font-semibold text-white">
+                    Edit Bill
+                  </SheetTitle>
+                  <SheetDescription className="font-medium text-gray-300">
                     Make changes to your bill details here. Click save when
                     you're done.
                   </SheetDescription>
                 </SheetHeader>
-                <div className="grid gap-4 py-4">
+                <div className="grid gap-4 py-4 px-4">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="description" className="text-right">
+                    <Label
+                      htmlFor="description"
+                      className="text-right font-medium text-gray-300"
+                    >
                       Description
                     </Label>
                     <Input
@@ -147,7 +158,10 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="due_day" className="text-right">
+                    <Label
+                      htmlFor="due_day"
+                      className="text-right font-medium text-gray-300"
+                    >
                       Due Day
                     </Label>
                     <Input
@@ -161,7 +175,10 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="payment_method" className="text-right">
+                    <Label
+                      htmlFor="payment_method"
+                      className="text-right font-medium text-gray-300"
+                    >
                       Payment Method
                     </Label>
                     <Input
@@ -174,7 +191,10 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="country" className="text-right">
+                    <Label
+                      htmlFor="country"
+                      className="text-right font-medium text-gray-300"
+                    >
                       Country
                     </Label>
                     <Input
@@ -187,7 +207,10 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="base_value" className="text-right">
+                    <Label
+                      htmlFor="base_value"
+                      className="text-right font-medium text-gray-300"
+                    >
                       Base Value
                     </Label>
                     <Input
@@ -204,7 +227,10 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="current_month_value" className="text-right">
+                    <Label
+                      htmlFor="current_month_value"
+                      className="text-right  font-medium text-gray-300"
+                    >
                       {month} Value
                     </Label>
                     <Input
@@ -227,7 +253,15 @@ export default function BillItem({ bill, onTogglePaid, month }: BillItemProps) {
                 </div>
                 <SheetFooter>
                   <SheetClose asChild>
-                    <Button type="submit" onClick={handleSave}>
+                    <Button
+                      type="submit"
+                      onClick={handleSave}
+                      className={`${
+                        isPaid
+                          ? "bg-black text-white hover:bg-gray-900"
+                          : "bg-black text-white hover:bg-[#0d1a11]"
+                      }`}
+                    >
                       Save changes
                     </Button>
                   </SheetClose>

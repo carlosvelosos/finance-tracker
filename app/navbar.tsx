@@ -70,32 +70,57 @@ export default function Navbar() {
     }
   }, [user]);
 
-  // Modify the handleLogout function to ensure it works on mobile
+  // Modify the handleLogout function to handle the AuthSessionMissingError
   const handleLogout = async (e: React.MouseEvent | React.TouchEvent) => {
     // Prevent default behavior and stop propagation
     e.preventDefault();
     e.stopPropagation();
 
     try {
-      // Sign out from Supabase
+      // Sign out from Supabase with enhanced error handling
       console.log("Attempting to log out...");
+
+      // Try to sign out
       const { error } = await supabase.auth.signOut();
 
       if (error) {
         console.error("Error logging out:", error);
-        // Simple alert as fallback to ensure it works everywhere
+
+        // If it's an auth session missing error, treat it as successful logout
+        if (error.message.includes("Auth session missing")) {
+          console.log("No active session to end - already logged out");
+          performCleanupAndRedirect();
+          return;
+        }
+
+        // For other errors, show an alert
         window.alert("Failed to log out. Please try again.");
       } else {
         console.log("Logged out successfully");
-
-        // Critical: Force redirect to login page
-        window.location.href = "/auth/login";
+        performCleanupAndRedirect();
       }
     } catch (error) {
       console.error("Unexpected error during logout:", error);
-      // Simple alert as fallback
       window.alert("Something went wrong during logout. Please try again.");
     }
+  };
+
+  // Helper function to clean up and redirect
+  const performCleanupAndRedirect = () => {
+    // Clear any localStorage items related to auth
+    try {
+      localStorage.removeItem("supabase.auth.token");
+      localStorage.removeItem("supabase.auth.expires_at");
+      localStorage.removeItem("supabase.auth.refresh_token");
+
+      // Clear any other app state
+      sessionStorage.clear();
+    } catch (e) {
+      console.error("Error clearing storage:", e);
+    }
+
+    // Redirect to login page
+    window.location.href = "/auth/login";
   };
 
   const handleLinkClick = () => {

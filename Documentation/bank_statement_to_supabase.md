@@ -11,8 +11,9 @@ This guide explains the end-to-end process of capturing a bank statement (from i
 5. [Step 3: Uploading Data to Supabase](#step-3-uploading-data-to-supabase)
 6. [Step 4: Direct SQL Insert Method](#step-4-direct-sql-insert-method)
 7. [Step 5: Verifying Your Data](#step-5-verifying-your-data)
-8. [Troubleshooting](#troubleshooting)
-9. [Data Schema Reference](#data-schema-reference)
+8. [Updating the Sweden_transactions_agregated_2025 Table](#updating-the-sweden_transactions_agregated_2025-table)
+9. [Troubleshooting](#troubleshooting)
+10. [Data Schema Reference](#data-schema-reference)
 
 ## Overview
 
@@ -135,56 +136,42 @@ When adding transactions directly from images, you'll need to create an SQL INSE
 Here's an example SQL statement for adding transactions from screenshots:
 
 ```sql
-INSERT INTO "public"."HB_2025" ("created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Comment", "user_id", "Bank")
+-- First check the highest ID value
+SELECT MAX(id) as last_id FROM "public"."HB_2025";
+
+-- Then use OVERRIDING SYSTEM VALUE with IDs starting from 20
+INSERT INTO "public"."HB_2025" (id, "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Comment", "user_id", "Bank")
+OVERRIDING SYSTEM VALUE
 VALUES
 -- March 2025 transactions
-('2025-05-03 00:00:00+00', '2025-03-24', 'LÖN', 33917.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
-('2025-05-03 00:00:00+00', '2025-03-26', 'American Expre', -16295.41, NULL, 'Amex Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
-('2025-05-03 00:00:00+00', '2025-03-26', 'MATTIAS LÖVGRE', -100.00, NULL, 'Personal Transactions', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
-('2025-05-03 00:00:00+00', '2025-03-26', 'Telia Faktura', -749.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(20, '2025-03-24', 'LÖN', 33917.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(21, '2025-03-26', 'American Expre', -16295.41, NULL, 'Amex Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(22, '2025-03-26', 'MATTIAS LÖVGRE', -100.00, NULL, 'Personal Transactions', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(23, '2025-03-26', 'Telia Faktura', -749.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(24, '2025-03-27', 'BIXIA AB', -154.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(25, '2025-03-27', 'Tekniska Verke', -192.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(26, '2025-03-27', 'Unionens a-kas', -160.00, NULL, 'Union', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(27, '2025-03-31', 'SJ PRIO MASTER', -3622.34, NULL, 'SEB SJ Prio Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(28, '2025-03-31', 'SVERIGES INGEN', -265.00, NULL, 'Union', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
 
 -- April 2025 transactions
-('2025-05-03 00:00:00+00', '2025-04-04', 'Tekniska Verke', -194.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
-('2025-05-03 00:00:00+00', '2025-04-05', 'RODRIGO SAAR D', -95.00, NULL, 'Personal Transactions', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
-('2025-05-03 00:00:00+00', '2025-04-25', 'NIRA', 32476.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
-('2025-05-03 00:00:00+00', '2025-04-29', 'American Expre', -14535.15, NULL, 'Amex Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken');
+(29, '2025-04-04', 'Tekniska Verke', -194.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(30, '2025-04-05', 'RODRIGO SAAR D', -95.00, NULL, 'Personal Transactions', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(31, '2025-04-05', 'AB STORSTOCKHO', -43.00, NULL, 'Unknown', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(32, '2025-04-07', 'Bixia AB', -105.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(33, '2025-04-08', 'SK9006154091', 9679.00, NULL, 'Income', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(34, '2025-04-13', 'MARQUES DE FRE', -128.00, NULL, 'Personal Transactions', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(35, '2025-04-14', 'first', -100.00, NULL, 'Unknown', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(36, '2025-04-14', 'second', -9900.00, NULL, 'Unknown', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(37, '2025-04-15', 'Unionens a-kas', -160.00, NULL, 'Union', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(38, '2025-04-25', 'NIRA', 32476.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(39, '2025-04-29', 'American Expre', -14535.15, NULL, 'Amex Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(40, '2025-04-29', 'SEB KORT BANK', -852.70, NULL, 'SEB SJ Prio Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(41, '2025-04-29', 'Telia Company', -749.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(42, '2025-04-30', 'TELIA BREDBAND', -749.00, NULL, 'Apartment', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(43, '2025-04-30', 'SVERIGES INGEN', -265.00, NULL, 'Union', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(44, '2025-04-30', 'SJ PRIO MASTER', -852.70, NULL, 'SEB SJ Prio Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken');
 ```
-
-### Constructing the Statement from Images
-
-To create this statement from your bank statement images:
-
-1. **Review the screenshots** and make note of all transactions
-2. **Create the SQL statement** following this structure:
-   - Specify the table name (`HB_2025` for 2025 Handelsbanken transactions)
-   - List all columns you're inserting data into
-   - For each transaction, create a VALUES row with the transaction details
-3. **Categorize transactions** based on patterns:
-   - "LÖN" and "NIRA" entries → "Salary"
-   - "American Expre" entries → "Amex Invoice"
-   - "Telia" and "Tekniska Verke" entries → "Apartment"
-   - Personal names → "Personal Transactions"
-4. **Format the data correctly**:
-   - Dates in YYYY-MM-DD format
-   - Amounts in decimal format with a period (`.`) as separator
-   - Negative values for expenses, positive for income
-   - NULL for any missing values
-
-### Running the SQL Statement
-
-1. Paste your SQL statement into the SQL Editor
-2. Review the statement for accuracy
-3. Click "Run" to execute the statement
-4. Check for any error messages and fix as needed
-5. If successful, you'll see a confirmation message with the number of rows inserted
-
-### Tips for SQL Insertion
-
-- Group transactions by month or statement period for easier management
-- Use consistent naming conventions for categories
-- Include comments in your SQL to document the source of the data
-- Consider adding a unique identifier (like transaction date + description) to avoid duplicates
-- Create a backup of your data before making large insertions
 
 ## Step 5: Verifying Your Data
 
@@ -194,6 +181,95 @@ After uploading, you should verify that your data appears correctly:
 2. Check that your transactions appear in the table
 3. For visual verification, go to "Handelsbanken Overview" to see charts of your data
 4. Verify that the amounts and dates match your original bank statement
+
+## Updating the Sweden_transactions_agregated_2025 Table
+
+After adding transactions to individual bank tables (like `HB_2025`), you'll want to update the aggregated table that combines transactions from all banks. Here's how to do this safely:
+
+### Understanding the Aggregated Table
+
+The `Sweden_transactions_agregated_2025` table combines transactions from multiple sources:
+
+- Handelsbanken (`HB_2025`)
+- American Express (`AM_202501`, `AM_202502`, etc.)
+- SEB SJ Prio (`SJ_202501`, `SJ_202502`, etc.)
+
+This gives you a comprehensive view of all your financial activities across different accounts.
+
+### Step 1: Check Current Maximum ID
+
+First, find the highest ID currently in use in the aggregated table:
+
+```sql
+SELECT MAX(id) as last_id FROM "public"."Sweden_transactions_agregated_2025";
+```
+
+### Step 2: Insert New Transactions
+
+Use this SQL script to safely insert only new transactions that don't already exist in the aggregated table:
+
+```sql
+-- Use a WITH clause to find the highest ID in the aggregated table
+WITH max_id AS (
+  SELECT COALESCE(MAX(id), 0) + 1 as next_id
+  FROM "public"."Sweden_transactions_agregated_2025"
+)
+
+-- Insert new transactions from HB_2025 into the aggregated table
+INSERT INTO "public"."Sweden_transactions_agregated_2025"
+("id", "created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Bank", "Comment", "user_id", "source_table")
+SELECT
+  -- Use the next_id value from the CTE plus ROW_NUMBER() to ensure sequential IDs
+  (SELECT next_id FROM max_id) + ROW_NUMBER() OVER (ORDER BY h."Date", h."Description") - 1 as id,
+  NOW() as created_at,
+  h."Date",
+  h."Description",
+  h."Amount",
+  h."Balance",
+  h."Category",
+  h."Responsable",
+  'Handelsbanken' as "Bank",
+  h."Comment",
+  h.user_id,
+  'HB_2025' as source_table
+FROM "public"."HB_2025" h
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM "public"."Sweden_transactions_agregated_2025" a
+  WHERE a."Date" = h."Date"
+  AND a."Description" = h."Description"
+  AND a."Amount" = h."Amount"
+  AND a."source_table" = 'HB_2025'
+)
+ORDER BY h."Date", h."Description";
+
+-- Verify the insertion was successful
+SELECT COUNT(*) FROM "public"."Sweden_transactions_agregated_2025"
+WHERE "source_table" = 'HB_2025';
+```
+
+### How This Script Works
+
+1. **Finding the Next Available ID**: The `WITH max_id AS` clause creates a Common Table Expression (CTE) that gets the maximum ID from the aggregated table and adds 1 to determine the next available ID.
+
+2. **Avoiding Duplicates**: The `WHERE NOT EXISTS` condition ensures that only new transactions are inserted, preventing duplicates.
+
+3. **Generating Sequential IDs**: The `ROW_NUMBER()` function combined with the next available ID ensures that new entries get sequential IDs without conflicts.
+
+4. **Setting the Current Timestamp**: The `NOW()` function sets the `created_at` field to the current date and time.
+
+5. **Verification**: The final SELECT statement helps you verify that the insertion was successful by counting the total number of Handelsbanken transactions in the aggregated table.
+
+### Benefits of This Approach
+
+- **Safety**: No risk of duplicate entries or ID conflicts
+- **Automation**: Automatically calculates the next available ID
+- **Efficiency**: Single SQL statement for the entire operation
+- **Maintainability**: Works consistently even as your database grows
+
+### When to Use This
+
+Run this script whenever you've added new transactions to one of your bank-specific tables (like `HB_2025`) and want to update the aggregated view. This ensures that your combined analysis and reporting will include the latest data from all your accounts.
 
 ## Troubleshooting
 

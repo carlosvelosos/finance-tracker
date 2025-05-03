@@ -24,6 +24,59 @@ VALUES
 ('2025-05-03 00:00:00+00', '2025-04-25', 'NIRA', 32476.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
 ('2025-05-03 00:00:00+00', '2025-04-29', 'American Expre', -14535.15, NULL, 'Amex Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken');`;
 
+  // Example SQL code for checking last used ID
+  const sqlCheckLastId = `-- Query to find the highest ID currently in use
+SELECT MAX(id) as last_id FROM "public"."HB_2025";`;
+
+  // Updated SQL code with OVERRIDING SYSTEM VALUE
+  const sqlWithCustomIds = `-- First check the highest ID value
+SELECT MAX(id) as last_id FROM "public"."HB_2025";
+
+-- Then use OVERRIDING SYSTEM VALUE with IDs higher than the max
+INSERT INTO "public"."HB_2025" (id, "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Comment", "user_id", "Bank")
+OVERRIDING SYSTEM VALUE
+VALUES
+-- Start with ID 100 (or higher than the MAX(id) from previous query)
+(100, '2025-03-24', 'LÖN', 33917.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(101, '2025-03-26', 'American Expre', -16295.41, NULL, 'Amex Invoice', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+(102, '2025-03-26', 'MATTIAS LÖVGRE', -100.00, NULL, 'Personal Transactions', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
+-- Continue with sequential IDs...`;
+
+  // SQL code for updating the aggregated table
+  const aggregatedTableSql = `-- Use a WITH clause to find the highest ID in the aggregated table
+WITH max_id AS (
+  SELECT COALESCE(MAX(id), 0) + 1 as next_id 
+  FROM "public"."Sweden_transactions_agregated_2025"
+)
+
+-- Insert new transactions from HB_2025 into the aggregated table
+INSERT INTO "public"."Sweden_transactions_agregated_2025" 
+("id", "created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Bank", "Comment", "user_id", "source_table")
+SELECT 
+  -- Use the next_id value from the CTE plus ROW_NUMBER() to ensure sequential IDs
+  (SELECT next_id FROM max_id) + ROW_NUMBER() OVER (ORDER BY h."Date", h."Description") - 1 as id,
+  NOW() as created_at,
+  h."Date", 
+  h."Description", 
+  h."Amount", 
+  h."Balance", 
+  h."Category", 
+  h."Responsable", 
+  'Handelsbanken' as "Bank", 
+  h."Comment", 
+  h.user_id, 
+  'HB_2025' as source_table
+FROM "public"."HB_2025" h
+WHERE NOT EXISTS (
+  SELECT 1 
+  FROM "public"."Sweden_transactions_agregated_2025" a 
+  WHERE a."Date" = h."Date" 
+  AND a."Description" = h."Description" 
+  AND a."Amount" = h."Amount" 
+  AND a."source_table" = 'HB_2025'
+)
+ORDER BY h."Date", h."Description";`;
+
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4 max-w-6xl">
@@ -37,11 +90,12 @@ VALUES
           onValueChange={setActiveTab}
           className="mb-8"
         >
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="images">Statement Images</TabsTrigger>
             <TabsTrigger value="sql-method">SQL Method</TabsTrigger>
             <TabsTrigger value="upload-method">Upload Method</TabsTrigger>
+            <TabsTrigger value="aggregated">Aggregated Table</TabsTrigger>
             <TabsTrigger value="verification">Verification</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -96,7 +150,7 @@ VALUES
                   </div>
                   <div className="p-2">
                     <Image
-                      src="/private/drive-download-20250503T093045Z-1-001/2025-05-03-11-21-48.PNG"
+                      src="/2025-05-03-11-21-48.PNG"
                       alt="March 2025 Bank Statement"
                       width={500}
                       height={300}
@@ -110,7 +164,7 @@ VALUES
                   </div>
                   <div className="p-2">
                     <Image
-                      src="/private/drive-download-20250503T093045Z-1-001/2025-05-03-11-22-31.PNG"
+                      src="/2025-05-03-11-22-31.PNG"
                       alt="March 2025 Bank Statement Continued"
                       width={500}
                       height={300}
@@ -124,7 +178,7 @@ VALUES
                   </div>
                   <div className="p-2">
                     <Image
-                      src="/private/drive-download-20250503T093045Z-1-001/2025-05-03-11-22-40.PNG"
+                      src="/2025-05-03-11-22-40.PNG"
                       alt="April 2025 Bank Statement"
                       width={500}
                       height={300}
@@ -138,7 +192,7 @@ VALUES
                   </div>
                   <div className="p-2">
                     <Image
-                      src="/private/drive-download-20250503T093045Z-1-001/2025-05-03-11-22-51.PNG"
+                      src="/2025-05-03-11-22-51.PNG"
                       alt="April 2025 Bank Statement Continued"
                       width={500}
                       height={300}
@@ -203,17 +257,28 @@ VALUES
                 </pre>
               </div>
 
-              <h3 className="text-lg font-medium mt-6 mb-2">
-                How to Use the SQL Editor
-              </h3>
-              <ol className="list-decimal pl-6 space-y-2">
-                <li>Log in to your Supabase dashboard</li>
-                <li>Select your Finance Tracker project</li>
-                <li>Click on &quot;SQL Editor&quot; in the left sidebar</li>
-                <li>Create a new query</li>
-                <li>Paste your SQL statement</li>
-                <li>Click &quot;Run&quot; to execute</li>
-              </ol>
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-2">
+                  Finding the Last Used ID
+                </h3>
+                <p className="mb-2">
+                  Before inserting new records, check the highest ID currently
+                  in use:
+                </p>
+                <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto">
+                  <pre className="text-sm whitespace-pre-wrap">
+                    {sqlCheckLastId}
+                  </pre>
+                </div>
+                <p className="mt-4 mb-2">
+                  Then use OVERRIDING SYSTEM VALUE with IDs higher than the max:
+                </p>
+                <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto">
+                  <pre className="text-sm whitespace-pre-wrap">
+                    {sqlWithCustomIds}
+                  </pre>
+                </div>
+              </div>
 
               <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mt-6">
                 <h3 className="font-medium text-blue-800">
@@ -341,6 +406,153 @@ VALUES
                   </tbody>
                 </table>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "aggregated" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Aggregated Table</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                After adding transactions to individual bank tables (like{" "}
+                <code>HB_2025</code>), you need to update the{" "}
+                <code>Sweden_transactions_agregated_2025</code> table. This
+                aggregated table combines transactions from multiple sources
+                into a unified view for comprehensive reporting.
+              </p>
+
+              <h3 className="text-lg font-medium mt-4 mb-2">
+                Understanding the Aggregated Table
+              </h3>
+              <p>
+                The <code>Sweden_transactions_agregated_2025</code> table
+                combines transactions from multiple sources:
+              </p>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>
+                  Handelsbanken (<code>HB_2025</code>)
+                </li>
+                <li>
+                  American Express (<code>AM_202501</code>,{" "}
+                  <code>AM_202502</code>, etc.)
+                </li>
+                <li>
+                  SEB SJ Prio (<code>SJ_202501</code>, <code>SJ_202502</code>,
+                  etc.)
+                </li>
+              </ul>
+              <p className="mt-2">
+                This gives you a comprehensive view of all your financial
+                activities across different accounts.
+              </p>
+
+              <h3 className="text-lg font-medium mt-4 mb-2">
+                SQL Code for Updating the Aggregated Table
+              </h3>
+              <p>
+                Use this SQL script to safely insert only new transactions that
+                don't already exist in the aggregated table:
+              </p>
+
+              <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto">
+                <pre className="text-sm whitespace-pre-wrap">
+                  {aggregatedTableSql}
+                </pre>
+              </div>
+
+              <h3 className="text-lg font-medium mt-6 mb-2">
+                How This Script Works
+              </h3>
+
+              <ol className="list-decimal pl-6 space-y-2">
+                <li>
+                  <span className="font-medium">
+                    Finding the Next Available ID:
+                  </span>{" "}
+                  The <code>WITH max_id AS</code> clause creates a Common Table
+                  Expression (CTE) that gets the maximum ID from the aggregated
+                  table and adds 1 to determine the next available ID.
+                </li>
+
+                <li>
+                  <span className="font-medium">Avoiding Duplicates:</span> The{" "}
+                  <code>WHERE NOT EXISTS</code> condition ensures that only new
+                  transactions are inserted, preventing duplicates based on
+                  date, description, and amount.
+                </li>
+
+                <li>
+                  <span className="font-medium">
+                    Generating Sequential IDs:
+                  </span>{" "}
+                  The <code>ROW_NUMBER()</code> function combined with the next
+                  available ID ensures that new entries get sequential IDs
+                  without conflicts.
+                </li>
+
+                <li>
+                  <span className="font-medium">
+                    Setting the Current Timestamp:
+                  </span>{" "}
+                  The <code>NOW()</code> function sets the{" "}
+                  <code>created_at</code> field to the current date and time.
+                </li>
+              </ol>
+
+              <h3 className="text-lg font-medium mt-6 mb-2">
+                Verifying the Update
+              </h3>
+              <p>
+                After running the update script, you can verify that the
+                transactions were added correctly:
+              </p>
+              <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto mt-2">
+                <pre className="text-sm whitespace-pre-wrap">
+                  {`-- Count the total transactions from HB_2025 in the aggregated table
+SELECT COUNT(*) FROM "public"."Sweden_transactions_agregated_2025" 
+WHERE "source_table" = 'HB_2025';
+
+-- View the most recently added transactions
+SELECT * FROM "public"."Sweden_transactions_agregated_2025"
+ORDER BY id DESC
+LIMIT 10;`}
+                </pre>
+              </div>
+
+              <div className="bg-purple-50 p-4 rounded-md border border-purple-200 mt-6">
+                <h3 className="font-medium text-purple-800">
+                  Benefits of This Approach
+                </h3>
+                <ul className="list-disc pl-6 mt-2 text-purple-700">
+                  <li>
+                    <span className="font-medium">Safety:</span> No risk of
+                    duplicate entries or ID conflicts
+                  </li>
+                  <li>
+                    <span className="font-medium">Automation:</span>{" "}
+                    Automatically calculates the next available ID
+                  </li>
+                  <li>
+                    <span className="font-medium">Efficiency:</span> Single SQL
+                    statement for the entire operation
+                  </li>
+                  <li>
+                    <span className="font-medium">Maintainability:</span> Works
+                    consistently even as your database grows
+                  </li>
+                </ul>
+              </div>
+
+              <p className="mt-6">
+                Run this script whenever you've added new transactions to one of
+                your bank-specific tables (like <code>HB_2025</code>) and want
+                to update the aggregated view. This ensures that your combined
+                analysis and reporting will include the latest data from all
+                your accounts.
+              </p>
             </CardContent>
           </Card>
         )}

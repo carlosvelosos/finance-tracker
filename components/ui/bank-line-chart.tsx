@@ -333,7 +333,7 @@ export function TransactionLineChart({
     <Card
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col ${className}`}
     >
-      <CardHeader className="pb-2 shrink-0 border border-red-500">
+      <CardHeader className="pb-2 shrink-0">
         <div className="flex flex-row ">
           <div className="flex flex-col gap-1">
             <CardTitle>{title}</CardTitle>
@@ -349,7 +349,7 @@ export function TransactionLineChart({
               <ToggleGroupItem
                 value="income"
                 aria-label="Toggle income line"
-                className="flex items-center h-7 text-xs w-24"
+                className="flex items-center h-7 text-xs w-24 bg-[#242424]"
                 data-state={visibleLines.includes("income") ? "on" : "off"}
               >
                 <div className="w-2 h-2 rounded-full bg-[#10B981] mr-1" />
@@ -359,7 +359,7 @@ export function TransactionLineChart({
               <ToggleGroupItem
                 value="expenses"
                 aria-label="Toggle expenses line"
-                className="flex items-center h-7 text-xs w-24"
+                className="flex items-center h-7 text-xs w-24 bg-[#242424]"
                 data-state={visibleLines.includes("expenses") ? "on" : "off"}
               >
                 <div className="w-2 h-2 rounded-full bg-[#EF4444] mr-1" />
@@ -369,7 +369,7 @@ export function TransactionLineChart({
               <ToggleGroupItem
                 value="net"
                 aria-label="Toggle net line"
-                className="flex items-center h-7 text-xs w-24"
+                className="flex items-center h-7 text-xs w-24 bg-[#242424]"
                 data-state={visibleLines.includes("net") ? "on" : "off"}
               >
                 <div className="w-2 h-2 rounded-full bg-[#3B82F6] mr-1" />

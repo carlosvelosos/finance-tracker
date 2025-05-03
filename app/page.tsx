@@ -1,9 +1,9 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, useCallback } from "react";
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
@@ -60,6 +60,23 @@ export default function LandingPage() {
 
 // Landing page for logged-in users
 function AuthenticatedLandingPage() {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const textOptions = [
+    "Finance Tracker",
+    "Budget Master",
+    "Expense Manager",
+    "Money Dashboard",
+    "Savings Planner"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTextIndex((prevIndex) => (prevIndex + 1) % textOptions.length);
+    }, 3000); // Change text every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative flex flex-col items-center">
       {/* Hero section - Dark background */}
@@ -72,8 +89,8 @@ function AuthenticatedLandingPage() {
           style={{ color: "#303030" }}
         >
           <span>Welcome back to</span>
-          <span className="text-4xl md:text-9xl mt-2 text-[#12A65C]">
-            Finance Tracker
+          <span className="text-4xl md:text-7xl mt-2 text-[#12A65C] animate-pulse transition-all duration-500">
+            {textOptions[currentTextIndex]}
           </span>
         </h1>
         <p className="text-xl font-bold" style={{ color: "#303030" }}>

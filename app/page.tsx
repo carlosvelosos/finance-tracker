@@ -52,7 +52,13 @@ export default function LandingPage() {
 
       {/* Footer - common to both versions */}
       <footer className="w-full text-center py-4 bg-black bg-opacity-50 text-white text-sm">
-        © {new Date().getFullYear()} Finance Tracker. All rights reserved.
+        ©{" "}
+        {new Date().toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}{" "}
+        Finance Tracker. All rights reserved.
       </footer>
     </div>
   );
@@ -119,8 +125,8 @@ function AuthenticatedLandingPage() {
         className="w-full py-20 px-4"
         style={{ backgroundColor: "#f3f4f6" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-1/2">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-2/5">
             <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
               Upload Transactions
             </h2>
@@ -136,12 +142,13 @@ function AuthenticatedLandingPage() {
               Upload now →
             </Link>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
               <img
                 src="/upload.png"
                 alt="Upload Transactions Screenshot"
                 className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
               />
             </div>
           </div>
@@ -153,8 +160,8 @@ function AuthenticatedLandingPage() {
         className="w-full py-20 px-4"
         style={{ backgroundColor: "#ffffff" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row-reverse items-center gap-8">
-          <div className="md:w-1/2">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row-reverse items-center gap-8">
+          <div className="md:w-2/5">
             <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
               View Insights
             </h2>
@@ -170,12 +177,13 @@ function AuthenticatedLandingPage() {
               See insights →
             </Link>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
               <img
                 src="/handelsbanken-charts.png"
                 alt="Financial Insights Dashboard"
                 className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
               />
             </div>
           </div>
@@ -187,8 +195,8 @@ function AuthenticatedLandingPage() {
         className="w-full py-20 px-4"
         style={{ backgroundColor: "#f3f4f6" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-1/2">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-2/5">
             <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
               Manage Family Expenses
             </h2>
@@ -204,12 +212,13 @@ function AuthenticatedLandingPage() {
               Family dashboard →
             </Link>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
               <img
                 src="/family.png"
                 alt="Family Expenses Management"
                 className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
               />
             </div>
           </div>
@@ -294,8 +303,8 @@ function UnauthenticatedLandingPage() {
         className="w-full py-20 px-4"
         style={{ backgroundColor: "#f3f4f6" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-1/2">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-2/5">
             <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
               Simple Transaction Upload
             </h2>
@@ -305,12 +314,13 @@ function UnauthenticatedLandingPage() {
               making it easy to track where your money goes.
             </p>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
               <img
                 src="/upload.png"
                 alt="Upload Transactions Screenshot"
                 className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
               />
             </div>
           </div>
@@ -322,8 +332,8 @@ function UnauthenticatedLandingPage() {
         className="w-full py-20 px-4"
         style={{ backgroundColor: "#ffffff" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row-reverse items-center gap-8">
-          <div className="md:w-1/2">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row-reverse items-center gap-8">
+          <div className="md:w-2/5">
             <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
               Powerful Analytics
             </h2>
@@ -333,12 +343,13 @@ function UnauthenticatedLandingPage() {
               make better financial decisions by visualizing your data.
             </p>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
               <img
                 src="/handelsbanken-charts.png"
                 alt="Financial Analytics Dashboard"
                 className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
               />
             </div>
           </div>
@@ -350,8 +361,8 @@ function UnauthenticatedLandingPage() {
         className="w-full py-20 px-4"
         style={{ backgroundColor: "#f3f4f6" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-1/2">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-2/5">
             <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
               Family Expense Tracking
             </h2>
@@ -361,12 +372,13 @@ function UnauthenticatedLandingPage() {
               contributes their fair share to household finances.
             </p>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
               <img
                 src="/family.png"
                 alt="Family Expenses Management"
                 className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
               />
             </div>
           </div>

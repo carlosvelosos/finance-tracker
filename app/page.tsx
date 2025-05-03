@@ -92,11 +92,11 @@ function AuthenticatedLandingPage() {
         </div>
 
         <h1
-          className="text-3xl md:text-6xl font-bold mb-4 flex flex-col items-center z-10"
+          className="text-3xl md:text-6xl font-bold flex flex-col items-center z-10"
           style={{ color: "#303030" }}
         >
           <span>Welcome back to</span>
-          <span className="text-4xl md:text-9xl mt-2 text-[#12A65C] animate-pulse transition-all duration-500">
+          <span className="text-4xl md:text-9xl mt-10 mb-10 text-[#12A65C] animate-pulse transition-all duration-500">
             {textOptions[currentTextIndex]}
           </span>
         </h1>
@@ -105,6 +105,11 @@ function AuthenticatedLandingPage() {
             year: "numeric",
             month: "long",
             day: "numeric",
+          })}
+          <span className="mx-3">|</span>
+          {new Date().toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
           })}
         </p>
       </section>

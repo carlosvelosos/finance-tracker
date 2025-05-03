@@ -228,30 +228,42 @@ function AuthenticatedLandingPage() {
       {/* Quick Actions Section */}
       <section
         className="w-full py-16 px-4"
-        style={{ backgroundColor: "#ffffff" }}
+        style={{ backgroundColor: "#0d8d4e" }}
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-2xl font-semibold mb-6 text-gray-800">
+          <h3 className="text-2xl font-semibold mb-6 text-white">
             Quick Actions
           </h3>
           <div className="flex flex-wrap justify-center gap-4">
             <Button
               asChild
-              className="px-6 py-2 text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+              className="px-6 py-2 text-[#0d8d4e] bg-white hover:bg-gray-100 border-none relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
             >
-              <Link href="/transactions">View All Transactions</Link>
+              <Link href="/transactions" className="flex items-center">
+                <span className="relative z-10">View All Transactions</span>
+                <span className="absolute inset-0 bg-[#0d8d4e] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#0d8d4e] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
             </Button>
             <Button
               asChild
-              className="px-6 py-2 text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+              className="px-6 py-2 text-[#0d8d4e] bg-white hover:bg-gray-100 border-none relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
             >
-              <Link href="/settings">Account Settings</Link>
+              <Link href="/settings" className="flex items-center">
+                <span className="relative z-10">Account Settings</span>
+                <span className="absolute inset-0 bg-[#0d8d4e] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#0d8d4e] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
             </Button>
             <Button
               asChild
-              className="px-6 py-2 text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+              className="px-6 py-2 text-[#0d8d4e] bg-white hover:bg-gray-100 border-none relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
             >
-              <Link href="/recurrent">Manage Recurring Expenses</Link>
+              <Link href="/recurrent" className="flex items-center">
+                <span className="relative z-10">Manage Recurring Expenses</span>
+                <span className="absolute inset-0 bg-[#0d8d4e] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#0d8d4e] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
             </Button>
           </div>
         </div>
@@ -287,12 +299,24 @@ function UnauthenticatedLandingPage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
             <Button
               asChild
-              className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white"
+              className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
             >
-              <Link href="/auth/signup">Get Started</Link>
+              <Link href="/auth/signup" className="flex items-center">
+                <span className="relative z-10">Get Started</span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link href="/auth/login">Log In</Link>
+            <Button
+              asChild
+              variant="outline"
+              className="relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              <Link href="/auth/login" className="flex items-center">
+                <span className="relative z-10">Log In</span>
+                <span className="absolute inset-0 bg-[#12A65C] opacity-0 group-hover:opacity-5 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#12A65C] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
             </Button>
           </div>
         </div>
@@ -402,9 +426,13 @@ function UnauthenticatedLandingPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <Button
               asChild
-              className="px-8 py-3 text-lg text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none"
+              className="px-8 py-3 text-lg text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
             >
-              <Link href="/auth/signup">Create Free Account</Link>
+              <Link href="/auth/signup" className="flex items-center">
+                <span className="relative z-10">Create Free Account</span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
             </Button>
           </div>
         </div>

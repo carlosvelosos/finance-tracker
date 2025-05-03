@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { DarkNavigationMenuDemo } from "@/components/DarkNavigationMenuDemo";
 
 // Define user types or roles
 type NavLink = {
@@ -23,6 +24,7 @@ export default function Navbar() {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
+  const [showLegacyNav, setShowLegacyNav] = useState(false);
 
   // Handle mouse leave event for the navbar on the home page
   const handleMouseLeave = () => {
@@ -54,15 +56,14 @@ export default function Navbar() {
           { href: "/about", label: "About" },
           { href: "/contact", label: "Contact" },
         ]);
+        // Show legacy nav for restricted users
+        setShowLegacyNav(true);
       } else {
-        // Full navigation for all other users
+        // Use new navigation menu for non-restricted users
+        setShowLegacyNav(false);
+
+        // Keep about and contact in legacy navigation
         setNavLinks([
-          { href: "/family", label: "Family" },
-          { href: "/recurrent", label: "Recurrent" },
-          { href: "/sjprio", label: "SJ Prio" },
-          { href: "/amex", label: "Amex" },
-          { href: "/handelsbanken", label: "Handelsbanken" },
-          { href: "/global", label: "Transactions" },
           { href: "/about", label: "About" },
           { href: "/contact", label: "Contact" },
         ]);
@@ -142,6 +143,13 @@ export default function Navbar() {
         </Link>
       </div>
 
+      {/* Dark Navigation Menu for desktop, non-restricted users */}
+      {!showLegacyNav && (
+        <div className="hidden lg:flex lg:items-center lg:justify-center flex-1 px-4">
+          <DarkNavigationMenuDemo />
+        </div>
+      )}
+
       {/* Hamburger Menu for Small Screens */}
       <div className="lg:hidden">
         <button
@@ -162,22 +170,50 @@ export default function Navbar() {
           isMenuOpen ? "block" : "hidden"
         } absolute top-full left-0 w-full bg-[#121212] lg:bg-transparent lg:static lg:flex lg:items-center lg:gap-4 lg:w-auto z-50`}
       >
-        {/* Dynamic Navigation Links */}
-        <div
-          className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-700 lg:border-b lg:border-gray-700"
-          style={{ backgroundColor: "#121212" }}
-        >
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="block px-4 py-2 text-sm text-gray-200 hover:bg-black hover:bg-opacity-30 hover:text-green-400 transition-colors duration-200 hover:font-bold rounded-3xl"
-              onClick={handleLinkClick}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        {/* Legacy Navigation Links (for mobile or restricted users) */}
+        {showLegacyNav && (
+          <div
+            className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md lg:border-t lg:border-gray-700 lg:border-b lg:border-gray-700"
+            style={{ backgroundColor: "#121212" }}
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block px-4 py-2 text-sm text-gray-200 hover:bg-black hover:bg-opacity-30 hover:text-green-400 transition-colors duration-200 hover:font-bold rounded-3xl"
+                onClick={handleLinkClick}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Mobile Navigation Menu (only shown on mobile when menu is open) */}
+        {!showLegacyNav && isMenuOpen && (
+          <div className="lg:hidden w-full py-4">
+            <DarkNavigationMenuDemo />
+          </div>
+        )}
+
+        {/* About & Contact Links (for non-restricted users) */}
+        {!showLegacyNav && (
+          <div
+            className="flex flex-col gap-y-2 px-4 py-2 lg:flex-row lg:gap-4 lg:p-0 lg:rounded-md"
+            style={{ backgroundColor: "#121212" }}
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block px-4 py-2 text-sm text-gray-200 hover:bg-black hover:bg-opacity-30 hover:text-green-400 transition-colors duration-200 hover:font-bold rounded-3xl"
+                onClick={handleLinkClick}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* User Authentication */}
         <div className="flex flex-col gap-y-2 px-4 py-2 border-t border-gray-700 lg:border-none lg:flex-row lg:gap-4 lg:p-0">

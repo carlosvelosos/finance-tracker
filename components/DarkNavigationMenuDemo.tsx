@@ -11,7 +11,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from "@/components/ui/modified-navigation-menu";
 
 // Define bank links
 const bankLinks: { title: string; href: string; description: string }[] = [

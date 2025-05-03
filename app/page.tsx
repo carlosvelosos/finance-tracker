@@ -137,22 +137,12 @@ function AuthenticatedLandingPage() {
             </Link>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#12A65C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
+            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+              <img
+                src="/upload.png"
+                alt="Upload Transactions Screenshot"
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>
@@ -181,27 +171,12 @@ function AuthenticatedLandingPage() {
             </Link>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#12A65C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 2v4"></path>
-                <path d="M12 18v4"></path>
-                <path d="M4.93 4.93l2.83 2.83"></path>
-                <path d="M16.24 16.24l2.83 2.83"></path>
-                <path d="M2 12h4"></path>
-                <path d="M18 12h4"></path>
-                <path d="M4.93 19.07l2.83-2.83"></path>
-                <path d="M16.24 7.76l2.83-2.83"></path>
-              </svg>
+            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+              <img
+                src="/handelsbanken-charts.png"
+                alt="Financial Insights Dashboard"
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>
@@ -230,23 +205,12 @@ function AuthenticatedLandingPage() {
             </Link>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#12A65C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
+            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+              <img
+                src="/family.png"
+                alt="Family Expenses Management"
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>
@@ -342,22 +306,12 @@ function UnauthenticatedLandingPage() {
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#12A65C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
+            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+              <img
+                src="/upload.png"
+                alt="Upload Transactions Screenshot"
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>
@@ -380,22 +334,12 @@ function UnauthenticatedLandingPage() {
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#12A65C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <line x1="12" y1="2" x2="12" y2="22"></line>
-              </svg>
+            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+              <img
+                src="/handelsbanken-charts.png"
+                alt="Financial Analytics Dashboard"
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>
@@ -418,23 +362,12 @@ function UnauthenticatedLandingPage() {
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-64 bg-white rounded-lg shadow-lg flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#12A65C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
+            <div className="relative w-full h-auto bg-white rounded-lg shadow-lg overflow-hidden">
+              <img
+                src="/family.png"
+                alt="Family Expenses Management"
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </div>

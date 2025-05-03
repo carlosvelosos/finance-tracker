@@ -67,6 +67,7 @@ export default function LandingPage() {
 // Landing page for logged-in users
 function AuthenticatedLandingPage() {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [userLocation, setUserLocation] = useState<string>("");
   const textOptions = [
     "Finance Tracker",
     "Budget Master",
@@ -79,6 +80,27 @@ function AuthenticatedLandingPage() {
     const interval = setInterval(() => {
       setCurrentTextIndex((prevIndex) => (prevIndex + 1) % textOptions.length);
     }, 3000); // Change text every 3 seconds
+
+    // Fetch user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+            );
+            const data = await response.json();
+            setUserLocation(data.city || data.locality || "");
+          } catch (error) {
+            console.error("Error fetching location:", error);
+          }
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+        }
+      );
+    }
 
     return () => clearInterval(interval);
   }, []);
@@ -106,17 +128,44 @@ function AuthenticatedLandingPage() {
             {textOptions[currentTextIndex]}
           </span>
         </h1>
-        <p className="text-xl font-bold z-10" style={{ color: "#303030" }}>
-          {new Date().toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-          <span className="mx-3">|</span>
-          {new Date().toLocaleTimeString(undefined, {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+        <p
+          className="text-xl font-bold z-10 flex items-center flex-wrap justify-center gap-2"
+          style={{ color: "#303030" }}
+        >
+          <span>
+            {new Date().toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </span>
+          <span className="mx-1">|</span>
+          <span>
+            {new Date().toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+          {userLocation && (
+            <>
+              <span className="mx-1">|</span>
+              <span className="flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-5 h-5 inline mr-1"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {userLocation}
+              </span>
+            </>
+          )}
         </p>
       </section>
 

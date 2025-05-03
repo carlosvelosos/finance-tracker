@@ -68,10 +68,13 @@ function AuthenticatedLandingPage() {
         style={{ backgroundColor: "#121212" }}
       >
         <h1
-          className="text-3xl md:text-6xl font-bold mb-4"
+          className="text-3xl md:text-6xl font-bold mb-4 flex flex-col items-center"
           style={{ color: "#303030" }}
         >
-          Welcome back to Finance Tracker
+          <span>Welcome back to</span>
+          <span className="text-4xl md:text-9xl mt-2 text-[#12A65C]">
+            Finance Tracker
+          </span>
         </h1>
         <p className="text-xl font-bold" style={{ color: "#303030" }}>
           {new Date().toLocaleDateString(undefined, {

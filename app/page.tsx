@@ -190,6 +190,55 @@ function AuthenticatedLandingPage() {
         </div>
       </section>
 
+      {/* FINCKER Repeating Text Section */}
+      <section
+        className="w-full py-16 overflow-hidden relative"
+        style={{ backgroundColor: "#f7f7f7" }}
+      >
+        <div className="absolute inset-0 flex flex-wrap justify-center items-center opacity-10">
+          {Array(100)
+            .fill(0)
+            .map((_, index) => (
+              <div
+                key={index}
+                className="text-3xl md:text-5xl font-extrabold select-none transform transition-transform hover:scale-110 hover:text-[#12A65C]"
+                style={{
+                  transform: `rotate(${Math.random() * 20 - 10}deg)`,
+                  position: "absolute",
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  opacity: Math.random() * 0.7 + 0.3,
+                  color: index % 5 === 0 ? "#12A65C" : "#303030",
+                  transition: "all 0.5s ease",
+                }}
+              >
+                FINCKER
+              </div>
+            ))}
+        </div>
+        <div className="max-w-5xl mx-auto text-center relative z-10 py-20">
+          <h2 className="text-5xl font-bold mb-6 text-[#12A65C]">
+            The Future of Finance
+          </h2>
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+            Reimagining how you manage your money with powerful tools that work
+            for you, not against you.
+          </p>
+          <div className="mt-10">
+            <Button
+              asChild
+              className="px-8 py-4 text-lg text-white bg-[#12A65C] hover:bg-[#0d8d4e] border-none relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              <Link href="/insights" className="flex items-center">
+                <span className="relative z-10">Discover More</span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Family Expenses Section */}
       <section
         className="w-full py-20 px-4"

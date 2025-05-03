@@ -130,17 +130,23 @@ export default function Navbar() {
 
   return (
     <nav
-      className="text-white p-4 flex justify-between items-center relative shadow-none backdrop-filter-none"
+      className="text-white p-4 flex justify-between items-center relative shadow-none backdrop-filter-none w-full max-w-[1400px] mx-auto"
       onMouseLeave={handleMouseLeave}
     >
       {/* Logo or App Name */}
-      <div className="text-lg font-bold">
+      <div className="text-lg font-bold relative">
         <Link
           href="/"
-          className="text-green-400 block px-4 py-2 hover:bg-black hover:bg-opacity-20 hover:border hover:border-gray-400 rounded-3xl transition duration-300 ease-in-out"
+          className="text-green-400 block px-4 py-2 hover:bg-black hover:bg-opacity-20 hover:border hover:border-gray-400 rounded-3xl transition duration-300 ease-in-out relative z-10"
         >
-          Finance Tracker
+          <span>Finance Tracker</span>
         </Link>
+        {/* Background text "FINCKER" */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <span className="text-[2vw] font-extrabold text-[#1a1a1a] opacity-15 select-none whitespace-nowrap">
+            FINCKER
+          </span>
+        </div>
       </div>
 
       {/* Dark Navigation Menu for desktop, non-restricted users */}

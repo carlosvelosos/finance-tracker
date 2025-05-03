@@ -190,6 +190,41 @@ function AuthenticatedLandingPage() {
         </div>
       </section>
 
+      {/* Family Expenses Section */}
+      <section
+        className="w-full py-20 px-4"
+        style={{ backgroundColor: "#f3f4f6" }}
+      >
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="md:w-2/5">
+            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
+              Manage Family Expenses
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Track and split shared expenses with your family members. Easily
+              manage household bills, assign responsibilities, and ensure
+              everyone contributes their fair share.
+            </p>
+            <Link
+              href="/family"
+              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg bg-[#12A65C] text-white hover:bg-[#0d8d4e] transition-colors"
+            >
+              Family dashboard →
+            </Link>
+          </div>
+          <div className="md:w-3/5 flex justify-center">
+            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
+              <img
+                src="/family.png"
+                alt="Family Expenses Management"
+                className="w-full h-auto object-cover"
+                style={{ maxHeight: "500px" }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FINCKER Repeating Text Section */}
       <section
         className="w-full py-16 overflow-hidden relative"
@@ -235,41 +270,6 @@ function AuthenticatedLandingPage() {
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300"></span>
               </Link>
             </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Family Expenses Section */}
-      <section
-        className="w-full py-20 px-4"
-        style={{ backgroundColor: "#f3f4f6" }}
-      >
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-2/5">
-            <h2 className="text-3xl font-bold mb-4 text-[#12A65C]">
-              Manage Family Expenses
-            </h2>
-            <p className="text-gray-600 mb-6 text-lg">
-              Track and split shared expenses with your family members. Easily
-              manage household bills, assign responsibilities, and ensure
-              everyone contributes their fair share.
-            </p>
-            <Link
-              href="/family"
-              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg bg-[#12A65C] text-white hover:bg-[#0d8d4e] transition-colors"
-            >
-              Family dashboard →
-            </Link>
-          </div>
-          <div className="md:w-3/5 flex justify-center">
-            <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
-              <img
-                src="/family.png"
-                alt="Family Expenses Management"
-                className="w-full h-auto object-cover"
-                style={{ maxHeight: "500px" }}
-              />
-            </div>
           </div>
         </div>
       </section>

@@ -137,9 +137,11 @@ export default function Navbar() {
       <div className="text-lg font-bold relative">
         <Link
           href="/"
-          className="text-green-400 block px-4 py-2 hover:bg-black hover:bg-opacity-20 hover:border hover:border-gray-400 rounded-3xl transition duration-300 ease-in-out relative z-10"
+          className="text-green-400 block px-4 py-2 rounded-3xl relative z-10 group"
         >
-          <span>Finance Tracker</span>
+          <span className="hover:text-2xl hover:font-extrabold transition-all duration-300">
+            Finance Tracker
+          </span>
         </Link>
         {/* Background text "FINCKER" */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">

@@ -96,7 +96,7 @@ function AuthenticatedLandingPage() {
           style={{ color: "#303030" }}
         >
           <span>Welcome back to</span>
-          <span className="text-4xl md:text-7xl mt-2 text-[#12A65C] animate-pulse transition-all duration-500">
+          <span className="text-4xl md:text-9xl mt-2 text-[#12A65C] animate-pulse transition-all duration-500">
             {textOptions[currentTextIndex]}
           </span>
         </h1>

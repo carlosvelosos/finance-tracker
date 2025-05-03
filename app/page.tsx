@@ -66,7 +66,7 @@ function AuthenticatedLandingPage() {
     "Budget Master",
     "Expense Manager",
     "Money Dashboard",
-    "Savings Planner"
+    "Savings Planner",
   ];
 
   useEffect(() => {

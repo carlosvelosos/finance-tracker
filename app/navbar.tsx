@@ -145,7 +145,7 @@ export default function Navbar() {
         </Link>
         {/* Background text "FINCKER" */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-          <span className="text-[2vw] font-extrabold text-[#1a1a1a] opacity-15 select-none whitespace-nowrap">
+          <span className="text-[280%] md:text-[280%] font-extrabold text-[#7a7a7a] opacity-15 select-none whitespace-nowrap">
             FINCKER
           </span>
         </div>

@@ -79,7 +79,7 @@ const transactionLinks: { title: string; href: string; description: string }[] =
 export function DarkNavigationMenuDemo() {
   return (
     <NavigationMenu>
-      <NavigationMenuList className="bg-[#121212] gap-2">
+      <NavigationMenuList className="bg-[#121212] rounded-md gap-2">
         <NavigationMenuItem>
           <NavigationMenuTrigger className="text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400 data-[state=open]:bg-black data-[state=open]:bg-opacity-30 data-[state=open]:text-green-400">
             Bank Accounts

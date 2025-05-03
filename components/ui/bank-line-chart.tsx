@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Dot,
   Legend,
+  ReferenceLine,
 } from "recharts";
 
 import {
@@ -464,6 +465,8 @@ export function TransactionLineChart({
                   }
                   width={40}
                 />
+                {/* Add solid reference line at y=0 */}
+                <ReferenceLine y={0} stroke="#4B5563" strokeWidth={1.5} />
                 <Legend verticalAlign="bottom" />
 
                 {/* Only keep cursor functionality for interaction, no tooltip */}

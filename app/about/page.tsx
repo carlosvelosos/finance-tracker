@@ -454,7 +454,7 @@ ORDER BY h."Date", h."Description";`;
               </h3>
               <p>
                 Use this SQL script to safely insert only new transactions that
-                don't already exist in the aggregated table:
+                don&apos;t already exist in the aggregated table:
               </p>
 
               <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto">
@@ -547,11 +547,11 @@ LIMIT 10;`}
               </div>
 
               <p className="mt-6">
-                Run this script whenever you've added new transactions to one of
-                your bank-specific tables (like <code>HB_2025</code>) and want
-                to update the aggregated view. This ensures that your combined
-                analysis and reporting will include the latest data from all
-                your accounts.
+                Run this script whenever you&apos;ve added new transactions to
+                one of your bank-specific tables (like <code>HB_2025</code>) and
+                want to update the aggregated view. This ensures that your
+                combined analysis and reporting will include the latest data
+                from all your accounts.
               </p>
             </CardContent>
           </Card>

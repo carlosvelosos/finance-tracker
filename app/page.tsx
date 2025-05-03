@@ -81,11 +81,18 @@ function AuthenticatedLandingPage() {
     <div className="relative flex flex-col items-center">
       {/* Hero section - Dark background */}
       <section
-        className="w-full flex flex-col items-center justify-center min-h-screen px-4"
+        className="w-full flex flex-col items-center justify-center min-h-screen px-4 relative overflow-hidden"
         style={{ backgroundColor: "#121212" }}
       >
+        {/* Background text "FINCKER" */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <span className="text-[20vw] font-extrabold text-[#1a1a1a] opacity-25 select-none">
+            FINCKER
+          </span>
+        </div>
+
         <h1
-          className="text-3xl md:text-6xl font-bold mb-4 flex flex-col items-center"
+          className="text-3xl md:text-6xl font-bold mb-4 flex flex-col items-center z-10"
           style={{ color: "#303030" }}
         >
           <span>Welcome back to</span>
@@ -93,7 +100,7 @@ function AuthenticatedLandingPage() {
             {textOptions[currentTextIndex]}
           </span>
         </h1>
-        <p className="text-xl font-bold" style={{ color: "#303030" }}>
+        <p className="text-xl font-bold z-10" style={{ color: "#303030" }}>
           {new Date().toLocaleDateString(undefined, {
             year: "numeric",
             month: "long",

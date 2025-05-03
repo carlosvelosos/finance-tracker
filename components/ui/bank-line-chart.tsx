@@ -42,6 +42,7 @@ interface DataPoint {
   formattedDate: string;
   positiveValue: number;
   negativeValue: number;
+  negativeValueAbs: number; // New property for absolute value of expenses
   netValue: number;
   amount: number;
   description: string;
@@ -78,7 +79,7 @@ const RegularDot = (props: DotProps) => {
     color = "#10B981"; // Green for income
     // Make dot darker for negative transactions on income line
     if (payload.amount < 0) opacity = 0.4;
-  } else if (dataKey === "negativeValue") {
+  } else if (dataKey === "negativeValue" || dataKey === "negativeValueAbs") {
     color = "#EF4444"; // Red for expenses
     // Make dot darker for positive transactions on expense line
     if (payload.amount > 0) opacity = 0.4;
@@ -104,7 +105,7 @@ const ActiveDot = (props: DotProps) => {
     color = "#10B981"; // Green for income
     // Make dot darker for negative transactions on income line
     if (payload.amount < 0) opacity = 0.3;
-  } else if (dataKey === "negativeValue") {
+  } else if (dataKey === "negativeValue" || dataKey === "negativeValueAbs") {
     color = "#EF4444"; // Red for expenses
     // Make dot darker for positive transactions on expense line
     if (payload.amount > 0) opacity = 0.3;
@@ -153,6 +154,7 @@ export function TransactionLineChart({
     amount: number;
     positiveValue: number;
     negativeValue: number;
+    negativeValueAbs: number; // Added absolute value for display
     netValue: number;
     xCoordinate?: number;
   } | null>(null);
@@ -175,6 +177,7 @@ export function TransactionLineChart({
           formattedDate: date.toLocaleDateString(),
           positiveValue,
           negativeValue,
+          negativeValueAbs: Math.abs(negativeValue), // Store absolute value for plotting
           netValue,
           amount: amount,
           description: `Demo transaction ${i + 1}`,
@@ -216,6 +219,7 @@ export function TransactionLineChart({
         formattedDate: date.toLocaleDateString(),
         positiveValue: cumulativePositive,
         negativeValue: cumulativeNegative,
+        negativeValueAbs: Math.abs(cumulativeNegative), // Store absolute value for plotting
         netValue: netValue,
         amount: amount,
         description: transaction.Description || `Transaction ${index + 1}`,
@@ -228,7 +232,7 @@ export function TransactionLineChart({
       label: "Income",
       color: positiveColor,
     },
-    negativeValue: {
+    negativeValueAbs: {
       label: "Expenses",
       color: negativeColor,
     },
@@ -267,6 +271,7 @@ export function TransactionLineChart({
         amount: payload.amount,
         positiveValue: payload.positiveValue,
         negativeValue: payload.negativeValue,
+        negativeValueAbs: payload.negativeValueAbs, // Added absolute value
         netValue: payload.netValue,
         xCoordinate: xCoord,
       });
@@ -303,6 +308,7 @@ export function TransactionLineChart({
         amount: firstItem.amount,
         positiveValue: firstItem.positiveValue,
         negativeValue: firstItem.negativeValue,
+        negativeValueAbs: firstItem.negativeValueAbs, // Added absolute value
         netValue: firstItem.netValue,
         xCoordinate: initialXCoordinate,
       });
@@ -393,7 +399,7 @@ export function TransactionLineChart({
                         {new Intl.NumberFormat("sv-SE", {
                           style: "currency",
                           currency: "SEK",
-                        }).format(tooltipData.negativeValue)}
+                        }).format(tooltipData.negativeValueAbs)}
                       </span>
                     </div>
 
@@ -476,10 +482,10 @@ export function TransactionLineChart({
                   isAnimationActive={true}
                 />
 
-                {/* Negative transactions line */}
+                {/* Expenses line now using absolute values for display but maintaining original data in tooltips */}
                 <Line
                   type="monotone"
-                  dataKey="negativeValue"
+                  dataKey="negativeValueAbs"
                   name="Expenses"
                   strokeWidth={2}
                   stroke="#EF4444"

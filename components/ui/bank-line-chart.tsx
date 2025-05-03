@@ -25,6 +25,7 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // Define our transaction type
 interface Transaction {
@@ -159,6 +160,18 @@ export function TransactionLineChart({
     netValue: number;
     xCoordinate?: number;
   } | null>(null);
+
+  // State for line visibility toggles - all visible by default
+  const [visibleLines, setVisibleLines] = useState<string[]>([
+    "income",
+    "expenses",
+    "net",
+  ]);
+
+  // Toggle handler for line visibility
+  const handleLineToggle = (value: string[]) => {
+    setVisibleLines(value);
+  };
 
   // Chart data preparation - plot one data point per transaction
   const chartData = useMemo(() => {
@@ -320,11 +333,49 @@ export function TransactionLineChart({
     <Card
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col ${className}`}
     >
-      <CardHeader className="pb-2 shrink-0">
-        <div className="flex flex-row">
-          <div>
+      <CardHeader className="pb-2 shrink-0 border border-red-500">
+        <div className="flex flex-row ">
+          <div className="flex flex-col gap-1">
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
+
+            {/* Line toggle controls */}
+            <ToggleGroup
+              type="multiple"
+              value={visibleLines}
+              onValueChange={handleLineToggle}
+              className="mt-2"
+            >
+              <ToggleGroupItem
+                value="income"
+                aria-label="Toggle income line"
+                className="flex items-center h-7 text-xs w-24"
+                data-state={visibleLines.includes("income") ? "on" : "off"}
+              >
+                <div className="w-2 h-2 rounded-full bg-[#10B981] mr-1" />
+                Income
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                value="expenses"
+                aria-label="Toggle expenses line"
+                className="flex items-center h-7 text-xs w-24"
+                data-state={visibleLines.includes("expenses") ? "on" : "off"}
+              >
+                <div className="w-2 h-2 rounded-full bg-[#EF4444] mr-1" />
+                Expenses
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                value="net"
+                aria-label="Toggle net line"
+                className="flex items-center h-7 text-xs w-24"
+                data-state={visibleLines.includes("net") ? "on" : "off"}
+              >
+                <div className="w-2 h-2 rounded-full bg-[#3B82F6] mr-1" />
+                Net
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
 
           <div className="ml-auto mr-4">
@@ -473,43 +524,49 @@ export function TransactionLineChart({
                 <ChartTooltip cursor={true} content={() => null} />
 
                 {/* Positive transactions line */}
-                <Line
-                  type="monotone"
-                  dataKey="positiveValue"
-                  name="Income"
-                  strokeWidth={2}
-                  stroke="#10B981"
-                  connectNulls
-                  dot={<RegularDot dataKey="positiveValue" />}
-                  activeDot={<ActiveDot dataKey="positiveValue" />}
-                  isAnimationActive={true}
-                />
+                {visibleLines.includes("income") && (
+                  <Line
+                    type="monotone"
+                    dataKey="positiveValue"
+                    name="Income"
+                    strokeWidth={2}
+                    stroke="#10B981"
+                    connectNulls
+                    dot={<RegularDot dataKey="positiveValue" />}
+                    activeDot={<ActiveDot dataKey="positiveValue" />}
+                    isAnimationActive={true}
+                  />
+                )}
 
                 {/* Expenses line now using absolute values for display but maintaining original data in tooltips */}
-                <Line
-                  type="monotone"
-                  dataKey="negativeValueAbs"
-                  name="Expenses"
-                  strokeWidth={2}
-                  stroke="#EF4444"
-                  connectNulls
-                  dot={<RegularDot dataKey="negativeValue" />}
-                  activeDot={<ActiveDot dataKey="negativeValue" />}
-                  isAnimationActive={true}
-                />
+                {visibleLines.includes("expenses") && (
+                  <Line
+                    type="monotone"
+                    dataKey="negativeValueAbs"
+                    name="Expenses"
+                    strokeWidth={2}
+                    stroke="#EF4444"
+                    connectNulls
+                    dot={<RegularDot dataKey="negativeValue" />}
+                    activeDot={<ActiveDot dataKey="negativeValue" />}
+                    isAnimationActive={true}
+                  />
+                )}
 
                 {/* Net value line */}
-                <Line
-                  type="monotone"
-                  dataKey="netValue"
-                  name="Net Value"
-                  strokeWidth={4.0}
-                  stroke="#3B82F6"
-                  connectNulls
-                  dot={<RegularDot dataKey="netValue" />}
-                  activeDot={<ActiveDot dataKey="netValue" />}
-                  isAnimationActive={true}
-                />
+                {visibleLines.includes("net") && (
+                  <Line
+                    type="monotone"
+                    dataKey="netValue"
+                    name="Net Value"
+                    strokeWidth={4.0}
+                    stroke="#3B82F6"
+                    connectNulls
+                    dot={<RegularDot dataKey="netValue" />}
+                    activeDot={<ActiveDot dataKey="netValue" />}
+                    isAnimationActive={true}
+                  />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>

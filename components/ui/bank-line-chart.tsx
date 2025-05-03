@@ -465,8 +465,8 @@ export function TransactionLineChart({
                   }
                   width={40}
                 />
-                {/* Add solid reference line at y=0 */}
-                <ReferenceLine y={0} stroke="#4B5563" strokeWidth={1.5} />
+                {/* Add solid reference line at y=0 with increased thickness */}
+                <ReferenceLine y={0} stroke="#4B5563" strokeWidth={2.5} />
                 <Legend verticalAlign="bottom" />
 
                 {/* Only keep cursor functionality for interaction, no tooltip */}
@@ -503,7 +503,7 @@ export function TransactionLineChart({
                   type="monotone"
                   dataKey="netValue"
                   name="Net Value"
-                  strokeWidth={2.5}
+                  strokeWidth={4.0}
                   stroke="#3B82F6"
                   connectNulls
                   dot={<RegularDot dataKey="netValue" />}

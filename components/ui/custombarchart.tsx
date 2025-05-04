@@ -357,7 +357,7 @@ export function CustomBarChart({
                     <ul className="list-disc pl-4 text-xs space-y-2">
                       {item.category ===
                       `Minor expenses (${minorExpensesThreshold}%)`
-                        ? // For Minor expenses, show both category and description
+                        ? // For Minor expenses, show category and description separated and aligned
                           Object.entries(
                             // Group transactions by category first
                             sortedCategories
@@ -373,33 +373,45 @@ export function CustomBarChart({
                                 );
 
                                 // Group transactions by description within each category
-                                const descriptionsInCategory =
-                                  catTransactions.reduce((descAcc, entry) => {
-                                    if (entry.Description && entry.Amount) {
-                                      const key = `${cat.category} - ${entry.Description}`; // Combine category and description
-                                      descAcc[key] =
-                                        (descAcc[key] || 0) + entry.Amount;
-                                    }
-                                    return descAcc;
-                                  }, {} as Record<string, number>);
+                                catTransactions.forEach((entry) => {
+                                  if (
+                                    entry.Description &&
+                                    entry.Amount &&
+                                    entry.Category
+                                  ) {
+                                    // Use a composite key that can be parsed later
+                                    const key = `${entry.Category}|||${entry.Description}`;
+                                    categoryGroups[key] =
+                                      (categoryGroups[key] || 0) + entry.Amount;
+                                  }
+                                });
 
-                                // Merge into the main accumulator
-                                return {
-                                  ...categoryGroups,
-                                  ...descriptionsInCategory,
-                                };
+                                return categoryGroups;
                               }, {} as Record<string, number>)
                           )
                             .sort(([, sumA], [, sumB]) => sumB - sumA) // Sort by amount in descending order
-                            .map(([combinedName, sum]) => (
-                              <li
-                                key={combinedName}
-                                className="flex justify-between hover:bg-gray-100 hover:rounded-md px-2 py-1"
-                              >
-                                <span>{combinedName}</span>
-                                <span>{formatCurrency(sum)}</span>
-                              </li>
-                            ))
+                            .map(([combinedKey, sum]) => {
+                              // Split the combined key back into category and description
+                              const [category, description] =
+                                combinedKey.split("|||");
+
+                              return (
+                                <li
+                                  key={combinedKey}
+                                  className="grid grid-cols-[1fr,2fr,auto] gap-2 hover:bg-gray-100 hover:rounded-md px-2 py-1 items-center"
+                                >
+                                  <span className="font-medium text-gray-700 truncate">
+                                    {category}
+                                  </span>
+                                  <span className="text-gray-600 truncate">
+                                    {description}
+                                  </span>
+                                  <span className="text-right font-medium">
+                                    {formatCurrency(sum)}
+                                  </span>
+                                </li>
+                              );
+                            })
                         : // Default behavior for other categories
                           Object.entries(descriptions)
                             .sort(([, sumA], [, sumB]) => sumB - sumA) // Sort by sum in descending order

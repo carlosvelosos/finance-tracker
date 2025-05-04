@@ -193,12 +193,8 @@ export default function BillCard({
       >
         <CarouselContent>
           {months.map((monthName) => {
-            const {
-              totalValue,
-              unpaidTotalValue,
-              unpaidBillsCount,
-              countryBills,
-            } = getBillDetailsForMonth(monthName);
+            const { totalValue, unpaidBillsCount, countryBills } =
+              getBillDetailsForMonth(monthName);
 
             return (
               <CarouselItem key={monthName} className="basis-full pl-4">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -104,7 +105,10 @@ export default function TransactionTable({
 
       if (error) {
         console.error("Error updating category:", error);
-        alert("Failed to update category: " + error.message);
+        toast.error(`Failed to update category: ${error.message}`, {
+          duration: 3000,
+          position: "top-right",
+        });
       } else {
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
@@ -112,10 +116,17 @@ export default function TransactionTable({
             t.id === id ? { ...t, Category: newCategory } : t
           )
         );
+        toast.success("Category updated successfully", {
+          duration: 2000,
+          position: "top-right",
+        });
       }
     } catch (error) {
       console.error("Error in update operation:", error);
-      alert("An unexpected error occurred");
+      toast.error("An unexpected error occurred", {
+        duration: 3000,
+        position: "top-right",
+      });
     } finally {
       setUpdatingId(null);
       setEditingCategory(null);
@@ -133,7 +144,10 @@ export default function TransactionTable({
 
       if (error) {
         console.error("Error updating comment:", error);
-        alert("Failed to update comment: " + error.message);
+        toast.error(`Failed to update comment: ${error.message}`, {
+          duration: 3000,
+          position: "top-right",
+        });
       } else {
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
@@ -141,10 +155,17 @@ export default function TransactionTable({
             t.id === id ? { ...t, Comment: newComment } : t
           )
         );
+        toast.success("Comment updated successfully", {
+          duration: 2000,
+          position: "top-right",
+        });
       }
     } catch (error) {
       console.error("Error in update operation:", error);
-      alert("An unexpected error occurred");
+      toast.error("An unexpected error occurred", {
+        duration: 3000,
+        position: "top-right",
+      });
     } finally {
       setUpdatingId(null);
       setEditingComment(null);

@@ -19,6 +19,7 @@ import { Label } from "../../components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -170,7 +171,7 @@ export default function BillsPage() {
       !newExpense.payment_method ||
       newExpense.base_value <= 0
     ) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -202,6 +203,20 @@ export default function BillsPage() {
       // Add the new bill to the state
       if (data && data.length > 0) {
         setBills((prevBills) => [...prevBills, data[0] as Bill]);
+
+        // Show success toast notification
+        toast.success(
+          `New expense "${newExpense.description}" was added successfully`,
+          {
+            description: `${
+              newExpense.country
+            } - ${newExpense.base_value.toLocaleString("en-US", {
+              style: "currency",
+              currency: countryCurrencyMap[newExpense.country] || "USD",
+            })}`,
+            duration: 5000,
+          }
+        );
       }
 
       // Reset the form
@@ -214,7 +229,13 @@ export default function BillsPage() {
       });
     } catch (error) {
       console.error("Error adding expense:", error);
-      alert("Failed to add expense. Please try again.");
+
+      // Show error toast notification
+      toast.error("Failed to add expense", {
+        description:
+          "There was an error saving your expense to the database. Please try again.",
+        duration: 5000,
+      });
     } finally {
       setIsSubmitting(false);
     }

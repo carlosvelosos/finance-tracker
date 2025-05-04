@@ -17,6 +17,25 @@ import { supabase } from "@/lib/supabaseClient";
 import { BillChart } from "@/components/ui/bill-chart";
 import { Label } from "../../components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 // Mapping of countries to their respective currencies
 const countryCurrencyMap: Record<string, string> = {
@@ -56,6 +75,16 @@ export default function BillsPage() {
     key: keyof Bill | "currentValue" | "";
     direction: "ascending" | "descending";
   }>({ key: "", direction: "ascending" });
+
+  // State for the new expense form
+  const [newExpense, setNewExpense] = useState({
+    description: "",
+    due_day: 1,
+    payment_method: "",
+    country: "Sweden",
+    base_value: 0,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchBills = async () => {
     try {
@@ -134,6 +163,63 @@ export default function BillsPage() {
     );
   };
 
+  // Handle adding a new expense
+  const handleExpenseSubmit = async () => {
+    if (
+      !newExpense.description ||
+      !newExpense.payment_method ||
+      newExpense.base_value <= 0
+    ) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Initialize all month statuses to false (unpaid)
+      const statusFields: Record<string, boolean> = {};
+      months.forEach((month) => {
+        const monthAbbr = month.toLowerCase().substring(0, 3);
+        statusFields[`${monthAbbr}_status`] = false;
+      });
+
+      // Insert the new expense into Supabase
+      const { data, error } = await supabase
+        .from("recurrent_2025")
+        .insert({
+          description: newExpense.description,
+          due_day: newExpense.due_day,
+          payment_method: newExpense.payment_method,
+          country: newExpense.country,
+          base_value: newExpense.base_value,
+          ...statusFields,
+        })
+        .select();
+
+      if (error) throw error;
+
+      // Add the new bill to the state
+      if (data && data.length > 0) {
+        setBills((prevBills) => [...prevBills, data[0] as Bill]);
+      }
+
+      // Reset the form
+      setNewExpense({
+        description: "",
+        due_day: 1,
+        payment_method: "",
+        country: "Sweden",
+        base_value: 0,
+      });
+    } catch (error) {
+      console.error("Error adding expense:", error);
+      alert("Failed to add expense. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Handler for direct month selection from carousel
   const handleMonthChange = (monthName: string) => {
     const newIndex = months.findIndex((m) => m === monthName);
@@ -184,20 +270,9 @@ export default function BillsPage() {
     return acc;
   }, {} as Record<string, number>);
 
-  // Calculate total per country for current month (unpaid bills only)
+  // Calculate total per country for current month (for table filtering and sorting)
   const monthAbbr = months[currentMonthIndex].toLowerCase().substring(0, 3);
   const statusField = `${monthAbbr}_status` as keyof Bill;
-  const valueField = `${monthAbbr}_value` as keyof Bill;
-
-  const totalsPerCountry = bills.reduce((acc, bill) => {
-    if (!bill[statusField]) {
-      const monthValue = bill[valueField];
-      acc[bill.country] =
-        (acc[bill.country] || 0) +
-        (typeof monthValue === "number" ? monthValue : bill.base_value);
-    }
-    return acc;
-  }, {} as Record<string, number>);
 
   // Sort function that handles different data types
   const sortedBills = React.useMemo(() => {
@@ -507,6 +582,141 @@ export default function BillsPage() {
               })}
           </TableBody>
         </Table>
+
+        {/* Add Expense Button & Sheet */}
+        <div className="flex justify-center mt-6 mb-16">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="bg-green-500 hover:bg-green-600 text-white">
+                Add New Expense
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>Add New Recurrent Expense</SheetTitle>
+                <SheetDescription>
+                  Add a new recurrent expense to your finance tracker. This will
+                  appear in all months.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label
+                    htmlFor="description"
+                    className="text-right text-black"
+                  >
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    value={newExpense.description}
+                    onChange={(e) =>
+                      setNewExpense({
+                        ...newExpense,
+                        description: e.target.value,
+                      })
+                    }
+                    className="col-span-3 text-black"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="due_day" className="text-right text-black">
+                    Due Day
+                  </Label>
+                  <Input
+                    id="due_day"
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={newExpense.due_day}
+                    onChange={(e) =>
+                      setNewExpense({
+                        ...newExpense,
+                        due_day: parseInt(e.target.value),
+                      })
+                    }
+                    className="col-span-3 text-black"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label
+                    htmlFor="payment_method"
+                    className="text-right text-black"
+                  >
+                    Payment Method
+                  </Label>
+                  <Input
+                    id="payment_method"
+                    value={newExpense.payment_method}
+                    onChange={(e) =>
+                      setNewExpense({
+                        ...newExpense,
+                        payment_method: e.target.value,
+                      })
+                    }
+                    className="col-span-3 text-black"
+                    placeholder="e.g. Credit Card, Bank Transfer"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="country" className="text-right text-black">
+                    Country
+                  </Label>
+                  <Select
+                    value={newExpense.country}
+                    onValueChange={(value) =>
+                      setNewExpense({ ...newExpense, country: value })
+                    }
+                  >
+                    <SelectTrigger className="col-span-3 text-black">
+                      <SelectValue placeholder="Select a country" />
+                    </SelectTrigger>
+                    <SelectContent className="text-black">
+                      <SelectItem value="Sweden">Sweden</SelectItem>
+                      <SelectItem value="Brazil">Brazil</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="value" className="text-right text-black">
+                    Base Value
+                  </Label>
+                  <Input
+                    id="value"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newExpense.base_value || ""}
+                    onChange={(e) =>
+                      setNewExpense({
+                        ...newExpense,
+                        base_value: parseFloat(e.target.value),
+                      })
+                    }
+                    className="col-span-3 text-black"
+                    placeholder={`Value in ${
+                      newExpense.country === "Brazil" ? "BRL" : "SEK"
+                    }`}
+                  />
+                </div>
+              </div>
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
+                </SheetClose>
+                <Button
+                  onClick={handleExpenseSubmit}
+                  disabled={isSubmitting}
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  {isSubmitting ? "Adding..." : "Add Expense"}
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </ProtectedRoute>
   );

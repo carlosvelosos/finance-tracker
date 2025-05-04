@@ -12,6 +12,7 @@ type Transaction = {
   Amount: number | null;
   Bank: string | null;
   Description: string | null;
+  Date: string | null; // Add Date field to match the expected type in CustomBarChart
 };
 
 export default function CategoryChartPage() {
@@ -23,7 +24,7 @@ export default function CategoryChartPage() {
       const fetchTransactions = async () => {
         const { data, error } = await supabase
           .from("Sweden_transactions_agregated_2025")
-          .select("Category, Amount, Bank, Description") // Include Description in the query
+          .select("id, Category, Amount, Bank, Description, Date") // Include id and Date in the query
           .eq("user_id", user.id)
           .eq("Bank", "Handelsbanken"); // Filter by Bank = Handelsbanken
 
@@ -49,7 +50,19 @@ export default function CategoryChartPage() {
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="pt-8 pb-8">
           <CustomBarChart
-            data={transactions} // Pass raw transaction data
+            // data={transactions} // Pass raw transaction data
+            data={transactions.filter(
+              (t) =>
+                !(
+                  t.Category === "Amex Invoice" ||
+                  t.Category === "SEB SJ Prio Invoice" ||
+                  t.Category === "Investment" ||
+                  t.Category === "Sek to Reais" ||
+                  t.Category === "SJ PRIO MASTER Invoice" ||
+                  t.Category === "Income - Salary" ||
+                  t.Category === "Income - Skat"
+                )
+            )}
             // height={400}
             barColor="hsl(var(--chart-1))"
             title="Total Amount per Category"

@@ -159,7 +159,32 @@ export default function BillsPage() {
     setCurrentMonth(months[newIndex]);
   };
 
-  // Calculate total per country
+  // Calculate cumulative totals per country (from January to current month)
+  const cumulativeTotalsPerCountry = bills.reduce((acc, bill) => {
+    // Create an array of month abbreviations from January to the current month
+    const relevantMonths = months.slice(0, currentMonthIndex + 1).map((month) =>
+      month.toLowerCase().substring(0, 3)
+    );
+
+    let totalForBill = 0;
+
+    // Sum up values for all months from January to current month
+    relevantMonths.forEach((monthAbbr) => {
+      const valueField = `${monthAbbr}_value` as keyof Bill;
+      const monthValue =
+        typeof bill[valueField] === "number"
+          ? (bill[valueField] as number)
+          : bill.base_value;
+
+      totalForBill += monthValue;
+    });
+
+    // Add to country total
+    acc[bill.country] = (acc[bill.country] || 0) + totalForBill;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Calculate total per country for current month (unpaid bills only)
   const monthAbbr = months[currentMonthIndex].toLowerCase().substring(0, 3);
   const statusField = `${monthAbbr}_status` as keyof Bill;
   const valueField = `${monthAbbr}_value` as keyof Bill;
@@ -247,8 +272,9 @@ export default function BillsPage() {
           Bills to Be Paid
         </h1>
 
-        {/* Country Selection with ToggleGroup */}
         <div className="flex items-center justify-between mb-4 p-4">
+          
+          {/* Country Selection with ToggleGroup */}
           <div className="flex items-center">
             <Label className="mr-3 font-medium">Select Country:</Label>
             <ToggleGroup
@@ -282,9 +308,9 @@ export default function BillsPage() {
             </ToggleGroup>
           </div>
 
-          {/* Display totals per country */}
+          {/* Display cumulative totals from January to current month */}
           <div className="flex gap-4">
-            {Object.entries(totalsPerCountry).map(([country, total]) => (
+            {Object.entries(cumulativeTotalsPerCountry).map(([country, total]) => (
               <div key={country} className="text-lg font-medium">
                 <span className="font-bold">{country}:</span>{" "}
                 {total.toLocaleString("en-US", {

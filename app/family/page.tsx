@@ -543,9 +543,8 @@ export default function FamilyFinancePage() {
                 {/* Carousel content with responsive behavior */}
                 <CarouselContent>
                   {/* Amanda Personal Card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4 ">
+                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
                     <FinanceDetailCard
-                      className="bg-[#171717] text-white"
                       title="Amanda - Personal"
                       amandaTransactions={amandaTransactions}
                       usTransactions={usTransactions}

@@ -357,35 +357,46 @@ export function CustomBarChart({
                     <ul className="list-disc pl-4 text-xs space-y-2">
                       {item.category ===
                       `Minor expenses (${minorExpensesThreshold}%)`
-                        ? // Aggregate descriptions for "Minor expenses"
+                        ? // For Minor expenses, show both category and description
                           Object.entries(
+                            // Group transactions by category first
                             sortedCategories
                               .filter(
                                 (cat) =>
                                   cat.total / totalSum <=
                                   minorExpensesThreshold / 100
-                              ) // Use dynamic threshold
-                              .reduce((acc, cat) => {
-                                const filteredData = processedData.filter(
+                              )
+                              .reduce((categoryGroups, cat) => {
+                                // Get transactions for this category
+                                const catTransactions = processedData.filter(
                                   (entry) => entry.Category === cat.category
                                 );
-                                filteredData.forEach((entry) => {
-                                  if (entry.Description && entry.Amount) {
-                                    acc[entry.Description] =
-                                      (acc[entry.Description] || 0) +
-                                      entry.Amount;
-                                  }
-                                });
-                                return acc;
+
+                                // Group transactions by description within each category
+                                const descriptionsInCategory =
+                                  catTransactions.reduce((descAcc, entry) => {
+                                    if (entry.Description && entry.Amount) {
+                                      const key = `${cat.category} - ${entry.Description}`; // Combine category and description
+                                      descAcc[key] =
+                                        (descAcc[key] || 0) + entry.Amount;
+                                    }
+                                    return descAcc;
+                                  }, {} as Record<string, number>);
+
+                                // Merge into the main accumulator
+                                return {
+                                  ...categoryGroups,
+                                  ...descriptionsInCategory,
+                                };
                               }, {} as Record<string, number>)
-                          ) // Convert aggregated descriptions to entries
-                            .sort(([, sumA], [, sumB]) => sumB - sumA) // Sort by sum in descending order
-                            .map(([description, sum]) => (
+                          )
+                            .sort(([, sumA], [, sumB]) => sumB - sumA) // Sort by amount in descending order
+                            .map(([combinedName, sum]) => (
                               <li
-                                key={description}
+                                key={combinedName}
                                 className="flex justify-between hover:bg-gray-100 hover:rounded-md px-2 py-1"
                               >
-                                <span>{description}</span>
+                                <span>{combinedName}</span>
                                 <span>{formatCurrency(sum)}</span>
                               </li>
                             ))

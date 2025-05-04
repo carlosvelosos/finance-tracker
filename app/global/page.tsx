@@ -252,6 +252,7 @@ export default function Home() {
                           )
                         }
                         disabled={updatingId === transaction.id}
+                        className="bg-green-600 hover:bg-green-700 text-white"
                       >
                         {updatingId === transaction.id ? "Saving..." : "Save"}
                       </Button>
@@ -259,6 +260,7 @@ export default function Home() {
                         size="sm"
                         variant="outline"
                         onClick={() => setEditingCategory(null)}
+                        className="text-gray-700 border-gray-300 hover:bg-gray-100"
                       >
                         Cancel
                       </Button>

@@ -279,7 +279,7 @@ export default function TransactionTable({
       )}
 
       <Table>
-        <TableHeader>
+        <TableHeader className="[&_tr]:border-[#00fd42]">
           <TableRow>
             {!hiddenColumns.includes("id") && (
               <TableHead
@@ -413,12 +413,16 @@ export default function TransactionTable({
         </TableHeader>
 
         <TableBody>
-          {sortedTransactions.map((transaction) => (
+          {sortedTransactions.map((transaction, index, array) => (
             <TableRow
               key={transaction.id}
-              className={
+              className={`${
                 transaction.Category === "Unknown" ? "bg-yellow-100" : ""
-              }
+              } ${
+                index === array.length - 1
+                  ? "!border-b-2 !border-b-green-500"
+                  : ""
+              }`}
               onClick={() => onRowClick && onRowClick(transaction)}
             >
               {!hiddenColumns.includes("id") && (

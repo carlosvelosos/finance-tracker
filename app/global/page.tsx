@@ -89,7 +89,12 @@ export default function Home() {
                   (t) =>
                     !(
                       t.Category === "Amex Invoice" ||
-                      t.Category === "SEB SJ Prio Invoice"
+                      t.Category === "SEB SJ Prio Invoice" ||
+                      t.Category === "Investment" ||
+                      t.Category === "Sek to Reais" ||
+                      t.Category === "SJ PRIO MASTER Invoice" ||
+                      t.Category === "Income - Salary" ||
+                      t.Category === "Income - Skat"
                     )
                 )}
                 initialSortColumn="ChronologicalDate"
@@ -104,7 +109,7 @@ export default function Home() {
           </AccordionItem>
 
           {/* Credit Card Invoice Table Section */}
-          <AccordionItem value="amex-invoice-table">
+          <AccordionItem value="credit-card-invoice-table">
             <AccordionTrigger>Credit Card Invoices</AccordionTrigger>
             <AccordionContent>
               {/* Use the TransactionTable component for Amex invoice transactions */}
@@ -112,7 +117,73 @@ export default function Home() {
                 transactions={transactions.filter(
                   (t) =>
                     t.Category === "Amex Invoice" ||
-                    t.Category === "SEB SJ Prio Invoice"
+                    t.Category === "SEB SJ Prio Invoice" ||
+                    t.Category === "SJ PRIO MASTER Invoice"
+                )}
+                initialSortColumn="Date"
+                initialSortDirection="desc"
+                hiddenColumns={[]}
+                showMonthFilter={false}
+                showCategoryFilter={false}
+                showDescriptionFilter={false}
+                showFilters={false}
+                showTotalAmount={true}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Inveestment Table Section */}
+          <AccordionItem value="investment-table">
+            <AccordionTrigger>Investment</AccordionTrigger>
+            <AccordionContent>
+              {/* Use the TransactionTable component for Amex invoice transactions */}
+              <TransactionTable
+                transactions={transactions.filter(
+                  (t) => t.Category === "Investment"
+                )}
+                initialSortColumn="Date"
+                initialSortDirection="desc"
+                hiddenColumns={[]}
+                showMonthFilter={false}
+                showCategoryFilter={false}
+                showDescriptionFilter={false}
+                showFilters={false}
+                showTotalAmount={true}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Sek to Reais Table Section */}
+          <AccordionItem value="sek-to-reais-table">
+            <AccordionTrigger>Sek to Reais</AccordionTrigger>
+            <AccordionContent>
+              {/* Use the TransactionTable component for Amex invoice transactions */}
+              <TransactionTable
+                transactions={transactions.filter(
+                  (t) => t.Category === "Sek to Reais"
+                )}
+                initialSortColumn="Date"
+                initialSortDirection="desc"
+                hiddenColumns={[]}
+                showMonthFilter={false}
+                showCategoryFilter={false}
+                showDescriptionFilter={false}
+                showFilters={false}
+                showTotalAmount={true}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Income Table Section */}
+          <AccordionItem value="Income-table">
+            <AccordionTrigger>Income</AccordionTrigger>
+            <AccordionContent>
+              {/* Use the TransactionTable component for Amex invoice transactions */}
+              <TransactionTable
+                transactions={transactions.filter(
+                  (t) =>
+                    t.Category === "Income - Salary" ||
+                    t.Category === "Income - Skat"
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"

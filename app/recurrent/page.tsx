@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -51,6 +52,10 @@ export default function BillsPage() {
   const [selectedCountry, setSelectedCountry] = useState<
     "Sweden" | "Brazil" | "Both" | "None"
   >("Both");
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Bill | "currentValue" | "";
+    direction: "ascending" | "descending";
+  }>({ key: "", direction: "ascending" });
 
   const fetchBills = async () => {
     try {
@@ -168,6 +173,64 @@ export default function BillsPage() {
     }
     return acc;
   }, {} as Record<string, number>);
+
+  // Sort function that handles different data types
+  const sortedBills = React.useMemo(() => {
+    if (!sortConfig.key) return bills;
+
+    return [...bills].sort((a, b) => {
+      let aValue, bValue;
+
+      // Handle special case for current month's value
+      if (sortConfig.key === "currentValue") {
+        const monthAbbr = months[currentMonthIndex]
+          .toLowerCase()
+          .substring(0, 3);
+        const valueField = `${monthAbbr}_value` as keyof Bill;
+
+        aValue =
+          typeof a[valueField] === "number" ? a[valueField] : a.base_value;
+        bValue =
+          typeof b[valueField] === "number" ? b[valueField] : b.base_value;
+      } else {
+        aValue = a[sortConfig.key as keyof Bill];
+        bValue = b[sortConfig.key as keyof Bill];
+      }
+
+      // Handle different data types for sorting
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortConfig.direction === "ascending"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      // For boolean, numbers, etc.
+      if (aValue < bValue) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [bills, sortConfig, currentMonthIndex, months]);
+
+  // Handle column header click for sorting
+  const handleSort = (key: keyof Bill | "currentValue") => {
+    setSortConfig((prevConfig) => {
+      if (prevConfig.key === key) {
+        // Toggle direction if same key
+        return {
+          key,
+          direction:
+            prevConfig.direction === "ascending" ? "descending" : "ascending",
+        };
+      } else {
+        // New sort key, default to ascending
+        return { key, direction: "ascending" };
+      }
+    });
+  };
 
   if (loading) {
     return <div className="container mx-auto p-4">Loading...</div>;
@@ -299,56 +362,134 @@ export default function BillsPage() {
         <Table className="mb-10">
           <TableHeader className="[&_tr]:border-[#00fd42]">
             <TableRow>
-              <TableHead className="text-white">Description</TableHead>
-              <TableHead className="text-white">Due Day</TableHead>
-              <TableHead className="text-white">Payment Method</TableHead>
-              <TableHead className="text-white">Country</TableHead>
-              <TableHead className="text-white">Value</TableHead>
-              <TableHead className="text-white">Status</TableHead>
+              <TableHead
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                onClick={() => handleSort("description")}
+              >
+                <div className="flex items-center">
+                  Description
+                  {sortConfig.key === "description" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                onClick={() => handleSort("due_day")}
+              >
+                <div className="flex items-center">
+                  Due Day
+                  {sortConfig.key === "due_day" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                onClick={() => handleSort("payment_method")}
+              >
+                <div className="flex items-center">
+                  Payment Method
+                  {sortConfig.key === "payment_method" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                onClick={() => handleSort("country")}
+              >
+                <div className="flex items-center">
+                  Country
+                  {sortConfig.key === "country" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                onClick={() => handleSort("currentValue")}
+              >
+                <div className="flex items-center">
+                  Value
+                  {sortConfig.key === "currentValue" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                onClick={() => handleSort(statusField)}
+              >
+                <div className="flex items-center">
+                  Status
+                  {sortConfig.key === statusField && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="[&_tr:not(:last-child)]:border-[#232323] text-[#898989] hover:text-[#000000]">
-            {bills.map((bill, index) => {
-              const monthAbbr = months[currentMonthIndex]
-                .toLowerCase()
-                .substring(0, 3);
-              const statusField = `${monthAbbr}_status` as keyof Bill;
-              const valueField = `${monthAbbr}_value` as keyof Bill;
-              const currentValue =
-                typeof bill[valueField] === "number"
-                  ? (bill[valueField] as number)
-                  : bill.base_value;
-              const isPaid = bill[statusField];
-              const isLastRow = index === bills.length - 1;
+            {sortedBills
+              .filter((bill) => {
+                if (selectedCountry === "Both") return true;
+                if (selectedCountry === "None") return false;
+                return bill.country === selectedCountry;
+              })
+              .map((bill, index, filteredArray) => {
+                const monthAbbr = months[currentMonthIndex]
+                  .toLowerCase()
+                  .substring(0, 3);
+                const statusField = `${monthAbbr}_status` as keyof Bill;
+                const valueField = `${monthAbbr}_value` as keyof Bill;
+                const currentValue =
+                  typeof bill[valueField] === "number"
+                    ? (bill[valueField] as number)
+                    : bill.base_value;
+                const isPaid = bill[statusField];
+                const isLastRow = index === filteredArray.length - 1;
 
-              return (
-                <TableRow
-                  key={bill.id}
-                  className={`${isPaid ? "bg-gray-100 text-gray-500" : ""} ${
-                    isLastRow ? "!border-b-2 !border-b-green-500" : ""
-                  }`}
-                >
-                  <TableCell className={isPaid ? "line-through" : ""}>
-                    {bill.description}
-                  </TableCell>
-                  <TableCell>{bill.due_day}</TableCell>
-                  <TableCell>{bill.payment_method}</TableCell>
-                  <TableCell>{bill.country}</TableCell>
-                  <TableCell>
-                    {bill.country === "Brazil"
-                      ? `R$ ${currentValue.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}`
-                      : currentValue.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "SEK",
-                        })}
-                  </TableCell>
-                  <TableCell>{isPaid ? "Paid" : "Pending"}</TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow
+                    key={bill.id}
+                    className={`${isPaid ? "bg-gray-100 text-gray-500" : ""} ${
+                      isLastRow ? "!border-b-2 !border-b-green-500" : ""
+                    }`}
+                  >
+                    <TableCell className={isPaid ? "line-through" : ""}>
+                      {bill.description}
+                    </TableCell>
+                    <TableCell>{bill.due_day}</TableCell>
+                    <TableCell>{bill.payment_method}</TableCell>
+                    <TableCell>{bill.country}</TableCell>
+                    <TableCell>
+                      {bill.country === "Brazil"
+                        ? `R$ ${currentValue.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}`
+                        : currentValue.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "SEK",
+                          })}
+                    </TableCell>
+                    <TableCell>{isPaid ? "Paid" : "Pending"}</TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </div>

@@ -229,8 +229,8 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant="outline"
-                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E1E1E] border border-gray-700 hover:bg-[#2A2A2A] text-gray-200 lg:ml-auto"
+                  variant="user"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-200 lg:ml-auto"
                 >
                   <div className="w-8 h-8 rounded-full bg-green-900 flex items-center justify-center text-green-300 font-semibold">
                     {user.email?.charAt(0).toUpperCase()}

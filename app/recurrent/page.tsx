@@ -162,9 +162,9 @@ export default function BillsPage() {
   // Calculate cumulative totals per country (from January to current month)
   const cumulativeTotalsPerCountry = bills.reduce((acc, bill) => {
     // Create an array of month abbreviations from January to the current month
-    const relevantMonths = months.slice(0, currentMonthIndex + 1).map((month) =>
-      month.toLowerCase().substring(0, 3)
-    );
+    const relevantMonths = months
+      .slice(0, currentMonthIndex + 1)
+      .map((month) => month.toLowerCase().substring(0, 3));
 
     let totalForBill = 0;
 
@@ -273,7 +273,6 @@ export default function BillsPage() {
         </h1>
 
         <div className="flex items-center justify-between mb-4 p-4">
-          
           {/* Country Selection with ToggleGroup */}
           <div className="flex items-center">
             <Label className="mr-3 font-medium">Select Country:</Label>
@@ -310,15 +309,17 @@ export default function BillsPage() {
 
           {/* Display cumulative totals from January to current month */}
           <div className="flex gap-4">
-            {Object.entries(cumulativeTotalsPerCountry).map(([country, total]) => (
-              <div key={country} className="text-lg font-medium">
-                <span className="font-bold">{country}:</span>{" "}
-                {total.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: countryCurrencyMap[country] || "USD",
-                })}
-              </div>
-            ))}
+            {Object.entries(cumulativeTotalsPerCountry).map(
+              ([country, total]) => (
+                <div key={country} className="text-lg font-medium">
+                  <span className="font-bold">{country}:</span>{" "}
+                  {total.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: countryCurrencyMap[country] || "USD",
+                  })}
+                </div>
+              )
+            )}
           </div>
         </div>
 

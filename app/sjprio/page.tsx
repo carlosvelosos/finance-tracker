@@ -310,7 +310,12 @@ export default function Home() {
           </TableHeader>
           <TableBody>
             {sortedTransactions.map((transaction) => (
-              <TableRow key={transaction.id}>
+              <TableRow
+                key={transaction.id}
+                className={
+                  transaction.Category === "Unknown" ? "bg-yellow-100" : ""
+                }
+              >
                 <TableCell>{transaction.id}</TableCell>
                 <TableCell>
                   {transaction.Date
@@ -334,7 +339,13 @@ export default function Home() {
                       }).format(transaction.Balance)
                     : "N/A"}
                 </TableCell>
-                <TableCell>
+                <TableCell
+                  className={
+                    transaction.Category === "Unknown"
+                      ? "text-yellow-500 font-bold"
+                      : ""
+                  }
+                >
                   {editingCategory && editingCategory.id === transaction.id ? (
                     <div className="flex items-center gap-2">
                       <input

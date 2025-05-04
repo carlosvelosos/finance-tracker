@@ -244,11 +244,12 @@ export default function BillsPage() {
         </h1>
 
         {/* Country Selection with ToggleGroup */}
-        <div className="flex items-center justify-between mb-4 p-4 rounded-md text-[#898989]">
+        <div className="flex items-center justify-between mb-4 p-4">
           <div className="flex items-center">
             <Label className="mr-3 font-medium">Select Country:</Label>
             <ToggleGroup
               type="multiple"
+              variant={"green"}
               value={
                 selectedCountry === "None"
                   ? []
@@ -273,18 +274,8 @@ export default function BillsPage() {
               }}
               className="border-none flex gap-3"
             >
-              <ToggleGroupItem
-                value="Sweden"
-                className="border-none rounded-md text-[#4d4d4d] data-[state=on]:bg-[#00fd42] data-[state=on]:text-[#051526]"
-              >
-                Sweden
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="Brazil"
-                className="border-none rounded-md text-[#4d4d4d] data-[state=on]:bg-[#00fd42] data-[state=on]:text-[#051526]"
-              >
-                Brazil
-              </ToggleGroupItem>
+              <ToggleGroupItem value="Sweden">Sweden</ToggleGroupItem>
+              <ToggleGroupItem value="Brazil">Brazil</ToggleGroupItem>
             </ToggleGroup>
           </div>
 

@@ -282,7 +282,10 @@ export default function TransactionTable({
         <TableHeader>
           <TableRow>
             {!hiddenColumns.includes("id") && (
-              <TableHead onClick={() => handleSort("id")}>
+              <TableHead
+                onClick={() => handleSort("id")}
+                className="text-white"
+              >
                 ID{" "}
                 {sortColumn === "id" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
@@ -290,7 +293,10 @@ export default function TransactionTable({
 
             {/* Date Column(s) */}
             {!hiddenColumns.includes("Date") && !showSplitDateColumns && (
-              <TableHead onClick={() => handleSort("Date")}>
+              <TableHead
+                onClick={() => handleSort("Date")}
+                className="text-white"
+              >
                 Date{" "}
                 {sortColumn === "Date" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
@@ -298,21 +304,30 @@ export default function TransactionTable({
 
             {/* Split Date Columns */}
             {!hiddenColumns.includes("Year") && (
-              <TableHead onClick={() => handleSort("Year")}>
+              <TableHead
+                onClick={() => handleSort("Year")}
+                className="text-white"
+              >
                 Year{" "}
                 {sortColumn === "ChronologicalDate" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
             )}
             {!hiddenColumns.includes("Month") && (
-              <TableHead onClick={() => handleSort("Month")}>
+              <TableHead
+                onClick={() => handleSort("Month")}
+                className="text-white"
+              >
                 Month{" "}
                 {sortColumn === "ChronologicalDate" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
             )}
             {!hiddenColumns.includes("Day") && (
-              <TableHead onClick={() => handleSort("Day")}>
+              <TableHead
+                onClick={() => handleSort("Day")}
+                className="text-white"
+              >
                 Day{" "}
                 {sortColumn === "ChronologicalDate" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
@@ -320,7 +335,10 @@ export default function TransactionTable({
             )}
 
             {!hiddenColumns.includes("Description") && (
-              <TableHead onClick={() => handleSort("Description")}>
+              <TableHead
+                onClick={() => handleSort("Description")}
+                className="text-white"
+              >
                 Description{" "}
                 {sortColumn === "Description" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
@@ -328,7 +346,10 @@ export default function TransactionTable({
             )}
 
             {!hiddenColumns.includes("Amount") && (
-              <TableHead onClick={() => handleSort("Amount")}>
+              <TableHead
+                onClick={() => handleSort("Amount")}
+                className="text-white"
+              >
                 Amount{" "}
                 {sortColumn === "Amount" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
@@ -336,7 +357,10 @@ export default function TransactionTable({
             )}
 
             {!hiddenColumns.includes("Balance") && (
-              <TableHead onClick={() => handleSort("Balance")}>
+              <TableHead
+                onClick={() => handleSort("Balance")}
+                className="text-white"
+              >
                 Balance{" "}
                 {sortColumn === "Balance" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
@@ -344,7 +368,10 @@ export default function TransactionTable({
             )}
 
             {!hiddenColumns.includes("Category") && (
-              <TableHead onClick={() => handleSort("Category")}>
+              <TableHead
+                onClick={() => handleSort("Category")}
+                className="text-white"
+              >
                 Category{" "}
                 {sortColumn === "Category" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
@@ -352,7 +379,10 @@ export default function TransactionTable({
             )}
 
             {!hiddenColumns.includes("Responsible") && (
-              <TableHead onClick={() => handleSort("Responsible")}>
+              <TableHead
+                onClick={() => handleSort("Responsible")}
+                className="text-white"
+              >
                 Responsible{" "}
                 {sortColumn === "Responsible" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
@@ -360,14 +390,20 @@ export default function TransactionTable({
             )}
 
             {!hiddenColumns.includes("Bank") && (
-              <TableHead onClick={() => handleSort("Bank")}>
+              <TableHead
+                onClick={() => handleSort("Bank")}
+                className="text-white"
+              >
                 Bank{" "}
                 {sortColumn === "Bank" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
             )}
 
             {!hiddenColumns.includes("Comment") && (
-              <TableHead onClick={() => handleSort("Comment")}>
+              <TableHead
+                onClick={() => handleSort("Comment")}
+                className="text-white"
+              >
                 Comment{" "}
                 {sortColumn === "Comment" &&
                   (sortDirection === "asc" ? "↑" : "↓")}

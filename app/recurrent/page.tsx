@@ -204,11 +204,15 @@ export default function BillsPage() {
           : bValue.localeCompare(aValue);
       }
 
-      // For boolean, numbers, etc.
-      if (aValue < bValue) {
+      // Add null checks to handle possible null values
+      // Convert null/undefined to empty string or 0 for comparison
+      const safeAValue = aValue ?? (typeof bValue === "string" ? "" : 0);
+      const safeBValue = bValue ?? (typeof aValue === "string" ? "" : 0);
+
+      if (safeAValue < safeBValue) {
         return sortConfig.direction === "ascending" ? -1 : 1;
       }
-      if (aValue > bValue) {
+      if (safeAValue > safeBValue) {
         return sortConfig.direction === "ascending" ? 1 : -1;
       }
       return 0;
@@ -358,14 +362,10 @@ export default function BillsPage() {
               >
                 <div className="flex items-center">
                   <span className="flex-1">Description</span>
-                  {sortConfig.key === "description" && (
-                    <span className="ml-1 inline-block w-4">
-                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                    </span>
-                  )}
-                  {sortConfig.key !== "description" && (
-                    <span className="ml-1 inline-block w-4"></span>
-                  )}
+                  <span className="ml-1 inline-block w-4">
+                    {sortConfig.key === "description" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </span>
                 </div>
               </TableHead>
               <TableHead
@@ -374,14 +374,10 @@ export default function BillsPage() {
               >
                 <div className="flex items-center">
                   <span className="flex-1">Due Day</span>
-                  {sortConfig.key === "due_day" && (
-                    <span className="ml-1 inline-block w-4">
-                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                    </span>
-                  )}
-                  {sortConfig.key !== "due_day" && (
-                    <span className="ml-1 inline-block w-4"></span>
-                  )}
+                  <span className="ml-1 inline-block w-4">
+                    {sortConfig.key === "due_day" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </span>
                 </div>
               </TableHead>
               <TableHead
@@ -390,14 +386,10 @@ export default function BillsPage() {
               >
                 <div className="flex items-center">
                   <span className="flex-1">Payment Method</span>
-                  {sortConfig.key === "payment_method" && (
-                    <span className="ml-1 inline-block w-4">
-                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                    </span>
-                  )}
-                  {sortConfig.key !== "payment_method" && (
-                    <span className="ml-1 inline-block w-4"></span>
-                  )}
+                  <span className="ml-1 inline-block w-4">
+                    {sortConfig.key === "payment_method" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </span>
                 </div>
               </TableHead>
               <TableHead
@@ -406,14 +398,10 @@ export default function BillsPage() {
               >
                 <div className="flex items-center">
                   <span className="flex-1">Country</span>
-                  {sortConfig.key === "country" && (
-                    <span className="ml-1 inline-block w-4">
-                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                    </span>
-                  )}
-                  {sortConfig.key !== "country" && (
-                    <span className="ml-1 inline-block w-4"></span>
-                  )}
+                  <span className="ml-1 inline-block w-4">
+                    {sortConfig.key === "country" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </span>
                 </div>
               </TableHead>
               <TableHead
@@ -422,14 +410,10 @@ export default function BillsPage() {
               >
                 <div className="flex items-center">
                   <span className="flex-1">Value</span>
-                  {sortConfig.key === "currentValue" && (
-                    <span className="ml-1 inline-block w-4">
-                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                    </span>
-                  )}
-                  {sortConfig.key !== "currentValue" && (
-                    <span className="ml-1 inline-block w-4"></span>
-                  )}
+                  <span className="ml-1 inline-block w-4">
+                    {sortConfig.key === "currentValue" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </span>
                 </div>
               </TableHead>
               <TableHead
@@ -438,14 +422,10 @@ export default function BillsPage() {
               >
                 <div className="flex items-center">
                   <span className="flex-1">Status</span>
-                  {sortConfig.key === statusField && (
-                    <span className="ml-1 inline-block w-4">
-                      {sortConfig.direction === "ascending" ? "↑" : "↓"}
-                    </span>
-                  )}
-                  {sortConfig.key !== statusField && (
-                    <span className="ml-1 inline-block w-4"></span>
-                  )}
+                  <span className="ml-1 inline-block w-4">
+                    {sortConfig.key === statusField &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </span>
                 </div>
               </TableHead>
             </TableRow>

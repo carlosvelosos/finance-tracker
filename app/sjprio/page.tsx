@@ -190,8 +190,19 @@ export default function Home() {
           SEB SJ Prio Transactions
         </h1>
 
-        {/* Category Chart */}
-        <div className="text-right mb-4">
+        {/* Category Chart and Login Buttons */}
+        <div className="text-right mb-4 flex justify-end gap-3">
+          <Button
+            onClick={() =>
+              window.open(
+                "https://secure.sebkort.com/nis/m/sjse/external/t/login/index",
+                "_blank"
+              )
+            }
+            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+          >
+            Download Invoice
+          </Button>
           <Button
             onClick={() => (window.location.href = "./chart")}
             className="px-4 py-2 text-white rounded-md hover:bg-gray-300"

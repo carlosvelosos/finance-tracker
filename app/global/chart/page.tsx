@@ -12,6 +12,7 @@ type Transaction = {
   Amount: number | null;
   Bank: string | null;
   Description: string | null;
+  Date: string | null; // Add Date field to match the expected type in CustomBarChart
 };
 
 export default function CategoryChartPage() {
@@ -23,7 +24,7 @@ export default function CategoryChartPage() {
       const fetchTransactions = async () => {
         const { data, error } = await supabase
           .from("Sweden_transactions_agregated_2025")
-          .select("Category, Amount, Bank, Description") // Include Description in the query
+          .select("id, Category, Amount, Bank, Description, Date") // Added id and Date fields
           .eq("user_id", user.id);
 
         if (error) {

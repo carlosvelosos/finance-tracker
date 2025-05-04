@@ -1,11 +1,18 @@
-'use client';
+"use client";
 
 // import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer} from 'recharts';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 // import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
-import { TrendingUp } from 'lucide-react';
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { TrendingUp } from "lucide-react";
 import {
   Accordion,
   AccordionItem,
@@ -36,6 +43,7 @@ type Transaction = {
   Amount: number | null;
   Bank: string | null;
   Description: string | null;
+  Date: string | null; // Add Date field to ensure it's in the type
 };
 
 type CustomBarChartProps = {
@@ -48,45 +56,110 @@ type CustomBarChartProps = {
 
 export function CustomBarChart({
   data,
-  barColor = '#8884d8',
-  title = 'Bar Chart',
-  description = 'Category-wise totals',
+  barColor = "#8884d8",
+  title = "Bar Chart",
+  description = "Category-wise totals",
 }: CustomBarChartProps) {
   // State for the minor expenses threshold (default to 1.40%)
-  const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.40);
+  const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.4);
+  // State for the month range filter (default to showing all months 1-12)
+  const [monthRange, setMonthRange] = useState<[number, number]>([1, 12]);
 
   if (!data || data.length === 0) {
-    return <div className="text-center mt-10">No data available to display the chart.</div>;
+    return (
+      <div className="text-center mt-10">
+        No data available to display the chart.
+      </div>
+    );
   }
 
+  // Month names for display
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  // Filter data by month range first
+  const dateFilteredData = data.filter((transaction) => {
+    if (!transaction.Date) return true; // Include transactions without date
+
+    try {
+      // Parse the date and get the month (1-12)
+      const transactionDate = new Date(transaction.Date);
+
+      // Check if the date is valid
+      if (isNaN(transactionDate.getTime())) {
+        console.log("Invalid date format:", transaction.Date);
+        return true; // Include transactions with invalid dates
+      }
+
+      const transactionMonth = transactionDate.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+
+      // Debug log to see what's happening with dates
+      if (transaction.Category) {
+        console.log(
+          `Transaction: ${transaction.Category}, Date: ${
+            transaction.Date
+          }, Month: ${transactionMonth}, In Range: ${
+            transactionMonth >= monthRange[0] &&
+            transactionMonth <= monthRange[1]
+          }`
+        );
+      }
+
+      // Check if the month is within the selected range
+      return (
+        transactionMonth >= monthRange[0] && transactionMonth <= monthRange[1]
+      );
+    } catch (error) {
+      console.error("Error parsing date:", transaction.Date, error);
+      return true; // Include transactions with problematic dates
+    }
+  });
+
   // Remove unwanted categories before any processing
-  const filteredData = data.filter(
-    (transaction) => !['Invoice', 'Salary', 'Crédit card'].includes(transaction.Category || '')
+  const filteredData = dateFilteredData.filter(
+    (transaction) =>
+      !["Invoice", "Salary", "Crédit card"].includes(transaction.Category || "")
   );
 
   // Preprocess data: Invert the sign of Amount for Handelsbanken
   const processedData = filteredData.map((transaction) => ({
     ...transaction,
-    Amount: transaction.Bank === 'Handelsbanken' && transaction.Amount ? -transaction.Amount : transaction.Amount,
+    Amount:
+      transaction.Bank === "Handelsbanken" && transaction.Amount
+        ? -transaction.Amount
+        : transaction.Amount,
   }));
 
   // Format numbers as Swedish currency (SEK)
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
+    new Intl.NumberFormat("sv-SE", {
+      style: "currency",
+      currency: "SEK",
     }).format(value);
 
   // Process the raw transaction data
   const totals = processedData.reduce((acc, transaction) => {
     if (transaction.Category && transaction.Amount) {
-      acc[transaction.Category] = (acc[transaction.Category] || 0) + transaction.Amount;
+      acc[transaction.Category] =
+        (acc[transaction.Category] || 0) + transaction.Amount;
     }
     return acc;
   }, {} as Record<string, number>);
 
   // Log totals by category
-  console.log('Totals by Category:', totals);
+  console.log("Totals by Category:", totals);
 
   // Calculate totals per bank
   const totalsPerBank = processedData.reduce((acc, transaction) => {
@@ -97,13 +170,16 @@ export function CustomBarChart({
   }, {} as Record<string, number>);
 
   // Log totals per bank
-  console.log('Totals by Bank:', totalsPerBank);
+  console.log("Totals by Bank:", totalsPerBank);
 
   // Calculate totalSum after filtering
-  const totalSum = Object.values(totals).reduce((sum, value) => sum + Math.abs(value), 0);
+  const totalSum = Object.values(totals).reduce(
+    (sum, value) => sum + Math.abs(value),
+    0
+  );
 
   // Debugging the totalSum variable
-  console.log('Filtered Total Sum:', totalSum);
+  console.log("Filtered Total Sum:", totalSum);
 
   // Process filtered categories for chart data
   const sortedCategories = Object.entries(totals)
@@ -148,7 +224,10 @@ export function CustomBarChart({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center">
-        <ChartContainer config={{ layout: { label: 'Vertical Layout', color: barColor } }} className="h-[400px]">
+        <ChartContainer
+          config={{ layout: { label: "Vertical Layout", color: barColor } }}
+          className="h-[400px]"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -218,14 +297,46 @@ export function CustomBarChart({
             onValueChange={(value) => setMinorExpensesThreshold(value[0])}
           />
         </div>
+        <div className="w-full px-4 mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Month Range: {monthNames[monthRange[0] - 1]} -{" "}
+            {monthNames[monthRange[1] - 1]}
+          </label>
+          <Slider
+            defaultValue={monthRange}
+            min={1}
+            max={12}
+            step={1}
+            value={monthRange}
+            onValueChange={(value) => setMonthRange([value[0], value[1]])}
+            className="mt-2"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Jan</span>
+            <span>Feb</span>
+            <span>Mar</span>
+            <span>Apr</span>
+            <span>May</span>
+            <span>Jun</span>
+            <span>Jul</span>
+            <span>Aug</span>
+            <span>Sep</span>
+            <span>Oct</span>
+            <span>Nov</span>
+            <span>Dec</span>
+          </div>
+        </div>
         <div className="flex-col items-center justify-center mt-2 w-full">
           <Accordion type="single" collapsible>
             {chartData.map((item, index) => {
-              const filteredData = processedData.filter((entry) => entry.Category === item.category);
+              const filteredData = processedData.filter(
+                (entry) => entry.Category === item.category
+              );
 
               const descriptions = filteredData.reduce((acc, entry) => {
                 if (entry.Description && entry.Amount) {
-                  acc[entry.Description] = (acc[entry.Description] || 0) + entry.Amount;
+                  acc[entry.Description] =
+                    (acc[entry.Description] || 0) + entry.Amount;
                 }
                 return acc;
               }, {} as Record<string, number>);
@@ -235,18 +346,27 @@ export function CustomBarChart({
                   <AccordionTrigger>
                     {index + 1}. {item.category} - {formatCurrency(item.total)}
                   </AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc pl-4 text-xs space-y-2">
-                        {item.category === `Minor expenses (${minorExpensesThreshold}%)` ? (
-                          // Aggregate descriptions for "Minor expenses"
+                  <AccordionContent>
+                    <ul className="list-disc pl-4 text-xs space-y-2">
+                      {item.category ===
+                      `Minor expenses (${minorExpensesThreshold}%)`
+                        ? // Aggregate descriptions for "Minor expenses"
                           Object.entries(
                             sortedCategories
-                              .filter((cat) => cat.total / totalSum <= minorExpensesThreshold / 100) // Use dynamic threshold
+                              .filter(
+                                (cat) =>
+                                  cat.total / totalSum <=
+                                  minorExpensesThreshold / 100
+                              ) // Use dynamic threshold
                               .reduce((acc, cat) => {
-                                const filteredData = processedData.filter((entry) => entry.Category === cat.category);
+                                const filteredData = processedData.filter(
+                                  (entry) => entry.Category === cat.category
+                                );
                                 filteredData.forEach((entry) => {
                                   if (entry.Description && entry.Amount) {
-                                    acc[entry.Description] = (acc[entry.Description] || 0) + entry.Amount;
+                                    acc[entry.Description] =
+                                      (acc[entry.Description] || 0) +
+                                      entry.Amount;
                                   }
                                 });
                                 return acc;
@@ -262,8 +382,7 @@ export function CustomBarChart({
                                 <span>{formatCurrency(sum)}</span>
                               </li>
                             ))
-                        ) : (
-                          // Default behavior for other categories
+                        : // Default behavior for other categories
                           Object.entries(descriptions)
                             .sort(([, sumA], [, sumB]) => sumB - sumA) // Sort by sum in descending order
                             .map(([description, sum]) => (
@@ -274,10 +393,9 @@ export function CustomBarChart({
                                 <span>{description}</span>
                                 <span>{formatCurrency(sum)}</span>
                               </li>
-                            ))
-                        )}
-                      </ul>
-                    </AccordionContent>
+                            ))}
+                    </ul>
+                  </AccordionContent>
                 </AccordionItem>
               );
             })}

@@ -65,13 +65,13 @@ export default function Home() {
         <div className="flex justify-end mb-4 space-x-4">
           <Button
             onClick={() => (window.location.href = "./category/chart")}
-            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 border border-green-500"
+            className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
           >
             Category Chart
           </Button>
           <Button
             onClick={() => (window.location.href = "./overview/chart")}
-            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 border border-green-500"
+            className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
           >
             Overview Chart
           </Button>

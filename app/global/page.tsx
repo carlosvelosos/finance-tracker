@@ -65,7 +65,7 @@ export default function Home() {
         <div className="text-right mb-4">
           <Button
             onClick={() => (window.location.href = "./chart")}
-            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 border border-green-500"
+            className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
           >
             Go to Chart Page
           </Button>

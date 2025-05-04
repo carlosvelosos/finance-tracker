@@ -357,7 +357,7 @@ export function CustomBarChart({
                     <ul className="list-disc pl-4 text-xs space-y-2">
                       {item.category ===
                       `Minor expenses (${minorExpensesThreshold}%)`
-                        ? // For Minor expenses, show category and description separated in proper columns
+                        ? // For Minor expenses, stack category and description vertically on the left, amount on the right
                           Object.entries(
                             // Group transactions by category first
                             sortedCategories
@@ -398,17 +398,19 @@ export function CustomBarChart({
                               return (
                                 <li
                                   key={combinedKey}
-                                  className="flex flex-row items-center hover:bg-gray-100 hover:rounded-md px-2 py-1"
+                                  className="flex justify-between hover:bg-gray-100 hover:rounded-md px-2 py-1"
                                 >
-                                  <div className="w-1/4 font-medium text-gray-700 truncate pr-2">
-                                    {category}
+                                  <div className="flex flex-col">
+                                    <span className="font-medium text-gray-700">
+                                      {category}
+                                    </span>
+                                    <span className="text-gray-600 text-xs">
+                                      {description}
+                                    </span>
                                   </div>
-                                  <div className="w-1/2 text-gray-600 truncate">
-                                    {description}
-                                  </div>
-                                  <div className="w-1/4 text-right font-medium">
+                                  <span className="pl-2 whitespace-nowrap">
                                     {formatCurrency(sum)}
-                                  </div>
+                                  </span>
                                 </li>
                               );
                             })

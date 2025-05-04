@@ -32,7 +32,9 @@ type Transaction = {
 export default function Home() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [sortColumn, setSortColumn] = useState<keyof Transaction | null>(null);
+  const [sortColumn, setSortColumn] = useState<
+    keyof Transaction | string | null
+  >(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [editingCategory, setEditingCategory] = useState<{
     id: number;
@@ -74,12 +76,24 @@ export default function Home() {
     }
   }, [user]);
 
-  const handleSort = (column: keyof Transaction) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  const handleSort = (column: keyof Transaction | string) => {
+    // For date-related columns, always sort by full date chronologically
+    if (column === "Year" || column === "Month" || column === "Day") {
+      if (sortColumn === "ChronologicalDate") {
+        // Toggle the direction if already sorting chronologically
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      } else {
+        // Set to chronological date sorting when first clicked
+        setSortColumn("ChronologicalDate");
+        setSortDirection("asc");
+      }
     } else {
-      setSortColumn(column);
-      setSortDirection("asc");
+      if (sortColumn === column) {
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      } else {
+        setSortColumn(column);
+        setSortDirection("asc");
+      }
     }
   };
 
@@ -114,17 +128,31 @@ export default function Home() {
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (!sortColumn) return 0;
 
-    const aValue = a[sortColumn] ?? "";
-    const bValue = b[sortColumn] ?? "";
+    // Handle chronological date sorting (triggered from Year, Month, or Day header clicks)
+    if (sortColumn === "ChronologicalDate") {
+      if (!a.Date && !b.Date) return 0;
+      if (!a.Date) return sortDirection === "asc" ? 1 : -1;
+      if (!b.Date) return sortDirection === "asc" ? -1 : 1;
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortDirection === "asc"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+      const aDate = new Date(a.Date).getTime();
+      const bDate = new Date(b.Date).getTime();
+      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
     }
 
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+    // Handle standard column sorting
+    if (sortColumn in a) {
+      const aValue = a[sortColumn as keyof Transaction] ?? "";
+      const bValue = b[sortColumn as keyof Transaction] ?? "";
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortDirection === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
     }
 
     return 0;
@@ -162,9 +190,21 @@ export default function Home() {
                 ID{" "}
                 {sortColumn === "id" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort("Date")}>
-                Date{" "}
-                {sortColumn === "Date" && (sortDirection === "asc" ? "↑" : "↓")}
+              {/* Replaced Date column with Year, Month, Day columns */}
+              <TableHead onClick={() => handleSort("Year")}>
+                Year{" "}
+                {sortColumn === "ChronologicalDate" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
+              </TableHead>
+              <TableHead onClick={() => handleSort("Month")}>
+                Month{" "}
+                {sortColumn === "ChronologicalDate" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
+              </TableHead>
+              <TableHead onClick={() => handleSort("Day")}>
+                Day{" "}
+                {sortColumn === "ChronologicalDate" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
               <TableHead onClick={() => handleSort("Description")}>
                 Description{" "}
@@ -174,11 +214,6 @@ export default function Home() {
               <TableHead onClick={() => handleSort("Amount")}>
                 Amount{" "}
                 {sortColumn === "Amount" &&
-                  (sortDirection === "asc" ? "↑" : "↓")}
-              </TableHead>
-              <TableHead onClick={() => handleSort("Balance")}>
-                Balance{" "}
-                {sortColumn === "Balance" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
               <TableHead onClick={() => handleSort("Category")}>
@@ -211,9 +246,22 @@ export default function Home() {
                 }
               >
                 <TableCell>{transaction.id}</TableCell>
+                {/* Split Date into Year, Month, Day */}
                 <TableCell>
                   {transaction.Date
-                    ? new Date(transaction.Date).toLocaleDateString()
+                    ? new Date(transaction.Date).getFullYear()
+                    : "N/A"}
+                </TableCell>
+                <TableCell>
+                  {transaction.Date
+                    ? new Intl.DateTimeFormat("en-US", {
+                        month: "long",
+                      }).format(new Date(transaction.Date))
+                    : "N/A"}
+                </TableCell>
+                <TableCell>
+                  {transaction.Date
+                    ? new Date(transaction.Date).getDate()
                     : "N/A"}
                 </TableCell>
                 <TableCell>{transaction.Description || "N/A"}</TableCell>
@@ -223,14 +271,6 @@ export default function Home() {
                         style: "currency",
                         currency: "SEK",
                       }).format(transaction.Amount)
-                    : "N/A"}
-                </TableCell>
-                <TableCell>
-                  {transaction.Balance !== null
-                    ? new Intl.NumberFormat("sv-SE", {
-                        style: "currency",
-                        currency: "SEK",
-                      }).format(transaction.Balance)
                     : "N/A"}
                 </TableCell>
                 <TableCell

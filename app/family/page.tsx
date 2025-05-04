@@ -515,9 +515,9 @@ export default function FamilyFinancePage() {
 
   return (
     <ProtectedRoute>
-      <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="p-6 min-h-screen">
         {/* Main Summary Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           {/* Left Column: Summary Card (25% width) */}
           <div className="md:col-span-1">
             <FinanceSummaryCard
@@ -543,8 +543,9 @@ export default function FamilyFinancePage() {
                 {/* Carousel content with responsive behavior */}
                 <CarouselContent>
                   {/* Amanda Personal Card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4 ">
                     <FinanceDetailCard
+                      className="bg-[#171717] text-white"
                       title="Amanda - Personal"
                       amandaTransactions={amandaTransactions}
                       usTransactions={usTransactions}

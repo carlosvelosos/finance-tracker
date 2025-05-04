@@ -134,7 +134,16 @@ export default function BillCard({
     // Sort bills by due date (ascending)
     const sortedBills = [...countryBills].sort((a, b) => a.due_day - b.due_day);
 
-    const totalValue = sortedBills
+    // Calculate total for all bills (paid and unpaid)
+    const totalValue = sortedBills.reduce((sum, bill) => {
+      const monthValue = bill[valueField];
+      return (
+        sum + (typeof monthValue === "number" ? monthValue : bill.base_value)
+      );
+    }, 0);
+
+    // Calculate total for unpaid bills only
+    const unpaidTotalValue = sortedBills
       .filter((bill) => !bill[statusField])
       .reduce((sum, bill) => {
         const monthValue = bill[valueField];
@@ -147,7 +156,12 @@ export default function BillCard({
       (bill) => !bill[statusField]
     ).length;
 
-    return { totalValue, unpaidBillsCount, countryBills: sortedBills };
+    return {
+      totalValue,
+      unpaidTotalValue,
+      unpaidBillsCount,
+      countryBills: sortedBills,
+    };
   };
 
   const formatCurrency = (value: number, country: string) => {
@@ -179,19 +193,27 @@ export default function BillCard({
       >
         <CarouselContent>
           {months.map((monthName) => {
-            const { totalValue, unpaidBillsCount, countryBills } =
-              getBillDetailsForMonth(monthName);
+            const {
+              totalValue,
+              unpaidTotalValue,
+              unpaidBillsCount,
+              countryBills,
+            } = getBillDetailsForMonth(monthName);
 
             return (
               <CarouselItem key={monthName} className="basis-full pl-4">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-3xl font-bold text-[#898989]">
-                      {formatCurrency(totalValue, country)}
-                    </p>
-                    <p className="text-sm text-gray-300">
-                      {unpaidBillsCount} unpaid bills
-                    </p>
+                    <div>
+                      <p className="text-3xl font-bold text-[#898989]">
+                        {formatCurrency(totalValue, country)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-300">
+                        {unpaidBillsCount} unpaid bills
+                      </p>
+                    </div>
                   </div>
                   <p className="text-2xl font-medium text-center">
                     {monthName}

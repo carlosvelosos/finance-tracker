@@ -534,14 +534,26 @@ END $$;`;
                   patterns:
                 </p>
                 <ul className="list-disc pl-6 mt-2 text-yellow-700 grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <li>"Hemkop" and "ICA" → "Groceries"</li>
-                  <li>"Systembolaget" → "System Bolaget"</li>
-                  <li>"Hornan Bar" and "Olearys" → "Bar"</li>
-                  <li>"Espresso House" → "Cafe"</li>
-                  <li>"Betalo Ab-fastighets" → "Rent"</li>
-                  <li>"Klarna*kolmarden" → "Entertainment"</li>
-                  <li>"Periodens Del Av Arsavgift" → "Fee"</li>
-                  <li>"Bolt Operations" → "Cab"</li>
+                  <li>
+                    &quot;Hemkop&quot; and &quot;ICA&quot; →
+                    &quot;Groceries&quot;
+                  </li>
+                  <li>
+                    &quot;Systembolaget&quot; → &quot;System Bolaget&quot;
+                  </li>
+                  <li>
+                    &quot;Hornan Bar&quot; and &quot;Olearys&quot; →
+                    &quot;Bar&quot;
+                  </li>
+                  <li>&quot;Espresso House&quot; → &quot;Cafe&quot;</li>
+                  <li>&quot;Betalo Ab-fastighets&quot; → &quot;Rent&quot;</li>
+                  <li>
+                    &quot;Klarna*kolmarden&quot; → &quot;Entertainment&quot;
+                  </li>
+                  <li>
+                    &quot;Periodens Del Av Arsavgift&quot; → &quot;Fee&quot;
+                  </li>
+                  <li>&quot;Bolt Operations&quot; → &quot;Cab&quot;</li>
                 </ul>
               </div>
 

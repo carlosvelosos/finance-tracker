@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import { Transaction } from "@/types/transaction";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 export default function Home() {
   const { user } = useAuth();
@@ -71,17 +77,55 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Use the new TransactionTable component */}
-        <TransactionTable
-          transactions={transactions}
-          initialSortColumn="ChronologicalDate"
-          initialSortDirection="desc"
-          hiddenColumns={["Balance", "Date"]} // Hide Balance and Date columns, showing Year/Month/Day instead
-          showMonthFilter={true}
-          showCategoryFilter={true}
-          showDescriptionFilter={true}
-          showTotalAmount={true}
-        />
+        {/* Accordion */}
+        <Accordion type="single" collapsible defaultValue="main-table">
+          {/* Main Table Section */}
+          <AccordionItem value="main-table">
+            <AccordionTrigger>Main Transactions</AccordionTrigger>
+            <AccordionContent>
+              {/* Use the TransactionTable component for all transactions */}
+              <TransactionTable
+                transactions={transactions.filter(
+                  (t) =>
+                    !(
+                      t.Category === "Amex Invoice" ||
+                      t.Category === "SEB SJ Prio Invoice"
+                    )
+                )}
+                initialSortColumn="ChronologicalDate"
+                initialSortDirection="desc"
+                hiddenColumns={["Balance", "Date"]}
+                showMonthFilter={true}
+                showCategoryFilter={true}
+                showDescriptionFilter={true}
+                showTotalAmount={true}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Credit Card Invoice Table Section */}
+          <AccordionItem value="amex-invoice-table">
+            <AccordionTrigger>Credit Card Invoices</AccordionTrigger>
+            <AccordionContent>
+              {/* Use the TransactionTable component for Amex invoice transactions */}
+              <TransactionTable
+                transactions={transactions.filter(
+                  (t) =>
+                    t.Category === "Amex Invoice" ||
+                    t.Category === "SEB SJ Prio Invoice"
+                )}
+                initialSortColumn="Date"
+                initialSortDirection="desc"
+                hiddenColumns={[]}
+                showMonthFilter={false}
+                showCategoryFilter={false}
+                showDescriptionFilter={false}
+                showFilters={false}
+                showTotalAmount={true}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </ProtectedRoute>
   );

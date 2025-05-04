@@ -363,80 +363,98 @@ export default function BillsPage() {
           <TableHeader className="[&_tr]:border-[#00fd42]">
             <TableRow>
               <TableHead
-                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[20%]"
                 onClick={() => handleSort("description")}
               >
                 <div className="flex items-center">
-                  Description
+                  <span className="flex-1">Description</span>
                   {sortConfig.key === "description" && (
-                    <span className="ml-1">
+                    <span className="ml-1 inline-block w-4">
                       {sortConfig.direction === "ascending" ? "↑" : "↓"}
                     </span>
+                  )}
+                  {sortConfig.key !== "description" && (
+                    <span className="ml-1 inline-block w-4"></span>
                   )}
                 </div>
               </TableHead>
               <TableHead
-                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[10%]"
                 onClick={() => handleSort("due_day")}
               >
                 <div className="flex items-center">
-                  Due Day
+                  <span className="flex-1">Due Day</span>
                   {sortConfig.key === "due_day" && (
-                    <span className="ml-1">
+                    <span className="ml-1 inline-block w-4">
                       {sortConfig.direction === "ascending" ? "↑" : "↓"}
                     </span>
+                  )}
+                  {sortConfig.key !== "due_day" && (
+                    <span className="ml-1 inline-block w-4"></span>
                   )}
                 </div>
               </TableHead>
               <TableHead
-                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[15%]"
                 onClick={() => handleSort("payment_method")}
               >
                 <div className="flex items-center">
-                  Payment Method
+                  <span className="flex-1">Payment Method</span>
                   {sortConfig.key === "payment_method" && (
-                    <span className="ml-1">
+                    <span className="ml-1 inline-block w-4">
                       {sortConfig.direction === "ascending" ? "↑" : "↓"}
                     </span>
+                  )}
+                  {sortConfig.key !== "payment_method" && (
+                    <span className="ml-1 inline-block w-4"></span>
                   )}
                 </div>
               </TableHead>
               <TableHead
-                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[10%]"
                 onClick={() => handleSort("country")}
               >
                 <div className="flex items-center">
-                  Country
+                  <span className="flex-1">Country</span>
                   {sortConfig.key === "country" && (
-                    <span className="ml-1">
+                    <span className="ml-1 inline-block w-4">
                       {sortConfig.direction === "ascending" ? "↑" : "↓"}
                     </span>
+                  )}
+                  {sortConfig.key !== "country" && (
+                    <span className="ml-1 inline-block w-4"></span>
                   )}
                 </div>
               </TableHead>
               <TableHead
-                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[15%]"
                 onClick={() => handleSort("currentValue")}
               >
                 <div className="flex items-center">
-                  Value
+                  <span className="flex-1">Value</span>
                   {sortConfig.key === "currentValue" && (
-                    <span className="ml-1">
+                    <span className="ml-1 inline-block w-4">
                       {sortConfig.direction === "ascending" ? "↑" : "↓"}
                     </span>
+                  )}
+                  {sortConfig.key !== "currentValue" && (
+                    <span className="ml-1 inline-block w-4"></span>
                   )}
                 </div>
               </TableHead>
               <TableHead
-                className="text-white cursor-pointer hover:bg-gray-800 transition-colors"
+                className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[10%]"
                 onClick={() => handleSort(statusField)}
               >
                 <div className="flex items-center">
-                  Status
+                  <span className="flex-1">Status</span>
                   {sortConfig.key === statusField && (
-                    <span className="ml-1">
+                    <span className="ml-1 inline-block w-4">
                       {sortConfig.direction === "ascending" ? "↑" : "↓"}
                     </span>
+                  )}
+                  {sortConfig.key !== statusField && (
+                    <span className="ml-1 inline-block w-4"></span>
                   )}
                 </div>
               </TableHead>

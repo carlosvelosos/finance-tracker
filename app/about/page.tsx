@@ -509,7 +509,8 @@ END $$;`;
                   Capture the American Express invoice as an image/screenshot
                 </li>
                 <li>
-                  Focus on the "Nya köp" (New Purchases) tables in the statement
+                  Focus on the &quot;Nya köp&quot; (New Purchases) tables in the
+                  statement
                 </li>
                 <li>
                   Create a structured table with the following columns:
@@ -561,7 +562,7 @@ END $$;`;
                 SQL Insert for American Express Transactions
               </h3>
               <p>
-                For each month's invoice, insert the transactions into a
+                For each month&apos;s invoice, insert the transactions into a
                 month-specific table (e.g., <code>AM_202505</code> for May
                 2025):
               </p>

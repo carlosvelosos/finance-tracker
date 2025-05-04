@@ -272,7 +272,6 @@ export default function BillsPage() {
                   setSelectedCountry("Brazil");
                 }
               }}
-              className="border-none flex gap-3"
             >
               <ToggleGroupItem value="Sweden">Sweden</ToggleGroupItem>
               <ToggleGroupItem value="Brazil">Brazil</ToggleGroupItem>

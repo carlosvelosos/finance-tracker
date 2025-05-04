@@ -24,7 +24,7 @@ type Transaction = {
   Amount: number | null;
   Balance: number | null;
   Category: string | null;
-  Responsable: string | null;
+  Responsible: string | null;
   Bank: string | null;
   Comment: string | null;
   user_id: string;
@@ -54,7 +54,7 @@ export default function Home() {
             "Amount",
             "Balance",
             "Category",
-            "Responsable",
+            "Responsible",
             "Bank",
             "Comment",
             user_id,
@@ -274,10 +274,10 @@ export default function Home() {
               </TableHead>
               <TableHead
                 className="text-white"
-                onClick={() => handleSort("Responsable")}
+                onClick={() => handleSort("Responsible")}
               >
-                Responsable{" "}
-                {sortColumn === "Responsable" &&
+                Responsible{" "}
+                {sortColumn === "Responsible" &&
                   (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
               <TableHead
@@ -324,7 +324,7 @@ export default function Home() {
                     : "N/A"}
                 </TableCell>
                 <TableCell>{transaction.Category || "N/A"}</TableCell>
-                <TableCell>{transaction.Responsable || "N/A"}</TableCell>
+                <TableCell>{transaction.Responsible || "N/A"}</TableCell>
                 <TableCell>{transaction.Bank || "N/A"}</TableCell>
                 <TableCell>{transaction.Comment || "N/A"}</TableCell>
               </TableRow>

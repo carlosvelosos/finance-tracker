@@ -248,28 +248,125 @@ SELECT COUNT(*) FROM "public"."Sweden_transactions_agregated_2025"
 WHERE "source_table" = 'HB_2025';
 ```
 
-### How This Script Works
+### Adding American Express Transactions to the Aggregated Table
 
-1. **Finding the Next Available ID**: The `WITH max_id AS` clause creates a Common Table Expression (CTE) that gets the maximum ID from the aggregated table and adds 1 to determine the next available ID.
+After processing American Express transactions, you'll need to add them to the aggregated table. This ensures all your financial data is available in one place for comprehensive analysis.
 
-2. **Avoiding Duplicates**: The `WHERE NOT EXISTS` condition ensures that only new transactions are inserted, preventing duplicates.
+#### Step 1: Process the American Express Invoice
 
-3. **Generating Sequential IDs**: The `ROW_NUMBER()` function combined with the next available ID ensures that new entries get sequential IDs without conflicts.
+1. Capture the American Express invoice as an image/screenshot
+2. Extract all transactions from the "Nya köp" tables
+3. Create a structured table with these columns:
+   - Transaction date
+   - Process date
+   - Transaction details (Description)
+   - Amount in SEK (Belopp)
+4. Verify the total matches the statement total
 
-4. **Setting the Current Timestamp**: The `NOW()` function sets the `created_at` field to the current date and time.
+#### Step 2: Create Table-Specific Inserts
 
-5. **Verification**: The final SELECT statement helps you verify that the insertion was successful by counting the total number of Handelsbanken transactions in the aggregated table.
+For each month's invoice, insert the transactions into a month-specific table (e.g., `AM_202505` for May 2025):
 
-### Benefits of This Approach
+```sql
+-- First check if the table exists and is empty
+SELECT COUNT(*) FROM "public"."AM_202505";
 
-- **Safety**: No risk of duplicate entries or ID conflicts
-- **Automation**: Automatically calculates the next available ID
-- **Efficiency**: Single SQL statement for the entire operation
-- **Maintainability**: Works consistently even as your database grows
+-- Insert transactions from the American Express statement
+INSERT INTO "public"."AM_202505" (
+  "Date",
+  "Description",
+  "Amount",
+  "Balance",
+  "Category",
+  "Responsible",
+  "Bank",
+  "Comment",
+  "user_id"
+)
+VALUES
+('2025-04-02', 'Hemkop Linkoping Luc 02 Linkoping', -328.22, NULL, 'Groceries', 'Carlos', 'American Express', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7'),
+-- Additional transactions here
+('2025-05-02', 'Periodens Del Av Arsavgift For Kontot', -500.00, NULL, 'Fee', 'Carlos', 'American Express', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7');
 
-### When to Use This
+-- Verify the data was inserted correctly and total amount
+SELECT SUM(ABS("Amount")) AS total_amount FROM "public"."AM_202505";
+```
 
-Run this script whenever you've added new transactions to one of your bank-specific tables (like `HB_2025`) and want to update the aggregated view. This ensures that your combined analysis and reporting will include the latest data from all your accounts.
+Use the `Sweden_transactions_agregated_2025_rows.csv` file as a reference for properly categorizing transactions.
+
+#### Step 3: Update the Aggregated Table
+
+After inserting the transactions into the month-specific table, update the aggregated table using the following pattern:
+
+```sql
+-- Step 0: Define the source table name as a variable
+DO $$
+DECLARE
+   source_table_name TEXT := 'AM_202505';
+   bank_name TEXT := 'American Express';
+BEGIN
+
+-- Step 1: Use a WITH clause to find the highest ID in the aggregated table
+WITH max_id AS (
+  SELECT COALESCE(MAX(id), 0) + 1 as next_id
+  FROM "public"."Sweden_transactions_agregated_2025"
+)
+
+-- Step 2: Insert new transactions from the source table into the aggregated table
+INSERT INTO "public"."Sweden_transactions_agregated_2025"
+("id", "created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsible", "Bank", "Comment", "user_id", "source_table")
+SELECT
+  -- Use the next_id value from the CTE plus ROW_NUMBER() to ensure sequential IDs
+  (SELECT next_id FROM max_id) + ROW_NUMBER() OVER (ORDER BY h."Date", h."Description") - 1 as id,
+  NOW() as created_at,
+  h."Date",
+  h."Description",
+  h."Amount",
+  h."Balance",
+  h."Category",
+  h."Responsible",
+  bank_name as "Bank",
+  h."Comment",
+  h.user_id,
+  source_table_name as source_table
+FROM "public"."" || source_table_name || "" h
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM "public"."Sweden_transactions_agregated_2025" a
+  WHERE a."Date" = h."Date"
+  AND a."Description" = h."Description"
+  AND a."Amount" = h."Amount"
+  AND a."source_table" = source_table_name
+)
+ORDER BY h."Date", h."Description";
+
+-- Step 3: Verify the insertion was successful
+RAISE NOTICE 'Inserted transactions count: %', (
+  SELECT COUNT(*) FROM "public"."Sweden_transactions_agregated_2025"
+  WHERE "source_table" = source_table_name
+);
+
+END $$;
+```
+
+This approach:
+
+- Uses a variable for the source table name, making it easy to reuse for different months
+- Avoids duplicates by checking if transactions already exist in the aggregated table
+- Automatically calculates the next available ID
+- Preserves the categorization you applied in the source table
+- Provides verification of successful insertion
+
+#### Step 4: Review the Aggregated Data
+
+After updating the aggregated table:
+
+1. Navigate to the "Global" view in the Finance Tracker
+2. Verify that American Express transactions appear alongside other bank data
+3. Check that the categories are correct and consistent
+4. Confirm that the monthly totals match your American Express statement
+
+By following this process, you'll maintain a comprehensive view of all your financial transactions across multiple accounts, enabling better financial tracking and analysis.
 
 ## Troubleshooting
 

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { useAuth } from '../../context/AuthContext';
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import { useAuth } from "../../context/AuthContext";
 import {
   Table,
   TableBody,
@@ -11,8 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from '@/components/ui/button';
-import ProtectedRoute from '@/components/protected-route';
+import { Button } from "@/components/ui/button";
+import ProtectedRoute from "@/components/protected-route";
 
 type Transaction = {
   id: number;
@@ -22,7 +22,7 @@ type Transaction = {
   Amount: number | null;
   Balance: number | null;
   Category: string | null;
-  Responsable: string | null;
+  Responsible: string | null;
   Bank: string | null;
   Comment: string | null;
   user_id: string;
@@ -33,14 +33,15 @@ export default function Home() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Transaction | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     if (user) {
       const fetchTransactions = async () => {
         const { data, error } = await supabase
-          .from('Sweden_transactions_agregated_2025')
-          .select(`
+          .from("Sweden_transactions_agregated_2025")
+          .select(
+            `
             id,
             created_at,
             "Date",
@@ -48,16 +49,17 @@ export default function Home() {
             "Amount",
             "Balance",
             "Category",
-            "Responsable",
+            "Responsible",
             "Bank",
             "Comment",
             user_id,
             source_table
-          `)
-          .eq('user_id', user.id);
+          `
+          )
+          .eq("user_id", user.id);
 
         if (error) {
-          console.error('Error fetching transactions:', error);
+          console.error("Error fetching transactions:", error);
         } else {
           setTransactions(data as Transaction[]);
         }
@@ -69,47 +71,51 @@ export default function Home() {
 
   const handleSort = (column: keyof Transaction) => {
     if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortColumn(column);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (!sortColumn) return 0;
 
-    const aValue = a[sortColumn] ?? '';
-    const bValue = b[sortColumn] ?? '';
+    const aValue = a[sortColumn] ?? "";
+    const bValue = b[sortColumn] ?? "";
 
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc'
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortDirection === "asc"
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
 
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     }
 
     return 0;
   });
 
   if (!user) {
-    return <div className="text-center mt-10">Please log in to view your transactions.</div>;
+    return (
+      <div className="text-center mt-10">
+        Please log in to view your transactions.
+      </div>
+    );
   }
 
   return (
-    <ProtectedRoute 
-      allowedUserIds={['2b5c5467-04e0-4820-bea9-1645821fa1b7']}
-    >
+    <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold text-center mb-6">Your Transactions</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Your Transactions
+        </h1>
 
         {/* Category Chart */}
         <div className="text-right mb-4">
           <Button
-            onClick={() => window.location.href = './chart'}
+            onClick={() => (window.location.href = "./chart")}
             className="px-4 py-2 text-white rounded-md hover:bg-gray-300"
           >
             Go to Chart Page
@@ -119,32 +125,47 @@ export default function Home() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead onClick={() => handleSort('id')}>
-                ID {sortColumn === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("id")}>
+                ID{" "}
+                {sortColumn === "id" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Date')}>
-                Date {sortColumn === 'Date' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Date")}>
+                Date{" "}
+                {sortColumn === "Date" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Description')}>
-                Description {sortColumn === 'Description' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Description")}>
+                Description{" "}
+                {sortColumn === "Description" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Amount')}>
-                Amount {sortColumn === 'Amount' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Amount")}>
+                Amount{" "}
+                {sortColumn === "Amount" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Balance')}>
-                Balance {sortColumn === 'Balance' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Balance")}>
+                Balance{" "}
+                {sortColumn === "Balance" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Category')}>
-                Category {sortColumn === 'Category' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Category")}>
+                Category{" "}
+                {sortColumn === "Category" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Responsable')}>
-                Responsable {sortColumn === 'Responsable' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Responsible")}>
+                Responsible{" "}
+                {sortColumn === "Responsible" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Bank')}>
-                Bank {sortColumn === 'Bank' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Bank")}>
+                Bank{" "}
+                {sortColumn === "Bank" && (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead onClick={() => handleSort('Comment')}>
-                Comment {sortColumn === 'Comment' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <TableHead onClick={() => handleSort("Comment")}>
+                Comment{" "}
+                {sortColumn === "Comment" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -152,22 +173,32 @@ export default function Home() {
             {sortedTransactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>{transaction.id}</TableCell>
-                <TableCell>{transaction.Date ? new Date(transaction.Date).toLocaleDateString() : 'N/A'}</TableCell>
-                <TableCell>{transaction.Description || 'N/A'}</TableCell>
+                <TableCell>
+                  {transaction.Date
+                    ? new Date(transaction.Date).toLocaleDateString()
+                    : "N/A"}
+                </TableCell>
+                <TableCell>{transaction.Description || "N/A"}</TableCell>
                 <TableCell className="text-right">
                   {transaction.Amount !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Amount)
-                    : 'N/A'}
+                    ? new Intl.NumberFormat("sv-SE", {
+                        style: "currency",
+                        currency: "SEK",
+                      }).format(transaction.Amount)
+                    : "N/A"}
                 </TableCell>
                 <TableCell>
                   {transaction.Balance !== null
-                    ? new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(transaction.Balance)
-                    : 'N/A'}
+                    ? new Intl.NumberFormat("sv-SE", {
+                        style: "currency",
+                        currency: "SEK",
+                      }).format(transaction.Balance)
+                    : "N/A"}
                 </TableCell>
-                <TableCell>{transaction.Category || 'N/A'}</TableCell>
-                <TableCell>{transaction.Responsable || 'N/A'}</TableCell>
-                <TableCell>{transaction.Bank || 'N/A'}</TableCell>
-                <TableCell>{transaction.Comment || 'N/A'}</TableCell>
+                <TableCell>{transaction.Category || "N/A"}</TableCell>
+                <TableCell>{transaction.Responsible || "N/A"}</TableCell>
+                <TableCell>{transaction.Bank || "N/A"}</TableCell>
+                <TableCell>{transaction.Comment || "N/A"}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -10,7 +10,7 @@ export default function AboutPage() {
   const [activeTab, setActiveTab] = useState<string>("overview");
 
   // Example SQL code from the documentation
-  const exampleSqlCode = `INSERT INTO "public"."HB_2025" ("created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Comment", "user_id", "Bank")
+  const exampleSqlCode = `INSERT INTO "public"."HB_2025" ("created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsible", "Comment", "user_id", "Bank")
 VALUES
 -- March 2025 transactions
 ('2025-05-03 00:00:00+00', '2025-03-24', 'LÖN', 33917.00, NULL, 'Salary', 'Carlos', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7', 'Handelsbanken'),
@@ -33,7 +33,7 @@ SELECT MAX(id) as last_id FROM "public"."HB_2025";`;
 SELECT MAX(id) as last_id FROM "public"."HB_2025";
 
 -- Then use OVERRIDING SYSTEM VALUE with IDs higher than the max
-INSERT INTO "public"."HB_2025" (id, "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Comment", "user_id", "Bank")
+INSERT INTO "public"."HB_2025" (id, "Date", "Description", "Amount", "Balance", "Category", "Responsible", "Comment", "user_id", "Bank")
 OVERRIDING SYSTEM VALUE
 VALUES
 -- Start with ID 100 (or higher than the MAX(id) from previous query)
@@ -51,7 +51,7 @@ WITH max_id AS (
 
 -- Insert new transactions from HB_2025 into the aggregated table
 INSERT INTO "public"."Sweden_transactions_agregated_2025" 
-("id", "created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsable", "Bank", "Comment", "user_id", "source_table")
+("id", "created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsible", "Bank", "Comment", "user_id", "source_table")
 SELECT 
   -- Use the next_id value from the CTE plus ROW_NUMBER() to ensure sequential IDs
   (SELECT next_id FROM max_id) + ROW_NUMBER() OVER (ORDER BY h."Date", h."Description") - 1 as id,
@@ -61,7 +61,7 @@ SELECT
   h."Amount", 
   h."Balance", 
   h."Category", 
-  h."Responsable", 
+  h."Responsible", 
   'Handelsbanken' as "Bank", 
   h."Comment", 
   h.user_id, 
@@ -77,6 +77,83 @@ WHERE NOT EXISTS (
 )
 ORDER BY h."Date", h."Description";`;
 
+  // Add new AmEx SQL code example
+  const amexInsertSql = `-- First check if the table exists and is empty
+SELECT COUNT(*) FROM "public"."AM_202505";
+
+-- Insert transactions from the American Express statement (May 2025)
+INSERT INTO "public"."AM_202505" (
+  "Date", 
+  "Description", 
+  "Amount", 
+  "Balance", 
+  "Category", 
+  "Responsible", 
+  "Bank", 
+  "Comment", 
+  "user_id"
+)
+VALUES
+('2025-04-02', 'Hemkop Linkoping Luc 02 Linkoping', -328.22, NULL, 'Groceries', 'Carlos', 'American Express', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7'),
+('2025-04-04', 'Systembolaget 0505 Stockholm', -356.00, NULL, 'System Bolaget', 'Carlos', 'American Express', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7'),
+('2025-04-04', 'Hornan Bar O Kak I Link Linkoping', -79.00, NULL, 'Bar', 'Carlos', 'American Express', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7'),
+-- Additional transactions here...
+('2025-05-02', 'Periodens Del Av Arsavgift For Kontot', -500.00, NULL, 'Fee', 'Carlos', 'American Express', NULL, '2b5c5467-04e0-4820-bea9-1645821fa1b7');
+
+-- Verify the data was inserted correctly and total amount
+SELECT SUM(ABS("Amount")) AS total_amount FROM "public"."AM_202505";`;
+
+  // Add new AmEx aggregation SQL code
+  const amexAggregationSql = `-- Step 0: Define the source table name as a variable
+DO $$
+DECLARE
+   source_table_name TEXT := 'AM_202505';
+   bank_name TEXT := 'American Express';
+   dynamic_sql TEXT;
+BEGIN
+
+-- Step 1: Build and execute the dynamic SQL statement
+dynamic_sql := '
+WITH max_id AS (
+  SELECT COALESCE(MAX(id), 0) + 1 as next_id 
+  FROM "public"."Sweden_transactions_agregated_2025"
+)
+INSERT INTO "public"."Sweden_transactions_agregated_2025" 
+("id", "created_at", "Date", "Description", "Amount", "Balance", "Category", "Responsible", "Bank", "Comment", "user_id", "source_table")
+SELECT 
+  (SELECT next_id FROM max_id) + ROW_NUMBER() OVER (ORDER BY h."Date", h."Description") - 1 as id,
+  NOW() as created_at,
+  h."Date", 
+  h."Description", 
+  h."Amount", 
+  h."Balance", 
+  h."Category", 
+  h."Responsible", 
+  ''' || bank_name || ''' as "Bank",
+  h."Comment", 
+  h.user_id, 
+  ''' || source_table_name || ''' as source_table
+FROM "public"."' || source_table_name || '" h
+WHERE NOT EXISTS (
+  SELECT 1 
+  FROM "public"."Sweden_transactions_agregated_2025" a 
+  WHERE a."Date" = h."Date" 
+  AND a."Description" = h."Description" 
+  AND a."Amount" = h."Amount" 
+  AND a."source_table" = ''' || source_table_name || '''
+)
+ORDER BY h."Date", h."Description"';
+
+EXECUTE dynamic_sql;
+
+-- Step 4: Verify the insertion was successful
+RAISE NOTICE \'Inserted transactions count: %\', (
+  SELECT COUNT(*) FROM "public"."Sweden_transactions_agregated_2025" 
+  WHERE "source_table" = source_table_name
+);
+
+END $$;`;
+
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4 max-w-6xl">
@@ -90,11 +167,12 @@ ORDER BY h."Date", h."Description";`;
           onValueChange={setActiveTab}
           className="mb-8"
         >
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="images">Statement Images</TabsTrigger>
             <TabsTrigger value="sql-method">SQL Method</TabsTrigger>
             <TabsTrigger value="upload-method">Upload Method</TabsTrigger>
+            <TabsTrigger value="amex">American Express</TabsTrigger>
             <TabsTrigger value="aggregated">Aggregated Table</TabsTrigger>
             <TabsTrigger value="verification">Verification</TabsTrigger>
           </TabsList>
@@ -405,6 +483,148 @@ ORDER BY h."Date", h."Description";`;
                     </tr>
                   </tbody>
                 </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "amex" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>American Express Transactions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                Processing American Express statements requires a slightly
+                different approach than Handelsbanken statements. This guide
+                explains how to extract transaction data from American Express
+                invoices and integrate it into your finance tracking system.
+              </p>
+
+              <h3 className="text-lg font-medium mt-4 mb-2">
+                Extracting Transactions from American Express Invoices
+              </h3>
+              <ol className="list-decimal pl-6 space-y-2">
+                <li>
+                  Capture the American Express invoice as an image/screenshot
+                </li>
+                <li>
+                  Focus on the "Nya köp" (New Purchases) tables in the statement
+                </li>
+                <li>
+                  Create a structured table with the following columns:
+                  <ul className="list-disc pl-6 mt-1">
+                    <li>Transaction date (Transaktions-datum)</li>
+                    <li>Process date (Process-datum)</li>
+                    <li>Transaction details (Transaktionsuppgifter)</li>
+                    <li>Amount in SEK (Belopp i SEK)</li>
+                  </ul>
+                </li>
+                <li>
+                  Verify that the total matches the statement total amount
+                </li>
+              </ol>
+
+              <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200 mt-6">
+                <h4 className="font-medium text-yellow-800">
+                  Transaction Categorization Tips
+                </h4>
+                <p className="text-yellow-700 mt-1">
+                  When categorizing American Express transactions, follow these
+                  patterns:
+                </p>
+                <ul className="list-disc pl-6 mt-2 text-yellow-700 grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <li>"Hemkop" and "ICA" → "Groceries"</li>
+                  <li>"Systembolaget" → "System Bolaget"</li>
+                  <li>"Hornan Bar" and "Olearys" → "Bar"</li>
+                  <li>"Espresso House" → "Cafe"</li>
+                  <li>"Betalo Ab-fastighets" → "Rent"</li>
+                  <li>"Klarna*kolmarden" → "Entertainment"</li>
+                  <li>"Periodens Del Av Arsavgift" → "Fee"</li>
+                  <li>"Bolt Operations" → "Cab"</li>
+                </ul>
+              </div>
+
+              <h3 className="text-lg font-medium mt-6 mb-2">
+                SQL Insert for American Express Transactions
+              </h3>
+              <p>
+                For each month's invoice, insert the transactions into a
+                month-specific table (e.g., <code>AM_202505</code> for May
+                2025):
+              </p>
+
+              <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto mt-2">
+                <pre className="text-sm whitespace-pre-wrap">
+                  {amexInsertSql}
+                </pre>
+              </div>
+
+              <h3 className="text-lg font-medium mt-6 mb-2">
+                Updating the Aggregated Table with AmEx Transactions
+              </h3>
+              <p>
+                After inserting transactions into the month-specific AmEx table,
+                update the aggregated table using dynamic SQL:
+              </p>
+
+              <div className="bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto mt-2">
+                <pre className="text-sm whitespace-pre-wrap">
+                  {amexAggregationSql}
+                </pre>
+              </div>
+
+              <h3 className="text-lg font-medium mt-6 mb-2">
+                The Dynamic SQL Approach
+              </h3>
+
+              <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mt-2">
+                <h4 className="font-medium text-blue-800">Key Benefits</h4>
+                <ul className="list-disc pl-6 mt-2 text-blue-700">
+                  <li>
+                    <span className="font-medium">Reusability:</span> Change
+                    only the variable values to process different months
+                  </li>
+                  <li>
+                    <span className="font-medium">Error prevention:</span>{" "}
+                    Properly handles dynamic table names
+                  </li>
+                  <li>
+                    <span className="font-medium">Duplicate detection:</span>{" "}
+                    Prevents inserting the same transaction twice
+                  </li>
+                  <li>
+                    <span className="font-medium">ID management:</span>{" "}
+                    Automatically calculates sequential IDs
+                  </li>
+                </ul>
+              </div>
+
+              <p className="mt-4">
+                The dynamic SQL approach is necessary because we need to
+                reference table names as variables. This allows you to reuse the
+                same code for different months by simply changing the{" "}
+                <code>source_table_name</code> variable from
+                <code>AM_202505</code> to <code>AM_202506</code>, etc.
+              </p>
+
+              <div className="bg-purple-50 p-4 rounded-md border border-purple-200 mt-6">
+                <h3 className="font-medium text-purple-800">
+                  Complete Process Overview
+                </h3>
+                <ol className="list-decimal pl-6 mt-2 text-purple-700">
+                  <li>
+                    Extract and categorize all transactions from the AmEx
+                    invoice
+                  </li>
+                  <li>
+                    Create a monthly table (e.g., AM_202505) and insert
+                    transactions
+                  </li>
+                  <li>Verify the total amount matches the invoice</li>
+                  <li>Use the dynamic SQL to update the aggregated table</li>
+                  <li>Check the data in the Finance Tracker application</li>
+                </ol>
               </div>
             </CardContent>
           </Card>

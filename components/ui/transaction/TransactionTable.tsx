@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Table,
@@ -56,7 +56,20 @@ export default function TransactionTable({
     id: number;
     value: string;
   } | null>(null);
+  const [editingComment, setEditingComment] = useState<{
+    id: number;
+    value: string;
+  } | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+
+  // Need to manage local transactions state since props are read-only
+  const [localTransactions, setLocalTransactions] =
+    useState<Transaction[]>(transactions);
+
+  // Update local transactions when props change
+  useEffect(() => {
+    setLocalTransactions(transactions);
+  }, [transactions]);
 
   // Handle sorting
   const handleSort = (column: keyof Transaction | string) => {
@@ -93,9 +106,12 @@ export default function TransactionTable({
         console.error("Error updating category:", error);
         alert("Failed to update category: " + error.message);
       } else {
-        // We can't directly update the transactions prop as it's read-only
-        // Instead, we'll rely on the parent component to refresh the data
-        // or implement a more sophisticated state management approach
+        // Update local state to reflect the change immediately
+        setLocalTransactions((prevTransactions) =>
+          prevTransactions.map((t) =>
+            t.id === id ? { ...t, Category: newCategory } : t
+          )
+        );
       }
     } catch (error) {
       console.error("Error in update operation:", error);
@@ -106,8 +122,37 @@ export default function TransactionTable({
     }
   };
 
+  // Handle comment update
+  const handleUpdateComment = async (id: number, newComment: string) => {
+    setUpdatingId(id);
+    try {
+      const { error } = await supabase
+        .from("Sweden_transactions_agregated_2025")
+        .update({ Comment: newComment })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error updating comment:", error);
+        alert("Failed to update comment: " + error.message);
+      } else {
+        // Update local state to reflect the change immediately
+        setLocalTransactions((prevTransactions) =>
+          prevTransactions.map((t) =>
+            t.id === id ? { ...t, Comment: newComment } : t
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error in update operation:", error);
+      alert("An unexpected error occurred");
+    } finally {
+      setUpdatingId(null);
+      setEditingComment(null);
+    }
+  };
+
   // Apply filters to transactions
-  const filteredTransactions = transactions
+  const filteredTransactions = localTransactions
     .filter((transaction) =>
       bankFilter ? transaction.Bank === bankFilter : true
     )
@@ -561,7 +606,58 @@ export default function TransactionTable({
               )}
 
               {!hiddenColumns.includes("Comment") && (
-                <TableCell>{transaction.Comment || "N/A"}</TableCell>
+                <TableCell>
+                  {editingComment && editingComment.id === transaction.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editingComment.value}
+                        onChange={(e) =>
+                          setEditingComment({
+                            id: transaction.id,
+                            value: e.target.value,
+                          })
+                        }
+                        className="w-full p-1 border border-gray-300 rounded-md"
+                        autoFocus
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleUpdateComment(
+                            transaction.id,
+                            editingComment.value
+                          )
+                        }
+                        disabled={updatingId === transaction.id}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {updatingId === transaction.id ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingComment(null)}
+                        className="text-gray-700 border-gray-300 hover:bg-gray-100"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingComment({
+                          id: transaction.id,
+                          value: transaction.Comment || "",
+                        });
+                      }}
+                    >
+                      {transaction.Comment || "N/A"}
+                    </div>
+                  )}
+                </TableCell>
               )}
             </TableRow>
           ))}

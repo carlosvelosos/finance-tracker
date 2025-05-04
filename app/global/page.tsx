@@ -34,6 +34,11 @@ export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Transaction | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [editingCategory, setEditingCategory] = useState<{
+    id: number;
+    value: string;
+  } | null>(null);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -75,6 +80,34 @@ export default function Home() {
     } else {
       setSortColumn(column);
       setSortDirection("asc");
+    }
+  };
+
+  const handleUpdateCategory = async (id: number, newCategory: string) => {
+    setUpdatingId(id);
+    try {
+      const { error } = await supabase
+        .from("Sweden_transactions_agregated_2025")
+        .update({ Category: newCategory })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error updating category:", error);
+        alert("Failed to update category: " + error.message);
+      } else {
+        // Update the local state to reflect the change
+        setTransactions(
+          transactions.map((t) =>
+            t.id === id ? { ...t, Category: newCategory } : t
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error in update operation:", error);
+      alert("An unexpected error occurred");
+    } finally {
+      setUpdatingId(null);
+      setEditingCategory(null);
     }
   };
 
@@ -195,7 +228,55 @@ export default function Home() {
                       }).format(transaction.Balance)
                     : "N/A"}
                 </TableCell>
-                <TableCell>{transaction.Category || "N/A"}</TableCell>
+                <TableCell>
+                  {editingCategory && editingCategory.id === transaction.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editingCategory.value}
+                        onChange={(e) =>
+                          setEditingCategory({
+                            id: transaction.id,
+                            value: e.target.value,
+                          })
+                        }
+                        className="w-full p-1 border border-gray-300 rounded-md"
+                        autoFocus
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleUpdateCategory(
+                            transaction.id,
+                            editingCategory.value
+                          )
+                        }
+                        disabled={updatingId === transaction.id}
+                      >
+                        {updatingId === transaction.id ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingCategory(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                      onClick={() =>
+                        setEditingCategory({
+                          id: transaction.id,
+                          value: transaction.Category || "",
+                        })
+                      }
+                    >
+                      {transaction.Category || "N/A"}
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell>{transaction.Responsible || "N/A"}</TableCell>
                 <TableCell>{transaction.Bank || "N/A"}</TableCell>
                 <TableCell>{transaction.Comment || "N/A"}</TableCell>

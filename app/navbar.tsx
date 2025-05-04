@@ -214,7 +214,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="block px-4 py-2 text-sm text-gray-200 hover:bg-black hover:bg-opacity-30 hover:text-green-400 transition-colors duration-200 hover:font-bold rounded-3xl"
+                className="block px-4 py-2 text-sm text-gray-200 hover:text-green-400 transition-colors duration-200"
                 onClick={handleLinkClick}
               >
                 {link.label}

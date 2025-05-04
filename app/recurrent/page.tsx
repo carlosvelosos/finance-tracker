@@ -723,7 +723,7 @@ export default function BillsPage() {
               </div>
               <SheetFooter>
                 <SheetClose asChild>
-                  <Button type="button" variant="outline">
+                  <Button type="button" variant="default">
                     Cancel
                   </Button>
                 </SheetClose>

@@ -44,7 +44,25 @@ export default function Home() {
         if (error) {
           console.error("Error fetching transactions:", error);
         } else {
-          setTransactions(data as Transaction[]);
+          // Process the data to invert the sign for specific banks
+          const processedData = data.map((transaction: Transaction) => {
+            // Check if the bank is "SEB SJ Prio" or "American Express"
+            if (
+              transaction.Bank === "SEB SJ Prio" ||
+              transaction.Bank === "American Express"
+            ) {
+              // Invert the sign of the Amount by multiplying by -1
+              return {
+                ...transaction,
+                Amount: transaction.Amount
+                  ? -transaction.Amount
+                  : transaction.Amount,
+              };
+            }
+            return transaction;
+          });
+
+          setTransactions(processedData as Transaction[]);
         }
       };
 

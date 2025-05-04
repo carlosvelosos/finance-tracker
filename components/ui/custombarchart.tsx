@@ -60,10 +60,17 @@ export function CustomBarChart({
   title = "Bar Chart",
   description = "Category-wise totals",
 }: CustomBarChartProps) {
-  // State for the minor expenses threshold (default to 1.40%)
-  const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.4);
-  // State for the month range filter (default to showing all months 1-12)
-  const [monthRange, setMonthRange] = useState<[number, number]>([1, 12]);
+  // Get current month (1-12)
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+
+  // State for the minor expenses threshold (default to 1.0%)
+  const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.0);
+  // State for the month range filter (default from January to current month)
+  const [monthRange, setMonthRange] = useState<[number, number]>([
+    1,
+    currentMonth,
+  ]);
 
   if (!data || data.length === 0) {
     return (

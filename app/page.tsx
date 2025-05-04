@@ -91,7 +91,7 @@ function AuthenticatedLandingPage() {
               `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
             );
             const data = await response.json();
-            setUserLocation(data.city || data.locality || "");
+            setUserLocation(data.countryName || "");
           } catch (error) {
             console.error("Error fetching location:", error);
           }

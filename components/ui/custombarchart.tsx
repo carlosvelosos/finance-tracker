@@ -357,7 +357,7 @@ export function CustomBarChart({
                     <ul className="list-disc pl-4 text-xs space-y-2">
                       {item.category ===
                       `Minor expenses (${minorExpensesThreshold}%)`
-                        ? // For Minor expenses, show category and description separated and aligned
+                        ? // For Minor expenses, show category and description separated in proper columns
                           Object.entries(
                             // Group transactions by category first
                             sortedCategories
@@ -398,17 +398,17 @@ export function CustomBarChart({
                               return (
                                 <li
                                   key={combinedKey}
-                                  className="grid grid-cols-[1fr,2fr,auto] gap-2 hover:bg-gray-100 hover:rounded-md px-2 py-1 items-center"
+                                  className="flex flex-row items-center hover:bg-gray-100 hover:rounded-md px-2 py-1"
                                 >
-                                  <span className="font-medium text-gray-700 truncate">
+                                  <div className="w-1/4 font-medium text-gray-700 truncate pr-2">
                                     {category}
-                                  </span>
-                                  <span className="text-gray-600 truncate">
+                                  </div>
+                                  <div className="w-1/2 text-gray-600 truncate">
                                     {description}
-                                  </span>
-                                  <span className="text-right font-medium">
+                                  </div>
+                                  <div className="w-1/4 text-right font-medium">
                                     {formatCurrency(sum)}
-                                  </span>
+                                  </div>
                                 </li>
                               );
                             })

@@ -87,30 +87,17 @@ export default function LoginPage() {
               <path d="M3 9h18" />
             </svg>
           </div>
-          <span className="ml-2 text-xl font-semibold">Finance Tracker</span>
+          <span className="ml-2 text-xl font-semibold text-black">Finance Tracker</span>
         </div>
 
         <Card className="shadow-md">
           <CardHeader className="pb-0">
             <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-            <p className="text-center text-gray-600 mt-2">Login with your Apple or Google account</p>
+            <p className="text-center text-gray-600 mt-2">Login with your Google account</p>
           </CardHeader>
 
           <CardContent className="pt-4">
             {/* Social login buttons */}
-            <Button 
-              variant="outline" 
-              className="w-full mb-3 flex items-center justify-center"
-              onClick={() => handleOAuthLogin('apple')}
-              disabled={loading}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
-                <path d="M10 2c1 .5 2 2 2 5" />
-              </svg>
-              Login with Apple
-            </Button>
-
             <Button 
               variant="outline" 
               className="w-full mb-6 flex items-center justify-center"

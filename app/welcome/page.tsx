@@ -67,21 +67,21 @@ const WelcomePage: React.FC = () => {
 
 const styles = {
     container: {
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
         backgroundColor: '#121212',
         color: '#ffffff',
         fontFamily: 'Arial, sans-serif',
         display: 'flex',
         flexDirection: 'column' as 'column',
-        alignItems: 'flex-start' as 'flex-start',
+        alignItems: 'center' as 'center', // Changed to center alignment
         justifyContent: 'flex-start' as 'flex-start',
         padding: 0,
         margin: 0,
     },
     chatBox: {
         width: '100%',
-        maxWidth: '100%',
+        maxWidth: '1400px', // Match the navbar's max-width from the screenshot
         backgroundColor: 'transparent',
         padding: '40px 40px',
         borderRadius: 0,
@@ -89,9 +89,9 @@ const styles = {
         display: 'flex',
         flexDirection: 'column' as 'column',
         alignItems: 'flex-start' as 'flex-start',
-        minHeight: '100vh',
-        maxHeight: '100vh',
+        flex: 1,
         overflowY: 'auto' as 'auto',
+        margin: '0 auto', // Center horizontally
     },
     cursor: {
         display: 'inline-block',

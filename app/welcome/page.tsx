@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
 
 const chatMessages = [
     'Welcome to Finance Tracker!',
@@ -13,6 +14,7 @@ const WelcomePage: React.FC = () => {
     const [currentMessage, setCurrentMessage] = useState('');
     const [messageIndex, setMessageIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
+    const [showButton, setShowButton] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom when messages change
@@ -22,7 +24,11 @@ const WelcomePage: React.FC = () => {
 
     useEffect(() => {
         if (messageIndex >= chatMessages.length) {
-            return; // All messages displayed
+            // All messages displayed, show the button with a delay
+            const buttonTimer = setTimeout(() => {
+                setShowButton(true);
+            }, 1000);
+            return () => clearTimeout(buttonTimer);
         }
 
         if (charIndex < chatMessages[messageIndex].length) {
@@ -75,6 +81,48 @@ const WelcomePage: React.FC = () => {
                             <span style={styles.cursor}>{charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
                         </div>
                     )}
+                    {showButton && (
+                        <div style={styles.buttonContainer}>
+                            <Link href="/family">
+                                <button 
+                                    style={styles.ctaButton} 
+                                    className="cta-button"
+                                    onMouseEnter={(e) => {
+                                        const arrow = e.currentTarget.querySelector('.button-arrow') as HTMLElement;
+                                        if (arrow) arrow.style.transform = 'translateX(5px)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        const arrow = e.currentTarget.querySelector('.button-arrow') as HTMLElement;
+                                        if (arrow) arrow.style.transform = 'translateX(0)';
+                                    }}
+                                >
+                                    <span style={styles.buttonText}>Go to FAMILY page</span>
+                                    <span className="button-arrow" style={styles.buttonArrow}>→</span>
+                                </button>
+                            </Link>
+                            <style jsx global>{`
+                                @keyframes buttonAppear {
+                                    0% { opacity: 0; transform: translateY(30px); }
+                                    60% { opacity: 1; transform: translateY(-10px); }
+                                    80% { transform: translateY(5px); }
+                                    100% { transform: translateY(0); }
+                                }
+                                @keyframes pulseGlow {
+                                    0% { box-shadow: 0 0 10px rgba(0, 255, 174, 0.3); }
+                                    50% { box-shadow: 0 0 30px rgba(0, 255, 174, 0.6); }
+                                    100% { box-shadow: 0 0 10px rgba(0, 255, 174, 0.3); }
+                                }
+                                .cta-button {
+                                    animation: buttonAppear 1s ease-out forwards, pulseGlow 3s infinite 1s;
+                                }
+                                .cta-button:hover {
+                                    background-color: #00ffae;
+                                    color: #000;
+                                    transform: translateY(-5px) scale(1.05);
+                                }
+                            `}</style>
+                        </div>
+                    )}
                     <div ref={messagesEndRef} />
                 </div>
             </div>
@@ -118,7 +166,43 @@ const styles = {
         display: 'flex',
         flexDirection: 'column' as 'column',
         width: '100%',
-        // Remove marginTop:auto as it conflicts with our approach
+    },
+    buttonContainer: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center' as 'center',
+        marginTop: '60px',
+        marginBottom: '40px',
+    },
+    ctaButton: {
+        backgroundColor: '#000',
+        color: '#fff',
+        borderRadius: '50px',
+        padding: '0 40px',
+        height: '80px',
+        fontSize: '28px',
+        fontWeight: 700,
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center' as 'center',
+        justifyContent: 'center' as 'center',
+        boxShadow: '0 8px 30px rgba(0, 255, 174, 0.3)',
+        transition: 'all 0.3s ease',
+        position: 'relative' as 'relative',
+        overflow: 'hidden',
+        border: '2px solid #00ffae',
+    },
+    buttonText: {
+        position: 'relative' as 'relative',
+        zIndex: 2,
+        marginRight: '10px',
+    },
+    buttonArrow: {
+        position: 'relative' as 'relative',
+        zIndex: 2,
+        fontSize: '32px',
+        transition: 'transform 0.3s ease',
+        transform: 'translateX(0)',
     },
     cursor: {
         display: 'inline-block',

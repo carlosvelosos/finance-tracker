@@ -2,46 +2,58 @@
 
 import React, { useEffect, useState } from 'react';
 
+const chatMessages = [
+    'Welcome to Finance Tracker!',
+    'We are here to help you manage your finances.',
+    'Let’s get started, shall we?',
+];
+
 const WelcomePage: React.FC = () => {
-    const [messages, setMessages] = useState<string[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
-    const chatMessages = [
-        'Welcome to Finance Tracker!',
-        'We are here to help you manage your finances.',
-        'Let’s get started, shall we?',
-    ];
+    const [messageIndex, setMessageIndex] = useState(0);
+    const [charIndex, setCharIndex] = useState(0);
+    const [showMessage, setShowMessage] = useState(true);
 
     useEffect(() => {
-        let messageIndex = 0;
-        let charIndex = 0;
-        const typingInterval = setInterval(() => {
-            if (messageIndex < chatMessages.length) {
-                if (charIndex < chatMessages[messageIndex].length) {
-                    setCurrentMessage((prev) => prev + chatMessages[messageIndex][charIndex]);
-                    charIndex++;
-                } else {
-                    setMessages((prev) => [...prev, chatMessages[messageIndex]]);
-                    setCurrentMessage('');
-                    charIndex = 0;
-                    messageIndex++;
-                }
-            } else {
-                clearInterval(typingInterval);
-            }
-        }, 100);
+        if (messageIndex >= chatMessages.length) return;
+        if (!showMessage) return;
+        if (charIndex < chatMessages[messageIndex].length) {
+            const timeout = setTimeout(() => {
+                setCurrentMessage((prev) => prev + chatMessages[messageIndex][charIndex]);
+                setCharIndex((prev) => prev + 1);
+            }, 50);
+            return () => clearTimeout(timeout);
+        } else {
+            // Pause, then fade out and move to next message
+            const pause = setTimeout(() => {
+                setShowMessage(false);
+            }, 1200);
+            return () => clearTimeout(pause);
+        }
+    }, [charIndex, messageIndex, showMessage]);
 
-        return () => clearInterval(typingInterval);
-    }, []);
+    useEffect(() => {
+        if (!showMessage && messageIndex < chatMessages.length) {
+            // Fade out, then show next message
+            const next = setTimeout(() => {
+                setCurrentMessage('');
+                setCharIndex(0);
+                setMessageIndex((prev) => prev + 1);
+                setShowMessage(true);
+            }, 400);
+            return () => clearTimeout(next);
+        }
+    }, [showMessage, messageIndex]);
 
     return (
         <div style={styles.container}>
             <div style={styles.chatBox}>
-                {messages.map((msg, index) => (
-                    <p key={index} style={styles.message}>
-                        {msg}
-                    </p>
-                ))}
-                {currentMessage && <p style={styles.message}>{currentMessage}</p>}
+                {messageIndex < chatMessages.length && (
+                    <div style={{ ...styles.bubble, opacity: showMessage ? 1 : 0, transition: 'opacity 0.4s' }}>
+                        {currentMessage}
+                        <span style={styles.cursor}>{showMessage && charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -61,14 +73,33 @@ const styles = {
         width: '80%',
         maxWidth: '600px',
         backgroundColor: '#1e1e1e',
-        padding: '20px',
+        padding: '40px 20px',
         borderRadius: '10px',
         boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+        display: 'flex',
+        flexDirection: 'column' as 'column',
+        alignItems: 'center' as 'center',
+        minHeight: '120px',
     },
-    message: {
+    bubble: {
+        background: '#23272f',
+        borderRadius: '18px',
+        padding: '18px 28px',
+        fontSize: '20px',
         margin: '10px 0',
-        fontSize: '18px',
-        lineHeight: '1.5',
+        minWidth: '200px',
+        minHeight: '32px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        position: 'relative' as 'relative',
+        textAlign: 'left' as 'left',
+        letterSpacing: '0.01em',
+    },
+    cursor: {
+        display: 'inline-block',
+        width: '10px',
+        color: '#00ffae',
+        fontWeight: 'bold',
+        animation: 'blink 1s steps(1) infinite',
     },
 };
 

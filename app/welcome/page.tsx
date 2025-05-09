@@ -46,8 +46,8 @@ const WelcomePage: React.FC = () => {
                         key={idx}
                         style={{
                             color: `rgba(255,255,255,${0.9 - (messages.length - idx) * 0.2})`,
-                            fontSize: '20px',
-                            margin: '10px 0',
+                            fontSize: '80px', // Doubled from 20px to 40px
+                            margin: '20px 0', // Increased margin for better spacing
                             fontWeight: idx === messages.length - 1 ? 600 : 400,
                             transition: 'color 0.3s ease',
                         }}
@@ -58,8 +58,8 @@ const WelcomePage: React.FC = () => {
                 {messageIndex < chatMessages.length && (
                     <div style={{ 
                         color: '#fff', 
-                        fontSize: '20px', 
-                        margin: '10px 0', 
+                        fontSize: '80px', // Doubled from 20px to 40px
+                        margin: '20px 0', // Increased margin for better spacing
                         fontWeight: 700,
                         filter: 'brightness(1.3)',
                     }}>

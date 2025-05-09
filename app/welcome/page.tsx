@@ -45,17 +45,24 @@ const WelcomePage: React.FC = () => {
                     <div
                         key={idx}
                         style={{
-                            color: idx === messages.length - 1 ? '#fff' : `rgba(255,255,255,${0.7 - 0.2 * (messages.length - 1 - idx)})`,
+                            color: `rgba(255,255,255,${0.9 - (messages.length - idx) * 0.2})`,
                             fontSize: '20px',
                             margin: '10px 0',
                             fontWeight: idx === messages.length - 1 ? 600 : 400,
+                            transition: 'color 0.3s ease',
                         }}
                     >
                         {msg}
                     </div>
                 ))}
                 {messageIndex < chatMessages.length && (
-                    <div style={{ color: '#fff', fontSize: '20px', margin: '10px 0', fontWeight: 700 }}>
+                    <div style={{ 
+                        color: '#fff', 
+                        fontSize: '20px', 
+                        margin: '10px 0', 
+                        fontWeight: 700,
+                        filter: 'brightness(1.3)',
+                    }}>
                         {currentMessage}
                         <span style={styles.cursor}>{charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
                     </div>

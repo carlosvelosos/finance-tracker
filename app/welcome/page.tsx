@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 const chatMessages = [
     'Welcome to Finance Tracker!',
@@ -170,23 +169,21 @@ const WelcomePage: React.FC = () => {
     );
 };
 
-const styles = {
-    container: {
+const styles = {    container: {
         width: '100%',
         height: '100vh',
         backgroundColor: '#121212',
         color: '#ffffff',
         fontFamily: 'Arial, sans-serif',
         display: 'flex',
-        flexDirection: 'column' as 'column',
-        alignItems: 'center' as 'center',
-        justifyContent: 'center' as 'center',
+        flexDirection: 'column' as const,
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
         padding: 0,
         margin: 0,
         overflow: 'hidden',
         paddingTop: '80px', // Added padding at the top to prevent text cutoff
-    },
-    chatBox: {
+    },    chatBox: {
         width: '100%',
         maxWidth: '1400px',
         backgroundColor: 'transparent',
@@ -194,31 +191,29 @@ const styles = {
         borderRadius: 0,
         boxShadow: 'none',
         display: 'flex',
-        flexDirection: 'column' as 'column',
-        justifyContent: 'flex-end' as 'flex-end',
+        flexDirection: 'column' as const,
+        justifyContent: 'flex-end' as const,
         height: '65vh', // Slightly increased height
         maxHeight: 'calc(100vh - 120px)', // Ensure it doesn't exceed viewport minus navbar and padding
-        overflowY: 'auto' as 'auto',
+        overflowY: 'auto' as const,
         margin: '0 auto',
         marginTop: '0', // Removed additional margin on top
     },
     spacer: {
         minHeight: '20vh', // Set minimum height to ensure enough space at the top
         flexGrow: 1, // This pushes the messages down
-    },
-    chatMessages: {
+    },    chatMessages: {
         display: 'flex',
-        flexDirection: 'column' as 'column',
+        flexDirection: 'column' as const,
         width: '100%',
     },
     buttonContainer: {
         width: '100%',
         display: 'flex',
-        justifyContent: 'center' as 'center',
+        justifyContent: 'center' as const,
         marginTop: '60px',
         marginBottom: '40px',
-    },
-    ctaButton: {
+    },    ctaButton: {
         backgroundColor: '#000',
         color: '#fff',
         borderRadius: '50px',
@@ -228,21 +223,20 @@ const styles = {
         fontWeight: 700,
         cursor: 'pointer',
         display: 'flex',
-        alignItems: 'center' as 'center',
-        justifyContent: 'center' as 'center',
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
         boxShadow: '0 8px 30px rgba(0, 255, 174, 0.3)',
         transition: 'all 0.3s ease',
-        position: 'relative' as 'relative',
+        position: 'relative' as const,
         overflow: 'hidden',
         border: '2px solid #00ffae',
-    },
-    buttonText: {
-        position: 'relative' as 'relative',
+    },    buttonText: {
+        position: 'relative' as const,
         zIndex: 2,
         marginRight: '10px',
     },
     buttonArrow: {
-        position: 'relative' as 'relative',
+        position: 'relative' as const,
         zIndex: 2,
         fontSize: '32px',
         transition: 'transform 0.3s ease',

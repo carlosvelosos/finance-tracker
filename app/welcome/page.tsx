@@ -57,9 +57,7 @@ const WelcomePage: React.FC = () => {
         e.preventDefault();
         if (isNavigating) return;
         
-        setIsNavigating(true);
-        
-        // Start the animation sequence
+        setIsNavigating(true);        // Start the animation sequence
         if (containerRef.current) {
             containerRef.current.classList.add('navigation-started');
         }
@@ -67,7 +65,7 @@ const WelcomePage: React.FC = () => {
         // Wait for animations to complete before navigating
         setTimeout(() => {
             router.push('/family');
-        }, 1500); // Match this with the total animation duration
+        }, 1200); // Adjusted timing for better sequence with the family page animation
     };
 
     return (
@@ -123,8 +121,7 @@ const WelcomePage: React.FC = () => {
                                 @keyframes moveUpFadeOut {
                                     0% { transform: translateY(0); opacity: 1; }
                                     100% { transform: translateY(-100vh); opacity: 0; }
-                                }
-                                @keyframes whiteOverlay {
+                                }                                @keyframes whiteOverlay {
                                     0% { transform: translateY(100%); }
                                     100% { transform: translateY(0); }
                                 }
@@ -144,7 +141,7 @@ const WelcomePage: React.FC = () => {
                                     z-index: 10;
                                 }
                                 .welcome-container.navigating::after {
-                                    animation: whiteOverlay 0.8s ease-in forwards 0.7s;
+                                    animation: whiteOverlay 0.7s ease-in forwards 0.6s;
                                 }
                                 .welcome-container.navigating .chatMessages,
                                 .welcome-container.navigating .buttonContainer {

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const chatMessages = [
@@ -10,12 +11,15 @@ const chatMessages = [
 ];
 
 const WelcomePage: React.FC = () => {
+    const router = useRouter();
     const [messages, setMessages] = useState<string[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [messageIndex, setMessageIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
     const [showButton, setShowButton] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
@@ -47,14 +51,29 @@ const WelcomePage: React.FC = () => {
                 setMessageIndex((prevIndex) => prevIndex + 1);
             }, 900);
             return () => clearTimeout(pauseTimeout);
+        }    }, [charIndex, messageIndex]);
+
+    const handleNavigationToFamilyPage = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (isNavigating) return;
+        
+        setIsNavigating(true);
+        
+        // Start the animation sequence
+        if (containerRef.current) {
+            containerRef.current.classList.add('navigation-started');
         }
-    }, [charIndex, messageIndex]);
+        
+        // Wait for animations to complete before navigating
+        setTimeout(() => {
+            router.push('/family');
+        }, 1500); // Match this with the total animation duration
+    };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.chatBox}>
-                <div style={styles.spacer}></div>
-                <div style={styles.chatMessages}>
+        <div ref={containerRef} style={styles.container} className={`welcome-container ${isNavigating ? 'navigating' : ''}`}>
+            <div style={styles.chatBox}>                <div style={styles.spacer}></div>
+                <div style={styles.chatMessages} className="chatMessages">
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
@@ -80,19 +99,16 @@ const WelcomePage: React.FC = () => {
                             {currentMessage}
                             <span style={styles.cursor}>{charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
                         </div>
-                    )}
-                    {showButton && (
+                    )}                    {showButton && (
                         <div style={styles.buttonContainer}>
-                            <Link href="/family">
-                                <button 
-                                    style={styles.ctaButton} 
-                                    className="cta-button"
-                                >
-                                    <span style={styles.buttonText}>Go to FAMILY page</span>
-                                    <span className="button-arrow" style={styles.buttonArrow}>→</span>
-                                </button>
-                            </Link>
-                            <style jsx global>{`
+                            <button 
+                                style={styles.ctaButton} 
+                                className="cta-button"
+                                onClick={handleNavigationToFamilyPage}
+                            >
+                                <span style={styles.buttonText}>Go to FAMILY page</span>
+                                <span className="button-arrow" style={styles.buttonArrow}>→</span>
+                            </button>                            <style jsx global>{`
                                 @keyframes buttonAppear {
                                     0% { opacity: 0; transform: translateY(30px); }
                                     60% { opacity: 1; transform: translateY(-10px); }
@@ -103,6 +119,36 @@ const WelcomePage: React.FC = () => {
                                     0% { box-shadow: 0 0 10px rgba(0, 255, 174, 0.3); }
                                     50% { box-shadow: 0 0 30px rgba(0, 255, 174, 0.6); }
                                     100% { box-shadow: 0 0 10px rgba(0, 255, 174, 0.3); }
+                                }
+                                @keyframes moveUpFadeOut {
+                                    0% { transform: translateY(0); opacity: 1; }
+                                    100% { transform: translateY(-100vh); opacity: 0; }
+                                }
+                                @keyframes whiteOverlay {
+                                    0% { transform: translateY(100%); }
+                                    100% { transform: translateY(0); }
+                                }
+                                .welcome-container {
+                                    position: relative;
+                                    overflow: hidden;
+                                }
+                                .welcome-container::after {
+                                    content: '';
+                                    position: absolute;
+                                    bottom: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background-color: #ffffff;
+                                    transform: translateY(100%);
+                                    z-index: 10;
+                                }
+                                .welcome-container.navigating::after {
+                                    animation: whiteOverlay 0.8s ease-in forwards 0.7s;
+                                }
+                                .welcome-container.navigating .chatMessages,
+                                .welcome-container.navigating .buttonContainer {
+                                    animation: moveUpFadeOut 0.7s ease-out forwards;
                                 }
                                 .cta-button {
                                     animation: buttonAppear 1s ease-out forwards, pulseGlow 3s infinite 1s;
@@ -130,33 +176,37 @@ const WelcomePage: React.FC = () => {
 const styles = {
     container: {
         width: '100%',
-        height: '100vh',  // Use viewport height instead of 100%
+        height: '100vh',
         backgroundColor: '#121212',
         color: '#ffffff',
         fontFamily: 'Arial, sans-serif',
         display: 'flex',
         flexDirection: 'column' as 'column',
         alignItems: 'center' as 'center',
-        justifyContent: 'flex-end' as 'flex-end',
+        justifyContent: 'center' as 'center',
         padding: 0,
         margin: 0,
-        overflow: 'hidden', // Prevent scrolling on the container
+        overflow: 'hidden',
+        paddingTop: '80px', // Added padding at the top to prevent text cutoff
     },
     chatBox: {
         width: '100%',
         maxWidth: '1400px',
         backgroundColor: 'transparent',
-        padding: '0 40px 40px 40px', // Adjust padding (no top padding needed)
+        padding: '40px 40px 40px 40px', // Added top padding
         borderRadius: 0,
         boxShadow: 'none',
         display: 'flex',
         flexDirection: 'column' as 'column',
         justifyContent: 'flex-end' as 'flex-end',
-        height: 'calc(100vh - 70px)', // Account for navbar height (approximately)
+        height: '65vh', // Slightly increased height
+        maxHeight: 'calc(100vh - 120px)', // Ensure it doesn't exceed viewport minus navbar and padding
         overflowY: 'auto' as 'auto',
         margin: '0 auto',
+        marginTop: '0', // Removed additional margin on top
     },
     spacer: {
+        minHeight: '20vh', // Set minimum height to ensure enough space at the top
         flexGrow: 1, // This pushes the messages down
     },
     chatMessages: {

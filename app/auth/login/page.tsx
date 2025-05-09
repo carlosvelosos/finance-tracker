@@ -30,7 +30,7 @@ export default function LoginPage() {
       if (error) throw error;
       
       toast.success("Logged in successfully!");
-      router.push('/');
+      router.push('/welcome');
       router.refresh();
     } catch (error: unknown) {
       const errorMessage = error instanceof AuthError 

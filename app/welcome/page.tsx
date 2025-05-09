@@ -9,49 +9,55 @@ const chatMessages = [
 ];
 
 const WelcomePage: React.FC = () => {
+    const [messages, setMessages] = useState<string[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [messageIndex, setMessageIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
-    const [showMessage, setShowMessage] = useState(true);
 
     useEffect(() => {
-        if (messageIndex >= chatMessages.length) return;
-        if (!showMessage) return;
+        if (messageIndex >= chatMessages.length) {
+            return; // All messages displayed
+        }
+
         if (charIndex < chatMessages[messageIndex].length) {
-            const timeout = setTimeout(() => {
+            // Currently typing a message
+            const typingTimeout = setTimeout(() => {
                 setCurrentMessage((prev) => prev + chatMessages[messageIndex][charIndex]);
                 setCharIndex((prev) => prev + 1);
             }, 50);
-            return () => clearTimeout(timeout);
+            return () => clearTimeout(typingTimeout);
         } else {
-            // Pause, then fade out and move to next message
-            const pause = setTimeout(() => {
-                setShowMessage(false);
-            }, 1200);
-            return () => clearTimeout(pause);
-        }
-    }, [charIndex, messageIndex, showMessage]);
-
-    useEffect(() => {
-        if (!showMessage && messageIndex < chatMessages.length) {
-            // Fade out, then show next message
-            const next = setTimeout(() => {
+            // Current message is fully typed, pause then move to next
+            const pauseTimeout = setTimeout(() => {
+                setMessages((prevMessages) => [...prevMessages, chatMessages[messageIndex]]);
                 setCurrentMessage('');
                 setCharIndex(0);
-                setMessageIndex((prev) => prev + 1);
-                setShowMessage(true);
-            }, 400);
-            return () => clearTimeout(next);
+                setMessageIndex((prevIndex) => prevIndex + 1);
+            }, 900);
+            return () => clearTimeout(pauseTimeout);
         }
-    }, [showMessage, messageIndex]);
+    }, [charIndex, messageIndex]);
 
     return (
         <div style={styles.container}>
             <div style={styles.chatBox}>
+                {messages.map((msg, idx) => (
+                    <div
+                        key={idx}
+                        style={{
+                            color: idx === messages.length - 1 ? '#fff' : `rgba(255,255,255,${0.7 - 0.2 * (messages.length - 1 - idx)})`,
+                            fontSize: '20px',
+                            margin: '10px 0',
+                            fontWeight: idx === messages.length - 1 ? 600 : 400,
+                        }}
+                    >
+                        {msg}
+                    </div>
+                ))}
                 {messageIndex < chatMessages.length && (
-                    <div style={{ ...styles.bubble, opacity: showMessage ? 1 : 0, transition: 'opacity 0.4s' }}>
+                    <div style={{ color: '#fff', fontSize: '20px', margin: '10px 0', fontWeight: 700 }}>
                         {currentMessage}
-                        <span style={styles.cursor}>{showMessage && charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
+                        <span style={styles.cursor}>{charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
                     </div>
                 )}
             </div>
@@ -61,38 +67,31 @@ const WelcomePage: React.FC = () => {
 
 const styles = {
     container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: '100vw',
         height: '100vh',
         backgroundColor: '#121212',
         color: '#ffffff',
         fontFamily: 'Arial, sans-serif',
-    },
-    chatBox: {
-        width: '80%',
-        maxWidth: '600px',
-        backgroundColor: '#1e1e1e',
-        padding: '40px 20px',
-        borderRadius: '10px',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
         display: 'flex',
         flexDirection: 'column' as 'column',
-        alignItems: 'center' as 'center',
-        minHeight: '120px',
+        alignItems: 'flex-start' as 'flex-start',
+        justifyContent: 'flex-start' as 'flex-start',
+        padding: 0,
+        margin: 0,
     },
-    bubble: {
-        background: '#23272f',
-        borderRadius: '18px',
-        padding: '18px 28px',
-        fontSize: '20px',
-        margin: '10px 0',
-        minWidth: '200px',
-        minHeight: '32px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        position: 'relative' as 'relative',
-        textAlign: 'left' as 'left',
-        letterSpacing: '0.01em',
+    chatBox: {
+        width: '100%',
+        maxWidth: '100%',
+        backgroundColor: 'transparent',
+        padding: '40px 40px',
+        borderRadius: 0,
+        boxShadow: 'none',
+        display: 'flex',
+        flexDirection: 'column' as 'column',
+        alignItems: 'flex-start' as 'flex-start',
+        minHeight: '100vh',
+        maxHeight: '100vh',
+        overflowY: 'auto' as 'auto',
     },
     cursor: {
         display: 'inline-block',

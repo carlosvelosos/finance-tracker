@@ -87,14 +87,6 @@ const WelcomePage: React.FC = () => {
                                 <button 
                                     style={styles.ctaButton} 
                                     className="cta-button"
-                                    onMouseEnter={(e) => {
-                                        const arrow = e.currentTarget.querySelector('.button-arrow') as HTMLElement;
-                                        if (arrow) arrow.style.transform = 'translateX(5px)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        const arrow = e.currentTarget.querySelector('.button-arrow') as HTMLElement;
-                                        if (arrow) arrow.style.transform = 'translateX(0)';
-                                    }}
                                 >
                                     <span style={styles.buttonText}>Go to FAMILY page</span>
                                     <span className="button-arrow" style={styles.buttonArrow}>→</span>
@@ -114,11 +106,16 @@ const WelcomePage: React.FC = () => {
                                 }
                                 .cta-button {
                                     animation: buttonAppear 1s ease-out forwards, pulseGlow 3s infinite 1s;
+                                    transition: all 0.3s ease !important;
                                 }
                                 .cta-button:hover {
-                                    background-color: #00ffae;
-                                    color: #000;
-                                    transform: translateY(-5px) scale(1.05);
+                                    background-color: #00ffae !important;
+                                    color: #000 !important;
+                                    transform: translateY(-5px) scale(1.05) !important;
+                                    box-shadow: 0 12px 30px rgba(0, 255, 174, 0.5) !important;
+                                }
+                                .cta-button:hover .button-arrow {
+                                    transform: translateX(5px);
                                 }
                             `}</style>
                         </div>

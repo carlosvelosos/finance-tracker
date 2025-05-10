@@ -596,12 +596,15 @@ export default function FamilyFinancePage() {
                       cardType="Casamento Karlinha e Perna"
                     />
                   </CarouselItem>
-                </CarouselContent>
-
-                {/* Navigation row with aligned elements */}
+                </CarouselContent>{" "}
+                {/* Navigation row with aligned elements */}{" "}
                 <div className="flex items-center justify-between mt-4 px-2">
                   <CarouselPrevious
-                    className="static translate-y-0 opacity-70 hover:opacity-100 hover:bg-white transition-all pointer-events-auto"
+                    className="static translate-y-0 transition-all pointer-events-auto 
+                      disabled:text-[#898989] text-green-600 
+                      hover:text-white hover:bg-green-600
+                      focus:text-white focus:bg-green-600
+                      disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#898989]"
                     variant="ghost"
                     size="sm"
                   />
@@ -610,7 +613,11 @@ export default function FamilyFinancePage() {
                   <CarouselDotsResponsive className="flex-1" />
 
                   <CarouselNext
-                    className="static translate-y-0 opacity-70 hover:opacity-100 hover:bg-white transition-all pointer-events-auto"
+                    className="static translate-y-0 transition-all pointer-events-auto 
+                      disabled:text-[#898989] text-green-600 
+                      hover:text-white hover:bg-green-600
+                      focus:text-white focus:bg-green-600
+                      disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#898989]"
                     variant="ghost"
                     size="sm"
                   />

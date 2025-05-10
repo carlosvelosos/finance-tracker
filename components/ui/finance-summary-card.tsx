@@ -71,15 +71,17 @@ export function FinanceSummaryCard({
                   Carlos&apos; shared and individual expenses. Amanda can view
                   her personal transactions, shared expenses, and the total
                   amounts calculated for each category.
-                </p>                <p className="text-xs mb-6">
+                </p>{" "}
+                <p className="text-xs mb-6">
                   <strong>Amanda&apos;s Balance:</strong> The amount displayed
                   at the top represents Amanda&apos;s current financial
                   standing. It&apos;s calculated by adding Amanda&apos;s
                   personal transactions, plus half of shared expenses that
                   Carlos paid (which Amanda owes), minus half of shared expenses
-                  that Amanda paid (which Carlos owes), and also includes expenses that Carlos paid but should be fully paid by Amanda. A positive balance
-                  (green) means Carlos owes Amanda money, while a negative
-                  balance (red) means Amanda owes Carlos.
+                  that Amanda paid (which Carlos owes), and also includes
+                  expenses that Carlos paid but should be fully paid by Amanda.
+                  A positive balance (green) means Carlos owes Amanda money,
+                  while a negative balance (red) means Amanda owes Carlos.
                 </p>
                 <p className="text-xs mb-6">
                   The carousel section displays financial data organized by

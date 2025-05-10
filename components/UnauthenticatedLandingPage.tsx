@@ -551,36 +551,44 @@ export default function UnauthenticatedLandingPage() {
         </div>
       </section>{" "}
       {/* CTA Section */}
-      <section className="w-full py-36 px-4 bg-black border-t border-gray-800">
-        <div className="max-w-5xl mx-auto text-center relative">
-          {/* Background decoration elements - subtle gradient effect */}
-          <div className="absolute top-0 left-0 w-32 h-32 bg-[#12A65C] rounded-full opacity-5 blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-48 h-48 bg-[#12A65C] rounded-full opacity-5 blur-3xl"></div>
-          <div className="absolute top-1/3 right-1/4 w-24 h-24 bg-gray-700 rounded-full opacity-5 blur-2xl"></div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 bg-gradient-to-br from-zinc-100 to-zinc-600 bg-clip-text tracking-tight text-transparent">
-            See where financial{" "}
-            <span className="text-[#12A65C]">automation</span> can take your
-            business.
+      <section className="relative w-full py-32 bg-black border-t border-gray-800">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/5 to-transparent pointer-events-none"></div>
+
+        {/* Soft glow elements */}
+        <div className="absolute left-1/4 top-1/4 w-64 h-64 bg-[#12A65C]/10 rounded-full blur-3xl opacity-20 transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute right-1/4 bottom-1/4 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl opacity-20 transform translate-x-1/2 translate-y-1/2"></div>
+
+        <div className="max-w-5xl mx-auto text-center relative z-10 px-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 tracking-tight">
+            <span className="text-white">See where financial </span>
+            <span className="text-[#12A65C]">automation</span>
+            <span className="text-white"> can take your business.</span>
           </h2>{" "}
-          <Button
-            asChild
-            className="group relative rounded-full p-px text-sm/6 text-zinc-400 duration-300 hover:text-zinc-100"
-            type="button"
-            aria-haspopup="dialog"
-            aria-expanded="false"
-            data-state="closed"
-          >
-            <Link href="/auth/signup" className="flex items-center z-10">
-              <span className="absolute inset-0 overflow-hidden rounded-full">
-                <span className="absolute inset-0 rounded-full bg-[image:radial-gradient(75%_100%_at_0_0,theme(colors.emerald.500),transparent_75%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></span>
-              </span>
-              <div className="relative z-10 rounded-full bg-zinc-950 px-4 py-1.5 ring-1 ring-white/10">
-                Join the waitlist
-              </div>
-              <span className="absolute -bottom-0 left-[1.125rem] h-px w-[calc(100%-2.25rem)] bg-gradient-to-r from-emerald-400/0 via-emerald-400/90 to-emerald-400/0 transition-opacity duration-500 group-hover:opacity-40"></span>
-            </Link>
-          </Button>
+          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+            The first financial tool you'll love. And the last one you'll ever
+            need.
+          </p>{" "}
+          <div className="mx-auto flex justify-center">
+            <Button
+              asChild
+              className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white px-8 py-4 text-lg rounded-xl relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl border-none"
+            >
+              <Link href="/auth/signup" className="flex items-center">
+                <span className="relative z-10 font-medium">
+                  Join the waitlist
+                </span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-10 text-sm text-gray-500">
+            No credit card required. Join thousands of businesses already using
+            our platform.
+          </div>{" "}
         </div>
+        {/* Subtle animated gradient line */}
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
       </section>
     </div>
   );

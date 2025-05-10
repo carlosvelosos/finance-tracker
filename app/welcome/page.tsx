@@ -65,54 +65,46 @@ const WelcomePage: React.FC = () => {
         setTimeout(() => {
             router.push('/family');
         }, 1200); // Adjusted timing for better sequence with the family page animation
-    };
-
-    return (
-        <div ref={containerRef} style={styles.container} className={`welcome-container ${isNavigating ? 'navigating' : ''}`}>
-            <div style={styles.chatBox}>                <div style={styles.spacer}></div>
-                <div style={styles.chatMessages} className="chatMessages">
-                    {messages.map((msg, idx) => (
+    };    return (
+        <div 
+            ref={containerRef} 
+            className={`welcome-container w-full h-screen bg-[#121212] text-white font-sans flex flex-col items-center justify-center p-0 m-0 overflow-hidden pt-20 border-2 border-[#00ffae] ${isNavigating ? 'navigating' : ''}`}
+        >
+            <div className="w-full max-w-[1400px] h-[65vh] max-h-[calc(100vh-120px)] bg-transparent p-10 rounded-none flex flex-col justify-end overflow-y-auto mx-auto mt-0 border-2 border-[#00ffae]">
+                <div className="min-h-[20vh] flex-grow border-2 border-[#00ffae]"></div>
+                <div className="chatMessages flex flex-col w-full border-2 border-[#00ffae]">                    {messages.map((msg, idx) => (
                         <div
                             key={idx}
+                            className={`text-[80px] my-5 transition-colors duration-300 border-2 border-[#00ffae]`}
                             style={{
                                 color: `rgba(255,255,255,${0.9 - (messages.length - idx) * 0.2})`,
-                                fontSize: '80px',
-                                margin: '20px 0',
                                 fontWeight: idx === messages.length - 1 ? 600 : 400,
-                                transition: 'color 0.3s ease',
                             }}
                         >
                             {msg}
                         </div>
                     ))}
                     {messageIndex < chatMessages.length && (
-                        <div style={{ 
-                            color: '#fff', 
-                            fontSize: '80px',
-                            margin: '20px 0',
-                            fontWeight: 700,
-                            filter: 'brightness(1.3)',
-                        }}>
+                        <div 
+                            className="text-white text-[80px] my-5 font-bold brightness-[1.3] border-2 border-[#00ffae]"
+                        >
                             {currentMessage}
-                            <span style={styles.cursor}>{charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
+                            <span className="inline-block w-[10px] text-[#00ffae] font-bold animate-blink">{charIndex < chatMessages[messageIndex].length ? '|' : ''}</span>
                         </div>
                     )}                    {showButton && (
-                        <div style={styles.buttonContainer}>
-                            <button 
-                                style={styles.ctaButton} 
-                                className="cta-button"
+                        <div className="w-full flex justify-center mt-[60px] mb-[40px]">                            <button 
+                                className="cta-button bg-black text-white rounded-[50px] py-0 px-10 h-20 text-[28px] font-bold cursor-pointer flex items-center justify-center shadow-[0_8px_30px_rgba(0,255,174,0.3)] transition-all duration-300 relative overflow-hidden border-2 border-[#00ffae]"
                                 onClick={handleNavigationToFamilyPage}
                             >
-                                <span style={styles.buttonText}>Go to FAMILY page</span>
-                                <span className="button-arrow" style={styles.buttonArrow}>→</span>
-                            </button>                            <style jsx global>{`
+                                <span className="relative z-[2] mr-[10px]">Go to FAMILY page</span>
+                                <span className="button-arrow relative z-[2] text-[32px] transition-transform duration-300 transform translate-x-0">→</span>
+                            </button><style jsx global>{`
                                 @keyframes buttonAppear {
                                     0% { opacity: 0; transform: translateY(30px); }
                                     60% { opacity: 1; transform: translateY(-10px); }
                                     80% { transform: translateY(5px); }
                                     100% { transform: translateY(0); }
-                                }
-                                @keyframes pulseGlow {
+                                }                                @keyframes pulseGlow {
                                     0% { box-shadow: 0 0 10px rgba(0, 255, 174, 0.3); }
                                     50% { box-shadow: 0 0 30px rgba(0, 255, 174, 0.6); }
                                     100% { box-shadow: 0 0 10px rgba(0, 255, 174, 0.3); }
@@ -124,20 +116,23 @@ const WelcomePage: React.FC = () => {
                                     0% { transform: translateY(100%); }
                                     100% { transform: translateY(0); }
                                 }
+                                @keyframes blink {
+                                    0%, 100% { opacity: 1; }
+                                    50% { opacity: 0; }
+                                }
                                 .welcome-container {
                                     position: relative;
                                     overflow: hidden;
-                                }
-                                .welcome-container::after {
+                                }                                .welcome-container::after {
                                     content: '';
-                                    position: absolute;
-                                    bottom: 0;
+                                    position: fixed;
+                                    top: 0;
                                     left: 0;
-                                    width: 100%;
-                                    height: 100%;
+                                    width: 100vw;
+                                    height: 100vh;
                                     background-color: #ffffff;
                                     transform: translateY(100%);
-                                    z-index: 10;
+                                    z-index: 1000;
                                 }
                                 .welcome-container.navigating::after {
                                     animation: whiteOverlay 0.7s ease-in forwards 0.6s;
@@ -161,94 +156,11 @@ const WelcomePage: React.FC = () => {
                                 }
                             `}</style>
                         </div>
-                    )}
-                    <div ref={messagesEndRef} />
+                    )}                    <div ref={messagesEndRef} />
                 </div>
             </div>
         </div>
     );
-};
-
-const styles = {    container: {
-        width: '100%',
-        height: '100vh',
-        backgroundColor: '#121212',
-        color: '#ffffff',
-        fontFamily: 'Arial, sans-serif',
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center' as const,
-        justifyContent: 'center' as const,
-        padding: 0,
-        margin: 0,
-        overflow: 'hidden',
-        paddingTop: '80px', // Added padding at the top to prevent text cutoff
-    },    chatBox: {
-        width: '100%',
-        maxWidth: '1400px',
-        backgroundColor: 'transparent',
-        padding: '40px 40px 40px 40px', // Added top padding
-        borderRadius: 0,
-        boxShadow: 'none',
-        display: 'flex',
-        flexDirection: 'column' as const,
-        justifyContent: 'flex-end' as const,
-        height: '65vh', // Slightly increased height
-        maxHeight: 'calc(100vh - 120px)', // Ensure it doesn't exceed viewport minus navbar and padding
-        overflowY: 'auto' as const,
-        margin: '0 auto',
-        marginTop: '0', // Removed additional margin on top
-    },
-    spacer: {
-        minHeight: '20vh', // Set minimum height to ensure enough space at the top
-        flexGrow: 1, // This pushes the messages down
-    },    chatMessages: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        width: '100%',
-    },
-    buttonContainer: {
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center' as const,
-        marginTop: '60px',
-        marginBottom: '40px',
-    },    ctaButton: {
-        backgroundColor: '#000',
-        color: '#fff',
-        borderRadius: '50px',
-        padding: '0 40px',
-        height: '80px',
-        fontSize: '28px',
-        fontWeight: 700,
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center' as const,
-        justifyContent: 'center' as const,
-        boxShadow: '0 8px 30px rgba(0, 255, 174, 0.3)',
-        transition: 'all 0.3s ease',
-        position: 'relative' as const,
-        overflow: 'hidden',
-        border: '2px solid #00ffae',
-    },    buttonText: {
-        position: 'relative' as const,
-        zIndex: 2,
-        marginRight: '10px',
-    },
-    buttonArrow: {
-        position: 'relative' as const,
-        zIndex: 2,
-        fontSize: '32px',
-        transition: 'transform 0.3s ease',
-        transform: 'translateX(0)',
-    },
-    cursor: {
-        display: 'inline-block',
-        width: '10px',
-        color: '#00ffae',
-        fontWeight: 'bold',
-        animation: 'blink 1s steps(1) infinite',
-    },
 };
 
 export default WelcomePage;

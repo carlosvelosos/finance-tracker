@@ -56,8 +56,8 @@ export default function LandingPage() {
         ©{" "}
         {new Date().toLocaleDateString(undefined, {
           year: "numeric",
-          month: "long",
-          day: "numeric",
+          // month: "long",
+          // day: "numeric",
         })}{" "}
         Finance Tracker. All rights reserved.
       </footer>

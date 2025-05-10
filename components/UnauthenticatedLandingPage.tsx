@@ -496,9 +496,9 @@ export default function UnauthenticatedLandingPage() {
             </h2>{" "}
             <p className="text-lg text-gray-300 mb-8">
               Share transaction access with family members using our advanced
-              junction table system. Mark expenses as "shared" or assign
-              responsibility to see a complete picture of household finances
-              while maintaining proper access control.
+              junction table system. Mark expenses as &quot;shared&quot; or
+              assign responsibility to see a complete picture of household
+              finances while maintaining proper access control.
             </p>
             <ul className="space-y-4 mb-8">
               {[

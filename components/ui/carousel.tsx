@@ -56,7 +56,7 @@ function Carousel({
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
     },
-    plugins
+    plugins,
   );
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
@@ -85,7 +85,7 @@ function Carousel({
         scrollNext();
       }
     },
-    [scrollPrev, scrollNext]
+    [scrollPrev, scrollNext],
   );
 
   React.useEffect(() => {
@@ -145,7 +145,7 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
         className={cn(
           "flex",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-          className
+          className,
         )}
         {...props}
       />
@@ -164,7 +164,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
-        className
+        className,
       )}
       {...props}
     />
@@ -190,7 +190,7 @@ function CarouselPrevious({
         !className && orientation === "horizontal"
           ? "absolute top-1/2 -left-12 -translate-y-1/2"
           : !className && "-top-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
+        className,
       )}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
@@ -221,7 +221,7 @@ function CarouselNext({
         !className && orientation === "horizontal"
           ? "absolute top-1/2 -right-12 -translate-y-1/2"
           : !className && "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
+        className,
       )}
       disabled={!canScrollNext}
       onClick={scrollNext}
@@ -267,7 +267,7 @@ function CarouselDots({ className, ...props }: React.ComponentProps<"div">) {
     (index: number) => {
       api?.scrollTo(index);
     },
-    [api]
+    [api],
   );
 
   // Ensure we always render at least the number of carousel items we know we have
@@ -285,7 +285,7 @@ function CarouselDots({ className, ...props }: React.ComponentProps<"div">) {
             "transition-all flex items-center",
             selectedIndex === index
               ? "h-2 w-8 rounded-full bg-green-600" // Updated height to match inactive dots
-              : "h-2 w-2 rounded-full bg-[#898989]"
+              : "h-2 w-2 rounded-full bg-[#898989]",
           )}
           onClick={() => handleDotClick(index)}
           aria-label={`Go to slide ${index + 1}`}
@@ -341,78 +341,67 @@ function CarouselDotsResponsive({
       window.removeEventListener("resize", onResizeHandler);
     };
   }, [api]);
-
   // Click handler
   const handleDotClick = React.useCallback(
     (index: number) => {
       if (!api) return;
 
-      // If 2XL screen and clicking second dot, go to slide 3
-      const targetIndex = is2XL && index === 1 ? 3 : index;
-      api.scrollTo(targetIndex);
+      if (is2XL) {
+        // For ultrawide screens, map the dots to different slide groups
+        if (index === 0) {
+          // First dot goes to slide 0 (showing slides 0, 1, 2)
+          api.scrollTo(0);
+        } else if (index === 1) {
+          // Middle dot goes to slide 1 (showing slides 1, 2, 3)
+          api.scrollTo(1);
+        } else if (index === 2) {
+          // Last dot goes to slide 2 or higher (showing slides 2, 3, 4)
+          api.scrollTo(Math.min(2, api.slideNodes().length - 3));
+        }
+      } else {
+        // On other screens, maintain direct one-to-one mapping
+        api.scrollTo(index);
+      }
     },
-    [api, is2XL]
+    [api, is2XL],
   );
 
   // Determine which indicators to show based on screen size
   const indicators = is2XL ? [0, 1, 2] : [0, 1, 2, 3, 4];
-
   // Calculate active indicator based on current slide
   const activeIndicatorIndex = React.useMemo(() => {
-    // if (is2XL) {
-    //   // On 2XL screens: 0 for slides 0-2, 1 for slide 3
-    //   const result = selectedIndex >= 3 ? 1 : 0;
-    //   console.log(`[2XL Mode] Selected slide: ${selectedIndex}, Active indicator: ${result}`);
-    //   return result;
-    // }
+    if (is2XL) {
+      // On 2XL screens, map the dots to slide groups:
+      // - First dot (0): active for slides 0-0
+      // - Middle dot (1): active for slides 1-1
+      // - Last dot (2): active for slides 2+
+      if (selectedIndex <= 0) return 0;
+      if (selectedIndex === 1) return 1;
+      return 2;
+    }
+
     // On smaller screens: direct mapping
-    console.log(
-      `[Regular Mode] Selected slide: ${selectedIndex}, Active indicator: ${selectedIndex}`
-    );
     return selectedIndex;
   }, [selectedIndex, is2XL]);
-
   // Log when the component renders
-  console.log(
-    `Rendering indicators - selectedIndex: ${selectedIndex}, is2XL: ${is2XL}, activeIndicatorIndex: ${activeIndicatorIndex}`
-  );
-
   return (
     <div
       className={cn("flex justify-center items-center gap-2", className)}
       {...props}
     >
-      {indicators.map((_, index) => {
-        // Log for each indicator during render
-        console.log(
-          `  Rendering indicator ${index}, active: ${
+      {indicators.map((_, index) => (
+        <button
+          key={index}
+          className={cn(
+            "transition-all flex items-center",
             index === activeIndicatorIndex
-          }`
-        );
-
-        return (
-          <button
-            key={index}
-            className={cn(
-              "transition-all flex items-center",
-              index === activeIndicatorIndex
-                ? "h-2 w-8 rounded-full bg-green-600" // Updated height to match inactive dots
-                : "h-2 w-2 rounded-full bg-[#898989]"
-            )}
-            onClick={() => {
-              console.log(
-                `Clicked indicator ${index}, will scroll to: ${
-                  is2XL && index === 1 ? 3 : index
-                }`
-              );
-              handleDotClick(index);
-            }}
-            aria-label={`Go to ${
-              is2XL && index === 1 ? "card 4" : `slide ${index + 1}`
-            }`}
-          />
-        );
-      })}
+              ? "h-2 w-8 rounded-full bg-green-600" // Active dot
+              : "h-2 w-2 rounded-full bg-[#898989]", // Inactive dot
+          )}
+          onClick={() => handleDotClick(index)}
+          aria-label={`Go to ${is2XL ? `group ${index + 1}` : `slide ${index + 1}`}`}
+        />
+      ))}
     </div>
   );
 }

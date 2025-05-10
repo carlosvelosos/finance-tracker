@@ -33,7 +33,7 @@ type Transaction = {
 
 export default function FamilyFinancePage() {
   const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>(
-    []
+    [],
   );
   const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
   const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
@@ -43,7 +43,7 @@ export default function FamilyFinancePage() {
 
   // Helper function to adjust the amount based on the Balance
   const adjustTransactionAmounts = (
-    transactions: Transaction[]
+    transactions: Transaction[],
   ): Transaction[] => {
     return transactions.map((transaction) => {
       if (
@@ -86,24 +86,24 @@ export default function FamilyFinancePage() {
         const combinedData = [...(data2024 || []), ...(data2025 || [])];
 
         const adjustedTransactions = adjustTransactionAmounts(
-          combinedData as Transaction[]
+          combinedData as Transaction[],
         );
         console.log("Adjusted transactions:", adjustedTransactions);
 
         setAmandaTransactions(
           adjustedTransactions.filter(
-            (transaction) => transaction.Responsible === "Amanda"
-          )
+            (transaction) => transaction.Responsible === "Amanda",
+          ),
         );
         setUsTransactions(
           adjustedTransactions.filter(
-            (transaction) => transaction.Responsible === "us"
-          )
+            (transaction) => transaction.Responsible === "us",
+          ),
         );
         setMeTransactions(
           adjustedTransactions.filter(
-            (transaction) => transaction.Responsible === "Carlos"
-          )
+            (transaction) => transaction.Responsible === "Carlos",
+          ),
         );
       }
     };
@@ -476,7 +476,7 @@ export default function FamilyFinancePage() {
         key: keyof Transaction;
         direction: "asc" | "desc";
       } | null>
-    >
+    >,
   ) => {
     setSortConfig((prev) => {
       if (prev?.key === key && prev.direction === "asc") {
@@ -488,7 +488,7 @@ export default function FamilyFinancePage() {
 
   const sortTransactions = (
     transactions: Transaction[],
-    sortConfig: { key: keyof Transaction; direction: "asc" | "desc" } | null
+    sortConfig: { key: keyof Transaction; direction: "asc" | "desc" } | null,
   ) => {
     if (!sortConfig) return transactions;
 
@@ -515,7 +515,7 @@ export default function FamilyFinancePage() {
 
   return (
     <ProtectedRoute>
-      <div className="p-6 min-h-screen">
+      <div className="p-6 min-h-screen bg-gray-100">
         {/* Main Summary Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           {/* Left Column: Summary Card (25% width) */}

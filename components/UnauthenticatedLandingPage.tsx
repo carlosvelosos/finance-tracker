@@ -115,9 +115,10 @@ export default function UnauthenticatedLandingPage() {
           <div className="absolute rounded-full bg-[#12A65C] w-[300px] h-[300px] blur-3xl bottom-[20%] left-[10%] opacity-20"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center gap-12 px-4">
+        {/* Main content area */}
+        <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center gap-20 px-4 border-2 border-red-900 min-h-[70vh]">
           {" "}
-          <div className="text-center max-w-2xl mb-8">
+          <div className="text-center max-w-2xl mb-8 border-2 border-red-900">
             <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6 animate-fadeInUp">
               All your <span className="text-[#12A65C]">global finances</span>,{" "}
               unified in one place
@@ -154,43 +155,44 @@ export default function UnauthenticatedLandingPage() {
               analyzing
             </p>
           </div>
-          <div className="w-full max-w-4xl relative">
-            <div className="relative w-full bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800 h-[420px]">
-              <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-[#12A65C] to-green-400"></div>
-              <img
-                src="/handelsbanken-charts.png"
-                alt="Finance Tracker Dashboard Preview"
-                className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%] animate-glimpse"
-                style={{ maxHeight: "600px", clipPath: "inset(0 0 90% 0)" }}
-              />
-            </div>{" "}
-            {/* Floating elements around dashboard */}
-            <div
-              className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
-              style={{
-                animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#12A65C]"></div>
-                <span className="text-sm font-semibold text-white">
-                  Budget increased by 12%
-                </span>
-              </div>
+        </div>
+        {/* Dashboard Preview */}
+        <div className="w-full max-w-4xl relative border-2 border-yellow-500 mt-16 mb-8">
+          <div className="relative w-full bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800 h-[420px]">
+            <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-[#12A65C] to-green-400"></div>
+            <img
+              src="/handelsbanken-charts.png"
+              alt="Finance Tracker Dashboard Preview"
+              className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%] animate-glimpse"
+              style={{ maxHeight: "600px", clipPath: "inset(0 0 90% 0)" }}
+            />
+          </div>{" "}
+          {/* Floating elements around dashboard */}
+          <div
+            className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
+            style={{
+              animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded-full bg-[#12A65C]"></div>
+              <span className="text-sm font-semibold text-white">
+                Budget increased by 12%
+              </span>
             </div>
-            <div
-              className="absolute -bottom-2 -left-2 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
-              style={{
-                animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-                animationDelay: "1s",
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#12A65C]"></div>
-                <span className="text-sm font-semibold text-white">
-                  Spending reduced by 8%
-                </span>
-              </div>
+          </div>
+          <div
+            className="absolute -bottom-2 -left-2 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
+            style={{
+              animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              animationDelay: "1s",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded-full bg-[#12A65C]"></div>
+              <span className="text-sm font-semibold text-white">
+                Spending reduced by 8%
+              </span>
             </div>
           </div>
         </div>

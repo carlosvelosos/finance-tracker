@@ -67,6 +67,23 @@ export default function UnauthenticatedLandingPage() {
           }
         }
 
+        /* Custom image scroll animation */
+        @keyframes glimpseReveal {
+          0% {
+            clip-path: inset(0 0 90% 0);
+          }
+          10% {
+            clip-path: inset(0 0 88% 0);
+          }
+          20% {
+            clip-path: inset(0 0 90% 0);
+          }
+        }
+
+        .animate-glimpse {
+          animation: glimpseReveal 4s ease-in-out 1s forwards;
+        }
+
         .animate-fadeInUp {
           animation: fadeInUp 0.8s ease-out forwards;
         }
@@ -98,19 +115,19 @@ export default function UnauthenticatedLandingPage() {
           <div className="absolute rounded-full bg-[#12A65C] w-[300px] h-[300px] blur-3xl bottom-[20%] left-[10%] opacity-20"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 px-4">
+        <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center gap-12 px-4">
           {" "}
-          <div className="lg:w-1/2 text-left max-w-xl">
+          <div className="text-center max-w-2xl mb-8">
             <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6 animate-fadeInUp">
               All your <span className="text-[#12A65C]">global finances</span>,{" "}
               unified in one place
             </h1>{" "}
-            <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-lg animate-fadeInUp-delay-1">
+            <p className="text-lg md:text-xl text-gray-400 mb-8 mx-auto animate-fadeInUp-delay-1">
               Import transactions from Handelsbanken, SEB, American Express and
               more. Track spending categories and manage family expenses with a
               modern, intuitive interface.
             </p>{" "}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-fadeInUp-delay-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 animate-fadeInUp-delay-2">
               <div className="group relative inline-flex rounded-xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300 hover:shadow-glow">
                 <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-[#12A65C]/30 via-[#12A65C] to-[#12A65C]/30 opacity-40 group-hover:opacity-100 group-hover:animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-30 bg-[#12A65C] blur-[6px] transition-all duration-500"></div>
@@ -137,14 +154,14 @@ export default function UnauthenticatedLandingPage() {
               analyzing
             </p>
           </div>
-          <div className="lg:w-1/2 relative">
-            <div className="relative w-full bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
+          <div className="w-full max-w-4xl relative">
+            <div className="relative w-full bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800 h-[420px]">
               <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-[#12A65C] to-green-400"></div>
               <img
                 src="/handelsbanken-charts.png"
                 alt="Finance Tracker Dashboard Preview"
-                className="w-full h-auto object-cover"
-                style={{ maxHeight: "600px" }}
+                className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%] animate-glimpse"
+                style={{ maxHeight: "600px", clipPath: "inset(0 0 90% 0)" }}
               />
             </div>{" "}
             {/* Floating elements around dashboard */}
@@ -503,7 +520,7 @@ export default function UnauthenticatedLandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    d="M14 5l7 7m0 0l-7-7m7-7H3"
                   />
                 </svg>
               </Link>

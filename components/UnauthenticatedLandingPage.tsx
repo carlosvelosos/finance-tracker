@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 export default function UnauthenticatedLandingPage() {
   return (
     <div className="relative flex flex-col items-center overflow-hidden">
+      {" "}
       <style jsx>{`
         @keyframes pulse {
           0%,
@@ -34,6 +35,24 @@ export default function UnauthenticatedLandingPage() {
         }
         .animate-bounce-slow {
           animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes borderGlow {
+          0%,
+          100% {
+            opacity: 0.8;
+            filter: blur(1px);
+          }
+          50% {
+            opacity: 1;
+            filter: blur(2px);
+          }
+        }
+        .animate-border-glow {
+          animation: borderGlow 2s ease-in-out infinite;
+        }
+        /* Add shadow glow utility */
+        .hover\:shadow-glow:hover {
+          box-shadow: 0 0 15px 3px rgba(18, 166, 92, 0.6);
         }
       `}</style>
       {/* Hero Section - Dark background with modern design */}
@@ -572,13 +591,24 @@ export default function UnauthenticatedLandingPage() {
           <div className="mx-auto flex justify-center">
             <Button
               asChild
-              className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white px-8 py-4 text-lg rounded-xl relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl border-none"
+              className="group relative rounded-full p-px text-sm/6 text-zinc-400 duration-300 hover:text-zinc-100 hover:shadow-glow"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="radix-:kv:pokg"
             >
-              <Link href="/auth/signup" className="flex items-center">
-                <span className="relative z-10 font-medium">
+              <Link href="/auth/signup">
+                <span className="absolute inset-0 overflow-hidden rounded-full">
+                  <span className="absolute inset-0 rounded-full bg-[image:radial-gradient(75%_100%_at_50%_0%,theme(colors.zinc.950/0.3)_0%,theme(colors.zinc.950)_100%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></span>
+                </span>{" "}
+                {/* Glowing border effect */}
+                <span className="absolute inset-[-1px] rounded-full bg-gradient-to-r from-[#12A65C]/30 via-[#12A65C] to-[#12A65C]/30 opacity-0 group-hover:opacity-100 group-hover:animate-border-glow"></span>
+                {/* Inner glow effect */}
+                <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 bg-[#12A65C] blur-[6px] transition-all duration-500"></span>
+                <div className="relative z-10 rounded-full bg-zinc-950 px-4 py-1.5 ring-1 ring-white/10">
                   Join the waitlist
-                </span>
-                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                </div>
+                <span className="absolute -bottom-0 left-[1.125rem] h-px w-[calc(100%-2.25rem)] bg-gradient-to-r from-emerald-400/0 via-emerald-400/90 to-emerald-400/0 transition-opacity duration-500 group-hover:opacity-40"></span>
               </Link>
             </Button>
           </div>

@@ -65,9 +65,7 @@ export default function UnauthenticatedLandingPage() {
             opacity: 1;
             transform: translateY(0);
           }
-        }
-
-        /* Custom image scroll animation */
+        } /* Custom image scroll animation */
         @keyframes glimpseReveal {
           0% {
             clip-path: inset(0 0 90% 0);
@@ -82,6 +80,24 @@ export default function UnauthenticatedLandingPage() {
 
         .animate-glimpse {
           animation: glimpseReveal 4s ease-in-out 1s forwards;
+        }
+
+        /* Dashboard container fade in animation */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-dashboard-reveal {
+          opacity: 0;
+          animation: fadeIn 1s ease-out forwards;
+          animation-delay: 1.5s;
         }
 
         .animate-fadeInUp {
@@ -113,12 +129,11 @@ export default function UnauthenticatedLandingPage() {
           <div className="absolute rounded-full bg-[#12A65C] w-[500px] h-[500px] blur-3xl -top-[100px] -left-[200px] opacity-20"></div>
           <div className="absolute rounded-full bg-gray-500 w-[400px] h-[400px] blur-3xl bottom-[10%] right-[5%] opacity-10"></div>
           <div className="absolute rounded-full bg-[#12A65C] w-[300px] h-[300px] blur-3xl bottom-[20%] left-[10%] opacity-20"></div>
-        </div>
-
+        </div>{" "}
         {/* Main content area */}
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center gap-20 px-4 border-2 border-red-900 min-h-[70vh]">
+        <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center gap-20 px-4 min-h-[70vh]">
           {" "}
-          <div className="text-center max-w-2xl mb-8 border-2 border-red-900">
+          <div className="text-center max-w-2xl mb-8">
             <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6 animate-fadeInUp">
               All your <span className="text-[#12A65C]">global finances</span>,{" "}
               unified in one place
@@ -155,23 +170,28 @@ export default function UnauthenticatedLandingPage() {
               analyzing
             </p>
           </div>
-        </div>
+        </div>{" "}
         {/* Dashboard Preview */}
-        <div className="w-full max-w-4xl relative border-2 border-yellow-500 mt-16 mb-8">
+        <div className="w-full max-w-4xl relative mt-16 mb-8 animate-dashboard-reveal">
           <div className="relative w-full bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800 h-[420px]">
             <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-[#12A65C] to-green-400"></div>
             <img
               src="/handelsbanken-charts.png"
               alt="Finance Tracker Dashboard Preview"
-              className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%] animate-glimpse"
-              style={{ maxHeight: "600px", clipPath: "inset(0 0 90% 0)" }}
-            />
+              className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%]"
+              style={{
+                maxHeight: "600px",
+                clipPath: "inset(0 0 90% 0)",
+                animation: "glimpseReveal 4s ease-in-out 2s forwards",
+              }}
+            />{" "}
           </div>{" "}
           {/* Floating elements around dashboard */}
           <div
-            className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
+            className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-0 hidden md:block border border-gray-800 animate-fadeInUp-delay-3"
             style={{
-              animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              animation:
+                "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite 2s, fadeIn 0.8s ease-out forwards 2s",
             }}
           >
             <div className="flex items-center gap-2">
@@ -182,9 +202,10 @@ export default function UnauthenticatedLandingPage() {
             </div>
           </div>
           <div
-            className="absolute -bottom-2 -left-2 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
+            className="absolute -bottom-2 -left-2 bg-gray-900 rounded-lg shadow-xl p-3 opacity-0 hidden md:block border border-gray-800 animate-fadeInUp-delay-3"
             style={{
-              animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              animation:
+                "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite 2.5s, fadeIn 0.8s ease-out forwards 2.5s",
               animationDelay: "1s",
             }}
           >
@@ -195,12 +216,14 @@ export default function UnauthenticatedLandingPage() {
               </span>
             </div>
           </div>
-        </div>
-
+        </div>{" "}
         {/* Scroll indicator */}
         <div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
-          style={{ animation: "bounce 2s ease-in-out infinite" }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-0"
+          style={{
+            animation:
+              "fadeIn 0.8s ease-out forwards 2.8s, bounce 2s ease-in-out infinite 3.6s",
+          }}
         >
           <span className="text-gray-500 text-sm mb-2">Scroll to explore</span>
           <svg

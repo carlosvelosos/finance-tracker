@@ -672,7 +672,7 @@ export default function FamilyFinancePage() {
         <Separator className="my-12" />
 
         {/* Switches to toggle columns */}
-        <div className="flex items-center mb-4 space-x-4">
+        <div className="flex items-center mb-4 space-x-4 text-black">
           <div className="flex items-center">
             <Switch
               checked={showComments}

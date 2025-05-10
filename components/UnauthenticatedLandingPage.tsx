@@ -54,6 +54,40 @@ export default function UnauthenticatedLandingPage() {
         .hover\:shadow-glow:hover {
           box-shadow: 0 0 15px 3px rgba(18, 166, 92, 0.6);
         }
+
+        /* Hero section sequential animations */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeInUp {
+          animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .animate-fadeInUp-delay-1 {
+          opacity: 0;
+          animation: fadeInUp 0.8s ease-out forwards;
+          animation-delay: 0.3s;
+        }
+
+        .animate-fadeInUp-delay-2 {
+          opacity: 0;
+          animation: fadeInUp 0.8s ease-out forwards;
+          animation-delay: 0.6s;
+        }
+
+        .animate-fadeInUp-delay-3 {
+          opacity: 0;
+          animation: fadeInUp 0.8s ease-out forwards;
+          animation-delay: 0.9s;
+        }
       `}</style>
       {/* Hero Section - Dark background with modern design */}
       <section className="w-full relative flex flex-col items-center justify-center min-h-screen px-4 bg-black">
@@ -67,16 +101,16 @@ export default function UnauthenticatedLandingPage() {
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 px-4">
           {" "}
           <div className="lg:w-1/2 text-left max-w-xl">
-            <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6 animate-fadeInUp">
               All your <span className="text-[#12A65C]">global finances</span>,{" "}
               unified in one place
             </h1>{" "}
-            <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-lg">
+            <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-lg animate-fadeInUp-delay-1">
               Import transactions from Handelsbanken, SEB, American Express and
               more. Track spending categories and manage family expenses with a
               modern, intuitive interface.
             </p>{" "}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-fadeInUp-delay-2">
               <div className="group relative inline-flex rounded-xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300 hover:shadow-glow">
                 <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-[#12A65C]/30 via-[#12A65C] to-[#12A65C]/30 opacity-40 group-hover:opacity-100 group-hover:animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-30 bg-[#12A65C] blur-[6px] transition-all duration-500"></div>
@@ -98,7 +132,7 @@ export default function UnauthenticatedLandingPage() {
                 </Link>
               </div>
             </div>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-sm animate-fadeInUp-delay-3">
               Simple setup - just upload your bank statements and start
               analyzing
             </p>

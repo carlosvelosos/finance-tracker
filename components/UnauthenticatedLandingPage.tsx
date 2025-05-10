@@ -75,26 +75,28 @@ export default function UnauthenticatedLandingPage() {
               Import transactions from Handelsbanken, SEB, American Express and
               more. Track spending categories and manage family expenses with a
               modern, intuitive interface.
-            </p>
+            </p>{" "}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button
-                asChild
-                className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white px-8 py-4 text-lg rounded-xl relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl border-none"
-              >
-                <Link href="/auth/signup" className="flex items-center">
-                  <span className="relative z-10 font-medium">Get Started</span>
-                  <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+              <div className="group relative inline-flex rounded-xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300 hover:shadow-glow">
+                <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-[#12A65C]/30 via-[#12A65C] to-[#12A65C]/30 opacity-40 group-hover:opacity-100 group-hover:animate-border-glow"></div>
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-30 bg-[#12A65C] blur-[6px] transition-all duration-500"></div>
+                <Link
+                  href="/auth/signup"
+                  className="relative z-10 inline-flex items-center justify-center bg-[#12A65C] hover:bg-[#0d8d4e] text-white px-8 py-3 text-lg font-medium rounded-xl transition-all duration-300"
+                >
+                  Get Started
                 </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="text-white border-[#12A65C] border-2 hover:bg-[#12A65C] hover:bg-opacity-10 px-8 py-4 text-lg rounded-xl relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
-              >
-                <Link href="/auth/login" className="flex items-center">
-                  <span className="relative z-10 font-medium">Log In</span>
+              </div>
+
+              <div className="group relative inline-flex rounded-xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300">
+                <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-[#12A65C]/30 via-[#12A65C] to-[#12A65C]/30 opacity-30 group-hover:opacity-70 transition-all duration-300"></div>
+                <Link
+                  href="/auth/login"
+                  className="relative z-10 inline-flex items-center justify-center bg-zinc-900 text-white px-8 py-3 text-lg font-medium rounded-xl border border-[#12A65C]/30 group-hover:border-[#12A65C]/60 transition-all duration-300"
+                >
+                  Log In
                 </Link>
-              </Button>
+              </div>
             </div>
             <p className="text-gray-500 text-sm">
               Simple setup - just upload your bank statements and start

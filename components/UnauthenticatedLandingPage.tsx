@@ -36,7 +36,6 @@ export default function UnauthenticatedLandingPage() {
           animation: bounce 2s ease-in-out infinite;
         }
       `}</style>
-
       {/* Hero Section - Dark background with modern design */}
       <section className="w-full relative flex flex-col items-center justify-center min-h-screen px-4 bg-black">
         {/* Abstract background elements */}
@@ -90,23 +89,23 @@ export default function UnauthenticatedLandingPage() {
                 className="w-full h-auto object-cover"
                 style={{ maxHeight: "600px" }}
               />
-            </div>
+            </div>{" "}
             {/* Floating elements around dashboard */}
             <div
-              className="absolute -top-4 -right-4 bg-white rounded-lg shadow-xl p-3 opacity-90 hidden md:block"
+              className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
               style={{
                 animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
               }}
             >
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-[#12A65C]"></div>
-                <span className="text-sm font-semibold text-gray-800">
+                <span className="text-sm font-semibold text-white">
                   Budget increased by 12%
                 </span>
               </div>
             </div>
             <div
-              className="absolute -bottom-2 -left-2 bg-white rounded-lg shadow-xl p-3 opacity-90 hidden md:block"
+              className="absolute -bottom-2 -left-2 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
               style={{
                 animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                 animationDelay: "1s",
@@ -114,7 +113,7 @@ export default function UnauthenticatedLandingPage() {
             >
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-[#12A65C]"></div>
-                <span className="text-sm font-semibold text-gray-800">
+                <span className="text-sm font-semibold text-white">
                   Spending reduced by 8%
                 </span>
               </div>
@@ -143,25 +142,24 @@ export default function UnauthenticatedLandingPage() {
             />
           </svg>
         </div>
-      </section>
-
+      </section>{" "}
       {/* Features Section with Cards */}
-      <section className="w-full py-20 px-4 bg-gray-50">
+      <section className="w-full py-20 px-4 bg-black text-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-gray-900">
+            {" "}
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">
               Everything you need.{" "}
               <span className="text-[#12A65C]">Nothing you don't.</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Financial management and visibility in one place. Experience a
               flexible toolkit that makes every task feel like a breeze.
             </p>
-          </div>
-
+          </div>{" "}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature Card 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+            <div className="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-800">
               <div className="w-12 h-12 bg-[#12A65C] bg-opacity-10 rounded-full flex items-center justify-center mb-6">
                 <svg
                   className="w-6 h-6 text-[#12A65C]"
@@ -178,17 +176,17 @@ export default function UnauthenticatedLandingPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">
+              <h3 className="text-xl font-bold mb-3 text-white">
                 Insights at your fingertips
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-300">
                 All your data and finances in one place to provide quick answers
                 and make decisions instantly.
               </p>
             </div>
 
             {/* Feature Card 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+            <div className="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-800">
               <div className="w-12 h-12 bg-[#12A65C] bg-opacity-10 rounded-full flex items-center justify-center mb-6">
                 <svg
                   className="w-6 h-6 text-[#12A65C]"
@@ -205,17 +203,17 @@ export default function UnauthenticatedLandingPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">
+              <h3 className="text-xl font-bold mb-3 text-white">
                 Manage in real time
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-300">
                 Have full control of your finances on the go. Track expenses and
                 income as they happen, not days later.
               </p>
             </div>
 
             {/* Feature Card 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+            <div className="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-800">
               <div className="w-12 h-12 bg-[#12A65C] bg-opacity-10 rounded-full flex items-center justify-center mb-6">
                 <svg
                   className="w-6 h-6 text-[#12A65C]"
@@ -232,33 +230,32 @@ export default function UnauthenticatedLandingPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">
+              <h3 className="text-xl font-bold mb-3 text-white">
                 Family Expense Tracking
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-300">
                 Easily manage shared expenses and split costs between family
                 members. Ensure everyone contributes fairly.
               </p>
             </div>
           </div>
         </div>
-      </section>
-
+      </section>{" "}
       {/* Transaction Upload Section with Split Design */}
-      <section className="w-full py-24 px-4 bg-white">
+      <section className="w-full py-24 px-4 bg-black">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
             <div className="relative">
               <div className="absolute inset-0 bg-[#12A65C] opacity-5 rounded-3xl transform rotate-3"></div>
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                 <img
                   src="/upload.png"
                   alt="Upload Transactions Screenshot"
                   className="w-full h-auto object-cover"
                 />
-              </div>
+              </div>{" "}
               <div
-                className="absolute -top-4 -right-4 bg-white rounded-lg shadow-xl p-3 opacity-90 hidden md:block"
+                className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
                 style={{
                   animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                 }}
@@ -278,18 +275,18 @@ export default function UnauthenticatedLandingPage() {
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  <span className="text-sm font-semibold text-gray-800">
+                  <span className="text-sm font-semibold text-white">
                     Upload complete
                   </span>
                 </div>
               </div>
             </div>
-          </div>
+          </div>{" "}
           <div className="lg:w-1/2">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
               Simple Transaction <span className="text-[#12A65C]">Upload</span>
             </h2>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-300 mb-8">
               Upload your bank statements and credit card transactions with just
               a few clicks. Our system automatically categorizes your expenses,
               making it easy to track where your money goes.
@@ -316,7 +313,7 @@ export default function UnauthenticatedLandingPage() {
                       />
                     </svg>
                   </div>
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-gray-300">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -344,23 +341,22 @@ export default function UnauthenticatedLandingPage() {
             </Button>
           </div>
         </div>
-      </section>
-
+      </section>{" "}
       {/* Powerful Analytics Section */}
-      <section className="w-full py-24 px-4 bg-gray-50">
+      <section className="w-full py-24 px-4 bg-black">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row-reverse items-center gap-16">
           <div className="lg:w-1/2">
             <div className="relative">
-              <div className="absolute inset-0 bg-black opacity-5 rounded-3xl transform -rotate-3"></div>
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
+              <div className="absolute inset-0 bg-[#12A65C] opacity-5 rounded-3xl transform -rotate-3"></div>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                 <img
                   src="/handelsbanken-charts.png"
                   alt="Financial Analytics Dashboard"
                   className="w-full h-auto object-cover"
                 />
-              </div>
+              </div>{" "}
               <div
-                className="absolute -bottom-4 -left-4 bg-white rounded-lg shadow-xl p-3 opacity-90 hidden md:block"
+                className="absolute -bottom-4 -left-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
                 style={{
                   animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                   animationDelay: "1.5s",
@@ -381,7 +377,7 @@ export default function UnauthenticatedLandingPage() {
                       d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
                     />
                   </svg>
-                  <span className="text-sm font-semibold text-gray-800">
+                  <span className="text-sm font-semibold text-white">
                     Savings up 15% this month
                   </span>
                 </div>
@@ -389,10 +385,10 @@ export default function UnauthenticatedLandingPage() {
             </div>
           </div>
           <div className="lg:w-1/2">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
               Powerful <span className="text-[#12A65C]">Analytics</span>
             </h2>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-300 mb-8">
               Gain insights into your spending habits and track financial
               patterns over time. Our interactive charts and reports help you
               make better financial decisions by visualizing your data.
@@ -419,7 +415,7 @@ export default function UnauthenticatedLandingPage() {
                       />
                     </svg>
                   </div>
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-gray-300">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -449,15 +445,14 @@ export default function UnauthenticatedLandingPage() {
             </Button>
           </div>
         </div>
-      </section>
-
+      </section>{" "}
       {/* Family Expense Section */}
-      <section className="w-full py-24 px-4 bg-white">
+      <section className="w-full py-24 px-4 bg-black">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
             <div className="relative">
               <div className="absolute inset-0 bg-[#12A65C] opacity-5 rounded-3xl transform rotate-3"></div>
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                 <img
                   src="/family.png"
                   alt="Family Expenses Management"
@@ -465,7 +460,7 @@ export default function UnauthenticatedLandingPage() {
                 />
               </div>
               <div
-                className="absolute -top-4 -right-4 bg-white rounded-lg shadow-xl p-3 opacity-90 hidden md:block"
+                className="absolute -top-4 -right-4 bg-gray-900 rounded-lg shadow-xl p-3 opacity-90 hidden md:block border border-gray-800"
                 style={{
                   animation: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                   animationDelay: "0.5s",
@@ -486,7 +481,7 @@ export default function UnauthenticatedLandingPage() {
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <span className="text-sm font-semibold text-gray-800">
+                  <span className="text-sm font-semibold text-white">
                     Cost split complete
                   </span>
                 </div>
@@ -494,10 +489,10 @@ export default function UnauthenticatedLandingPage() {
             </div>
           </div>
           <div className="lg:w-1/2">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
               Family Expense <span className="text-[#12A65C]">Tracking</span>
             </h2>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-300 mb-8">
               Easily manage shared expenses and split costs between family
               members. Keep track of who paid what and ensure everyone
               contributes their fair share to household finances.
@@ -524,7 +519,7 @@ export default function UnauthenticatedLandingPage() {
                       />
                     </svg>
                   </div>
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-gray-300">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -554,38 +549,37 @@ export default function UnauthenticatedLandingPage() {
             </Button>
           </div>
         </div>
-      </section>
-
+      </section>{" "}
       {/* CTA Section */}
-      <section className="w-full py-24 px-4 bg-black">
-        <div className="max-w-4xl mx-auto text-center relative">
-          {/* Background decoration elements */}
-          <div className="absolute top-0 left-0 w-20 h-20 bg-[#12A65C] rounded-full opacity-10 blur-xl"></div>
-          <div className="absolute bottom-0 right-0 w-40 h-40 bg-[#12A65C] rounded-full opacity-10 blur-xl"></div>
-
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
+      <section className="w-full py-36 px-4 bg-black border-t border-gray-800">
+        <div className="max-w-5xl mx-auto text-center relative">
+          {/* Background decoration elements - subtle gradient effect */}
+          <div className="absolute top-0 left-0 w-32 h-32 bg-[#12A65C] rounded-full opacity-5 blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-48 h-48 bg-[#12A65C] rounded-full opacity-5 blur-3xl"></div>
+          <div className="absolute top-1/3 right-1/4 w-24 h-24 bg-gray-700 rounded-full opacity-5 blur-2xl"></div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 bg-gradient-to-br from-zinc-100 to-zinc-600 bg-clip-text tracking-tight text-transparent">
             See where financial{" "}
-            <span className="text-[#12A65C]">automation</span> can take you
-          </h2>
-          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-            The first financial tool you'll love. And the last one you'll ever
-            need.
-          </p>
+            <span className="text-[#12A65C]">automation</span> can take your
+            business.
+          </h2>{" "}
           <Button
             asChild
-            className="bg-[#12A65C] hover:bg-[#0d8d4e] text-white px-10 py-5 text-lg rounded-xl relative overflow-hidden group transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl border-none"
+            className="group relative rounded-full p-px text-sm/6 text-zinc-400 duration-300 hover:text-zinc-100"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            data-state="closed"
           >
-            <Link href="/auth/signup" className="flex items-center">
-              <span className="relative z-10 font-medium">
-                Create Free Account
+            <Link href="/auth/signup" className="flex items-center z-10">
+              <span className="absolute inset-0 overflow-hidden rounded-full">
+                <span className="absolute inset-0 rounded-full bg-[image:radial-gradient(75%_100%_at_0_0,theme(colors.emerald.500),transparent_75%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></span>
               </span>
-              <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+              <div className="relative z-10 rounded-full bg-zinc-950 px-4 py-1.5 ring-1 ring-white/10">
+                Join the waitlist
+              </div>
+              <span className="absolute -bottom-0 left-[1.125rem] h-px w-[calc(100%-2.25rem)] bg-gradient-to-r from-emerald-400/0 via-emerald-400/90 to-emerald-400/0 transition-opacity duration-500 group-hover:opacity-40"></span>
             </Link>
           </Button>
-          <p className="text-gray-500 text-sm mt-8">
-            Join thousands of users who are taking control of their finances
-            with our tools
-          </p>
         </div>
       </section>
     </div>

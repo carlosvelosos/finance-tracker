@@ -181,8 +181,8 @@ export default function UnauthenticatedLandingPage() {
               className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%]"
               style={{
                 maxHeight: "600px",
-                clipPath: "inset(0 0 90% 0)",
-                animation: "glimpseReveal 4s ease-in-out 2s forwards",
+                // clipPath: "inset(0 0 90% 0)",
+                // animation: "glimpseReveal 4s ease-in-out 2s forwards",
               }}
             />{" "}
           </div>{" "}

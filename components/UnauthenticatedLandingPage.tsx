@@ -69,11 +69,11 @@ export default function UnauthenticatedLandingPage() {
             <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6">
               Unleash the power of{" "}
               <span className="text-[#12A65C]">intuitive finance</span>
-            </h1>
+            </h1>{" "}
             <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-lg">
-              Say goodbye to outdated financial tools. Track your finances
-              effortlessly, manage your transactions, and stay on top of your
-              budget with a modern, intuitive interface.
+              Import transactions from Handelsbanken, SEB, American Express and
+              more. Track spending categories and manage family expenses with a
+              modern, intuitive interface.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button
@@ -96,7 +96,8 @@ export default function UnauthenticatedLandingPage() {
               </Button>
             </div>
             <p className="text-gray-500 text-sm">
-              Join thousands of users already managing their finances smarter
+              Simple setup - just upload your bank statements and start
+              analyzing
             </p>
           </div>
           <div className="lg:w-1/2 relative">
@@ -304,17 +305,18 @@ export default function UnauthenticatedLandingPage() {
           <div className="lg:w-1/2">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
               Simple Transaction <span className="text-[#12A65C]">Upload</span>
-            </h2>
+            </h2>{" "}
             <p className="text-lg text-gray-300 mb-8">
-              Upload your bank statements and credit card transactions with just
-              a few clicks. Our system automatically categorizes your expenses,
-              making it easy to track where your money goes.
+              Upload your bank statements from Handelsbanken, SEB, American
+              Express and more with just a few clicks. Our system helps organize
+              your finances by bank and date, making it easy to track where your
+              money goes.
             </p>
             <ul className="space-y-4 mb-8">
               {[
-                "Automatic categorization of transactions",
-                "Support for multiple bank formats",
-                "Instant visualization of your spending patterns",
+                "Support for Swedish and international banks",
+                "Compatible with CSV and XLS statement formats",
+                "Date and currency format normalization",
                 "Secure and private data processing",
               ].map((feature, index) => (
                 <li key={index} className="flex items-start">
@@ -406,18 +408,18 @@ export default function UnauthenticatedLandingPage() {
           <div className="lg:w-1/2">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
               Powerful <span className="text-[#12A65C]">Analytics</span>
-            </h2>
+            </h2>{" "}
             <p className="text-lg text-gray-300 mb-8">
-              Gain insights into your spending habits and track financial
-              patterns over time. Our interactive charts and reports help you
-              make better financial decisions by visualizing your data.
+              Gain insights into your spending habits with detailed charts for
+              each bank account. Track categories, monitor monthly trends, and
+              understand where your money goes with intuitive visualizations.
             </p>
             <ul className="space-y-4 mb-8">
               {[
-                "Beautiful visual representations of your financial data",
-                "Track spending patterns across categories",
-                "Identify opportunities for savings",
-                "Compare month-to-month performance",
+                "Bank-specific dashboards and analysis tools",
+                "Category-based spending breakdowns",
+                "Month-to-month comparison charts",
+                "Combined view across all your accounts",
               ].map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <div className="mt-1 mr-3 w-5 h-5 bg-[#12A65C] bg-opacity-10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -510,18 +512,19 @@ export default function UnauthenticatedLandingPage() {
           <div className="lg:w-1/2">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
               Family Expense <span className="text-[#12A65C]">Tracking</span>
-            </h2>
+            </h2>{" "}
             <p className="text-lg text-gray-300 mb-8">
-              Easily manage shared expenses and split costs between family
-              members. Keep track of who paid what and ensure everyone
-              contributes their fair share to household finances.
+              Share transaction access with family members using our advanced
+              junction table system. Mark expenses as "shared" or assign
+              responsibility to see a complete picture of household finances
+              while maintaining proper access control.
             </p>
             <ul className="space-y-4 mb-8">
               {[
-                "Equitable splitting of shared expenses",
-                "Track individual contributions",
-                "Manage recurring household bills",
-                "Transparent financial management for the whole family",
+                "Secure transaction sharing between family members",
+                "Track shared vs. individual expenses",
+                "Mark transactions with responsible parties",
+                "Family dashboard with comprehensive spending overview",
               ].map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <div className="mt-1 mr-3 w-5 h-5 bg-[#12A65C] bg-opacity-10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -579,14 +582,15 @@ export default function UnauthenticatedLandingPage() {
         <div className="absolute right-1/4 bottom-1/4 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl opacity-20 transform translate-x-1/2 translate-y-1/2"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10 px-4">
+          {" "}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 tracking-tight">
-            <span className="text-white">See where financial </span>
-            <span className="text-[#12A65C]">automation</span>
-            <span className="text-white"> can take your business.</span>
+            <span className="text-white">Track expenses across </span>
+            <span className="text-[#12A65C]">multiple banks</span>
+            <span className="text-white"> in one place.</span>
           </h2>{" "}
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-            The first financial tool you'll love. And the last one you'll ever
-            need.
+            Support for Handelsbanken, SEB, American Express, and more.
+            Visualize spending across all your accounts.
           </p>{" "}
           <div className="mx-auto flex justify-center">
             <Button
@@ -604,17 +608,17 @@ export default function UnauthenticatedLandingPage() {
                 {/* Glowing border effect */}
                 <span className="absolute inset-[-1px] rounded-full bg-gradient-to-r from-[#12A65C]/30 via-[#12A65C] to-[#12A65C]/30 opacity-0 group-hover:opacity-100 group-hover:animate-border-glow"></span>
                 {/* Inner glow effect */}
-                <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 bg-[#12A65C] blur-[6px] transition-all duration-500"></span>
+                <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 bg-[#12A65C] blur-[6px] transition-all duration-500"></span>{" "}
                 <div className="relative z-10 rounded-full bg-zinc-950 px-4 py-1.5 ring-1 ring-white/10">
-                  Join the waitlist
+                  Get Started Now
                 </div>
                 <span className="absolute -bottom-0 left-[1.125rem] h-px w-[calc(100%-2.25rem)] bg-gradient-to-r from-emerald-400/0 via-emerald-400/90 to-emerald-400/0 transition-opacity duration-500 group-hover:opacity-40"></span>
               </Link>
             </Button>
           </div>
           <div className="mt-10 text-sm text-gray-500">
-            No credit card required. Join thousands of businesses already using
-            our platform.
+            Free to use. Setup takes just minutes with support for
+            Handelsbanken, SEB, AmEx and more.
           </div>{" "}
         </div>
         {/* Subtle animated gradient line */}

@@ -70,7 +70,7 @@ const WelcomePage: React.FC = () => {
     // Wait for animations to complete before navigating
     setTimeout(() => {
       router.push("/family");
-    }, 2000); // Adjusted timing for better sequence with the family page animation
+    }, 1800); // Adjusted timing for better sequence with the family page animation
   };
   return (
     <div

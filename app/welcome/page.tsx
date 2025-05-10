@@ -75,16 +75,16 @@ const WelcomePage: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className={`welcome-container w-full h-screen bg-[#121212] text-white font-sans flex flex-col items-center justify-center p-0 m-0 overflow-hidden border-2 border-white-500 ${isNavigating ? "navigating" : ""}`}
+      className={`welcome-container w-full h-screen bg-[#121212] text-white font-sans flex flex-col items-center justify-center p-0 m-0 overflow-hidden ${isNavigating ? "navigating" : ""}`}
     >
-      <div className="w-full max-w-[1400px] h-[85vh] max-h-[calc(100vh-120px)] bg-transparent p-10 rounded-none flex flex-col justify-end overflow-y-auto mx-auto mt-0 border-2 border-red-500">
-        <div className="min-h-[20vh] flex-grow border-2 border-[#00ffae]"></div>
-        <div className="chatMessages flex flex-col w-full border-2 border-[#00ffae]">
+      <div className="w-full max-w-[1400px] h-[85vh] max-h-[calc(100vh-120px)] bg-transparent p-10 rounded-none flex flex-col justify-end overflow-y-auto mx-auto mt-0">
+        <div className="min-h-[20vh] flex-grow"></div>
+        <div className="chatMessages flex flex-col w-full">
           {" "}
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`text-[80px] my-5 transition-colors duration-300 border-2 border-[#00ffae]`}
+              className={`text-[80px] my-5 transition-colors duration-300`}
               style={{
                 color: `rgba(255,255,255,${0.9 - (messages.length - idx) * 0.2})`,
                 fontWeight: idx === messages.length - 1 ? 600 : 400,
@@ -94,7 +94,7 @@ const WelcomePage: React.FC = () => {
             </div>
           ))}
           {messageIndex < chatMessages.length && (
-            <div className="text-white text-[80px] my-5 font-bold brightness-[1.3] border-2 border-[#00ffae]">
+            <div className="text-white text-[80px] my-5 font-bold brightness-[1.3]">
               {currentMessage}
               <span className="inline-block w-[10px] text-[#00ffae] font-bold animate-blink">
                 {charIndex < chatMessages[messageIndex].length ? "|" : ""}

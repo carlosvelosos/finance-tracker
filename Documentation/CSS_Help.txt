@@ -1,1 +1,1 @@
-border-[#00ffae] - green glowing 
+border-2 border-[#00ffae] - green glowing 

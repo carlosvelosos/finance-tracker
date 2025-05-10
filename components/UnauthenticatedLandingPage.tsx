@@ -65,10 +65,11 @@ export default function UnauthenticatedLandingPage() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 px-4">
+          {" "}
           <div className="lg:w-1/2 text-left max-w-xl">
             <h1 className="text-4xl md:text-7xl font-bold text-white leading-tight mb-6">
-              Unleash the power of{" "}
-              <span className="text-[#12A65C]">intuitive finance</span>
+              All your <span className="text-[#12A65C]">global finances</span>,{" "}
+              unified in one place
             </h1>{" "}
             <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-lg">
               Import transactions from Handelsbanken, SEB, American Express and

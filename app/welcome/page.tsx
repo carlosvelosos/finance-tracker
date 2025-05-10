@@ -75,9 +75,9 @@ const WelcomePage: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className={`welcome-container w-full h-screen bg-[#121212] text-white font-sans flex flex-col items-center justify-center p-0 m-0 overflow-hidden pt-20 border-2 border-[#00ffae] ${isNavigating ? "navigating" : ""}`}
+      className={`welcome-container w-full h-screen bg-[#121212] text-white font-sans flex flex-col items-center justify-center p-0 m-0 overflow-hidden border-2 border-white-500 ${isNavigating ? "navigating" : ""}`}
     >
-      <div className="w-full max-w-[1400px] h-[65vh] max-h-[calc(100vh-120px)] bg-transparent p-10 rounded-none flex flex-col justify-end overflow-y-auto mx-auto mt-0 border-2 border-[#00ffae]">
+      <div className="w-full max-w-[1400px] h-[85vh] max-h-[calc(100vh-120px)] bg-transparent p-10 rounded-none flex flex-col justify-end overflow-y-auto mx-auto mt-0 border-2 border-red-500">
         <div className="min-h-[20vh] flex-grow border-2 border-[#00ffae]"></div>
         <div className="chatMessages flex flex-col w-full border-2 border-[#00ffae]">
           {" "}

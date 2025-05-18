@@ -28,6 +28,7 @@ interface TransactionTableProps {
   showFilters?: boolean;
   excludeCategories?: string[];
   onRowClick?: (transaction: Transaction) => void;
+  TransactionTableName?: string; // Added new prop
 }
 
 export default function TransactionTable({
@@ -43,12 +44,13 @@ export default function TransactionTable({
   showFilters = true,
   excludeCategories = [],
   onRowClick,
+  TransactionTableName = "Sweden_transactions_agregated_2025", // Destructured with default
 }: TransactionTableProps) {
   const [sortColumn, setSortColumn] = useState<
     keyof Transaction | string | null
   >(initialSortColumn);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
-    initialSortDirection
+    initialSortDirection,
   );
   const [categoryFilter, setCategoryFilter] = useState("");
   const [descriptionFilter, setDescriptionFilter] = useState("");
@@ -99,7 +101,7 @@ export default function TransactionTable({
     setUpdatingId(id);
     try {
       const { error } = await supabase
-        .from("Sweden_transactions_agregated_2025")
+        .from(TransactionTableName) // Use the prop here
         .update({ Category: newCategory })
         .eq("id", id);
 
@@ -113,8 +115,8 @@ export default function TransactionTable({
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
           prevTransactions.map((t) =>
-            t.id === id ? { ...t, Category: newCategory } : t
-          )
+            t.id === id ? { ...t, Category: newCategory } : t,
+          ),
         );
         toast.success("Category updated successfully", {
           duration: 2000,
@@ -138,7 +140,7 @@ export default function TransactionTable({
     setUpdatingId(id);
     try {
       const { error } = await supabase
-        .from("Sweden_transactions_agregated_2025")
+        .from(TransactionTableName) // Use the prop here
         .update({ Comment: newComment })
         .eq("id", id);
 
@@ -152,8 +154,8 @@ export default function TransactionTable({
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
           prevTransactions.map((t) =>
-            t.id === id ? { ...t, Comment: newComment } : t
-          )
+            t.id === id ? { ...t, Comment: newComment } : t,
+          ),
         );
         toast.success("Comment updated successfully", {
           duration: 2000,
@@ -175,12 +177,12 @@ export default function TransactionTable({
   // Apply filters to transactions
   const filteredTransactions = localTransactions
     .filter((transaction) =>
-      bankFilter ? transaction.Bank === bankFilter : true
+      bankFilter ? transaction.Bank === bankFilter : true,
     )
     .filter((transaction) =>
       excludeCategories.length > 0
         ? !excludeCategories.includes(transaction.Category || "")
-        : true
+        : true,
     )
     .filter((transaction) => {
       if (!showCategoryFilter || !categoryFilter) return true;
@@ -584,7 +586,7 @@ export default function TransactionTable({
                         onClick={() =>
                           handleUpdateCategory(
                             transaction.id,
-                            editingCategory.value
+                            editingCategory.value,
                           )
                         }
                         disabled={updatingId === transaction.id}
@@ -647,7 +649,7 @@ export default function TransactionTable({
                         onClick={() =>
                           handleUpdateComment(
                             transaction.id,
-                            editingComment.value
+                            editingComment.value,
                           )
                         }
                         disabled={updatingId === transaction.id}

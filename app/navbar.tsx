@@ -291,7 +291,12 @@ export default function Navbar() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <span className="font-medium text-gray-300">Profile</span>
+                  <Link
+                    href="/profile"
+                    className="font-medium text-gray-300 hover:text-green-400 transition-colors duration-200"
+                  >
+                    Profile
+                  </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem

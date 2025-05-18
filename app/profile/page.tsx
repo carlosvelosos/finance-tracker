@@ -22,6 +22,22 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge"; // Make sure you have this component, e.g., from Shadcn UI
 
+// Define a Transaction type based on your table structure
+interface Transaction {
+  id?: number | string; // Assuming 'id' is a primary key, adjust type as needed
+  created_at?: string;
+  Date: string; // This seems to be a key field
+  Description?: string;
+  Amount?: number;
+  Balance?: number;
+  Category?: string;
+  Responsible?: string;
+  Bank?: string;
+  Comment?: string;
+  user_id?: string;
+  // Add any other fields that are consistently present in your transaction tables
+}
+
 // Bank structure from prompt
 const countriesData: Record<string, string[]> = {
   Brazil: [
@@ -47,7 +63,7 @@ interface BankAccountInfo {
   supabaseTable: string; // This will be the actual table name to use (custom or default)
   isActive: boolean;
   lastModified?: string;
-  latestEntry?: any;
+  latestEntry?: Transaction[] | null; // Changed from any to Transaction[] | null
   error?: string;
   isLoading: boolean;
   isEditingTableName?: boolean; // New: To control edit mode for table name
@@ -156,7 +172,7 @@ export default function ProfilePage() {
     tableName: string,
   ) => {
     let lastModified: string | undefined;
-    let latestEntry: any | undefined; // This will now hold an array of entries for the latest date
+    let latestEntry: Transaction[] | undefined | null; // Changed from any to Transaction[] | undefined | null
     let errorMsg: string | undefined;
 
     try {
@@ -214,9 +230,14 @@ export default function ProfilePage() {
         lastModified = "No entries yet";
         latestEntry = null;
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
+      // Changed from any to unknown
       console.error(`Exception fetching data for ${tableName}:`, e);
-      errorMsg = `Exception: ${e.message}`;
+      if (e instanceof Error) {
+        errorMsg = `Exception: ${e.message}`;
+      } else {
+        errorMsg = "An unknown error occurred";
+      }
       lastModified = "Error";
       latestEntry = null;
     }

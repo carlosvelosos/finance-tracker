@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import type { User } from "@supabase/supabase-js"; // Import User type
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input"; // Added for table name editing
@@ -43,7 +44,7 @@ const countriesData: Record<string, string[]> = {
 
 interface BankAccountInfo {
   name: string;
-  supabaseTable: string;
+  supabaseTable: string; // This will be the actual table name to use (custom or default)
   isActive: boolean;
   lastModified?: string;
   latestEntry?: any;
@@ -68,42 +69,86 @@ export default function ProfilePage() {
     Record<string, BankAccountInfo[]>
   >({});
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null); // State for current user
 
   useEffect(() => {
-    const initializeBankAccounts = () => {
-      const initialAccounts: Record<string, BankAccountInfo[]> = {};
-      for (const [country, banks] of Object.entries(countriesData)) {
-        initialAccounts[country] = banks.map((bankName) => {
-          const generatedTable = generateSupabaseTableName(bankName);
-          return {
-            name: bankName,
-            supabaseTable: generatedTable,
-            isActive: true, // Default, should ideally be fetched from user settings
-            isLoading: true,
-            isEditingTableName: false, // Initialize editing state
-            tempSupabaseTable: generatedTable, // Initialize temp table name
-          };
-        });
-      }
-      setBankAccounts(initialAccounts);
-      setIsInitialLoading(false); // Done with initial structure setup
-      return initialAccounts;
-    };
+    const setupPage = async () => {
+      setIsInitialLoading(true);
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-    const fetchAllBankData = async (
-      initialAccounts: Record<string, BankAccountInfo[]>,
-    ) => {
-      for (const country in initialAccounts) {
-        for (const account of initialAccounts[country]) {
-          fetchBankDetails(country, account.name, account.supabaseTable);
-        }
+      if (sessionError) {
+        console.error("Error getting session:", sessionError);
+        setIsInitialLoading(false);
+        // TODO: Handle session error, e.g., show a message or redirect
+        return;
+      }
+
+      if (session?.user) {
+        setCurrentUser(session.user);
+        await loadInitialBankData(session.user.id);
+      } else {
+        console.log("No user session found. Redirecting or showing login.");
+        setIsInitialLoading(false);
+        // TODO: Handle no user session, e.g., redirect to login page
       }
     };
 
-    const initialStructure = initializeBankAccounts();
-    fetchAllBankData(initialStructure);
+    setupPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount
+
+  const loadInitialBankData = async (userId: string) => {
+    const { data: userSettings, error: settingsError } = await supabase
+      .from("user_bank_settings")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (settingsError) {
+      console.error("Error fetching user bank settings:", settingsError);
+      // Continue with defaults, but log the error. User might not have settings yet.
+    }
+
+    const settingsMap = new Map(
+      userSettings?.map((s) => [`${s.country}-${s.bank_name}`, s]),
+    );
+    const initialAccountsSetup: Record<string, BankAccountInfo[]> = {};
+
+    for (const [country, banks] of Object.entries(countriesData)) {
+      initialAccountsSetup[country] = banks.map((bankName) => {
+        const settingKey = `${country}-${bankName}`;
+        const setting = settingsMap.get(settingKey);
+
+        const defaultSupabaseTable = generateSupabaseTableName(bankName);
+        const actualSupabaseTable =
+          setting?.custom_supabase_table_name || defaultSupabaseTable;
+        const isActive = setting ? setting.is_active : true; // Default to active if no setting
+
+        return {
+          name: bankName,
+          supabaseTable: actualSupabaseTable,
+          isActive: isActive,
+          isLoading: isActive, // Only set isLoading true if initially active, data will be fetched
+          isEditingTableName: false,
+          tempSupabaseTable: actualSupabaseTable, // For the edit input
+          lastModified: isActive ? undefined : "Inactive", // Mark inactive accounts
+        };
+      });
+    }
+    setBankAccounts(initialAccountsSetup);
+    setIsInitialLoading(false);
+
+    // Fetch details for initially active accounts
+    for (const countryKey in initialAccountsSetup) {
+      for (const account of initialAccountsSetup[countryKey]) {
+        if (account.isActive) {
+          fetchBankDetails(countryKey, account.name, account.supabaseTable);
+        }
+      }
+    }
+  };
 
   const fetchBankDetails = async (
     country: string,
@@ -186,7 +231,6 @@ export default function ProfilePage() {
                 lastModified,
                 error: errorMsg,
                 isLoading: false,
-                isEditingTableName: false, // Ensure editing mode is reset if fetch was triggered by save
               }
             : acc,
         ) || [];
@@ -194,21 +238,98 @@ export default function ProfilePage() {
     });
   };
 
-  const handleToggleAccountStatus = (
+  const handleToggleAccountStatus = async (
     country: string,
     bankName: string,
-    isActive: boolean,
+    newIsActiveStatus: boolean,
   ) => {
+    if (!currentUser) {
+      console.error("User not logged in. Cannot update status.");
+      // TODO: Show message to user
+      return;
+    }
+
+    // Optimistically update UI
     setBankAccounts((prev) => {
       const updatedCountryAccounts = prev[country].map((acc) =>
-        acc.name === bankName ? { ...acc, isActive } : acc,
+        acc.name === bankName
+          ? {
+              ...acc,
+              isActive: newIsActiveStatus,
+              isLoading: newIsActiveStatus, // Set loading if activating
+              error: undefined, // Clear previous errors
+              latestEntry: newIsActiveStatus ? acc.latestEntry : null, // Keep or clear entries
+              lastModified: newIsActiveStatus ? acc.lastModified : "Inactive", // Keep or mark inactive
+            }
+          : acc,
       );
       return { ...prev, [country]: updatedCountryAccounts };
     });
-    // TODO: Persist this 'isActive' change to Supabase (e.g., in a user_settings table).
-    console.log(
-      `Toggled ${bankName} in ${country} to ${isActive ? "active" : "inactive"}. Persistence needed.`,
-    );
+
+    const { error } = await supabase
+      .from("user_bank_settings")
+      .upsert({
+        user_id: currentUser.id,
+        country: country,
+        bank_name: bankName,
+        is_active: newIsActiveStatus,
+      })
+      .select(); // .select() can help confirm the upsert and get back data if needed
+
+    if (error) {
+      console.error("Error updating account status in Supabase:", error);
+      // Revert optimistic update
+      setBankAccounts((prev) => {
+        const revertedCountryAccounts = prev[country].map((acc) =>
+          acc.name === bankName
+            ? {
+                ...acc,
+                isActive: !newIsActiveStatus,
+                isLoading: false,
+                error: "Failed to save status",
+              }
+            : acc,
+        );
+        return { ...prev, [country]: revertedCountryAccounts };
+      });
+    } else {
+      console.log(
+        `Status for ${bankName} in ${country} updated to ${newIsActiveStatus}.`,
+      );
+      if (newIsActiveStatus) {
+        const account = bankAccounts[country]?.find(
+          (acc) => acc.name === bankName,
+        );
+        if (account && !account.latestEntry) {
+          // Fetch only if activating and no data yet
+          fetchBankDetails(country, bankName, account.supabaseTable);
+        } else if (account) {
+          // If already has data, just ensure loading is false
+          setBankAccounts((prev) => ({
+            ...prev,
+            [country]: prev[country].map((a) =>
+              a.name === bankName ? { ...a, isLoading: false } : a,
+            ),
+          }));
+        }
+      } else {
+        // If deactivating, ensure isLoading is false and data is cleared (already handled by optimistic update)
+        setBankAccounts((prev) => {
+          const updatedCountryAccounts = prev[country].map((acc) =>
+            acc.name === bankName
+              ? {
+                  ...acc,
+                  isLoading: false,
+                  latestEntry: null,
+                  lastModified: "Inactive",
+                  error: undefined,
+                }
+              : acc,
+          );
+          return { ...prev, [country]: updatedCountryAccounts };
+        });
+      }
+    }
   };
 
   const handleEditTableName = (country: string, bankName: string) => {
@@ -255,6 +376,11 @@ export default function ProfilePage() {
   };
 
   const handleSaveTableName = async (country: string, bankName: string) => {
+    if (!currentUser) {
+      console.error("User not logged in. Cannot save table name.");
+      // TODO: Show message to user
+      return;
+    }
     const accountToUpdate = bankAccounts[country].find(
       (acc) => acc.name === bankName,
     );
@@ -269,25 +395,52 @@ export default function ProfilePage() {
         acc.name === bankName
           ? {
               ...acc,
-              supabaseTable: newTableName,
+              supabaseTable: newTableName, // This is the actual table name now
               isLoading: true,
               isEditingTableName: false,
               error: undefined,
-            } // Clear previous error
+            }
           : acc,
       ),
     }));
 
-    // Fetch details with the new table name
-    // The fetchBankDetails function will handle setting isLoading to false and updating other details
-    await fetchBankDetails(country, bankName, newTableName);
-    // TODO: Persist this user-defined table name preference if needed (e.g., in user_settings or localStorage)
-    console.log(
-      `Table name for ${bankName} in ${country} updated to ${newTableName}. Persistence might be needed.`,
-    );
+    const { error } = await supabase
+      .from("user_bank_settings")
+      .upsert({
+        user_id: currentUser.id,
+        country: country,
+        bank_name: bankName,
+        custom_supabase_table_name: newTableName,
+      })
+      .select(); // .select() can help confirm
+
+    if (error) {
+      console.error("Error saving custom table name to Supabase:", error);
+      setBankAccounts((prev) => ({
+        ...prev,
+        [country]: prev[country].map((acc) =>
+          acc.name === bankName
+            ? {
+                ...acc,
+                supabaseTable: accountToUpdate.supabaseTable, // Revert to old actual table name
+                tempSupabaseTable: accountToUpdate.supabaseTable, // Revert temp name
+                isLoading: false,
+                isEditingTableName: true, // Re-open edit
+                error: "Failed to save table name",
+              }
+            : acc,
+        ),
+      }));
+    } else {
+      console.log(
+        `Custom table name for ${bankName} in ${country} updated to ${newTableName}. Fetching new details.`,
+      );
+      await fetchBankDetails(country, bankName, newTableName);
+    }
   };
 
-  if (isInitialLoading) {
+  if (isInitialLoading && !currentUser) {
+    // Show loading until user session is checked
     return (
       <div className="container mx-auto p-4 text-center">
         <p>Loading page structure...</p>

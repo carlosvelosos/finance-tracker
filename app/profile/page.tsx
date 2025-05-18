@@ -463,7 +463,12 @@ export default function ProfilePage() {
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {accounts.map((account) => (
-              <Card key={account.name} className="flex flex-col">
+              <Card
+                key={account.name}
+                className={`flex flex-col ${
+                  !account.isActive ? "bg-transparent border border-black" : ""
+                }`}
+              >
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start gap-2">
                     <span>{account.name}</span>

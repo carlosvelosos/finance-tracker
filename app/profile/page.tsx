@@ -467,10 +467,14 @@ export default function ProfilePage() {
                 key={account.name}
                 className={`flex flex-col ${
                   !account.isActive ? "bg-transparent border border-black" : ""
-                }`}
+                } p-2 md:p-3`} // Reduced padding
               >
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-start gap-2">
+                <CardHeader className="px-2 gap-0">
+                  {" "}
+                  {/* Less bottom and horizontal padding */}
+                  <CardTitle className="flex justify-between items-start text-base">
+                    {" "}
+                    {/* Smaller text */}
                     <span className={account.isActive ? "" : "text-gray-500"}>
                       {account.name}
                     </span>
@@ -478,25 +482,40 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={account.isActive ? "outline" : "inactive"}
-                          className="whitespace-nowrap"
+                          className="whitespace-nowrap px-2 py-0.5 text-xs" // Smaller badge
                         >
                           {account.supabaseTable}
                         </Badge>
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
                           onClick={() =>
                             handleEditTableName(country, account.name)
                           }
                           aria-label="Edit table name"
+                          className="p-1"
                         >
-                          ✏️
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={14}
+                            height={14}
+                            fill="none"
+                            viewBox="0 0 16 16"
+                            className="text-gray-500 hover:text-black"
+                          >
+                            <path
+                              d="M11.13 2.87a1.25 1.25 0 0 1 1.77 1.76l-7.06 7.07-2.12.35.35-2.12 7.06-7.06Zm2.12-2.12a3.25 3.25 0 0 0-4.6 0l-7.07 7.06A2 2 0 0 0 1 9.88l-.5 3.03a1 1 0 0 0 1.15 1.15l3.03-.5a2 2 0 0 0 1.41-.59l7.07-7.06a3.25 3.25 0 0 0 0-4.6Z"
+                              fill="currentColor"
+                            />
+                          </svg>
                         </Button>
                       </div>
                     )}
                   </CardTitle>
                   {account.isEditingTableName && (
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-1 space-y-1">
+                      {" "}
+                      {/* Reduced margin and spacing */}
                       <Label
                         htmlFor={`table-name-input-${country}-${account.name}`}
                         className="text-xs"
@@ -514,15 +533,16 @@ export default function ProfilePage() {
                           )
                         }
                         placeholder="e.g., transactions_custom_name"
-                        className="h-8 text-sm"
+                        className="h-7 text-xs px-2" // Smaller input
                       />
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex justify-end space-x-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() =>
                             handleCancelEditTableName(country, account.name)
                           }
+                          className="px-2 py-1 text-xs"
                         >
                           Cancel
                         </Button>
@@ -532,13 +552,14 @@ export default function ProfilePage() {
                           onClick={() =>
                             handleSaveTableName(country, account.name)
                           }
+                          className="px-2 py-1 text-xs"
                         >
                           Save
                         </Button>
                       </div>
                     </div>
                   )}
-                  <CardDescription className="mt-1">
+                  <CardDescription className="text-xs">
                     Status:{" "}
                     {account.isActive ? (
                       <span className="text-green-600 font-medium">Active</span>
@@ -547,16 +568,18 @@ export default function ProfilePage() {
                     )}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex-grow">
+                <CardContent className="flex-grow px-2 pb-2 pt-0">
+                  {" "}
+                  {/* Less padding */}
                   {account.isLoading ? (
-                    <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-                      <div className="h-8 bg-gray-200 rounded w-full animate-pulse mt-2"></div>
+                    <div className="space-y-1">
+                      <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                      <div className="h-6 bg-gray-200 rounded w-full animate-pulse mt-1"></div>
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center space-x-2 mb-4">
+                      <div className="flex items-center space-x-2 mb-2">
                         <Switch
                           id={`switch-${country}-${account.name.replace(
                             /\s+/g,
@@ -577,16 +600,17 @@ export default function ProfilePage() {
                             /\s+/g,
                             "-",
                           )}`}
+                          className="text-xs"
                         >
                           {account.isActive ? "Deactivate" : "Activate"}
                         </Label>
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-xs text-gray-600 mb-1">
                         <span className="font-medium">Last Update:</span>{" "}
                         {account.lastModified || "N/A"}
                       </p>
                       {account.error && (
-                        <p className="text-sm text-red-500 mt-1">
+                        <p className="text-xs text-red-500 mt-1">
                           Error: {account.error}
                         </p>
                       )}
@@ -595,16 +619,16 @@ export default function ProfilePage() {
                         <Accordion
                           type="single"
                           collapsible
-                          className="w-full mt-3"
+                          className="w-full mt-2"
                         >
                           <AccordionItem
                             value={`entry-${account.supabaseTable}`}
                           >
-                            <AccordionTrigger className="text-sm">
+                            <AccordionTrigger className="text-xs">
                               View Latest Entry
                             </AccordionTrigger>
                             <AccordionContent>
-                              <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md overflow-x-auto text-xs max-h-60">
+                              <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto text-xs max-h-40">
                                 {JSON.stringify(account.latestEntry, null, 2)}
                               </pre>
                             </AccordionContent>
@@ -614,7 +638,7 @@ export default function ProfilePage() {
                       {!account.latestEntry &&
                         !account.error &&
                         !account.isLoading && (
-                          <p className="text-sm text-gray-500 mt-2">
+                          <p className="text-xs text-gray-500 mt-1">
                             No recent entries found for this account.
                           </p>
                         )}

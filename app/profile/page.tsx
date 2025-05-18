@@ -467,14 +467,10 @@ export default function ProfilePage() {
                 key={account.name}
                 className={`flex flex-col ${
                   !account.isActive ? "bg-transparent border border-black" : ""
-                } p-2 md:p-3`} // Reduced padding
+                } p-2 md:p-3`}
               >
                 <CardHeader className="px-2 gap-0">
-                  {" "}
-                  {/* Less bottom and horizontal padding */}
                   <CardTitle className="flex justify-between items-start text-base">
-                    {" "}
-                    {/* Smaller text */}
                     <span className={account.isActive ? "" : "text-gray-500"}>
                       {account.name}
                     </span>
@@ -482,7 +478,7 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={account.isActive ? "outline" : "inactive"}
-                          className="whitespace-nowrap px-2 py-0.5 text-xs" // Smaller badge
+                          className="whitespace-nowrap px-2 py-0.5 text-xs"
                         >
                           {account.supabaseTable}
                         </Badge>
@@ -514,8 +510,6 @@ export default function ProfilePage() {
                   </CardTitle>
                   {account.isEditingTableName && (
                     <div className="mt-1 space-y-1">
-                      {" "}
-                      {/* Reduced margin and spacing */}
                       <Label
                         htmlFor={`table-name-input-${country}-${account.name}`}
                         className="text-xs"
@@ -533,7 +527,7 @@ export default function ProfilePage() {
                           )
                         }
                         placeholder="e.g., transactions_custom_name"
-                        className="h-7 text-xs px-2" // Smaller input
+                        className="h-7 text-xs px-2"
                       />
                       <div className="flex justify-end space-x-1">
                         <Button
@@ -567,84 +561,78 @@ export default function ProfilePage() {
                       <span className="text-red-600 font-medium">Inactive</span>
                     )}
                   </CardDescription>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Switch
+                      id={`switch-${country}-${account.name.replace(/\s+/g, "-")}`}
+                      checked={account.isActive}
+                      onCheckedChange={(checked) =>
+                        handleToggleAccountStatus(
+                          country,
+                          account.name,
+                          checked,
+                        )
+                      }
+                      aria-label={`Toggle account status for ${account.name}`}
+                    />
+                    <Label
+                      htmlFor={`switch-${country}-${account.name.replace(/\s+/g, "-")}`}
+                      className="text-xs"
+                    >
+                      {account.isActive ? "Deactivate" : "Activate"}
+                    </Label>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex-grow px-2 pb-2 pt-0">
-                  {" "}
-                  {/* Less padding */}
-                  {account.isLoading ? (
-                    <div className="space-y-1">
-                      <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-                      <div className="h-6 bg-gray-200 rounded w-full animate-pulse mt-1"></div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Switch
-                          id={`switch-${country}-${account.name.replace(
-                            /\s+/g,
-                            "-",
-                          )}`}
-                          checked={account.isActive}
-                          onCheckedChange={(checked) =>
-                            handleToggleAccountStatus(
-                              country,
-                              account.name,
-                              checked,
-                            )
-                          }
-                          aria-label={`Toggle account status for ${account.name}`}
-                        />
-                        <Label
-                          htmlFor={`switch-${country}-${account.name.replace(
-                            /\s+/g,
-                            "-",
-                          )}`}
-                          className="text-xs"
-                        >
-                          {account.isActive ? "Deactivate" : "Activate"}
-                        </Label>
+                {account.isActive && (
+                  <CardContent className="flex-grow px-2 pb-2 pt-0">
+                    {account.isLoading ? (
+                      <div className="space-y-1">
+                        <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                        <div className="h-6 bg-gray-200 rounded w-full animate-pulse mt-1"></div>
                       </div>
-                      <p className="text-xs text-gray-600 mb-1">
-                        <span className="font-medium">Last Update:</span>{" "}
-                        {account.lastModified || "N/A"}
-                      </p>
-                      {account.error && (
-                        <p className="text-xs text-red-500 mt-1">
-                          Error: {account.error}
+                    ) : (
+                      <>
+                        <p className="text-xs text-gray-600 mb-1">
+                          <span className="font-medium">Last Update:</span>{" "}
+                          {account.lastModified || "N/A"}
                         </p>
-                      )}
-
-                      {account.latestEntry && (
-                        <Accordion
-                          type="single"
-                          collapsible
-                          className="w-full mt-2"
-                        >
-                          <AccordionItem
-                            value={`entry-${account.supabaseTable}`}
-                          >
-                            <AccordionTrigger className="text-xs">
-                              View Latest Entry
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto text-xs max-h-40">
-                                {JSON.stringify(account.latestEntry, null, 2)}
-                              </pre>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      )}
-                      {!account.latestEntry &&
-                        !account.error &&
-                        !account.isLoading && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            No recent entries found for this account.
+                        {account.error && (
+                          <p className="text-xs text-red-500 mt-1">
+                            Error: {account.error}
                           </p>
                         )}
-                    </>
-                  )}
-                </CardContent>
+
+                        {account.latestEntry && (
+                          <Accordion
+                            type="single"
+                            collapsible
+                            className="w-full mt-2"
+                          >
+                            <AccordionItem
+                              value={`entry-${account.supabaseTable}`}
+                            >
+                              <AccordionTrigger className="text-xs">
+                                View Latest Entry
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto text-xs max-h-40">
+                                  {JSON.stringify(account.latestEntry, null, 2)}
+                                </pre>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                        )}
+                        {!account.latestEntry &&
+                          !account.error &&
+                          !account.isLoading && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              No recent entries found for this account.
+                            </p>
+                          )}
+                      </>
+                    )}
+                  </CardContent>
+                )}
               </Card>
             ))}
           </div>

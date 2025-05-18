@@ -471,10 +471,15 @@ export default function ProfilePage() {
               >
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start gap-2">
-                    <span>{account.name}</span>
+                    <span className={account.isActive ? "" : "text-gray-500"}>
+                      {account.name}
+                    </span>
                     {!account.isEditingTableName && (
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="whitespace-nowrap">
+                        <Badge
+                          variant={account.isActive ? "outline" : "inactive"}
+                          className="whitespace-nowrap"
+                        >
                           {account.supabaseTable}
                         </Badge>
                         <Button

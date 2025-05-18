@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input"; // Added for table name editing
+import { Button } from "@/components/ui/button"; // Added for save/cancel buttons
 import {
   Card,
   CardContent,
@@ -47,6 +49,8 @@ interface BankAccountInfo {
   latestEntry?: any;
   error?: string;
   isLoading: boolean;
+  isEditingTableName?: boolean; // New: To control edit mode for table name
+  tempSupabaseTable?: string; // New: To hold table name during editing
 }
 
 // Helper to generate Supabase table name (example convention)
@@ -69,12 +73,17 @@ export default function ProfilePage() {
     const initializeBankAccounts = () => {
       const initialAccounts: Record<string, BankAccountInfo[]> = {};
       for (const [country, banks] of Object.entries(countriesData)) {
-        initialAccounts[country] = banks.map((bankName) => ({
-          name: bankName,
-          supabaseTable: generateSupabaseTableName(bankName),
-          isActive: true, // Default, should ideally be fetched from user settings
-          isLoading: true,
-        }));
+        initialAccounts[country] = banks.map((bankName) => {
+          const generatedTable = generateSupabaseTableName(bankName);
+          return {
+            name: bankName,
+            supabaseTable: generatedTable,
+            isActive: true, // Default, should ideally be fetched from user settings
+            isLoading: true,
+            isEditingTableName: false, // Initialize editing state
+            tempSupabaseTable: generatedTable, // Initialize temp table name
+          };
+        });
       }
       setBankAccounts(initialAccounts);
       setIsInitialLoading(false); // Done with initial structure setup
@@ -102,36 +111,60 @@ export default function ProfilePage() {
     tableName: string,
   ) => {
     let lastModified: string | undefined;
-    let latestEntry: any | undefined;
+    let latestEntry: any | undefined; // This will now hold an array of entries for the latest date
     let errorMsg: string | undefined;
 
     try {
-      // Fetch latest entry.
-      // IMPORTANT: Adjust 'created_at' to your actual timestamp column (e.g., 'date', 'transaction_date')
-      // or use 'id' if it's an auto-incrementing primary key.
-      const { data: latestEntryData, error: dbError } = await supabase
+      // 1. Get the most recent "Date" from the table
+      const { data: maxDateData, error: maxDateError } = await supabase
         .from(tableName)
-        .select("*")
-        .order("created_at", { ascending: false }) // Or e.g., .order("id", { ascending: false })
+        .select('"Date"') // Select the "Date" column
+        .order('"Date"', { ascending: false })
         .limit(1)
-        .maybeSingle(); // Use maybeSingle to handle empty tables gracefully (returns null instead of error)
+        .maybeSingle();
 
-      if (dbError) {
-        // PGRST116 is for "relation not found" or similar issues if .single() was used and no row.
-        // maybeSingle() avoids this specific error for empty tables.
-        // Check for other errors like table not found (e.g., dbError.code === '42P01' for PostgreSQL)
-        console.error(`Error fetching latest entry for ${tableName}:`, dbError);
-        errorMsg = `Data fetch failed: ${dbError.message}`;
+      if (maxDateError) {
+        console.error(
+          `Error fetching max date for ${tableName}:`,
+          maxDateError,
+        );
+        errorMsg = `Failed to get latest date: ${maxDateError.message}`;
         lastModified = "Error";
-      } else if (latestEntryData) {
-        latestEntry = latestEntryData;
-        // Assuming the latest entry's timestamp column is 'created_at'
-        // Adjust this if your timestamp column has a different name.
-        lastModified = latestEntryData.created_at
-          ? new Date(latestEntryData.created_at).toLocaleString()
-          : latestEntryData.date
-            ? new Date(latestEntryData.date).toLocaleString()
-            : "N/A";
+      } else if (maxDateData && maxDateData.Date) {
+        const latestDateString = maxDateData.Date; // e.g., "2025-05-18"
+
+        // Format the date for display. Adding T00:00:00Z ensures it's treated as UTC to avoid timezone shifts.
+        const dateObj = new Date(latestDateString + "T00:00:00Z");
+        lastModified = dateObj.toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        // 2. Get all entries for that latest date
+        const { data: entriesForDate, error: entriesError } = await supabase
+          .from(tableName)
+          .select("*")
+          .eq('"Date"', latestDateString); // Filter by the latest date string
+
+        if (entriesError) {
+          console.error(
+            `Error fetching entries for date ${latestDateString} from ${tableName}:`,
+            entriesError,
+          );
+          errorMsg =
+            (errorMsg ? errorMsg + "; " : "") +
+            `Failed to get entries: ${entriesError.message}`;
+          latestEntry = null;
+        } else {
+          latestEntry = entriesForDate; // Assign the array of entries
+          if (!entriesForDate || entriesForDate.length === 0) {
+            // This case might occur if data consistency is off, or if the date was found but somehow no rows match.
+            // Or if the table was emptied between the two queries.
+            lastModified = `No entries for ${lastModified}`; // Append to the date
+            latestEntry = null;
+          }
+        }
       } else {
         lastModified = "No entries yet";
         latestEntry = null;
@@ -140,6 +173,7 @@ export default function ProfilePage() {
       console.error(`Exception fetching data for ${tableName}:`, e);
       errorMsg = `Exception: ${e.message}`;
       lastModified = "Error";
+      latestEntry = null;
     }
 
     setBankAccounts((prev) => {
@@ -152,6 +186,7 @@ export default function ProfilePage() {
                 lastModified,
                 error: errorMsg,
                 isLoading: false,
+                isEditingTableName: false, // Ensure editing mode is reset if fetch was triggered by save
               }
             : acc,
         ) || [];
@@ -173,6 +208,82 @@ export default function ProfilePage() {
     // TODO: Persist this 'isActive' change to Supabase (e.g., in a user_settings table).
     console.log(
       `Toggled ${bankName} in ${country} to ${isActive ? "active" : "inactive"}. Persistence needed.`,
+    );
+  };
+
+  const handleEditTableName = (country: string, bankName: string) => {
+    setBankAccounts((prev) => ({
+      ...prev,
+      [country]: prev[country].map((acc) =>
+        acc.name === bankName
+          ? {
+              ...acc,
+              isEditingTableName: true,
+              tempSupabaseTable: acc.supabaseTable,
+            }
+          : acc,
+      ),
+    }));
+  };
+
+  const handleCancelEditTableName = (country: string, bankName: string) => {
+    setBankAccounts((prev) => ({
+      ...prev,
+      [country]: prev[country].map((acc) =>
+        acc.name === bankName
+          ? {
+              ...acc,
+              isEditingTableName: false,
+              tempSupabaseTable: acc.supabaseTable,
+            }
+          : acc,
+      ),
+    }));
+  };
+
+  const handleTableNameInputChange = (
+    country: string,
+    bankName: string,
+    value: string,
+  ) => {
+    setBankAccounts((prev) => ({
+      ...prev,
+      [country]: prev[country].map((acc) =>
+        acc.name === bankName ? { ...acc, tempSupabaseTable: value } : acc,
+      ),
+    }));
+  };
+
+  const handleSaveTableName = async (country: string, bankName: string) => {
+    const accountToUpdate = bankAccounts[country].find(
+      (acc) => acc.name === bankName,
+    );
+    if (!accountToUpdate || !accountToUpdate.tempSupabaseTable) return;
+
+    const newTableName = accountToUpdate.tempSupabaseTable;
+
+    // Optimistically update the table name and set loading state
+    setBankAccounts((prev) => ({
+      ...prev,
+      [country]: prev[country].map((acc) =>
+        acc.name === bankName
+          ? {
+              ...acc,
+              supabaseTable: newTableName,
+              isLoading: true,
+              isEditingTableName: false,
+              error: undefined,
+            } // Clear previous error
+          : acc,
+      ),
+    }));
+
+    // Fetch details with the new table name
+    // The fetchBankDetails function will handle setting isLoading to false and updating other details
+    await fetchBankDetails(country, bankName, newTableName);
+    // TODO: Persist this user-defined table name preference if needed (e.g., in user_settings or localStorage)
+    console.log(
+      `Table name for ${bankName} in ${country} updated to ${newTableName}. Persistence might be needed.`,
     );
   };
 
@@ -199,15 +310,72 @@ export default function ProfilePage() {
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {accounts.map((account) => (
-              <Card key={account.supabaseTable} className="flex flex-col">
+              <Card key={account.name} className="flex flex-col">
                 <CardHeader>
-                  <CardTitle className="flex justify-between items-start">
+                  <CardTitle className="flex justify-between items-start gap-2">
                     <span>{account.name}</span>
-                    <Badge variant="outline" className="whitespace-nowrap">
-                      {account.supabaseTable}
-                    </Badge>
+                    {!account.isEditingTableName && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="whitespace-nowrap">
+                          {account.supabaseTable}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleEditTableName(country, account.name)
+                          }
+                          aria-label="Edit table name"
+                        >
+                          ✏️
+                        </Button>
+                      </div>
+                    )}
                   </CardTitle>
-                  <CardDescription>
+                  {account.isEditingTableName && (
+                    <div className="mt-2 space-y-2">
+                      <Label
+                        htmlFor={`table-name-input-${country}-${account.name}`}
+                        className="text-xs"
+                      >
+                        Edit Supabase Table Name:
+                      </Label>
+                      <Input
+                        id={`table-name-input-${country}-${account.name}`}
+                        value={account.tempSupabaseTable}
+                        onChange={(e) =>
+                          handleTableNameInputChange(
+                            country,
+                            account.name,
+                            e.target.value,
+                          )
+                        }
+                        placeholder="e.g., transactions_custom_name"
+                        className="h-8 text-sm"
+                      />
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleCancelEditTableName(country, account.name)
+                          }
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() =>
+                            handleSaveTableName(country, account.name)
+                          }
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  <CardDescription className="mt-1">
                     Status:{" "}
                     {account.isActive ? (
                       <span className="text-green-600 font-medium">Active</span>
@@ -227,7 +395,10 @@ export default function ProfilePage() {
                     <>
                       <div className="flex items-center space-x-2 mb-4">
                         <Switch
-                          id={`switch-${country}-${account.name.replace(/\s+/g, "-")}`}
+                          id={`switch-${country}-${account.name.replace(
+                            /\s+/g,
+                            "-",
+                          )}`}
                           checked={account.isActive}
                           onCheckedChange={(checked) =>
                             handleToggleAccountStatus(
@@ -239,7 +410,10 @@ export default function ProfilePage() {
                           aria-label={`Toggle account status for ${account.name}`}
                         />
                         <Label
-                          htmlFor={`switch-${country}-${account.name.replace(/\s+/g, "-")}`}
+                          htmlFor={`switch-${country}-${account.name.replace(
+                            /\s+/g,
+                            "-",
+                          )}`}
                         >
                           {account.isActive ? "Deactivate" : "Activate"}
                         </Label>

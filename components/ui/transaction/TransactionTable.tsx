@@ -485,7 +485,9 @@ export default function TransactionTable({
             <TableRow
               key={transaction.id}
               className={`${
-                transaction.Category === "Unknown" ? "bg-yellow-100" : ""
+                transaction.Category === "Unknown"
+                  ? "bg-yellow-100 text-black"
+                  : ""
               } ${
                 index === array.length - 1
                   ? "!border-b-2 !border-b-green-500"

@@ -149,7 +149,7 @@ const EmailClient = () => {
   } | null>(null);
   const [showAllSenders, setShowAllSenders] = useState(false);
   const [showAllUploadSenders, setShowAllUploadSenders] = useState(false); // Separate state for upload filtering
-  const [selectedSenders, setSelectedSenders] = useState<string[]>([
+  const [selectedSenders] = useState<string[]>([
     "Inter",
     "Handelsbanken",
     "SJ Prio Mastercard",
@@ -219,14 +219,14 @@ const EmailClient = () => {
       return false;
     }
   };
-
   useEffect(() => {
     initializeGapi();
     loadCachedEmails();
     updateStorageInfo();
     checkExistingAuth(); // Check for existing authentication
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const initializeGapi = async () => {
+  const initializeGapi = useCallback(async () => {
     try {
       console.log("Initializing Google APIs...");
 
@@ -291,7 +291,8 @@ const EmailClient = () => {
         `Failed to initialize Google APIs: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadCachedEmails = async () => {
     try {
@@ -499,7 +500,7 @@ const EmailClient = () => {
       console.error("Error clearing auth data:", error);
     }
   };
-  const checkExistingAuth = async () => {
+  const checkExistingAuth = useCallback(async () => {
     try {
       setIsCheckingAuth(true);
       const authData = loadAuthData();
@@ -550,7 +551,7 @@ const EmailClient = () => {
         if (!isLoadingFromCache) {
           await fetchEmails();
         }
-      } catch (apiError) {
+      } catch {
         console.log("Stored token is invalid, clearing stored auth");
         clearAuthData();
         window.gapi.client.setToken(null);
@@ -561,7 +562,8 @@ const EmailClient = () => {
     } finally {
       setIsCheckingAuth(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleSignIn = async () => {
     try {
       setLoading(true);
@@ -625,9 +627,11 @@ const EmailClient = () => {
             setLoading(false);
           }
         },
-        error_callback: (error: any) => {
+        error_callback: (error: { type?: string; error?: string }) => {
           console.error("OAuth error:", error);
-          setError(`OAuth error: ${error.type || "Unknown error"}`);
+          setError(
+            `OAuth error: ${error.type || error.error || "Unknown error"}`,
+          );
           setLoading(false);
         },
       });
@@ -778,7 +782,11 @@ const EmailClient = () => {
         errorMessage = error.message;
       } else if (typeof error === "object" && error !== null) {
         // Handle GAPI error objects
-        const errorObj = error as any;
+        const errorObj = error as {
+          result?: { error?: { message?: string; code?: number } };
+          status?: number;
+          statusText?: string;
+        };
         if (errorObj.result?.error) {
           const apiError = errorObj.result.error;
           errorMessage = `Gmail API Error: ${apiError.message || apiError.code || "Unknown API error"}`;
@@ -946,9 +954,8 @@ const EmailClient = () => {
       // Calculate weekly intervals
       const startDateObj = new Date(exportStartDate);
       const endDateObj = new Date(exportEndDate);
-
       const weeklyIntervals: { start: Date; end: Date; label: string }[] = [];
-      let currentWeekStart = new Date(startDateObj);
+      const currentWeekStart = new Date(startDateObj);
 
       while (currentWeekStart <= endDateObj) {
         const currentWeekEnd = new Date(currentWeekStart);
@@ -1227,7 +1234,7 @@ const EmailClient = () => {
     }
   };
   // Function to download JSON file
-  const downloadJsonFile = (data: any, filename: string) => {
+  const downloadJsonFile = (data: object, filename: string) => {
     const jsonString = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -1265,7 +1272,16 @@ const EmailClient = () => {
 
       // Transform the data to match our expected email format
       const transformedEmails = jsonData.emails.map(
-        (email: any, index: number) => {
+        (
+          email: {
+            id?: string;
+            snippet?: string;
+            headers?: object[];
+            body?: object;
+            parts?: object[];
+          },
+          index: number,
+        ) => {
           if (!email.id) {
             email.id = `uploaded-${index}`;
           }
@@ -1410,7 +1426,7 @@ const EmailClient = () => {
             day: "numeric",
           });
           emailsByDay[dayKey] = (emailsByDay[dayKey] || 0) + 1;
-        } catch (error) {
+        } catch {
           console.warn("Invalid date format:", dateHeader);
         }
       }
@@ -1520,7 +1536,7 @@ const EmailClient = () => {
 
     // 1. Analyze daily email counts for outlier days
     const emailsByDay: Record<string, number> = {};
-    const validEmails = emails.filter((email) => {
+    emails.filter((email) => {
       const dateHeader = getHeader(email.payload.headers, "Date");
       try {
         if (dateHeader) {
@@ -1529,7 +1545,7 @@ const EmailClient = () => {
           emailsByDay[dayKey] = (emailsByDay[dayKey] || 0) + 1;
           return true;
         }
-      } catch (error) {
+      } catch {
         console.warn("Invalid date format:", dateHeader);
       }
       return false;
@@ -1600,7 +1616,7 @@ const EmailClient = () => {
           const hour = date.getHours();
           hourCounts[hour] = (hourCounts[hour] || 0) + 1;
         }
-      } catch (error) {
+      } catch {
         // Skip invalid dates
       }
     });
@@ -2126,10 +2142,11 @@ const EmailClient = () => {
               </div>
               {exportStartDate && exportEndDate && !isExporting && (
                 <div className="text-xs text-muted-foreground bg-muted/30 rounded p-3">
+                  {" "}
                   <strong>Note:</strong> This will fetch emails from Gmail for
                   the specified date range and download them as a JSON file
-                  named "gmail-export-{exportStartDate}-to-{exportEndDate}
-                  .json". The file will include email headers, subjects,
+                  named &quot;gmail-export-{exportStartDate}-to-{exportEndDate}
+                  .json&quot;. The file will include email headers, subjects,
                   senders, and snippets. Large date ranges will be processed
                   week by week with real-time progress tracking.
                 </div>
@@ -2213,9 +2230,9 @@ const EmailClient = () => {
                         ).toDateString() === new Date().toDateString(),
                     ).length
                   }
-                </div>
+                </div>{" "}
                 <div className="text-sm text-muted-foreground">
-                  Today's Emails
+                  Today&apos;s Emails
                 </div>
               </div>{" "}
               <div className="bg-muted/50 rounded-lg p-4 text-center">
@@ -3876,9 +3893,10 @@ const EmailClient = () => {
                 Upload a previously exported JSON file to view and analyze your
                 email data. The file should contain emails exported from this
                 application.
-              </p>
+              </p>{" "}
               <p className="text-sm text-muted-foreground">
-                Go to the "Data Source" section above to upload your JSON file.
+                Go to the &quot;Data Source&quot; section above to upload your
+                JSON file.
               </p>
             </div>
           </CardContent>
@@ -3949,9 +3967,10 @@ const EmailClient = () => {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
+                {" "}
                 {dataSource === "upload"
                   ? "No emails found in uploaded file."
-                  : 'No emails found. Click "Refresh Emails" to try again.'}
+                  : "No emails found. Click &quot;Refresh Emails&quot; to try again."}
               </div>
             )}
           </CardContent>

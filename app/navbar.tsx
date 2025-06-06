@@ -53,6 +53,7 @@ export default function Navbar() {
         // Limited navigation for restricted users
         setNavLinks([
           { href: "/family", label: "Family" },
+          { href: "/email-client", label: "Email Client" },
           { href: "/about", label: "About" },
           { href: "/contact", label: "Contact" },
         ]);

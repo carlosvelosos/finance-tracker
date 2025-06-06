@@ -94,7 +94,6 @@ export function DarkNavigationMenuDemo() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-
         <NavigationMenuItem>
           <NavigationMenuTrigger className="text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400 data-[state=open]:bg-black data-[state=open]:bg-opacity-30 data-[state=open]:text-green-400">
             Transactions
@@ -108,19 +107,35 @@ export function DarkNavigationMenuDemo() {
               ))}
             </ul>
           </NavigationMenuContent>
-        </NavigationMenuItem>
-
+        </NavigationMenuItem>{" "}
         <NavigationMenuItem>
           <Link href="/upload" legacyBehavior passHref>
             <NavigationMenuLink
               className={cn(
                 navigationMenuTriggerStyle(),
-                "text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400"
+                "text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400",
               )}
             >
               Upload Files
             </NavigationMenuLink>
           </Link>
+        </NavigationMenuItem>{" "}
+        <NavigationMenuItem>
+          <NavigationMenuTrigger className="text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400 data-[state=open]:bg-black data-[state=open]:bg-opacity-30 data-[state=open]:text-green-400">
+            Email Tools
+          </NavigationMenuTrigger>
+          <NavigationMenuContent className="bg-[#1E1E1E] border border-gray-700">
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] lg:w-[600px]">
+              <ListItem title="Email Client" href="/email-client">
+                Browse and manage your Gmail exports with a user-friendly
+                interface.
+              </ListItem>
+              <ListItem title="Email Merge Tool" href="/email-merge">
+                Merge multiple Gmail export JSON files into a single file with
+                duplicate removal.
+              </ListItem>
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
@@ -138,7 +153,7 @@ const ListItem = React.forwardRef<
           ref={ref}
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-black hover:bg-opacity-30 hover:text-green-400",
-            className
+            className,
           )}
           {...props}
         >

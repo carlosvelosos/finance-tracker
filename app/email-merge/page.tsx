@@ -33,7 +33,7 @@ interface Email {
   from?: string;
   subject?: string;
   to?: string;
-  [key: string]: any;
+  [key: string]: string | Record<string, string> | undefined;
 }
 
 interface GmailExportData {

@@ -28,7 +28,7 @@ interface WeeklyBreakdown {
 interface Email {
   id?: string;
   snippet?: string;
-  headers?: any[];
+  headers?: Record<string, string>;
   date?: string;
   from?: string;
   subject?: string;

@@ -48,18 +48,87 @@ interface EmailData {
   payload: {
     headers: { name: string; value: string }[];
     body?: { data?: string };
-    parts?: any[];
+    parts?: EmailPart[];
   };
+}
+
+interface EmailPart {
+  mimeType?: string;
+  filename?: string;
+  headers?: { name: string; value: string }[];
+  body?: { data?: string; size?: number };
+  parts?: EmailPart[];
 }
 
 interface TokenResponse {
   access_token: string;
 }
 
+interface UserInfo {
+  id: string;
+  email: string;
+  verified_email: boolean;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  locale: string;
+}
+
+interface GoogleAPI {
+  load: (
+    api: string,
+    options: { callback: () => void; onerror: () => void },
+  ) => void;
+  client: {
+    init: (config: {
+      apiKey: string;
+      discoveryDocs: string[];
+    }) => Promise<void>;
+    gmail: {
+      users: {
+        messages: {
+          list: (params: {
+            userId: string;
+            maxResults: number;
+            q?: string;
+          }) => Promise<{ result: { messages?: { id: string }[] } }>;
+          get: (params: {
+            userId: string;
+            id: string;
+            format?: string;
+          }) => Promise<{ result: EmailData }>;
+        };
+        getProfile: (params: {
+          userId: string;
+        }) => Promise<{ result: { emailAddress: string } }>;
+      };
+    };
+    setToken: (token: { access_token: string } | null) => void;
+    getToken: () => { access_token: string } | null;
+  };
+}
+
+interface GoogleAuth {
+  accounts: {
+    oauth2: {
+      initTokenClient: (config: {
+        client_id: string;
+        scope: string;
+        callback: (response: TokenResponse) => void;
+        error_callback: (error: { type: string }) => void;
+      }) => {
+        requestAccessToken: (options: { prompt: string }) => void;
+      };
+      revoke: (token: string) => void;
+    };
+  };
+}
+
 declare global {
   interface Window {
-    google: any;
-    gapi: any;
+    google: GoogleAuth;
+    gapi: GoogleAPI;
   }
 }
 
@@ -69,7 +138,7 @@ const EmailClient = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [fetchTime, setFetchTime] = useState<number | null>(null);
   const [cacheAge, setCacheAge] = useState<Date | null>(null);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(false);
@@ -116,9 +185,9 @@ const EmailClient = () => {
   const [dataSource, setDataSource] = useState<"fetch" | "upload">("fetch");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
-  const [originalUploadedEmails, setOriginalUploadedEmails] = useState<any[]>(
-    [],
-  );
+  const [originalUploadedEmails, setOriginalUploadedEmails] = useState<
+    EmailData[]
+  >([]);
   const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
   const DISCOVERY_DOC =
@@ -383,7 +452,7 @@ const EmailClient = () => {
   };
 
   // Authentication persistence functions
-  const saveAuthData = (tokenResponse: TokenResponse, userInfo: any) => {
+  const saveAuthData = (tokenResponse: TokenResponse, userInfo: UserInfo) => {
     try {
       const authData = {
         access_token: tokenResponse.access_token,
@@ -572,7 +641,7 @@ const EmailClient = () => {
       setLoading(false);
     }
   };
-  const getUserInfo = async (accessToken: string) => {
+  const getUserInfo = async (accessToken: string): Promise<UserInfo | null> => {
     try {
       const response = await fetch(
         "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -584,7 +653,7 @@ const EmailClient = () => {
       );
 
       if (response.ok) {
-        const userInfo = await response.json();
+        const userInfo: UserInfo = await response.json();
         setUserInfo(userInfo);
         console.log("User info:", userInfo);
         return userInfo;

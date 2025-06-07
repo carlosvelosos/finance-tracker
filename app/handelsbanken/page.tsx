@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
+import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
 import { Transaction } from "@/types/transaction";
 
 export default function Home() {
@@ -31,7 +32,7 @@ export default function Home() {
             "Comment",
             user_id,
             source_table
-          `
+          `,
           )
           .eq("user_id", user.id);
 
@@ -59,24 +60,27 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">
           Handelsbanken Transactions
-        </h1>
-
+        </h1>{" "}
         {/* Chart Buttons */}
-        <div className="flex justify-end mb-4 space-x-4">
-          <Button
-            onClick={() => (window.location.href = "./category/chart")}
-            className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
-          >
-            Category Chart
-          </Button>
-          <Button
-            onClick={() => (window.location.href = "./overview/chart")}
-            className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
-          >
-            Overview Chart
-          </Button>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <UpdateAggregatedButton />
+          </div>
+          <div className="flex space-x-4">
+            <Button
+              onClick={() => (window.location.href = "./category/chart")}
+              className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
+            >
+              Category Chart
+            </Button>
+            <Button
+              onClick={() => (window.location.href = "./overview/chart")}
+              className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-700 border border-green-500"
+            >
+              Overview Chart
+            </Button>
+          </div>
         </div>
-
         {/* Use the new TransactionTable component */}
         <TransactionTable
           transactions={transactions}

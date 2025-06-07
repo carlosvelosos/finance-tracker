@@ -187,10 +187,9 @@ export async function getAmexUpdatePreview(): Promise<AmexUpdatePreview> {
         if (sourceMonthsIncluded.includes(tableName)) {
           continue;
         }
-
         try {
           // Try to query the table to see if it exists
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from(tableName)
             .select("id")
             .limit(1);
@@ -199,7 +198,7 @@ export async function getAmexUpdatePreview(): Promise<AmexUpdatePreview> {
           if (!error) {
             availableNewMonths.push(tableName);
           }
-        } catch (err) {
+        } catch (_err) {
           // Table doesn't exist, skip
           continue;
         }

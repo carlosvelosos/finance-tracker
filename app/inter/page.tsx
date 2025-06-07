@@ -65,10 +65,7 @@ export default function Home() {
         <div className="text-right mb-4 flex justify-end gap-3">
           <Button
             onClick={() =>
-              window.open(
-                "https://secure.sebkort.com/nis/m/sjse/external/t/login/index",
-                "_blank",
-              )
+              window.open("https://contadigital.inter.co/extrato", "_blank")
             }
             className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-300"
           >

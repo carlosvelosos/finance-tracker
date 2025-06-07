@@ -1,7 +1,13 @@
 import * as XLSX from "xlsx";
 import Papa from "papaparse"; // Import papaparse
 import { supabase } from "@/lib/supabaseClient";
-import { processDEV, processInterBR, processHandelsbanken, processAmex, processSEB } from "@/lib/utils/bankProcessors";
+import {
+  processDEV,
+  processInterBR,
+  processHandelsbanken,
+  processAmex,
+  processSEB,
+} from "@/lib/utils/bankProcessors";
 
 export async function uploadExcel(file: File, bank: string) {
   try {
@@ -20,7 +26,9 @@ export async function uploadExcel(file: File, bank: string) {
     } else {
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheetName = workbook.SheetNames[0];
-      data = XLSX.utils.sheet_to_json<string[]>(workbook.Sheets[sheetName], { header: 1 }) as string[][]; // Cast to string[][]
+      data = XLSX.utils.sheet_to_json<string[]>(workbook.Sheets[sheetName], {
+        header: 1,
+      }) as string[][]; // Cast to string[][]
     }
     console.log("Parsed data:", data);
 
@@ -47,17 +55,49 @@ export async function uploadExcel(file: File, bank: string) {
     }
 
     // Upload to Supabase
-    return await uploadToSupabase(processedData.tableName, processedData.transactions);
+    return await uploadToSupabase(
+      processedData.tableName,
+      processedData.transactions,
+    );
   } catch (error) {
     return `Error: ${error instanceof Error ? error.message : "Unknown error"}`;
   }
 }
 
-async function uploadToSupabase(tableName: string, transactions: Record<string, unknown>[]) {
+async function uploadToSupabase(
+  tableName: string,
+  transactions: Record<string, unknown>[],
+) {
   try {
-    const { error } = await supabase.from(tableName).insert(transactions);
+    // Get the current highest ID from the table
+    const { data: maxIdData, error: maxIdError } = await supabase
+      .from(tableName)
+      .select("id")
+      .order("id", { ascending: false })
+      .limit(1);
+
+    if (maxIdError && maxIdError.code !== "PGRST116") {
+      // PGRST116 = table doesn't exist
+      throw new Error(maxIdError.message);
+    }
+
+    // Calculate the starting ID for new records
+    const currentMaxId =
+      maxIdData && maxIdData.length > 0 ? maxIdData[0].id : 0;
+
+    // Update transaction IDs to continue from the current max
+    const transactionsWithCorrectIds = transactions.map(
+      (transaction, index) => ({
+        ...transaction,
+        id: currentMaxId + index + 1,
+      }),
+    );
+
+    const { error } = await supabase
+      .from(tableName)
+      .insert(transactionsWithCorrectIds);
     if (error) throw new Error(error.message);
-    return `Upload successful! Data inserted into ${tableName}`;
+    return `Upload successful! ${transactionsWithCorrectIds.length} records inserted into ${tableName} starting from ID ${currentMaxId + 1}`;
   } catch (error) {
     return `Error uploading to Supabase: ${error instanceof Error ? error.message : "Unknown error"}`;
   }

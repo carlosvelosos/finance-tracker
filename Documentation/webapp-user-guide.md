@@ -114,3 +114,13 @@ async function uploadToSupabase(tableName: string, transactions: Record<string, 
   }
 }
 ```
+
+> **American Express**
+
+| Feature               | Detail                                                                              |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| Bank Page             | https://global.americanexpress.com/dashboard?inav=se_menu_yourcard_account_homepage |
+| App Page              | https://finance-tracker-steel-five.vercel.app/handelsbanken/                        |
+| Supabase major table  | Sweden_transactions_agregated_2025                                                  |
+| Supabase minor tables | AM_YYYYMM                                                                           |
+|                       | AM_ALL                                                                              |

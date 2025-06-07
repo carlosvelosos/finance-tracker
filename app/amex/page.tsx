@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import { Transaction } from "@/types/transaction";
+import UpdateAmexAggregatedButton from "@/components/UpdateAmexAggregatedButton";
 import {
   Accordion,
   AccordionItem,
@@ -37,7 +38,7 @@ export default function Home() {
             "Comment",
             user_id,
             source_table
-          `
+          `,
           )
           .eq("user_id", user.id);
 
@@ -65,15 +66,15 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">
           American Express Transactions
-        </h1>
-
+        </h1>{" "}
         {/* Category Chart and Login Buttons */}
         <div className="text-right mb-4 flex justify-end gap-3">
+          <UpdateAmexAggregatedButton />
           <Button
             onClick={() =>
               window.open(
                 "https://www.americanexpress.com/en-us/account/login?inav=iNavLnkLog",
-                "_blank"
+                "_blank",
               )
             }
             className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-300"
@@ -87,7 +88,6 @@ export default function Home() {
             Go to Chart Page
           </Button>
         </div>
-
         {/* Accordion */}
         <Accordion type="single" collapsible>
           {/* Main Table Section */}
@@ -118,7 +118,7 @@ export default function Home() {
               <TransactionTable
                 transactions={transactions.filter(
                   (t) =>
-                    t.Category === "Invoice" && t.Bank === "American Express"
+                    t.Category === "Invoice" && t.Bank === "American Express",
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"

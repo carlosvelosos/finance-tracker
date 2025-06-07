@@ -229,7 +229,7 @@ export default function UpdateAmexAggregatedButton() {
                       .slice(0, 10)
                       .map((transaction, index) => (
                         <tr key={index} className="border-t">
-                          <td className="p-2">{transaction.Date}</td>{" "}
+                          <td className="p-2">{transaction.Date}</td>
                           <td
                             className="p-2 truncate max-w-[200px]"
                             title={transaction.Description || undefined}

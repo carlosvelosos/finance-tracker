@@ -192,13 +192,11 @@ export async function getAmexUpdatePreview(): Promise<AmexUpdatePreview> {
           const { error } = await supabase
             .from(tableName)
             .select("id")
-            .limit(1);
-
-          // If no error, table exists
+            .limit(1); // If no error, table exists
           if (!error) {
             availableNewMonths.push(tableName);
           }
-        } catch (_err) {
+        } catch {
           // Table doesn't exist, skip
           continue;
         }

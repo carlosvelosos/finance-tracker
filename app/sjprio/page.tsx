@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
+import UpdateSjAggregatedButton from "@/components/UpdateSjAggregatedButton";
 import { Transaction } from "@/types/transaction";
 
 export default function Home() {
@@ -31,7 +32,7 @@ export default function Home() {
             "Comment",
             user_id,
             source_table
-          `
+          `,
           )
           .eq("user_id", user.id);
 
@@ -59,15 +60,15 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">
           SEB SJ Prio Transactions
-        </h1>
-
+        </h1>{" "}
         {/* Category Chart and Login Buttons */}
         <div className="text-right mb-4 flex justify-end gap-3">
+          <UpdateSjAggregatedButton />
           <Button
             onClick={() =>
               window.open(
                 "https://secure.sebkort.com/nis/m/sjse/external/t/login/index",
-                "_blank"
+                "_blank",
               )
             }
             className="px-4 py-2 bg-black text-white rounded-md hover:bg-green-300"
@@ -81,7 +82,6 @@ export default function Home() {
             Go to Chart Page
           </Button>
         </div>
-
         {/* Use the new TransactionTable component */}
         <TransactionTable
           transactions={transactions}

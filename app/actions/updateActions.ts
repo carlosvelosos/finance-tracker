@@ -353,3 +353,224 @@ export async function executeAmexUpdate(
     };
   }
 }
+
+// SJ Prio interfaces (similar to AMEX)
+export interface SjUpdatePreview {
+  sourceMonthsIncluded: string[];
+  availableNewMonths: string[];
+  newTransactionCount?: number;
+  previewTransactions?: Transaction[];
+}
+
+export interface SjUpdateResult {
+  success: boolean;
+  message: string;
+  transactionsAdded: number;
+  monthIncluded?: string;
+}
+
+// Get SJ update preview with month selection
+export async function getSjUpdatePreview(): Promise<SjUpdatePreview> {
+  try {
+    // Get months already included in aggregated table
+    const { data: includedMonths, error: includedError } = await supabase
+      .from("Sweden_transactions_agregated_2025")
+      .select("source_table")
+      .like("source_table", "SJ_%")
+      .order("source_table");
+
+    if (includedError) {
+      console.error("Error fetching included months:", includedError);
+      return { sourceMonthsIncluded: [], availableNewMonths: [] };
+    }
+
+    const sourceMonthsIncluded = [
+      ...new Set(includedMonths.map((item) => item.source_table)),
+    ];
+
+    // Try to detect available SJ tables by attempting to query them
+    // We'll check for SJ_YYYYMM pattern for recent months
+    const availableNewMonths: string[] = [];
+
+    // Check for 2024, 2025, and 2026 months
+    const currentYear = new Date().getFullYear();
+    const yearsToCheck = [currentYear - 1, currentYear, currentYear + 1];
+
+    for (const year of yearsToCheck) {
+      for (let month = 1; month <= 12; month++) {
+        const monthStr = month.toString().padStart(2, "0");
+        const tableName = `SJ_${year}${monthStr}`;
+
+        // Skip if already included
+        if (sourceMonthsIncluded.includes(tableName)) {
+          continue;
+        }
+
+        try {
+          // Try to query the table to see if it exists
+          const { error } = await supabase
+            .from(tableName)
+            .select("id")
+            .limit(1);
+
+          // If no error, table exists
+          if (!error) {
+            availableNewMonths.push(tableName);
+          }
+        } catch {
+          // Table doesn't exist, skip
+          continue;
+        }
+      }
+    }
+
+    return {
+      sourceMonthsIncluded,
+      availableNewMonths: availableNewMonths.sort(),
+    };
+  } catch (error) {
+    console.error("Error in getSjUpdatePreview:", error);
+    return { sourceMonthsIncluded: [], availableNewMonths: [] };
+  }
+}
+
+// Preview transactions for a specific SJ month
+export async function previewSjMonthTransactions(
+  monthTable: string,
+): Promise<Transaction[]> {
+  try {
+    const { data: transactions, error } = await supabase
+      .from(monthTable)
+      .select(
+        `
+        id,
+        created_at,
+        "Date",
+        "Description", 
+        "Amount",
+        "Balance",
+        "Category",
+        "Responsible",
+        "Bank",
+        "Comment",
+        user_id
+      `,
+      )
+      .order('"Date"');
+
+    if (error) {
+      console.error(`Error previewing ${monthTable} transactions:`, error);
+      return [];
+    }
+
+    return transactions as Transaction[];
+  } catch (error) {
+    console.error("Error in previewSjMonthTransactions:", error);
+    return [];
+  }
+}
+
+// Execute SJ update for a specific month
+export async function executeSjUpdate(
+  monthTable: string,
+): Promise<SjUpdateResult> {
+  try {
+    // First check if this month was already included
+    const { data: existingCheck } = await supabase
+      .from("Sweden_transactions_agregated_2025")
+      .select("id")
+      .eq("source_table", monthTable)
+      .limit(1);
+
+    if (existingCheck && existingCheck.length > 0) {
+      return {
+        success: false,
+        message: `Month ${monthTable} has already been included in the aggregated table.`,
+        transactionsAdded: 0,
+      };
+    }
+
+    // Get the highest ID in the aggregated table
+    const { data: maxIdResult, error: maxIdError } = await supabase
+      .from("Sweden_transactions_agregated_2025")
+      .select("id")
+      .order("id", { ascending: false })
+      .limit(1);
+
+    if (maxIdError) {
+      throw new Error(`Error getting max ID: ${maxIdError.message}`);
+    }
+
+    const nextId = (maxIdResult?.[0]?.id || 0) + 1;
+
+    // Get new transactions from the monthly table
+    const { data: newTransactions, error: selectError } = await supabase
+      .from(monthTable)
+      .select(
+        `
+        created_at,
+        "Date",
+        "Description",
+        "Amount", 
+        "Balance",
+        "Category",
+        "Responsible",
+        "Bank",
+        "Comment",
+        user_id
+      `,
+      )
+      .order('"Date"');
+
+    if (selectError) {
+      throw new Error(`Error selecting transactions: ${selectError.message}`);
+    }
+
+    if (!newTransactions || newTransactions.length === 0) {
+      return {
+        success: false,
+        message: `No transactions found in ${monthTable}.`,
+        transactionsAdded: 0,
+      };
+    }
+
+    // Prepare data for insertion with sequential IDs
+    const transactionsToInsert = newTransactions.map((transaction, index) => ({
+      id: nextId + index,
+      created_at: new Date().toISOString(),
+      Date: transaction.Date,
+      Description: transaction.Description,
+      Amount: transaction.Amount,
+      Balance: transaction.Balance,
+      Category: transaction.Category,
+      Responsible: transaction.Responsible,
+      Bank: "SEB SJ Prio",
+      Comment: transaction.Comment,
+      user_id: transaction.user_id,
+      source_table: monthTable,
+    }));
+
+    // Insert new transactions
+    const { error: insertError } = await supabase
+      .from("Sweden_transactions_agregated_2025")
+      .insert(transactionsToInsert);
+
+    if (insertError) {
+      throw new Error(`Error inserting transactions: ${insertError.message}`);
+    }
+
+    return {
+      success: true,
+      message: `Successfully added ${newTransactions.length} transactions from ${monthTable} to the aggregated table.`,
+      transactionsAdded: newTransactions.length,
+      monthIncluded: monthTable,
+    };
+  } catch (error) {
+    console.error("Error in executeSjUpdate:", error);
+    return {
+      success: false,
+      message: `Error updating aggregated data: ${error instanceof Error ? error.message : "Unknown error"}`,
+      transactionsAdded: 0,
+    };
+  }
+}

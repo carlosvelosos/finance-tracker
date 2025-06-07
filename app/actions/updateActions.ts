@@ -110,7 +110,7 @@ export async function executeUpdate(
       Description: t.description,
       Category: t.category,
       Bank: "Handelsbanken",
-      Responsable: "Carlos",
+      Responsible: "Carlos",
       user_id: "2b5c5467-04e0-4820-bea9-1645821fa1b7",
       source_table: "HB_2025",
     }));

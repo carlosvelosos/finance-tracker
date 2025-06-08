@@ -574,3 +574,310 @@ export async function executeSjUpdate(
     };
   }
 }
+
+// Inter Bank Update Functions for Brasil_transactions_agregated_2025
+
+export interface InterUpdatePreview {
+  sourceTablesIncluded: string[];
+  availableNewTables: string[];
+  newTransactionCount?: number;
+  previewTransactions?: Transaction[];
+}
+
+export interface InterUpdateResult {
+  success: boolean;
+  message: string;
+  transactionsAdded: number;
+  tablesIncluded?: string[];
+}
+
+// Get Inter update preview with table detection
+export async function getInterUpdatePreview(): Promise<InterUpdatePreview> {
+  try {
+    // Get tables already included in aggregated table
+    const { data: includedTables, error: includedError } = await supabase
+      .from("Brasil_transactions_agregated_2025")
+      .select("source_table")
+      .like("source_table", "IN_%")
+      .order("source_table");
+
+    if (includedError) {
+      console.error("Error fetching included tables:", includedError);
+      return { sourceTablesIncluded: [], availableNewTables: [] };
+    }
+
+    const sourceTablesIncluded = [
+      ...new Set(includedTables.map((item) => item.source_table)),
+    ];
+
+    // Try to detect available IN tables by attempting to query them
+    const availableNewTables: string[] = [];
+
+    // Check for IN_YYYY pattern (yearly tables) for recent years
+    const currentYear = new Date().getFullYear();
+    const yearsToCheck = [
+      currentYear - 2,
+      currentYear - 1,
+      currentYear,
+      currentYear + 1,
+    ];
+
+    for (const year of yearsToCheck) {
+      const tableName = `IN_${year}`;
+
+      // Skip if already included
+      if (sourceTablesIncluded.includes(tableName)) {
+        continue;
+      }
+
+      try {
+        // Try to query the table to see if it exists
+        const { error } = await supabase.from(tableName).select("id").limit(1);
+
+        // If no error, table exists
+        if (!error) {
+          availableNewTables.push(tableName);
+        }
+      } catch {
+        // Table doesn't exist, skip
+        continue;
+      }
+    }
+
+    // Check for IN_YYYYMM pattern (monthly tables) for recent years
+    for (const year of yearsToCheck) {
+      for (let month = 1; month <= 12; month++) {
+        const monthStr = month.toString().padStart(2, "0");
+        const tableName = `IN_${year}${monthStr}`;
+
+        // Skip if already included
+        if (sourceTablesIncluded.includes(tableName)) {
+          continue;
+        }
+
+        try {
+          // Try to query the table to see if it exists
+          const { error } = await supabase
+            .from(tableName)
+            .select("id")
+            .limit(1);
+
+          // If no error, table exists
+          if (!error) {
+            availableNewTables.push(tableName);
+          }
+        } catch {
+          // Table doesn't exist, skip
+          continue;
+        }
+      }
+    }
+
+    return {
+      sourceTablesIncluded,
+      availableNewTables: availableNewTables.sort(),
+    };
+  } catch (error) {
+    console.error("Error in getInterUpdatePreview:", error);
+    return { sourceTablesIncluded: [], availableNewTables: [] };
+  }
+}
+
+// Preview transactions for specific Inter tables
+export async function previewInterTableTransactions(
+  tableNames: string[],
+): Promise<Transaction[]> {
+  try {
+    const allTransactions: Transaction[] = [];
+
+    for (const tableName of tableNames) {
+      try {
+        const { data: transactions, error } = await supabase
+          .from(tableName)
+          .select(
+            `
+            id,
+            created_at,
+            "Date",
+            "Description", 
+            "Amount",
+            "Balance",
+            "Category",
+            "Responsible",
+            "Bank",
+            "Comment",
+            user_id
+          `,
+          )
+          .order('"Date"');
+
+        if (error) {
+          console.error(`Error previewing ${tableName} transactions:`, error);
+          continue;
+        }
+
+        if (transactions) {
+          // Add source_table info for display
+          const transactionsWithSource = transactions.map((t) => ({
+            ...t,
+            source_table: tableName,
+          }));
+          allTransactions.push(...transactionsWithSource);
+        }
+      } catch (error) {
+        console.error(`Error querying table ${tableName}:`, error);
+        continue;
+      }
+    } // Sort all transactions by date
+    allTransactions.sort((a, b) => {
+      const dateA = a.Date ? new Date(a.Date).getTime() : 0;
+      const dateB = b.Date ? new Date(b.Date).getTime() : 0;
+      return dateA - dateB;
+    });
+
+    return allTransactions as Transaction[];
+  } catch (error) {
+    console.error("Error in previewInterTableTransactions:", error);
+    return [];
+  }
+}
+
+// Execute Inter update for selected tables
+export async function executeInterUpdate(
+  selectedTables: string[],
+): Promise<InterUpdateResult> {
+  try {
+    if (selectedTables.length === 0) {
+      return {
+        success: false,
+        message: "No tables selected for update.",
+        transactionsAdded: 0,
+      };
+    }
+
+    let totalTransactionsAdded = 0;
+    const tablesProcessed: string[] = [];
+
+    for (const tableName of selectedTables) {
+      try {
+        // First check if this table was already included
+        const { data: existingCheck } = await supabase
+          .from("Brasil_transactions_agregated_2025")
+          .select("id")
+          .eq("source_table", tableName)
+          .limit(1);
+
+        if (existingCheck && existingCheck.length > 0) {
+          console.log(`Table ${tableName} already included, skipping...`);
+          continue;
+        }
+
+        // Get the highest ID in the aggregated table
+        const { data: maxIdResult, error: maxIdError } = await supabase
+          .from("Brasil_transactions_agregated_2025")
+          .select("id")
+          .order("id", { ascending: false })
+          .limit(1);
+
+        if (maxIdError) {
+          throw new Error(`Error getting max ID: ${maxIdError.message}`);
+        }
+
+        const nextId = (maxIdResult?.[0]?.id || 0) + totalTransactionsAdded + 1;
+
+        // Get new transactions from the table
+        const { data: newTransactions, error: selectError } = await supabase
+          .from(tableName)
+          .select(
+            `
+            created_at,
+            "Date",
+            "Description",
+            "Amount", 
+            "Balance",
+            "Category",
+            "Responsible",
+            "Bank",
+            "Comment",
+            user_id
+          `,
+          )
+          .order('"Date"');
+
+        if (selectError) {
+          throw new Error(
+            `Error selecting transactions from ${tableName}: ${selectError.message}`,
+          );
+        }
+
+        if (!newTransactions || newTransactions.length === 0) {
+          console.log(`No transactions found in ${tableName}, skipping...`);
+          continue;
+        }
+
+        // Prepare data for insertion with sequential IDs
+        const transactionsToInsert = newTransactions.map(
+          (transaction, index) => ({
+            id: nextId + index,
+            created_at: new Date().toISOString(),
+            Date: transaction.Date,
+            Description: transaction.Description,
+            Amount: transaction.Amount,
+            Balance: transaction.Balance,
+            Category: transaction.Category || "Uncategorized",
+            Responsible: transaction.Responsible || "Carlos",
+            Bank: transaction.Bank || "Inter-BR",
+            Comment: transaction.Comment,
+            user_id:
+              transaction.user_id || "2b5c5467-04e0-4820-bea9-1645821fa1b7",
+            source_table: tableName,
+          }),
+        );
+
+        // Insert new transactions
+        const { error: insertError } = await supabase
+          .from("Brasil_transactions_agregated_2025")
+          .insert(transactionsToInsert);
+
+        if (insertError) {
+          throw new Error(
+            `Error inserting transactions from ${tableName}: ${insertError.message}`,
+          );
+        }
+
+        totalTransactionsAdded += newTransactions.length;
+        tablesProcessed.push(tableName);
+        console.log(
+          `Successfully added ${newTransactions.length} transactions from ${tableName}`,
+        );
+      } catch (error) {
+        console.error(`Error processing table ${tableName}:`, error);
+        // Continue with other tables even if one fails
+        continue;
+      }
+    }
+
+    if (totalTransactionsAdded === 0) {
+      return {
+        success: false,
+        message:
+          "No new transactions were added. All selected tables may already be included or contain no data.",
+        transactionsAdded: 0,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Successfully added ${totalTransactionsAdded} transactions from ${tablesProcessed.length} Inter tables to Brasil_transactions_agregated_2025.`,
+      transactionsAdded: totalTransactionsAdded,
+      tablesIncluded: tablesProcessed,
+    };
+  } catch (error) {
+    console.error("Error in executeInterUpdate:", error);
+    return {
+      success: false,
+      message: `Error updating aggregated data: ${error instanceof Error ? error.message : "Unknown error"}`,
+      transactionsAdded: 0,
+    };
+  }
+}

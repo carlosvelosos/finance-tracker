@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
+import UpdateInterAggregatedButton from "@/components/UpdateInterAggregatedButton";
 import { Transaction } from "@/types/transaction";
 
 export default function Home() {
@@ -145,11 +146,12 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
+        </div>{" "}
         {/* Chart Buttons */}
         <div className="flex justify-between items-center mb-4">
-          <div>
+          <div className="flex space-x-3">
             <UpdateAggregatedButton />
+            <UpdateInterAggregatedButton />
           </div>
           <div className="flex space-x-4">
             <Button

@@ -70,7 +70,6 @@ export default function UploadPage() {
       setFile(uploadedFile);
     }
   };
-
   const handleUpload = async () => {
     if (!file || !selectedBank) {
       toast.error("Error", {
@@ -88,52 +87,49 @@ export default function UploadPage() {
         file.name,
       );
       const result = await uploadExcel(file, selectedBank);
-      console.log("Upload successful:", result);
-      toast.success("Upload Status", {
-        description: result,
-      });
-    } catch (error) {
-      console.error("Upload failed:", error); // Log the error for debugging
-      console.error("Error type:", typeof error);
-      console.error("Error instanceof Error:", error instanceof Error);
-      if (error instanceof Error) {
-        console.error("Error message:", error.message);
-        console.error(
-          "Error message starts with TABLE_NOT_EXISTS:",
-          error.message.startsWith("TABLE_NOT_EXISTS:"),
-        );
-      }
-      if (
-        error instanceof Error &&
-        error.message.startsWith("TABLE_NOT_EXISTS:")
-      ) {
-        console.log("Detected TABLE_NOT_EXISTS error");
-        // Extract table name from error message
-        const tableName = error.message.split(":")[1];
-        console.log("Extracted table name:", tableName);
-        setPendingTableName(tableName);
-        setPendingFile(file);
-        setPendingBank(selectedBank);
+      console.log("Upload result:", result);
 
-        // Get table creation instructions
-        console.log("Getting table creation instructions...");
-        const instructions = await createTableInSupabase(tableName);
-        console.log("Got instructions:", instructions);
-        setTableInstructions(instructions);
-        setShowCreateTableDialog(true);
-        console.log("Dialog should be showing now");
-        console.log("showCreateTableDialog state:", true);
-        console.log("pendingTableName:", tableName);
-        console.log("tableInstructions length:", instructions.length);
-      } else {
-        console.log("Showing regular error toast");
-        toast.error("Upload Failed", {
-          description:
-            error instanceof Error ? error.message : "Something went wrong.",
+      if (result.success) {
+        console.log("Upload successful:", result.message);
+        toast.success("Upload Status", {
+          description: result.message,
         });
+      } else {
+        // Handle different error types gracefully
+        if (result.error === "TABLE_NOT_EXISTS") {
+          console.log("Detected TABLE_NOT_EXISTS error");
+          // Use the tableName from the result if available, otherwise extract from message
+          const tableName =
+            (result as { tableName?: string }).tableName || "unknown_table";
+          console.log("Extracted table name:", tableName);
+          setPendingTableName(tableName);
+          setPendingFile(file);
+          setPendingBank(selectedBank);
+
+          // Get table creation instructions
+          console.log("Getting table creation instructions...");
+          const instructions = await createTableInSupabase(tableName);
+          console.log("Got instructions:", instructions);
+          setTableInstructions(instructions);
+          setShowCreateTableDialog(true);
+          console.log("Dialog should be showing now");
+        } else {
+          // Handle other error types
+          console.log("Showing error toast for:", result.error);
+          toast.error("Upload Failed", {
+            description: result.message,
+          });
+        }
       }
+    } catch (error) {
+      // This should rarely happen now since we're returning structured results
+      console.error("Unexpected error in handleUpload:", error);
+      toast.error("Upload Failed", {
+        description: "An unexpected error occurred. Please try again.",
+      });
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
   const handleCopyInstructions = () => {
     navigator.clipboard.writeText(tableInstructions);
@@ -156,23 +152,24 @@ export default function UploadPage() {
         });
 
         // Close the dialog
-        setShowCreateTableDialog(false);
-
-        // Retry the upload automatically
+        setShowCreateTableDialog(false); // Retry the upload automatically
         if (pendingFile && pendingBank) {
           console.log("Retrying upload after table creation...");
           try {
             const uploadResult = await uploadExcel(pendingFile, pendingBank);
-            toast.success("Upload Status", {
-              description: uploadResult,
-            });
+            if (uploadResult.success) {
+              toast.success("Upload Status", {
+                description: uploadResult.message,
+              });
+            } else {
+              toast.error("Upload Failed", {
+                description: uploadResult.message,
+              });
+            }
           } catch (retryError) {
             console.error("Retry upload failed:", retryError);
             toast.error("Upload Failed", {
-              description:
-                retryError instanceof Error
-                  ? retryError.message
-                  : "Failed to retry upload",
+              description: "Failed to retry upload after table creation",
             });
           }
         }
@@ -257,9 +254,9 @@ export default function UploadPage() {
             >
               <h2 className="text-lg font-bold mb-2">
                 TEST: Table Creation Required
-              </h2>
+              </h2>{" "}
               <p className="mb-4">
-                Table "{pendingTableName}" needs to be created.
+                Table &ldquo;{pendingTableName}&rdquo; needs to be created.
               </p>
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
@@ -287,7 +284,8 @@ export default function UploadPage() {
             <DialogHeader>
               <DialogTitle>Table Not Found</DialogTitle>
               <DialogDescription>
-                The table &quot;{pendingTableName}&quot; does not exist in the
+                {" "}
+                The table &ldquo;{pendingTableName}&rdquo; does not exist in the
                 database. You can either create it automatically or manually
                 using the SQL commands below:
               </DialogDescription>

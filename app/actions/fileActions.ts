@@ -59,7 +59,11 @@ export async function uploadExcel(file: File, bank: string) {
         processedData = processSEB(data, file.name);
         break;
       default:
-        throw new Error("Unknown bank type.");
+        return {
+          success: false,
+          error: "UNSUPPORTED_BANK",
+          message: "Unknown bank type.",
+        };
     }
     console.log("Final processed data:", processedData);
     // Upload to Supabase
@@ -72,16 +76,12 @@ export async function uploadExcel(file: File, bank: string) {
     return result;
   } catch (error) {
     console.error("Error in uploadExcel:", error);
-    if (
-      error instanceof Error &&
-      error.message.startsWith("TABLE_NOT_EXISTS:")
-    ) {
-      console.log("Re-throwing TABLE_NOT_EXISTS error");
-      // Re-throw table not exists error to be handled by the UI
-      throw error;
-    }
-    console.log("Returning error string");
-    return `Error: ${error instanceof Error ? error.message : "Unknown error"}`;
+    return {
+      success: false,
+      error: "PROCESSING_ERROR",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
 }
 
@@ -259,11 +259,20 @@ async function uploadToSupabase(
     ) {
       // PGRST116 = table doesn't exist (PostgREST error)
       // 42P01 = relation does not exist (PostgreSQL error)
-      console.log("Table doesn't exist, throwing TABLE_NOT_EXISTS error");
-      throw new Error(`TABLE_NOT_EXISTS:${tableName}`);
+      console.log("Table doesn't exist, returning TABLE_NOT_EXISTS result");
+      return {
+        success: false,
+        error: "TABLE_NOT_EXISTS",
+        tableName: tableName,
+        message: `Table "${tableName}" does not exist and needs to be created`,
+      };
     } else if (maxIdError) {
       console.log("Other error occurred:", maxIdError.message);
-      throw new Error(maxIdError.message);
+      return {
+        success: false,
+        error: "DATABASE_ERROR",
+        message: maxIdError.message,
+      };
     }
 
     console.log("Table exists, proceeding with upload...");
@@ -282,20 +291,26 @@ async function uploadToSupabase(
     const { error } = await supabase
       .from(tableName)
       .insert(transactionsWithCorrectIds);
-    if (error) throw new Error(error.message);
-    return `Upload successful! ${transactionsWithCorrectIds.length} records inserted into ${tableName} starting from ID ${currentMaxId + 1}`;
+
+    if (error) {
+      return {
+        success: false,
+        error: "INSERT_ERROR",
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Upload successful! ${transactionsWithCorrectIds.length} records inserted into ${tableName} starting from ID ${currentMaxId + 1}`,
+    };
   } catch (error) {
     console.error("Error in uploadToSupabase:", error);
-    if (
-      error instanceof Error &&
-      error.message.startsWith("TABLE_NOT_EXISTS:")
-    ) {
-      console.log("Re-throwing TABLE_NOT_EXISTS error from uploadToSupabase");
-      throw error; // Re-throw table not exists error to be handled by the UI
-    }
-    console.log("Throwing general error from uploadToSupabase");
-    throw new Error(
-      `Error uploading to Supabase: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    return {
+      success: false,
+      error: "UNEXPECTED_ERROR",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
 }

@@ -476,9 +476,9 @@ export function TransactionLineChart({
         </div>
       </CardHeader>
 
-      <CardContent className="flex-grow overflow-hidden px-4 relative">
+      <CardContent className="flex-grow overflow-hidden px-8 relative">
         <div className="h-[85%] rounded-lg">
-          <ChartContainer config={chartConfig} className="h-[350px] w-full">
+          <ChartContainer config={chartConfig} className="h-[500px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
@@ -504,7 +504,7 @@ export function TransactionLineChart({
                   axisLine={false}
                   tickMargin={8}
                   minTickGap={30}
-                />
+                />{" "}
                 <YAxis
                   tickLine={false}
                   axisLine={false}
@@ -514,15 +514,15 @@ export function TransactionLineChart({
                       compactDisplay: "short",
                     }).format(value)
                   }
-                  width={40}
+                  tick={{ fontSize: 30, fill: "#898989" }}
+                  tickMargin={15}
+                  width={100}
                 />
                 {/* Add solid reference line at y=0 with increased thickness */}
                 <ReferenceLine y={0} stroke="#4B5563" strokeWidth={2.5} />
                 <Legend verticalAlign="bottom" />
-
                 {/* Only keep cursor functionality for interaction, no tooltip */}
                 <ChartTooltip cursor={true} content={() => null} />
-
                 {/* Positive transactions line */}
                 {visibleLines.includes("income") && (
                   <Line
@@ -537,7 +537,6 @@ export function TransactionLineChart({
                     isAnimationActive={true}
                   />
                 )}
-
                 {/* Expenses line now using absolute values for display but maintaining original data in tooltips */}
                 {visibleLines.includes("expenses") && (
                   <Line
@@ -552,7 +551,6 @@ export function TransactionLineChart({
                     isAnimationActive={true}
                   />
                 )}
-
                 {/* Net value line */}
                 {visibleLines.includes("net") && (
                   <Line

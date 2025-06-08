@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import UnauthenticatedLandingPage from "@/components/UnauthenticatedLandingPage";
@@ -104,7 +105,7 @@ function AuthenticatedLandingPage() {
     }
 
     return () => clearInterval(interval);
-  }, []);
+  }, [textOptions.length]);
 
   return (
     <div className="relative flex flex-col items-center">
@@ -191,14 +192,17 @@ function AuthenticatedLandingPage() {
             >
               Upload now →
             </Link>
-          </div>
+          </div>{" "}
           <div className="md:w-3/5 flex justify-center">
             <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
-              <img
+              <Image
                 src="/upload.png"
                 alt="Upload Transactions Screenshot"
+                width={800}
+                height={500}
                 className="w-full h-auto object-cover"
                 style={{ maxHeight: "500px" }}
+                priority
               />
             </div>
           </div>
@@ -226,12 +230,14 @@ function AuthenticatedLandingPage() {
             >
               See insights →
             </Link>
-          </div>
+          </div>{" "}
           <div className="md:w-3/5 flex justify-center">
             <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
-              <img
+              <Image
                 src="/handelsbanken-charts.png"
                 alt="Financial Insights Dashboard"
+                width={800}
+                height={500}
                 className="w-full h-auto object-cover"
                 style={{ maxHeight: "500px" }}
               />
@@ -261,12 +267,14 @@ function AuthenticatedLandingPage() {
             >
               Family dashboard →
             </Link>
-          </div>
+          </div>{" "}
           <div className="md:w-3/5 flex justify-center">
             <div className="relative w-full h-auto bg-white rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-105">
-              <img
+              <Image
                 src="/family.png"
                 alt="Family Expenses Management"
+                width={800}
+                height={500}
                 className="w-full h-auto object-cover"
                 style={{ maxHeight: "500px" }}
               />

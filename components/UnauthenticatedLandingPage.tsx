@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export default function UnauthenticatedLandingPage() {
@@ -171,19 +172,22 @@ export default function UnauthenticatedLandingPage() {
             </p>
           </div>
         </div>{" "}
-        {/* Dashboard Preview */}
+        {/* Dashboard Preview */}{" "}
         <div className="w-full max-w-4xl relative mt-16 mb-8 animate-dashboard-reveal">
           <div className="relative w-full bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800 h-[420px]">
             <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-[#12A65C] to-green-400"></div>
-            <img
+            <Image
               src="/handelsbanken-charts.png"
               alt="Finance Tracker Dashboard Preview"
+              width={800}
+              height={600}
               className="w-full object-cover object-top transition-all duration-500 transform hover:translate-y-[-90%]"
               style={{
                 maxHeight: "600px",
                 // clipPath: "inset(0 0 90% 0)",
                 // animation: "glimpseReveal 4s ease-in-out 2s forwards",
               }}
+              priority
             />{" "}
           </div>{" "}
           {/* Floating elements around dashboard */}
@@ -245,13 +249,16 @@ export default function UnauthenticatedLandingPage() {
       {/* Transaction Upload Section with Split Design */}
       <section className="w-full py-24 px-4 bg-black">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+          {" "}
           <div className="lg:w-1/2">
             <div className="relative">
               <div className="absolute inset-0 bg-[#12A65C] opacity-5 rounded-3xl transform rotate-3"></div>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                <img
+                <Image
                   src="/upload.png"
                   alt="Upload Transactions Screenshot"
+                  width={600}
+                  height={400}
                   className="w-full h-auto object-cover"
                 />
               </div>{" "}
@@ -347,13 +354,16 @@ export default function UnauthenticatedLandingPage() {
       {/* Powerful Analytics Section */}
       <section className="w-full py-24 px-4 bg-black">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row-reverse items-center gap-16">
+          {" "}
           <div className="lg:w-1/2">
             <div className="relative">
               <div className="absolute inset-0 bg-[#12A65C] opacity-5 rounded-3xl transform -rotate-3"></div>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                <img
+                <Image
                   src="/handelsbanken-charts.png"
                   alt="Financial Analytics Dashboard"
+                  width={600}
+                  height={400}
                   className="w-full h-auto object-cover"
                 />
               </div>{" "}
@@ -451,13 +461,16 @@ export default function UnauthenticatedLandingPage() {
       {/* Family Expense Section */}
       <section className="w-full py-24 px-4 bg-black">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+          {" "}
           <div className="lg:w-1/2">
             <div className="relative">
               <div className="absolute inset-0 bg-[#12A65C] opacity-5 rounded-3xl transform rotate-3"></div>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                <img
+                <Image
                   src="/family.png"
                   alt="Family Expenses Management"
+                  width={600}
+                  height={400}
                   className="w-full h-auto object-cover"
                 />
               </div>

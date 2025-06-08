@@ -44,30 +44,31 @@ const countryCurrencyMap: Record<string, string> = {
   Brazil: "BRL",
 };
 
-export default function BillsPage() {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+// Move MONTHS array outside component to avoid recreating on every render
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
+export default function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(
-    months[new Date().getMonth()]
+    MONTHS[new Date().getMonth()],
   );
   const [currentMonthIndex, setCurrentMonthIndex] = useState(
-    new Date().getMonth()
+    new Date().getMonth(),
   );
   const [selectedCountry, setSelectedCountry] = useState<
     "Sweden" | "Brazil" | "Both" | "None"
@@ -108,7 +109,7 @@ export default function BillsPage() {
     if (updating) return; // Prevent multiple simultaneous updates
     try {
       setUpdating(true);
-      const monthField = months[currentMonthIndex]
+      const monthField = MONTHS[currentMonthIndex]
         .toLowerCase()
         .substring(0, 3);
       const statusField = `${monthField}_status` as keyof Bill;
@@ -123,8 +124,8 @@ export default function BillsPage() {
         prevBills.map((bill) =>
           bill.id === id
             ? ({ ...bill, [statusField]: newStatus } as Bill)
-            : bill
-        )
+            : bill,
+        ),
       );
 
       const { error } = await supabase
@@ -138,8 +139,8 @@ export default function BillsPage() {
           prevBills.map((bill) =>
             bill.id === id
               ? ({ ...bill, [statusField]: currentBill[statusField] } as Bill)
-              : bill
-          )
+              : bill,
+          ),
         );
         throw error;
       }
@@ -147,7 +148,7 @@ export default function BillsPage() {
       if (typeof error === "object" && error !== null) {
         console.error(
           "Error toggling bill status:",
-          JSON.stringify(error, null, 2)
+          JSON.stringify(error, null, 2),
         );
       } else {
         console.error("Error toggling bill status:", error);
@@ -160,7 +161,9 @@ export default function BillsPage() {
   const handleBillUpdate = (updatedBill: Bill) => {
     // Update the bills array with the updated bill
     setBills((prevBills) =>
-      prevBills.map((bill) => (bill.id === updatedBill.id ? updatedBill : bill))
+      prevBills.map((bill) =>
+        bill.id === updatedBill.id ? updatedBill : bill,
+      ),
     );
   };
 
@@ -180,7 +183,7 @@ export default function BillsPage() {
 
       // Initialize all month statuses to false (unpaid)
       const statusFields: Record<string, boolean> = {};
-      months.forEach((month) => {
+      MONTHS.forEach((month) => {
         const monthAbbr = month.toLowerCase().substring(0, 3);
         statusFields[`${monthAbbr}_status`] = false;
       });
@@ -215,7 +218,7 @@ export default function BillsPage() {
               currency: countryCurrencyMap[newExpense.country] || "USD",
             })}`,
             duration: 5000,
-          }
+          },
         );
       }
 
@@ -243,7 +246,7 @@ export default function BillsPage() {
 
   // Handler for direct month selection from carousel
   const handleMonthChange = (monthName: string) => {
-    const newIndex = months.findIndex((m) => m === monthName);
+    const newIndex = MONTHS.findIndex((m) => m === monthName);
     if (newIndex !== -1 && newIndex !== currentMonthIndex) {
       setCurrentMonthIndex(newIndex);
       setCurrentMonth(monthName);
@@ -257,42 +260,45 @@ export default function BillsPage() {
   const nextMonth = () => {
     const newIndex = (currentMonthIndex + 1) % 12;
     setCurrentMonthIndex(newIndex);
-    setCurrentMonth(months[newIndex]);
+    setCurrentMonth(MONTHS[newIndex]);
   };
 
   const prevMonth = () => {
     const newIndex = (currentMonthIndex - 1 + 12) % 12;
     setCurrentMonthIndex(newIndex);
-    setCurrentMonth(months[newIndex]);
+    setCurrentMonth(MONTHS[newIndex]);
   };
 
   // Calculate cumulative totals per country (from January to current month)
-  const cumulativeTotalsPerCountry = bills.reduce((acc, bill) => {
-    // Create an array of month abbreviations from January to the current month
-    const relevantMonths = months
-      .slice(0, currentMonthIndex + 1)
-      .map((month) => month.toLowerCase().substring(0, 3));
+  const cumulativeTotalsPerCountry = bills.reduce(
+    (acc, bill) => {
+      // Create an array of month abbreviations from January to the current month
+      const relevantMonths = MONTHS.slice(0, currentMonthIndex + 1).map(
+        (month) => month.toLowerCase().substring(0, 3),
+      );
 
-    let totalForBill = 0;
+      let totalForBill = 0;
 
-    // Sum up values for all months from January to current month
-    relevantMonths.forEach((monthAbbr) => {
-      const valueField = `${monthAbbr}_value` as keyof Bill;
-      const monthValue =
-        typeof bill[valueField] === "number"
-          ? (bill[valueField] as number)
-          : bill.base_value;
+      // Sum up values for all MONTHS from January to current month
+      relevantMonths.forEach((monthAbbr) => {
+        const valueField = `${monthAbbr}_value` as keyof Bill;
+        const monthValue =
+          typeof bill[valueField] === "number"
+            ? (bill[valueField] as number)
+            : bill.base_value;
 
-      totalForBill += monthValue;
-    });
+        totalForBill += monthValue;
+      });
 
-    // Add to country total
-    acc[bill.country] = (acc[bill.country] || 0) + totalForBill;
-    return acc;
-  }, {} as Record<string, number>);
+      // Add to country total
+      acc[bill.country] = (acc[bill.country] || 0) + totalForBill;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Calculate total per country for current month (for table filtering and sorting)
-  const monthAbbr = months[currentMonthIndex].toLowerCase().substring(0, 3);
+  const monthAbbr = MONTHS[currentMonthIndex].toLowerCase().substring(0, 3);
   const statusField = `${monthAbbr}_status` as keyof Bill;
 
   // Sort function that handles different data types
@@ -304,7 +310,7 @@ export default function BillsPage() {
 
       // Handle special case for current month's value
       if (sortConfig.key === "currentValue") {
-        const monthAbbr = months[currentMonthIndex]
+        const monthAbbr = MONTHS[currentMonthIndex]
           .toLowerCase()
           .substring(0, 3);
         const valueField = `${monthAbbr}_value` as keyof Bill;
@@ -338,7 +344,7 @@ export default function BillsPage() {
       }
       return 0;
     });
-  }, [bills, sortConfig, currentMonthIndex, months]);
+  }, [bills, sortConfig, currentMonthIndex]);
 
   // Handle column header click for sorting
   const handleSort = (key: keyof Bill | "currentValue") => {
@@ -379,8 +385,8 @@ export default function BillsPage() {
                 selectedCountry === "None"
                   ? []
                   : selectedCountry === "Both"
-                  ? ["Sweden", "Brazil"]
-                  : [selectedCountry]
+                    ? ["Sweden", "Brazil"]
+                    : [selectedCountry]
               }
               onValueChange={(values) => {
                 if (values.length === 0) {
@@ -414,7 +420,7 @@ export default function BillsPage() {
                     currency: countryCurrencyMap[country] || "USD",
                   })}
                 </div>
-              )
+              ),
             )}
           </div>
         </div>
@@ -425,7 +431,7 @@ export default function BillsPage() {
             {(selectedCountry === "Sweden" || selectedCountry === "Both") && (
               <BillChart
                 bills={bills}
-                months={months}
+                months={MONTHS}
                 country="Sweden"
                 className={selectedCountry === "Both" ? "" : "md:col-span-2"}
                 color="hsl(var(--chart-1))"
@@ -434,7 +440,7 @@ export default function BillsPage() {
             {(selectedCountry === "Brazil" || selectedCountry === "Both") && (
               <BillChart
                 bills={bills}
-                months={months}
+                months={MONTHS}
                 country="Brazil"
                 className={selectedCountry === "Both" ? "" : "md:col-span-2"}
                 color="hsl(var(--chart-3))"
@@ -561,7 +567,7 @@ export default function BillsPage() {
                 return bill.country === selectedCountry;
               })
               .map((bill, index, filteredArray) => {
-                const monthAbbr = months[currentMonthIndex]
+                const monthAbbr = MONTHS[currentMonthIndex]
                   .toLowerCase()
                   .substring(0, 3);
                 const statusField = `${monthAbbr}_status` as keyof Bill;
@@ -617,7 +623,7 @@ export default function BillsPage() {
                 <SheetTitle>Add New Recurrent Expense</SheetTitle>
                 <SheetDescription>
                   Add a new recurrent expense to your finance tracker. This will
-                  appear in all months.
+                  appear in all MONTHS.
                 </SheetDescription>
               </SheetHeader>
               <div className="grid gap-4 py-4">

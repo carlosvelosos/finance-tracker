@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -1720,12 +1721,15 @@ const EmailClient = () => {
             </Button>
           ) : (
             <div className="space-y-4">
+              {" "}
               {userInfo && (
                 <div className="flex items-center gap-3">
                   {userInfo.picture && (
-                    <img
+                    <Image
                       src={userInfo.picture}
                       alt="Profile"
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full"
                     />
                   )}

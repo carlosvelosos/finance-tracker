@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import {
   processDEV,
   processInterBR,
+  processInterBRAccount,
   processHandelsbanken,
   processAmex,
   processSEB,
@@ -21,6 +22,7 @@ export async function uploadExcel(file: File, bank: string) {
       const parsed = Papa.parse<string[]>(text, {
         header: false, // Disable header row parsing
         skipEmptyLines: true, // Skip empty lines
+        delimiter: bank === "Inter-BR-Account" ? ";" : ",", // Use semicolon for Inter BR Account files
       });
       data = parsed.data as string[][]; // Cast parsed data to string[][]
     } else {
@@ -31,7 +33,6 @@ export async function uploadExcel(file: File, bank: string) {
       }) as string[][]; // Cast to string[][]
     }
     console.log("Parsed data:", data);
-
     let processedData;
     switch (bank) {
       case "DEV":
@@ -40,6 +41,9 @@ export async function uploadExcel(file: File, bank: string) {
         break;
       case "Inter-BR":
         processedData = processInterBR(data, file.name);
+        break;
+      case "Inter-BR-Account":
+        processedData = processInterBRAccount(data, file.name);
         break;
       case "Handelsbanken-SE":
         processedData = processHandelsbanken(data);

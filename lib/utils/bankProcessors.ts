@@ -1,43 +1,43 @@
 export function processDEV(data: string[][]) {
-    const transactions = data.slice(1).map((row, index) => {
-      // Extract and clean the amount (Valor column)
-      const rawAmount = row[4];
-      console.log(`Raw Amount (before processing): "${rawAmount}"`);
-  
-      const cleanedAmount = rawAmount
-        ?.replace(/"/g, "") // Remove quotation marks
-        .replace("R$", "") // Remove "R$" prefix
-        .replace(/\./g, "") // Remove all dots (thousands separators)
-        .replace(",", ".") // Replace the comma with a dot for decimals
-        .trim(); // Remove any extra spaces
-  
-      console.log(`Cleaned Amount (after processing): "${cleanedAmount}"`);
-  
-      const amount = parseFloat(cleanedAmount) || 0; // Convert to float, default to 0 if invalid
-      console.log(`Final Amount (parsed): ${amount}`);
-  
-      // Convert the date from DD/MM/YYYY to YYYY-MM-DD
-      const rawDate = row[0]?.trim().replace(/"/g, "") || null; // Remove quotes
-      const formattedDate = rawDate
-        ? rawDate.split("/").reverse().join("-") // Convert DD/MM/YYYY to YYYY-MM-DD
-        : null;
-  
-      // Clean the description and comment fields
-      const description = row[1]?.trim().replace(/"/g, "") || ""; // Remove quotes
-      const comment = row[3]?.trim().replace(/"/g, "") || ""; // Remove quotes
-  
-      return {
-        id: index + 1, // Sequential ID
-        Date: formattedDate, // Formatted date
-        Description: description, // Cleaned description
-        Comment: comment, // Cleaned comment
-        Amount: amount, // Parsed amount
-      };
-    });
-  
-    const tableName = "DEV"; // Define the table name
-    return { tableName, transactions };
-  }
+  const transactions = data.slice(1).map((row, index) => {
+    // Extract and clean the amount (Valor column)
+    const rawAmount = row[4];
+    console.log(`Raw Amount (before processing): "${rawAmount}"`);
+
+    const cleanedAmount = rawAmount
+      ?.replace(/"/g, "") // Remove quotation marks
+      .replace("R$", "") // Remove "R$" prefix
+      .replace(/\./g, "") // Remove all dots (thousands separators)
+      .replace(",", ".") // Replace the comma with a dot for decimals
+      .trim(); // Remove any extra spaces
+
+    console.log(`Cleaned Amount (after processing): "${cleanedAmount}"`);
+
+    const amount = parseFloat(cleanedAmount) || 0; // Convert to float, default to 0 if invalid
+    console.log(`Final Amount (parsed): ${amount}`);
+
+    // Convert the date from DD/MM/YYYY to YYYY-MM-DD
+    const rawDate = row[0]?.trim().replace(/"/g, "") || null; // Remove quotes
+    const formattedDate = rawDate
+      ? rawDate.split("/").reverse().join("-") // Convert DD/MM/YYYY to YYYY-MM-DD
+      : null;
+
+    // Clean the description and comment fields
+    const description = row[1]?.trim().replace(/"/g, "") || ""; // Remove quotes
+    const comment = row[3]?.trim().replace(/"/g, "") || ""; // Remove quotes
+
+    return {
+      id: index + 1, // Sequential ID
+      Date: formattedDate, // Formatted date
+      Description: description, // Cleaned description
+      Comment: comment, // Cleaned comment
+      Amount: amount, // Parsed amount
+    };
+  });
+
+  const tableName = "DEV"; // Define the table name
+  return { tableName, transactions };
+}
 
 export function processInterBR(data: string[][], fileName: string) {
   const transactions = data.slice(1).map((row, index) => {
@@ -79,7 +79,9 @@ export function processInterBR(data: string[][], fileName: string) {
   // Extract the year and month from the file name
   const match = fileName.match(/fatura-inter-(\d{4})-(\d{2})\.csv/i);
   if (!match) {
-    throw new Error("Invalid file name format. Expected format: fatura-inter-YYYY-MM.csv");
+    throw new Error(
+      "Invalid file name format. Expected format: fatura-inter-YYYY-MM.csv",
+    );
   }
 
   const year = match[1]; // Extracted year (e.g., "2025")
@@ -90,7 +92,7 @@ export function processInterBR(data: string[][], fileName: string) {
 
   return { tableName, transactions };
 }
-  
+
 export function processHandelsbanken(data: string[][]) {
   // Extract the year from row 6: "Period: 2025-01-01 - 2025-03-24"
   const periodRow = data[6]?.[0] || "";
@@ -101,8 +103,9 @@ export function processHandelsbanken(data: string[][]) {
   const tableName = `HB_${year}`;
 
   // Start processing transactions (row 9 onwards)
-  const transactions = data.slice(9) // Skip metadata rows
-    .filter(row => row.length >= 5) // Ensure row has enough columns
+  const transactions = data
+    .slice(9) // Skip metadata rows
+    .filter((row) => row.length >= 5) // Ensure row has enough columns
     .map((row, index) => ({
       id: index + 1, // Sequential ID
       Date: row[1], // Transaktionsdatum -> Date
@@ -117,14 +120,15 @@ export function processHandelsbanken(data: string[][]) {
 
   return { tableName, transactions };
 }
-  
+
 export function processAmex(data: string[][], fileName: string) {
   // Extract table name from filename (e.g., "AM_202503.csv" -> "AM_202503")
   const tableName = fileName.replace(".csv", "");
 
   // Map data to match the required structure
-  const transactions = data.slice(1) // Skip header row
-    .filter(row => row.length >= 3) // Ensure at least 3 columns
+  const transactions = data
+    .slice(1) // Skip header row
+    .filter((row) => row.length >= 3) // Ensure at least 3 columns
     .map((row, index) => {
       // Parse date (converting from MM/DD/YYYY to YYYY-MM-DD)
       const rawDate = row[0]?.trim() || "";
@@ -133,7 +137,7 @@ export function processAmex(data: string[][], fileName: string) {
         const dateParts = rawDate.split("/");
         if (dateParts.length === 3) {
           // Convert from MM/DD/YYYY to YYYY-MM-DD
-          formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`;
+          formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, "0")}-${dateParts[1].padStart(2, "0")}`;
         }
       }
 
@@ -149,9 +153,9 @@ export function processAmex(data: string[][], fileName: string) {
         .replace(/\s/g, "") // Remove spaces
         .replace(/\./g, "") // Remove thousand separators (dots)
         .replace(",", "."); // Replace comma with dot for decimal point
-      
+
       console.log(`Row ${index + 1} - Cleaned Amount: "${cleanedAmount}"`);
-      
+
       // Parse as float
       const amount = parseFloat(cleanedAmount) || 0;
       console.log(`Row ${index + 1} - Final Amount: ${amount}`);
@@ -175,9 +179,7 @@ export function processAmex(data: string[][], fileName: string) {
 
   return { tableName, transactions };
 }
-  
-  
-  
+
 export function processSEB(data: string[][], fileName: string) {
   // Extract the table name from the file name (e.g., "SEB_202503.csv" -> "SEB_202503")
   const tableName = fileName.replace(".xls", "");
@@ -190,13 +192,16 @@ export function processSEB(data: string[][], fileName: string) {
   // Helper function to convert Excel serial dates to YYYY-MM-DD
   const excelToDate = (serial: number): string => {
     const startDate = new Date(1900, 0, 1); // January 1, 1900
-    const excelDate = new Date(startDate.setDate(startDate.getDate() + serial - 2)); // Adjust for the 1900 leap year bug
+    const excelDate = new Date(
+      startDate.setDate(startDate.getDate() + serial - 2),
+    ); // Adjust for the 1900 leap year bug
     return excelDate.toISOString().split("T")[0]; // Return date in YYYY-MM-DD format
   };
 
   // Start processing transactions from row 17 (index 16 is the header)
-  const transactions = data.slice(17) // Skip metadata and header rows
-    .filter(row => row.length >= 7) // Ensure the row has enough columns
+  const transactions = data
+    .slice(17) // Skip metadata and header rows
+    .filter((row) => row.length >= 7) // Ensure the row has enough columns
     .map((row, index) => {
       // Handle the Datum column (Excel serial date or MM-DD format)
       let formattedDate: string | null = null;
@@ -206,7 +211,10 @@ export function processSEB(data: string[][], fileName: string) {
       } else if (typeof row[0] === "string") {
         // If Datum is in MM-DD format
         const [month, day] = row[0].split("-");
-        formattedDate = month && day ? `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}` : null;
+        formattedDate =
+          month && day
+            ? `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
+            : null;
       }
 
       // // Handle the Bokfört column (Excel serial date or MM-DD format)
@@ -228,7 +236,15 @@ export function processSEB(data: string[][], fileName: string) {
 
       return {
         id: index + 1, // Sequential ID
-        Date: formattedDate ? new Date(new Date(formattedDate).setDate(new Date(formattedDate).getDate() + 1)).toISOString().split("T")[0] : null, // Formatted Datum column with 1 day added
+        Date: formattedDate
+          ? new Date(
+              new Date(formattedDate).setDate(
+                new Date(formattedDate).getDate() + 1,
+              ),
+            )
+              .toISOString()
+              .split("T")[0]
+          : null, // Formatted Datum column with 1 day added
         Description: row[2]?.trim() || "", // Specifikation column
         Amount: amount, // Belopp column
       };
@@ -243,4 +259,99 @@ export function processSEB(data: string[][], fileName: string) {
 
   return { tableName, transactions };
 }
-  
+
+export function processInterBRAccount(data: string[][], fileName: string) {
+  // Find the header row that contains "Data Lançamento;Descrição;Valor;Saldo"
+  let headerRowIndex = -1;
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    if (row.length > 0 && row[0].includes("Data Lançamento")) {
+      headerRowIndex = i;
+      break;
+    }
+  }
+
+  if (headerRowIndex === -1) {
+    throw new Error("Header row with 'Data Lançamento' not found in the file.");
+  }
+
+  // Start processing transactions from the row after the header
+  const transactions = data
+    .slice(headerRowIndex + 1)
+    .filter((row) => row.length >= 4 && row[0].trim()) // Ensure row has enough columns and a date
+    .map((row, index) => {
+      // Parse the date from DD/MM/YYYY to YYYY-MM-DD
+      const rawDate = row[0]?.trim() || "";
+      let formattedDate: string | null = null;
+      if (rawDate) {
+        const dateParts = rawDate.split("/");
+        if (dateParts.length === 3) {
+          // Convert from DD/MM/YYYY to YYYY-MM-DD
+          formattedDate = `${dateParts[2]}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
+        }
+      }
+
+      // Clean the description
+      const description = row[1]?.trim().replace(/"/g, "") || "";
+
+      // Extract and clean the amount (Valor column) - Brazilian format with comma as decimal separator
+      const rawAmount = row[2]?.trim() || "0";
+      console.log(`Row ${index + 1} - Raw Amount: "${rawAmount}"`);
+
+      // Clean amount - handle Brazilian format with comma as decimal separator and dots as thousand separators
+      const cleanedAmount = rawAmount
+        .replace(/"/g, "") // Remove quotation marks
+        .replace(/\./g, "") // Remove thousand separators (dots)
+        .replace(",", ".") // Replace comma with dot for decimal point
+        .trim();
+
+      console.log(`Row ${index + 1} - Cleaned Amount: "${cleanedAmount}"`);
+
+      const amount = parseFloat(cleanedAmount) || 0;
+      console.log(`Row ${index + 1} - Final Amount: ${amount}`);
+
+      // Extract and clean the balance (Saldo column)
+      const rawBalance = row[3]?.trim() || "0";
+      const cleanedBalance = rawBalance
+        .replace(/"/g, "") // Remove quotation marks
+        .replace(/\./g, "") // Remove thousand separators (dots)
+        .replace(",", ".") // Replace comma with dot for decimal point
+        .trim();
+
+      const balance = parseFloat(cleanedBalance) || 0;
+
+      return {
+        id: index + 1, // Sequential ID
+        Date: formattedDate, // Formatted date in YYYY-MM-DD
+        Description: description, // Cleaned description
+        Amount: amount, // Parsed amount
+        Balance: balance, // Parsed balance
+        Bank: "Inter-BR", // Set bank name
+        Comment: null, // No comment field in this format
+      };
+    });
+
+  if (transactions.length === 0) {
+    throw new Error("No transactions found in the file.");
+  }
+
+  // Extract year from the first transaction date or filename
+  let year = new Date().getFullYear().toString(); // Default to current year
+  if (transactions.length > 0 && transactions[0].Date) {
+    year = transactions[0].Date.split("-")[0];
+  } else {
+    // Try to extract year from filename if available
+    const yearMatch = fileName.match(/(\d{4})/);
+    if (yearMatch) {
+      year = yearMatch[1];
+    }
+  }
+
+  // Construct the table name in the format IN_YYYY
+  const tableName = `IN_${year}`;
+
+  console.log("Table Name:", tableName);
+  console.log("Transactions:", transactions);
+
+  return { tableName, transactions };
+}

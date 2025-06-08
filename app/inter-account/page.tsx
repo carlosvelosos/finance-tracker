@@ -12,6 +12,14 @@ import { Transaction } from "@/types/transaction";
 export default function Home() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [bankInfo, setBankInfo] = useState<{
+    uniqueBanks: string[];
+    newestDatesByBank: Record<string, string>;
+  }>({
+    uniqueBanks: [],
+    newestDatesByBank: {},
+  });
+
   useEffect(() => {
     if (user) {
       const fetchTransactions = async () => {
@@ -34,11 +42,32 @@ export default function Home() {
           `,
           )
           .eq("user_id", user.id);
-
         if (error) {
           console.error("Error fetching transactions:", error);
         } else {
           setTransactions(data as Transaction[]);
+
+          // Calculate bank information
+          if (data && data.length > 0) {
+            const uniqueBanks = [
+              ...new Set(data.map((t) => t.Bank).filter(Boolean)),
+            ];
+            const newestDatesByBank: Record<string, string> = {};
+
+            uniqueBanks.forEach((bank) => {
+              const bankTransactions = data.filter((t) => t.Bank === bank);
+              const newestTransaction = bankTransactions.reduce(
+                (newest, current) => {
+                  return new Date(current.Date) > new Date(newest.Date)
+                    ? current
+                    : newest;
+                },
+              );
+              newestDatesByBank[bank] = newestTransaction.Date;
+            });
+
+            setBankInfo({ uniqueBanks, newestDatesByBank });
+          }
         }
       };
 
@@ -72,9 +101,30 @@ export default function Home() {
               transactions for Brasil accounts in 2025
             </li>
           </ul>
-          <p className="text-xs text-gray-500 mt-2">
-            Total transactions loaded: {transactions.length}
-          </p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">
+                Total transactions loaded: {transactions.length}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Unique banks: {bankInfo.uniqueBanks.length} (
+                {bankInfo.uniqueBanks.join(", ")})
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-600 mb-1">
+                Newest transaction per bank:
+              </p>
+              {Object.entries(bankInfo.newestDatesByBank).map(
+                ([bank, date]) => (
+                  <p key={bank} className="text-xs text-gray-500">
+                    <strong>{bank}:</strong>{" "}
+                    {new Date(date).toLocaleDateString()}
+                  </p>
+                ),
+              )}
+            </div>
+          </div>
         </div>
         {/* Chart Buttons */}
         <div className="flex justify-between items-center mb-4">

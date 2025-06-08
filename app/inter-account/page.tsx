@@ -15,9 +15,11 @@ export default function Home() {
   const [bankInfo, setBankInfo] = useState<{
     uniqueBanks: string[];
     newestDatesByBank: Record<string, string>;
+    transactionCountsByBank: Record<string, number>;
   }>({
     uniqueBanks: [],
     newestDatesByBank: {},
+    transactionCountsByBank: {},
   });
 
   useEffect(() => {
@@ -45,17 +47,17 @@ export default function Home() {
         if (error) {
           console.error("Error fetching transactions:", error);
         } else {
-          setTransactions(data as Transaction[]);
-
-          // Calculate bank information
+          setTransactions(data as Transaction[]); // Calculate bank information
           if (data && data.length > 0) {
             const uniqueBanks = [
               ...new Set(data.map((t) => t.Bank).filter(Boolean)),
             ];
             const newestDatesByBank: Record<string, string> = {};
+            const transactionCountsByBank: Record<string, number> = {};
 
             uniqueBanks.forEach((bank) => {
               const bankTransactions = data.filter((t) => t.Bank === bank);
+              transactionCountsByBank[bank] = bankTransactions.length;
               const newestTransaction = bankTransactions.reduce(
                 (newest, current) => {
                   return new Date(current.Date) > new Date(newest.Date)
@@ -66,7 +68,11 @@ export default function Home() {
               newestDatesByBank[bank] = newestTransaction.Date;
             });
 
-            setBankInfo({ uniqueBanks, newestDatesByBank });
+            setBankInfo({
+              uniqueBanks,
+              newestDatesByBank,
+              transactionCountsByBank,
+            });
           }
         }
       };
@@ -102,8 +108,8 @@ export default function Home() {
               <strong>Brasil_transactions_agregated_2025</strong> - Aggregated
               transactions for Brasil accounts in 2025
             </li>
-          </ul>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          </ul>{" "}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-gray-500">
                 Total transactions loaded: {transactions.length}
@@ -112,6 +118,18 @@ export default function Home() {
                 Unique banks: {bankInfo.uniqueBanks.length} (
                 {bankInfo.uniqueBanks.join(", ")})
               </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-600 mb-1">
+                Transaction count per bank:
+              </p>
+              {Object.entries(bankInfo.transactionCountsByBank).map(
+                ([bank, count]) => (
+                  <p key={bank} className="text-xs text-gray-500">
+                    <strong>{bank}:</strong> {count} transactions
+                  </p>
+                ),
+              )}
             </div>
             <div>
               <p className="text-xs font-medium text-gray-600 mb-1">

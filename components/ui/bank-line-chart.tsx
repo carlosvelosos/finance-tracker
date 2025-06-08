@@ -334,9 +334,10 @@ export function TransactionLineChart({
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
+        {" "}
         <div className="flex flex-row ">
           <div className="flex flex-col gap-1">
-            <CardTitle>{title}</CardTitle>
+            <CardTitle className="text-5xl mb-25">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
 
             {/* Line toggle controls */}

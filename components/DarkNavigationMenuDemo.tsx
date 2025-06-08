@@ -13,31 +13,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/modified-navigation-menu";
 
-// Define bank links
-const bankLinks: { title: string; href: string; description: string }[] = [
-  {
-    title: "SJ Prio",
-    href: "/sjprio",
-    description:
-      "Track and manage your SJ Prio membership points and benefits.",
-  },
-  {
-    title: "SJ Prio Chart",
-    href: "/sjprio/chart",
-    description:
-      "Visualize your SJ Prio points over time with detailed charts.",
-  },
-  {
-    title: "Amex",
-    href: "/amex",
-    description: "Manage your American Express card transactions and balances.",
-  },
-  {
-    title: "Amex Chart",
-    href: "/amex/chart",
-    description:
-      "View graphical representations of your Amex spending patterns.",
-  },
+// Define Sweden bank links
+const SEbankLinks: { title: string; href: string; description: string }[] = [
   {
     title: "Handelsbanken",
     href: "/handelsbanken",
@@ -45,9 +22,34 @@ const bankLinks: { title: string; href: string; description: string }[] = [
       "Track accounts, transactions, and balances from Handelsbanken.",
   },
   {
-    title: "Handelsbanken Overview",
-    href: "/handelsbanken/overview/chart",
-    description: "View comprehensive charts for your Handelsbanken accounts.",
+    title: "SJ Prio",
+    href: "/sjprio",
+    description:
+      "Track and manage your SJ Prio membership points and benefits.",
+  },
+  {
+    title: "Amex",
+    href: "/amex",
+    description: "Manage your American Express card transactions and balances.",
+  },
+];
+
+// Define Brazil bank links
+const BRbankLinks: { title: string; href: string; description: string }[] = [
+  {
+    title: "Inter",
+    href: "/inter-account",
+    description: "Track accounts, transactions, and balances from Inter.",
+  },
+  {
+    title: "Clear",
+    href: "/clear",
+    description: "Track and manage your Clear membership points and benefits.",
+  },
+  {
+    title: "Rico",
+    href: "/rico",
+    description: "Manage your Rico investments and portfolio.",
   },
 ];
 
@@ -83,15 +85,42 @@ export function DarkNavigationMenuDemo() {
         <NavigationMenuItem>
           <NavigationMenuTrigger className="text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400 data-[state=open]:bg-black data-[state=open]:bg-opacity-30 data-[state=open]:text-green-400">
             Bank Accounts
-          </NavigationMenuTrigger>
+          </NavigationMenuTrigger>{" "}
           <NavigationMenuContent className="bg-[#1E1E1E] border border-gray-700">
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-              {bankLinks.map((link) => (
-                <ListItem key={link.title} title={link.title} href={link.href}>
-                  {link.description}
-                </ListItem>
-              ))}
-            </ul>
+            <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              <div>
+                <h3 className="text-sm font-medium text-gray-300 mb-2">
+                  Sweden
+                </h3>
+                <ul className="space-y-2">
+                  {SEbankLinks.map((link) => (
+                    <ListItem
+                      key={link.title}
+                      title={link.title}
+                      href={link.href}
+                    >
+                      {link.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-300 mb-2">
+                  Brazil
+                </h3>
+                <ul className="space-y-2">
+                  {BRbankLinks.map((link) => (
+                    <ListItem
+                      key={link.title}
+                      title={link.title}
+                      href={link.href}
+                    >
+                      {link.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>

@@ -167,11 +167,11 @@ export async function executeTableCreation(tableName: string) {
     const { error } = await supabase.rpc("exec_sql", {
       sql: createTableSQL,
     });
-
     if (error) {
       // If exec_sql doesn't exist, try alternative approaches
       if (
-        error.message.includes("function exec_sql") ||
+        error.message.includes("function") ||
+        error.message.includes("exec_sql") ||
         error.code === "42883"
       ) {
         console.log(

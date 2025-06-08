@@ -90,7 +90,9 @@ export default function Home() {
         </h1>{" "}
         {/* Data Source Information */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-          <h2 className="text-lg font-semibold mb-2">Data Sources</h2>
+          <h2 className="text-lg font-semibold mb-2 text-gray-800">
+            Data Sources
+          </h2>
           <p className="text-sm text-gray-700">
             This page displays transaction data from the following Supabase
             table:

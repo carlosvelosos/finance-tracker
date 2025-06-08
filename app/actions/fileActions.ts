@@ -87,8 +87,7 @@ export async function uploadExcel(file: File, bank: string) {
 
 export async function createTableInSupabase(tableName: string) {
   // Since we can't execute DDL directly through the client, we'll return instructions
-  const instructions = `
-Please create the table manually in your Supabase SQL editor with the following commands:
+  const instructions = `Please create the table manually in your Supabase SQL editor with the following commands:
 
 1. Create the table:
 CREATE TABLE public."${tableName}" (
@@ -108,7 +107,8 @@ CREATE TABLE public."${tableName}" (
 ) TABLESPACE pg_default;
 
 2. Enable RLS:
-ALTER TABLE public."${tableName}" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public."${tableName}" 
+ENABLE ROW LEVEL SECURITY;
 
 3. Create RLS Policy:
 CREATE POLICY "Enable all for users based on user_id"
@@ -121,8 +121,7 @@ USING (
 )
 WITH CHECK (
   (SELECT auth.uid()) = user_id
-);
-    `;
+);`;
 
   return instructions;
 }

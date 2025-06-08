@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   uploadExcel,
   createTableInSupabase,
@@ -45,6 +45,15 @@ export default function UploadPage() {
   const [creatingTable, setCreatingTable] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingBank, setPendingBank] = useState<string | null>(null);
+
+  // Debug effect to monitor dialog state
+  useEffect(() => {
+    console.log("Dialog state changed:", {
+      showCreateTableDialog,
+      pendingTableName,
+      tableInstructions: tableInstructions.substring(0, 50) + "...",
+    });
+  }, [showCreateTableDialog, pendingTableName, tableInstructions]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
@@ -113,6 +122,9 @@ export default function UploadPage() {
         setTableInstructions(instructions);
         setShowCreateTableDialog(true);
         console.log("Dialog should be showing now");
+        console.log("showCreateTableDialog state:", true);
+        console.log("pendingTableName:", tableName);
+        console.log("tableInstructions length:", instructions.length);
       } else {
         console.log("Showing regular error toast");
         toast.error("Upload Failed", {
@@ -224,30 +236,68 @@ export default function UploadPage() {
             >
               {uploading ? "Uploading..." : "Upload"}
             </Button>{" "}
+            {/* Debug info */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="text-xs text-gray-500 mt-2">
+                Dialog: {showCreateTableDialog ? "OPEN" : "CLOSED"} | Table:{" "}
+                {pendingTableName || "None"}
+              </div>
+            )}
           </CardContent>
-        </Card>
-
+        </Card>{" "}
+        {/* Debug: Simple Test Dialog */}
+        {showCreateTableDialog && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowCreateTableDialog(false)}
+          >
+            <div
+              className="bg-white p-6 rounded-lg max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-lg font-bold mb-2">
+                TEST: Table Creation Required
+              </h2>
+              <p className="mb-4">
+                Table "{pendingTableName}" needs to be created.
+              </p>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                onClick={handleCreateTable}
+                disabled={creatingTable}
+              >
+                {creatingTable ? "Creating..." : "Create Table"}
+              </button>
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+                onClick={handleCloseDialog}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
         {/* Table Creation Dialog */}
         <Dialog
           open={showCreateTableDialog}
           onOpenChange={setShowCreateTableDialog}
         >
-          <DialogContent className="max-w-2xl">
-            {" "}
+          {" "}
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
             <DialogHeader>
-              <DialogTitle>Table Not Found</DialogTitle>{" "}
+              <DialogTitle>Table Not Found</DialogTitle>
               <DialogDescription>
                 The table &quot;{pendingTableName}&quot; does not exist in the
                 database. You can either create it automatically or manually
                 using the SQL commands below:
               </DialogDescription>
             </DialogHeader>
-            <div className="mt-4">
-              <div className="bg-gray-800 text-green-400 p-4 rounded-md font-mono text-sm overflow-auto max-h-96">
-                <pre>{tableInstructions}</pre>
+            <div className="mt-4 flex-1 overflow-hidden">
+              <div className="bg-gray-800 text-green-400 p-4 rounded-md font-mono text-xs overflow-auto max-h-[60vh] whitespace-pre-wrap break-words">
+                {tableInstructions}
               </div>
             </div>{" "}
-            <div className="flex justify-between gap-2 mt-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-2 mt-4">
               <div className="flex gap-2">
                 <Button
                   variant="outline"

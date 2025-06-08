@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { uploadExcel } from "@/app/actions/fileActions";
+import { uploadExcel, createTableInSupabase } from "@/app/actions/fileActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import ProtectedRoute from "@/components/protected-route";
 
 const BANK_OPTIONS = [
@@ -28,6 +35,9 @@ export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showCreateTableDialog, setShowCreateTableDialog] = useState(false);
+  const [pendingTableName, setPendingTableName] = useState<string>("");
+  const [tableInstructions, setTableInstructions] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
@@ -61,13 +71,41 @@ export default function UploadPage() {
       });
     } catch (error) {
       console.error("Upload failed:", error); // Log the error for debugging
-      toast.error("Upload Failed", {
-        description: "Something went wrong.",
-      });
+
+      if (
+        error instanceof Error &&
+        error.message.startsWith("TABLE_NOT_EXISTS:")
+      ) {
+        // Extract table name from error message
+        const tableName = error.message.split(":")[1];
+        setPendingTableName(tableName);
+
+        // Get table creation instructions
+        const instructions = await createTableInSupabase(tableName);
+        setTableInstructions(instructions);
+        setShowCreateTableDialog(true);
+      } else {
+        toast.error("Upload Failed", {
+          description:
+            error instanceof Error ? error.message : "Something went wrong.",
+        });
+      }
     }
     setUploading(false);
   };
 
+  const handleCopyInstructions = () => {
+    navigator.clipboard.writeText(tableInstructions);
+    toast.success("Copied!", {
+      description: "SQL instructions copied to clipboard",
+    });
+  };
+
+  const handleCloseDialog = () => {
+    setShowCreateTableDialog(false);
+    setPendingTableName("");
+    setTableInstructions("");
+  };
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -91,14 +129,12 @@ export default function UploadPage() {
                 ))}
               </SelectContent>
             </Select>
-
             {/* File input field */}
             <Input
               type="file"
               accept=".xlsx,.xls,.csv"
               onChange={handleFileChange}
             />
-
             {/* Upload button */}
             <Button
               onClick={handleUpload}
@@ -106,9 +142,42 @@ export default function UploadPage() {
               className="w-full"
             >
               {uploading ? "Uploading..." : "Upload"}
-            </Button>
+            </Button>{" "}
           </CardContent>
         </Card>
+
+        {/* Table Creation Dialog */}
+        <Dialog
+          open={showCreateTableDialog}
+          onOpenChange={setShowCreateTableDialog}
+        >
+          <DialogContent className="max-w-2xl">
+            {" "}
+            <DialogHeader>
+              <DialogTitle>Table Not Found</DialogTitle>
+              <DialogDescription>
+                The table &quot;{pendingTableName}&quot; does not exist in the
+                database. Please create it manually using the SQL commands
+                below:
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <div className="bg-gray-800 text-green-400 p-4 rounded-md font-mono text-sm overflow-auto max-h-96">
+                <pre>{tableInstructions}</pre>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={handleCopyInstructions}
+                disabled={!tableInstructions}
+              >
+                Copy SQL
+              </Button>
+              <Button onClick={handleCloseDialog}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   );

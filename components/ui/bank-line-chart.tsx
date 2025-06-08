@@ -25,7 +25,6 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // Define our transaction type
 interface Transaction {
@@ -166,11 +165,13 @@ export function TransactionLineChart({
     "income",
     "expenses",
     "net",
-  ]);
-
-  // Toggle handler for line visibility
-  const handleLineToggle = (value: string[]) => {
-    setVisibleLines(value);
+  ]); // Toggle handler for individual lines
+  const toggleLine = (lineKey: string) => {
+    setVisibleLines((prev) =>
+      prev.includes(lineKey)
+        ? prev.filter((line) => line !== lineKey)
+        : [...prev, lineKey],
+    );
   };
 
   // Chart data preparation - plot one data point per transaction
@@ -339,44 +340,6 @@ export function TransactionLineChart({
           <div className="flex flex-col gap-1">
             <CardTitle className="text-5xl mb-25">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
-
-            {/* Line toggle controls */}
-            <ToggleGroup
-              type="multiple"
-              value={visibleLines}
-              onValueChange={handleLineToggle}
-              className="mt-2"
-            >
-              <ToggleGroupItem
-                value="income"
-                aria-label="Toggle income line"
-                className="flex items-center h-7 text-xs w-24 bg-[#242424]"
-                data-state={visibleLines.includes("income") ? "on" : "off"}
-              >
-                <div className="w-2 h-2 rounded-full bg-[#10B981] mr-1" />
-                Income
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                value="expenses"
-                aria-label="Toggle expenses line"
-                className="flex items-center h-7 text-xs w-24 bg-[#242424]"
-                data-state={visibleLines.includes("expenses") ? "on" : "off"}
-              >
-                <div className="w-2 h-2 rounded-full bg-[#EF4444] mr-1" />
-                Expenses
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                value="net"
-                aria-label="Toggle net line"
-                className="flex items-center h-7 text-xs w-24 bg-[#242424]"
-                data-state={visibleLines.includes("net") ? "on" : "off"}
-              >
-                <div className="w-2 h-2 rounded-full bg-[#3B82F6] mr-1" />
-                Net
-              </ToggleGroupItem>
-            </ToggleGroup>
           </div>
 
           <div className="ml-auto mr-4">
@@ -429,8 +392,17 @@ export function TransactionLineChart({
                     className="flex flex-col gap-2 flex-1"
                     style={{ width: "200px" }}
                   >
+                    {" "}
                     {/* Income */}
-                    <div className="flex items-center gap-2">
+                    <div
+                      className={`flex items-center gap-2 cursor-pointer hover:bg-gray-800 p-1 rounded transition-all ${
+                        visibleLines.includes("income")
+                          ? "opacity-100"
+                          : "opacity-40"
+                      }`}
+                      onClick={() => toggleLine("income")}
+                      title="Click to toggle Income line visibility"
+                    >
                       <div className="w-1 h-3 rounded-full bg-[#10B981]" />
                       <span className="text-xs whitespace-nowrap flex-1">
                         Income:
@@ -443,7 +415,15 @@ export function TransactionLineChart({
                       </span>
                     </div>
                     {/* Expenses */}
-                    <div className="flex items-center gap-2">
+                    <div
+                      className={`flex items-center gap-2 cursor-pointer hover:bg-gray-800 p-1 rounded transition-all ${
+                        visibleLines.includes("expenses")
+                          ? "opacity-100"
+                          : "opacity-40"
+                      }`}
+                      onClick={() => toggleLine("expenses")}
+                      title="Click to toggle Expenses line visibility"
+                    >
                       <div className="w-1 h-3 rounded-full bg-[#EF4444]" />
                       <span className="text-xs whitespace-nowrap flex-1">
                         Expenses:
@@ -455,9 +435,16 @@ export function TransactionLineChart({
                         }).format(tooltipData.negativeValueAbs)}
                       </span>
                     </div>
-
                     {/* Net value */}
-                    <div className="flex items-center gap-2">
+                    <div
+                      className={`flex items-center gap-2 cursor-pointer hover:bg-gray-800 p-1 rounded transition-all ${
+                        visibleLines.includes("net")
+                          ? "opacity-100"
+                          : "opacity-40"
+                      }`}
+                      onClick={() => toggleLine("net")}
+                      title="Click to toggle Net line visibility"
+                    >
                       <div className="w-1 h-3 rounded-full bg-[#3B82F6]" />
                       <span className="text-xs whitespace-nowrap flex-1">
                         Net:

@@ -517,10 +517,9 @@ export function TransactionLineChart({
                   tick={{ fontSize: 30, fill: "#898989" }}
                   tickMargin={15}
                   width={100}
-                />
+                />{" "}
                 {/* Add solid reference line at y=0 with increased thickness */}
                 <ReferenceLine y={0} stroke="#4B5563" strokeWidth={2.5} />
-                <Legend verticalAlign="bottom" />
                 {/* Only keep cursor functionality for interaction, no tooltip */}
                 <ChartTooltip cursor={true} content={() => null} />
                 {/* Positive transactions line */}

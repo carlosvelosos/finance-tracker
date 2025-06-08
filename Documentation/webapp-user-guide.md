@@ -32,7 +32,7 @@ For Sweden, we currently support **Handelbanken bank account** and **SEB SJ Prio
 1. File uploaded and bank account selected at `app\upload\page.tsx`
 2. `app\upload\page.tsx` call `uploadExcel` from `app\actions\fileActions.ts`
 
-```
+```js
 import { uploadExcel } from "@/app/actions/fileActions";
 
 const result = await uploadExcel(file, selectedBank);
@@ -40,7 +40,7 @@ const result = await uploadExcel(file, selectedBank);
 
 3. `app\actions\fileActions.ts` call `processHandelsbanken` from `lib\utils\bankProcessors.ts`
 
-```
+```js
 import { processDEV, processInterBR, processHandelsbanken, processAmex, processSEB } from "@/lib/utils/bankProcessors";
 
 case "Handelsbanken-SE":
@@ -49,7 +49,7 @@ case "Handelsbanken-SE":
 
 4.`processHandelsbanken` at `lib\utils\bankProcessors.ts` processes the input excel file and returns `{ tableName, transactions }`
 
-```
+```js
 export function processHandelsbanken(data: string[][]) {
   // Extract the year from row 6: "Period: 2025-01-01 - 2025-03-24"
   const periodRow = data[6]?.[0] || "";
@@ -80,7 +80,7 @@ export function processHandelsbanken(data: string[][]) {
 
 5. `app\actions\fileActions.ts` call `uploadToSupabase` where data is appended to the correct year handelsbanken table.
 
-```
+```js
 // Upload to Supabase
 return await uploadToSupabase(processedData.tableName, processedData.transactions);
 

@@ -21,6 +21,7 @@ interface TransactionTableProps {
   initialSortDirection?: "asc" | "desc";
   hiddenColumns?: string[];
   bankFilter?: string;
+  showYearFilter?: boolean;
   showMonthFilter?: boolean;
   showCategoryFilter?: boolean;
   showDescriptionFilter?: boolean;
@@ -37,6 +38,7 @@ export default function TransactionTable({
   initialSortDirection = "asc",
   hiddenColumns = [],
   bankFilter,
+  showYearFilter = true,
   showMonthFilter = true,
   showCategoryFilter = true,
   showDescriptionFilter = true,
@@ -54,6 +56,7 @@ export default function TransactionTable({
   );
   const [categoryFilter, setCategoryFilter] = useState("");
   const [descriptionFilter, setDescriptionFilter] = useState("");
+  const [selectedYear, setSelectedYear] = useState("All");
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [editingCategory, setEditingCategory] = useState<{
     id: number;
@@ -200,6 +203,14 @@ export default function TransactionTable({
       );
     })
     .filter((transaction) => {
+      if (!showYearFilter || selectedYear === "All") return true;
+      if (transaction.Date) {
+        const transactionYear = new Date(transaction.Date).getFullYear();
+        return transactionYear.toString() === selectedYear;
+      }
+      return false;
+    })
+    .filter((transaction) => {
       if (!showMonthFilter || selectedMonth === "All") return true;
       if (transaction.Date) {
         const transactionMonth = new Date(transaction.Date).getMonth(); // Get month (0-11)
@@ -279,13 +290,19 @@ export default function TransactionTable({
 
     return 0;
   });
-
   // Determine if we're showing the date as separate Year/Month/Day columns or as a single Date column
   const showSplitDateColumns =
     hiddenColumns.includes("Date") &&
     !hiddenColumns.includes("Year") &&
     !hiddenColumns.includes("Month") &&
     !hiddenColumns.includes("Day");
+
+  // Generate year options (current year ± 2 years)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [];
+  for (let i = currentYear - 2; i <= currentYear + 2; i++) {
+    yearOptions.push(i.toString());
+  }
 
   return (
     <div>
@@ -297,6 +314,23 @@ export default function TransactionTable({
             currency: "SEK",
           }).format(totalAmount)}
         </div>
+      )}
+
+      {showYearFilter && (
+        <Tabs
+          defaultValue="All"
+          onValueChange={(value) => setSelectedYear(value)}
+          className="mb-4"
+        >
+          <TabsList>
+            <TabsTrigger value="All">All Years</TabsTrigger>
+            {yearOptions.map((year) => (
+              <TabsTrigger key={year} value={year}>
+                {year}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       )}
 
       {showMonthFilter && (

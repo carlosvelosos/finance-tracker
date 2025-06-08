@@ -18,6 +18,7 @@ import ProtectedRoute from "@/components/protected-route";
 const BANK_OPTIONS = [
   "DEV",
   "Inter-BR",
+  "Inter-BR-Account",
   "Handelsbanken-SE",
   "AmericanExpress-SE",
   "SEB_SJ_Prio-SE",

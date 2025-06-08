@@ -49,11 +49,12 @@ export default function CategoryChartPage() {
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="flex flex-col items-center justify-center min-h-screen space-y-50">
-        <div className="pt-50 w-full max-w-5xl">
+        <div className="pt-50 w-full max-w-7xl">
           <TransactionLineChart
             transactions={transactions}
             title="Handelsbanken Cumulative Flow"
             description="Showing cumulative income and expenses over time"
+            className="border-none bg-transparent shadow-none"
           />
         </div>
 

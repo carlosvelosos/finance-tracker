@@ -9,7 +9,6 @@ import {
   YAxis,
   ResponsiveContainer,
   Dot,
-  Legend,
   ReferenceLine,
 } from "recharts";
 

@@ -514,7 +514,7 @@ export function TransactionLineChart({
                       compactDisplay: "short",
                     }).format(value)
                   }
-                  tick={{ fontSize: 30, fill: "#898989" }}
+                  tick={{ fontSize: 30, fill: "#898989", fontWeight: "700" }}
                   tickMargin={15}
                   width={100}
                 />{" "}

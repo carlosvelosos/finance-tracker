@@ -34,6 +34,33 @@ const SEbankLinks: { title: string; href: string; description: string }[] = [
   },
 ];
 
+// SVG Flag Components
+const SwedenFlag = () => (
+  <svg
+    width="24"
+    height="16"
+    viewBox="0 0 24 16"
+    className="rounded-sm border border-gray-600"
+  >
+    <rect width="24" height="16" fill="#006AA7" />
+    <rect x="6" y="0" width="3" height="16" fill="#FECC00" />
+    <rect x="0" y="6.5" width="24" height="3" fill="#FECC00" />
+  </svg>
+);
+
+const BrazilFlag = () => (
+  <svg
+    width="24"
+    height="16"
+    viewBox="0 0 24 16"
+    className="rounded-sm border border-gray-600"
+  >
+    <rect width="24" height="16" fill="#009739" />
+    <polygon points="12,2 20,8 12,14 4,8" fill="#FEDD00" />
+    <circle cx="12" cy="8" r="3.5" fill="#012169" />
+  </svg>
+);
+
 // Define Brazil bank links
 const BRbankLinks: { title: string; href: string; description: string }[] = [
   {
@@ -88,8 +115,10 @@ export function DarkNavigationMenuDemo() {
           </NavigationMenuTrigger>{" "}
           <NavigationMenuContent className="bg-[#1E1E1E] border border-gray-700">
             <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {" "}
               <div>
-                <h3 className="text-sm font-medium text-gray-300 mb-2">
+                <h3 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                  <SwedenFlag />
                   Sweden
                 </h3>
                 <ul className="space-y-2">
@@ -105,7 +134,8 @@ export function DarkNavigationMenuDemo() {
                 </ul>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-300 mb-2">
+                <h3 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                  <BrazilFlag />
                   Brazil
                 </h3>
                 <ul className="space-y-2">

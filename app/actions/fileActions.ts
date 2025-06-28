@@ -10,9 +10,20 @@ import {
   processSEB,
 } from "@/lib/utils/bankProcessors";
 
-export async function uploadExcel(file: File, bank: string) {
+export async function uploadExcel(
+  file: File,
+  bank: string,
+  clearData: boolean = false,
+) {
   try {
-    console.log("uploadExcel called with bank:", bank, "file:", file.name);
+    console.log(
+      "uploadExcel called with bank:",
+      bank,
+      "file:",
+      file.name,
+      "clearData:",
+      clearData,
+    );
     const arrayBuffer = await file.arrayBuffer();
     let data: string[][]; // Explicitly type data as string[][]
 
@@ -71,6 +82,7 @@ export async function uploadExcel(file: File, bank: string) {
     const result = await uploadToSupabase(
       processedData.tableName,
       processedData.transactions,
+      clearData,
     );
     console.log("Upload result:", result);
     return result;
@@ -235,10 +247,29 @@ export async function executeTableCreation(tableName: string) {
 async function uploadToSupabase(
   tableName: string,
   transactions: Record<string, unknown>[],
+  clearData: boolean = false,
 ) {
   try {
     console.log("uploadToSupabase called with table:", tableName);
     console.log("Transaction count:", transactions.length);
+    console.log("Clear data:", clearData);
+
+    // If clearData is true, clear the table first
+    if (clearData) {
+      console.log(
+        `Clearing existing data from table "${tableName}" before upload...`,
+      );
+      const clearResult = await clearTableData(tableName);
+      if (!clearResult.success) {
+        // If clearing fails and it's not because table doesn't exist, return the error
+        if (clearResult.error !== "TABLE_NOT_EXISTS") {
+          return clearResult;
+        }
+        // If table doesn't exist, we'll handle that below
+      } else {
+        console.log(`Table "${tableName}" data cleared successfully`);
+      }
+    }
 
     // Get the current highest ID from the table
     console.log("Checking if table exists...");
@@ -277,8 +308,17 @@ async function uploadToSupabase(
 
     console.log("Table exists, proceeding with upload...");
     // Calculate the starting ID for new records
-    const currentMaxId =
-      maxIdData && maxIdData.length > 0 ? maxIdData[0].id : 0;
+    let currentMaxId = 0;
+
+    if (clearData) {
+      // If we cleared the data, start from ID 0
+      currentMaxId = 0;
+      console.log("Starting from ID 1 due to cleared data");
+    } else {
+      // Otherwise, get the current max ID and continue from there
+      currentMaxId = maxIdData && maxIdData.length > 0 ? maxIdData[0].id : 0;
+      console.log("Current max ID:", currentMaxId);
+    }
 
     // Update transaction IDs to continue from the current max
     const transactionsWithCorrectIds = transactions.map(
@@ -302,10 +342,60 @@ async function uploadToSupabase(
 
     return {
       success: true,
-      message: `Upload successful! ${transactionsWithCorrectIds.length} records inserted into ${tableName} starting from ID ${currentMaxId + 1}`,
+      message: clearData
+        ? `Upload successful! Table "${tableName}" cleared and ${transactionsWithCorrectIds.length} new records inserted`
+        : `Upload successful! ${transactionsWithCorrectIds.length} records inserted into "${tableName}" starting from ID ${currentMaxId + 1}`,
     };
   } catch (error) {
     console.error("Error in uploadToSupabase:", error);
+    return {
+      success: false,
+      error: "UNEXPECTED_ERROR",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    };
+  }
+}
+
+// Function to clear all data from a table
+export async function clearTableData(tableName: string) {
+  try {
+    console.log("Clearing all data from table:", tableName);
+
+    // Check if table exists first
+    const { data: existsCheck, error: existsError } = await supabase
+      .from(tableName)
+      .select("id")
+      .limit(1);
+
+    if (
+      existsError &&
+      (existsError.code === "PGRST116" || existsError.code === "42P01")
+    ) {
+      return {
+        success: false,
+        error: "TABLE_NOT_EXISTS",
+        message: `Table "${tableName}" does not exist`,
+      };
+    }
+
+    // Delete all records from the table
+    const { error } = await supabase.from(tableName).delete().neq("id", 0); // This will match all records since IDs start from 1
+
+    if (error) {
+      return {
+        success: false,
+        error: "DELETE_ERROR",
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Successfully cleared all data from table "${tableName}"`,
+    };
+  } catch (error) {
+    console.error("Error in clearTableData:", error);
     return {
       success: false,
       error: "UNEXPECTED_ERROR",

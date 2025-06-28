@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,8 @@ export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [clearData, setClearData] = useState(false);
+  const [showClearDataWarning, setShowClearDataWarning] = useState(false);
   const [showCreateTableDialog, setShowCreateTableDialog] = useState(false);
   const [pendingTableName, setPendingTableName] = useState<string>("");
   const [tableInstructions, setTableInstructions] = useState<string>("");
@@ -85,8 +88,10 @@ export default function UploadPage() {
         selectedBank,
         "with file:",
         file.name,
+        "clearData:",
+        clearData,
       );
-      const result = await uploadExcel(file, selectedBank);
+      const result = await uploadExcel(file, selectedBank, clearData);
       console.log("Upload result:", result);
 
       if (result.success) {
@@ -156,7 +161,11 @@ export default function UploadPage() {
         if (pendingFile && pendingBank) {
           console.log("Retrying upload after table creation...");
           try {
-            const uploadResult = await uploadExcel(pendingFile, pendingBank);
+            const uploadResult = await uploadExcel(
+              pendingFile,
+              pendingBank,
+              clearData,
+            );
             if (uploadResult.success) {
               toast.success("Upload Status", {
                 description: uploadResult.message,
@@ -196,6 +205,65 @@ export default function UploadPage() {
     setPendingFile(null);
     setPendingBank(null);
   };
+
+  const handleClearDataChange = (checked: boolean) => {
+    if (checked) {
+      setShowClearDataWarning(true);
+    } else {
+      setClearData(false);
+    }
+  };
+
+  const confirmClearData = () => {
+    setClearData(true);
+    setShowClearDataWarning(false);
+  };
+
+  const cancelClearData = () => {
+    setClearData(false);
+    setShowClearDataWarning(false);
+  };
+
+  // Function to get the table name that would be created for the selected bank and file
+  const getTableName = (
+    bank: string | null,
+    file: File | null,
+  ): string | null => {
+    if (!bank || !file) return null;
+
+    const fileName = file.name;
+
+    switch (bank) {
+      case "DEV":
+        return "test_transactions";
+      case "Inter-BR":
+        // Extract year from filename for Inter-BR tables (format: IN_YYYY)
+        const yearMatch = fileName.match(/(\d{4})/);
+        return yearMatch ? `IN_${yearMatch[1]}` : "IN_2025";
+      case "Inter-BR-Account":
+        // Extract year from filename for Inter-BR-Account tables (format: IN_YYYY)
+        const accountYearMatch = fileName.match(/(\d{4})/);
+        return accountYearMatch ? `IN_${accountYearMatch[1]}` : "IN_2025";
+      case "Handelsbanken-SE":
+        return "handelsbanken_transactions";
+      case "AmericanExpress-SE":
+        // Extract year from filename for Amex tables
+        const amexYearMatch = fileName.match(/(\d{4})/);
+        return amexYearMatch ? `amex_${amexYearMatch[1]}` : "amex_2025";
+      case "SEB_SJ_Prio-SE":
+        // Extract year from filename for SEB tables
+        const sebYearMatch = fileName.match(/(\d{4})/);
+        return sebYearMatch
+          ? `seb_sj_prio_${sebYearMatch[1]}`
+          : "seb_sj_prio_2025";
+      default:
+        return null;
+    }
+  };
+
+  // Get the current table name that would be affected
+  const targetTableName = getTableName(selectedBank, file);
+
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -225,6 +293,47 @@ export default function UploadPage() {
               accept=".xlsx,.xls,.csv"
               onChange={handleFileChange}
             />
+            {/* Clear data option */}
+            <div
+              className={`flex flex-col space-y-2 p-3 rounded-md border ${
+                clearData
+                  ? "bg-red-50 border-red-200"
+                  : "bg-yellow-50 border-yellow-200"
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="clearData"
+                  checked={clearData}
+                  onCheckedChange={handleClearDataChange}
+                />
+                <label
+                  htmlFor="clearData"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Clear existing data before upload
+                </label>
+              </div>
+              {targetTableName && (
+                <div className="ml-6 text-xs text-gray-600">
+                  Target table:{" "}
+                  <code className="bg-gray-100 px-1 rounded">
+                    {targetTableName}
+                  </code>
+                </div>
+              )}
+            </div>
+            <div
+              className={`text-xs -mt-2 ${
+                clearData ? "text-red-600 font-medium" : "text-gray-600"
+              }`}
+            >
+              {clearData
+                ? targetTableName
+                  ? `🚨 ALL existing data in table "${targetTableName}" will be deleted before upload!`
+                  : "🚨 ALL existing data will be deleted before upload!"
+                : "⚠️ Check this option when uploading an updated version of the same bank statement to avoid duplicates"}
+            </div>
             {/* Upload button */}
             <Button
               onClick={handleUpload}
@@ -237,7 +346,9 @@ export default function UploadPage() {
             {process.env.NODE_ENV === "development" && (
               <div className="text-xs text-gray-500 mt-2">
                 Dialog: {showCreateTableDialog ? "OPEN" : "CLOSED"} | Table:{" "}
-                {pendingTableName || "None"}
+                {pendingTableName || "None"} | Clear Data:{" "}
+                {clearData ? "YES" : "NO"} | Target Table:{" "}
+                {targetTableName || "None"}
               </div>
             )}
           </CardContent>
@@ -317,6 +428,48 @@ export default function UploadPage() {
                   Cancel
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        {/* Clear Data Warning Dialog */}
+        <Dialog
+          open={showClearDataWarning}
+          onOpenChange={setShowClearDataWarning}
+        >
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-red-600">
+                ⚠️ Clear Existing Data
+              </DialogTitle>
+              <DialogDescription>
+                You are about to clear ALL existing data from the following
+                table before uploading new data:
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-2 bg-gray-100 rounded text-center font-mono text-sm">
+                {targetTableName || "Unknown table"}
+              </div>
+
+              <div className="text-sm text-gray-600">
+                <strong>This action cannot be undone!</strong>
+                <br />
+                <br />
+                Only proceed if you want to replace all existing records with
+                the new file data.
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button variant="outline" onClick={cancelClearData}>
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmClearData}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Yes, Clear Data
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

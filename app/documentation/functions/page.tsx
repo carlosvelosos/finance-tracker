@@ -43,7 +43,7 @@ interface SortState {
 
 interface ColumnFilter {
   [fileName: string]: {
-    [functionName: string]: boolean;
+    [cellValue: string]: boolean; // D, C, D/C, or empty
   };
 }
 
@@ -53,8 +53,6 @@ export default function FunctionAnalysisPage() {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [functionFilter, setFunctionFilter] = useState<string>("");
-  const [fileFilter, setFileFilter] = useState<string>("");
   const [sortState, setSortState] = useState<SortState>({
     column: null,
     direction: null,
@@ -118,19 +116,27 @@ export default function FunctionAnalysisPage() {
     return Array.from(allFunctions).sort();
   };
 
-  // Get filtered file names
+  // Get filtered file names (now just returns all files since we removed file filter)
   const getFilteredFileNames = (): string[] => {
     if (!reportData) return [];
+    return Object.keys(reportData).sort();
+  };
 
-    const fileNames = Object.keys(reportData);
+  // Get unique cell values for a specific file column
+  const getUniqueValuesInFile = (fileName: string): string[] => {
+    if (!reportData || !reportData[fileName]) return [];
 
-    if (!fileFilter) return fileNames.sort();
+    const allFunctions = getAllFunctions();
+    const uniqueValues = new Set<string>();
 
-    return fileNames
-      .filter((fileName) =>
-        fileName.toLowerCase().includes(fileFilter.toLowerCase()),
-      )
-      .sort();
+    allFunctions.forEach((functionName) => {
+      const cellContent = getCellContent(functionName, fileName);
+      if (cellContent) {
+        uniqueValues.add(cellContent);
+      }
+    });
+
+    return Array.from(uniqueValues).sort();
   };
 
   // Get cell content for function-file intersection
@@ -147,30 +153,18 @@ export default function FunctionAnalysisPage() {
     return "";
   };
 
-  // Get functions that have content in a specific file
-  const getFunctionsInFile = (fileName: string): string[] => {
-    if (!reportData || !reportData[fileName]) return [];
-
-    const fileData = reportData[fileName];
-    const functionsInFile = new Set<string>();
-
-    fileData.defined.forEach((func) => functionsInFile.add(func));
-    fileData.called.forEach((func) => functionsInFile.add(func));
-
-    return Array.from(functionsInFile).sort();
-  };
-
   // Initialize column filters when report data changes
   useEffect(() => {
     if (reportData) {
       const newColumnFilters: ColumnFilter = {};
 
       Object.keys(reportData).forEach((fileName) => {
-        const functionsInFile = getFunctionsInFile(fileName);
+        const uniqueValues = getUniqueValuesInFile(fileName);
         newColumnFilters[fileName] = {};
 
-        functionsInFile.forEach((functionName) => {
-          newColumnFilters[fileName][functionName] = true; // Show all by default
+        // Initialize all unique cell values as visible by default
+        uniqueValues.forEach((cellValue) => {
+          newColumnFilters[fileName][cellValue] = true;
         });
       });
 
@@ -178,17 +172,17 @@ export default function FunctionAnalysisPage() {
     }
   }, [reportData]);
 
-  // Handle column filter changes
+  // Handle column filter changes for cell values
   const handleColumnFilterChange = (
     fileName: string,
-    functionName: string,
+    cellValue: string,
     checked: boolean,
   ) => {
     setColumnFilters((prev) => ({
       ...prev,
       [fileName]: {
         ...prev[fileName],
-        [functionName]: checked,
+        [cellValue]: checked,
       },
     }));
   };
@@ -198,16 +192,16 @@ export default function FunctionAnalysisPage() {
     fileName: string,
     selectAll: boolean,
   ) => {
-    const functionsInFile = getFunctionsInFile(fileName);
+    const uniqueValues = getUniqueValuesInFile(fileName);
 
     setColumnFilters((prev) => ({
       ...prev,
-      [fileName]: functionsInFile.reduce(
-        (acc, functionName) => {
-          acc[functionName] = selectAll;
+      [fileName]: uniqueValues.reduce(
+        (acc, cellValue) => {
+          acc[cellValue] = selectAll;
           return acc;
         },
-        {} as { [functionName: string]: boolean },
+        {} as { [cellValue: string]: boolean },
       ),
     }));
   };
@@ -223,21 +217,13 @@ export default function FunctionAnalysisPage() {
     const columnFilter = columnFilters[fileName];
     if (!columnFilter) return true; // Show if no filter set
 
-    return columnFilter[functionName] !== false; // Show if not explicitly hidden
+    return columnFilter[cellContent] !== false; // Show if cell value is not filtered out
   };
 
   // Get filtered and sorted functions
   const getFilteredFunctions = useMemo((): string[] => {
     const allFunctions = getAllFunctions();
-
     let filtered = allFunctions;
-
-    // Apply function name filter
-    if (functionFilter) {
-      filtered = filtered.filter((func) =>
-        func.toLowerCase().includes(functionFilter.toLowerCase()),
-      );
-    }
 
     // Apply column filters - only show functions that are visible in at least one column
     if (Object.keys(columnFilters).length > 0) {
@@ -286,7 +272,7 @@ export default function FunctionAnalysisPage() {
     }
 
     return filtered;
-  }, [reportData, functionFilter, sortState, columnFilters]);
+  }, [reportData, sortState, columnFilters]);
 
   // Handle column header click for sorting
   const handleSort = (column: string) => {
@@ -385,100 +371,6 @@ export default function FunctionAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* Filters */}
-        {reportData && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Filters & Search</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Filter Functions:
-                  </label>
-                  <Input
-                    placeholder="Search function names..."
-                    value={functionFilter}
-                    onChange={(e) => setFunctionFilter(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Filter Files:</label>
-                  <Input
-                    placeholder="Search file names..."
-                    value={fileFilter}
-                    onChange={(e) => setFileFilter(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Clear filters */}
-              {(functionFilter ||
-                fileFilter ||
-                Object.values(columnFilters).some((filter) =>
-                  Object.values(filter).some((checked) => !checked),
-                )) && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setFunctionFilter("");
-                      setFileFilter("");
-                      setSortState({ column: null, direction: null });
-                      // Reset all column filters to show all
-                      if (reportData) {
-                        const resetFilters: ColumnFilter = {};
-                        Object.keys(reportData).forEach((fileName) => {
-                          const functionsInFile = getFunctionsInFile(fileName);
-                          resetFilters[fileName] = {};
-                          functionsInFile.forEach((functionName) => {
-                            resetFilters[fileName][functionName] = true;
-                          });
-                        });
-                        setColumnFilters(resetFilters);
-                      }
-                    }}
-                  >
-                    Clear All Filters
-                  </Button>
-                  {sortState.column && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setSortState({ column: null, direction: null })
-                      }
-                    >
-                      Clear Sort
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {/* Filter summary */}
-              <div className="text-sm text-gray-600">
-                Showing {filteredFunctions.length} of {allFunctions.length}{" "}
-                functions
-                {filteredFileNames.length !== Object.keys(reportData).length &&
-                  ` across ${filteredFileNames.length} of ${Object.keys(reportData).length} files`}
-                {sortState.column &&
-                  ` (sorted by ${sortState.column} ${sortState.direction})`}
-                {Object.values(columnFilters).some((filter) =>
-                  Object.values(filter).some((checked) => !checked),
-                ) && (
-                  <span className="block mt-1 text-blue-600">
-                    ⚡ Column filters active
-                  </span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Legend */}
         {reportData && (
           <Card>
@@ -515,7 +407,8 @@ export default function FunctionAnalysisPage() {
                   <Filter className="h-4 w-4 text-gray-600" />
                   <span className="text-gray-600 text-sm">
                     <strong>Column Filters:</strong> Use filter buttons in
-                    headers to show/hide specific functions per file
+                    headers to show/hide specific relationship types (D, C, D/C)
+                    per file
                   </span>
                 </div>
               </div>
@@ -527,13 +420,67 @@ export default function FunctionAnalysisPage() {
         {reportData && filteredFunctions.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                Function Analysis Matrix
-                <span className="text-sm font-normal ml-2 text-gray-600">
-                  ({filteredFunctions.length} functions across{" "}
-                  {filteredFileNames.length} files)
-                </span>
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">
+                  Function Analysis Matrix
+                  <span className="text-sm font-normal ml-2 text-gray-600">
+                    ({filteredFunctions.length} functions across{" "}
+                    {filteredFileNames.length} files)
+                  </span>
+                </CardTitle>
+
+                {/* Clear filters button */}
+                {Object.values(columnFilters).some((filter) =>
+                  Object.values(filter).some((checked) => !checked),
+                ) && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSortState({ column: null, direction: null });
+                        // Reset all column filters to show all
+                        if (reportData) {
+                          const resetFilters: ColumnFilter = {};
+                          Object.keys(reportData).forEach((fileName) => {
+                            const uniqueValues =
+                              getUniqueValuesInFile(fileName);
+                            resetFilters[fileName] = {};
+                            uniqueValues.forEach((cellValue) => {
+                              resetFilters[fileName][cellValue] = true;
+                            });
+                          });
+                          setColumnFilters(resetFilters);
+                        }
+                      }}
+                      className="text-xs"
+                    >
+                      Clear All Filters
+                    </Button>
+                    {sortState.column && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setSortState({ column: null, direction: null })
+                        }
+                        className="text-xs"
+                      >
+                        Clear Sort
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Filter summary */}
+              {Object.values(columnFilters).some((filter) =>
+                Object.values(filter).some((checked) => !checked),
+              ) && (
+                <div className="text-sm text-blue-600 mt-2">
+                  ⚡ Column filters active - showing filtered results
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -554,12 +501,13 @@ export default function FunctionAnalysisPage() {
                       </th>
                       {filteredFileNames.map(
                         (fileName: string, index: number) => {
-                          const functionsInFile = getFunctionsInFile(fileName);
-                          const selectedCount = functionsInFile.filter(
-                            (func) => columnFilters[fileName]?.[func] !== false,
+                          const uniqueValues = getUniqueValuesInFile(fileName);
+                          const selectedCount = uniqueValues.filter(
+                            (value) =>
+                              columnFilters[fileName]?.[value] !== false,
                           ).length;
                           const hasActiveFilter =
-                            selectedCount < functionsInFile.length;
+                            selectedCount < uniqueValues.length;
 
                           return (
                             <th
@@ -596,7 +544,7 @@ export default function FunctionAnalysisPage() {
                                       <Filter className="h-3 w-3" />
                                     </Button>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent className="w-64 max-h-96 overflow-y-auto">
+                                  <DropdownMenuContent className="w-48 max-h-96 overflow-y-auto">
                                     <div className="p-2 border-b">
                                       <div className="text-sm font-medium mb-2">
                                         Filter {fileName}
@@ -630,51 +578,51 @@ export default function FunctionAnalysisPage() {
                                         </Button>
                                       </div>
                                       <div className="text-xs text-gray-500 mt-1">
-                                        {selectedCount} of{" "}
-                                        {functionsInFile.length} selected
+                                        {selectedCount} of {uniqueValues.length}{" "}
+                                        selected
                                       </div>
                                     </div>
 
-                                    {functionsInFile.map((functionName) => {
-                                      const cellContent = getCellContent(
-                                        functionName,
-                                        fileName,
-                                      );
+                                    {uniqueValues.map((cellValue) => {
                                       const isChecked =
-                                        columnFilters[fileName]?.[
-                                          functionName
-                                        ] !== false;
+                                        columnFilters[fileName]?.[cellValue] !==
+                                        false;
 
                                       return (
                                         <DropdownMenuCheckboxItem
-                                          key={functionName}
+                                          key={cellValue}
                                           checked={isChecked}
                                           onCheckedChange={(checked) =>
                                             handleColumnFilterChange(
                                               fileName,
-                                              functionName,
+                                              cellValue,
                                               checked,
                                             )
                                           }
-                                          className="text-xs"
+                                          className="text-sm"
                                         >
                                           <div className="flex items-center justify-between w-full">
-                                            <code className="text-xs">
-                                              {functionName}
-                                            </code>
+                                            <span className="font-medium">
+                                              {cellValue === "D" &&
+                                                "Defined (D)"}
+                                              {cellValue === "C" &&
+                                                "Called (C)"}
+                                              {cellValue === "D/C" &&
+                                                "Defined & Called (D/C)"}
+                                            </span>
                                             <Badge
                                               variant="outline"
-                                              className={`ml-2 text-xs h-4 ${
-                                                cellContent === "D"
+                                              className={`ml-2 text-xs h-5 ${
+                                                cellValue === "D"
                                                   ? "bg-blue-100 text-blue-800"
-                                                  : cellContent === "C"
+                                                  : cellValue === "C"
                                                     ? "bg-green-100 text-green-800"
-                                                    : cellContent === "D/C"
+                                                    : cellValue === "D/C"
                                                       ? "bg-purple-100 text-purple-800"
                                                       : "bg-gray-100 text-gray-600"
                                               }`}
                                             >
-                                              {cellContent}
+                                              {cellValue}
                                             </Badge>
                                           </div>
                                         </DropdownMenuCheckboxItem>

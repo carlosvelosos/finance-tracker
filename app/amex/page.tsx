@@ -105,7 +105,7 @@ export default function Home() {
                 showCategoryFilter={true}
                 showDescriptionFilter={true}
                 showTotalAmount={true}
-                excludeCategories={["Invoice"]} // Exclude Invoice category
+                excludeCategories={["Amex Invoice"]} // Exclude Invoice category
               />
             </AccordionContent>
           </AccordionItem>
@@ -118,7 +118,8 @@ export default function Home() {
               <TransactionTable
                 transactions={transactions.filter(
                   (t) =>
-                    t.Category === "Invoice" && t.Bank === "American Express",
+                    t.Category === "Amex Invoice" &&
+                    t.Bank === "American Express",
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"

@@ -91,6 +91,36 @@ This document outlines the directory structure of the project.
       - External link to American Express login page for invoice downloads
       - Navigation to chart visualization page
       - Uses TransactionTable component with customizable filters and sorting
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with allowed user ID validation
+      - Container div with responsive padding
+      - Page title: "American Express Transactions" (h1, centered)
+      - Action buttons row (right-aligned, horizontal layout):
+        - `UpdateAmexAggregatedButton` - Updates aggregated data
+        - "Download Invoice" button - Opens AMEX login page in new tab
+        - "Go to Chart Page" button - Navigates to chart visualization
+      - `Accordion` component (single collapsible type):
+        - **First Section: "Main Transactions"**
+          - `AccordionItem` with value "main-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` with full feature set:
+              - Bank filter: "American Express"
+              - Initial sort: Date descending
+              - All columns visible
+              - Month, category, and description filters enabled
+              - Total amount display enabled
+              - Excludes "Invoice" category transactions
+        - **Second Section: "Invoice Transactions"**
+          - `AccordionItem` with value "invoice-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` with simplified configuration:
+              - Pre-filtered for Invoice category + American Express bank
+              - Initial sort: Date descending
+              - All columns visible
+              - No filters enabled (showFilters: false)
+              - Total amount display enabled
 
 ### `app/amex/chart`
 

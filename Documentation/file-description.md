@@ -31,9 +31,12 @@ This document outlines the directory structure of the project.
 - [`app/inter-account/category`](#appinter-accountcategory)
 - [`app/inter-account/category/chart`](#appinter-accountcategorychart)
 - [`app/inter-account/info`](#appinter-accountinfo)
+- [`app/inter-account/overview`](#appinter-accountoverview)
+- [`app/inter-account/overview/chart`](#appinter-accountoverviewchart)
 - [`app/profile`](#appprofile)
 - [`app/recurrent`](#apprecurrent)
 - [`app/sjprio`](#appsjprio)
+- [`app/sjprio/chart`](#appsjpriochart)
 - [`app/types`](#apptypes)
 - [`app/unauthorized`](#appunauthorized)
 - [`app/upload`](#appupload)
@@ -790,9 +793,173 @@ This document outlines the directory structure of the project.
 
 - **Parent Directory:** `inter-account`
 - **Path:** `app/inter-account/info`
-- **Summary:** Displays information about Inter bank accounts.
+- **Summary:** Comprehensive UI guide and documentation page for Inter account functionality, providing detailed information about data flow, aggregation architecture, and UI components.
 - **Files:**
-  - `page.tsx` - Inter account information page component
+  - `page.tsx` - Inter account information and UI guide page component
+
+#### Functions, Features, and UI Components in `app/inter-account/info/page.tsx`:
+
+**Main Component:**
+
+- `InterAccountInfo()` - Main component for the Inter account information and UI guide page
+
+**Core Features:**
+
+- **Comprehensive Documentation** - Detailed UI guide for Inter account functionality
+- **Data Flow Visualization** - Interactive diagram showing complete data journey from bank to app
+- **Aggregation Architecture Explanation** - Detailed breakdown of how source tables work with aggregated table
+- **Process Documentation** - Step-by-step guide for the complete workflow
+- **Technical Implementation Details** - Behind-the-scenes information about page functionality
+
+**UI Component Hierarchy:**
+
+```
+ProtectedRoute (User ID restriction)
+└── Container (mx-auto p-4)
+    ├── Header Section
+    │   ├── Page Title
+    │   └── Back Button (→ Inter Account)
+    ├── Page Overview Card
+    │   ├── Info Icon + Title
+    │   ├── Description (Inter Brasil transaction management)
+    │   └── Key Architecture Breakdown
+    ├── Data Source Information Panel Card
+    │   ├── Table Icon + Title
+    │   ├── Purpose Explanation (Aggregated table structure)
+    │   ├── Components List (Table name, counts, statistics)
+    │   └── Layout Information
+    ├── Update Buttons with Hover Cards
+    │   ├── Update Aggregated Data Button
+    │   │   └── Hover Card (Detailed workflow explanation)
+    │   ├── Update Inter Data Button
+    │   │   └── Hover Card (Aggregation process details)
+    │   └── Color-coded Features Guide
+    ├── Data Aggregation Architecture Card
+    │   ├── Table Structure (Source vs Aggregated)
+    │   ├── How Aggregation Works (6-step process)
+    │   └── Benefits of Aggregation
+    ├── Interactive Data Flow Card
+    │   ├── DataFlowDiagram Component (Interactive)
+    │   ├── Interactive Features Guide
+    │   ├── Flow Line Guide (Color-coded connections)
+    │   ├── Pro Tip Section
+    │   └── Detailed Process Steps (5 main steps)
+    │       ├── Step 1: Manual Download from Inter Bank
+    │       │   ├── Inter Bank Website Link
+    │       │   ├── Statement vs Credit Card Distinction
+    │       │   ├── Date Range Strategy (Yearly downloads)
+    │       │   ├── File Storage Location (Google Drive)
+    │       │   ├── File Naming Convention
+    │       │   └── Multiple Format Downloads (CSV, PDF, OFX)
+    │       ├── Step 2: Upload to Application
+    │       │   ├── Upload Page Link
+    │       │   ├── Bank Selection Process
+    │       │   ├── File Processing Details
+    │       │   └── Table Creation Process
+    │       ├── Step 3: Supabase Source Table Management
+    │       │   ├── Table Naming Convention (IN_YYYY vs IN_YYYYMM)
+    │       │   ├── Data Structure Maintenance
+    │       │   └── Bank Filter Tagging
+    │       ├── Step 4: Data Aggregation Process
+    │       │   ├── Inter Account Page Link
+    │       │   ├── Update Inter Data Button Process
+    │       │   └── Source Tracking System
+    │       └── Step 5: Data Analysis & Visualization
+    │           ├── Auto-filter System
+    │           ├── Filter Options (Month, Category, Description)
+    │           ├── Analysis Tools
+    │           └── Chart Navigation
+    ├── Chart Navigation Buttons Card
+    │   ├── BarChart Icon + Title
+    │   ├── Category Chart Button (→ ./category/chart)
+    │   ├── Overview Chart Button (→ ./overview/chart)
+    │   └── Layout Information
+    ├── Transaction Table Component Card
+    │   ├── Filter Icon + Title
+    │   ├── Core Features (Data source, bank filter, sorting)
+    │   ├── Filter Options (Month, category, description)
+    │   ├── Available Columns
+    │   └── User Interactions
+    └── Technical Implementation Details Card
+        ├── State Management
+        ├── Data Processing
+        ├── Security Features
+        └── Dependencies
+
+**Key Interactive Elements:**
+- Interactive DataFlowDiagram with drag & drop, zoom, and direct navigation
+- Hover cards with detailed workflow explanations
+- Color-coded process steps and flow lines
+- Direct links to relevant pages throughout the documentation
+- Comprehensive step-by-step guides for the complete data workflow
+
+**Special Features:**
+- **Aggregation Focus** - Explains how Brasil_transactions_agregated_2025 table consolidates data from multiple source tables
+- **File Format Documentation** - Details about CSV, PDF, and OFX file handling
+- **Google Drive Integration** - Documented file storage organization
+- **Table Naming Strategy** - Clear distinction between bank statements (IN_YYYY) and credit card invoices (IN_YYYYMM)
+- **Interactive Visualization** - Real data flow diagram with navigation capabilities
+```
+
+### `app/inter-account/overview`
+
+- **Parent Directory:** `inter-account`
+- **Path:** `app/inter-account/overview`
+- **Summary:** Overview features for Inter bank accounts.
+- **Subdirectories:**
+  - `chart/` - Chart visualizations for overview data
+
+### `app/inter-account/overview/chart`
+
+- **Parent Directory:** `overview`
+- **Path:** `app/inter-account/overview/chart`
+- **Summary:** Chart components for visualizing Inter account overview data with multiple chart types.
+- **Files:**
+  - `page.tsx` - Inter account overview chart component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for Inter account overview chart visualization
+      - `fetchTransactions()` - Async function to fetch transaction data from Supabase
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (configured for Handelsbanken - appears to be misconfigured)
+      - Dual chart visualization with line and bar charts
+      - Responsive chart display with centered layout and vertical spacing
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Full transaction data visualization (no category filtering)
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table (Note: This appears inconsistent with Inter-account context)
+      - Applies dual filtering: user ID and bank ("Handelsbanken" - likely should be "Inter-BR")
+      - No category filtering applied (shows all transaction data)
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout, full screen height, and vertical spacing (space-y-8)
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - **First Chart Section**:
+            - Container div with top padding (pt-8) and full width with max-width constraint (max-w-5xl)
+            - `TransactionLineChart` component with configuration:
+              - **Data**: All transaction data (unfiltered)
+              - **Title**: "Handelsbanken Cumulative Flow"
+              - **Description**: "Showing cumulative income and expenses over time"
+              - **Layout**: Responsive line chart showing cumulative transaction flow over time
+          - **Second Chart Section**:
+            - Container div with bottom padding (pb-8) and full width with max-width constraint (max-w-5xl)
+            - `CustomBarChart` component with configuration:
+              - **Data**: All transaction data (unfiltered)
+              - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+              - **Title**: "Total Amount per Category"
+              - **Description**: "Showing totals for Handelsbanken transactions"
+              - **Layout**: Responsive bar chart displaying category-based aggregation
+    - **⚠️ Configuration Issues:**
+      - Bank filter is set to "Handelsbanken" instead of expected "Inter-BR"
+      - Table source is "Sweden_transactions_agregated_2025" instead of expected "Brasil_transactions_agregated_2025"
+      - Chart titles and descriptions mention "Handelsbanken" instead of "Inter account"
+      - This appears to be copied from Handelsbanken overview chart without proper Inter-account customization
 
 ### `app/profile`
 
@@ -814,11 +981,91 @@ This document outlines the directory structure of the project.
 
 - **Parent Directory:** `app`
 - **Path:** `app/sjprio`
-- **Summary:** This directory is dedicated to features for SJPrio accounts.
+- **Summary:** This directory is dedicated to features for SEB SJ Prio accounts (credit card and travel rewards).
 - **Files:**
-  - `page.tsx` - SJPrio main page component
+  - `page.tsx` - SEB SJ Prio main page component
+    - **Functions:**
+      - `Home()` - Main component function for SEB SJ Prio transactions page
+      - `fetchTransactions()` - Async function to fetch SEB SJ Prio transaction data from Supabase
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (SEB SJ Prio only)
+      - Comprehensive transaction filtering and sorting capabilities
+      - External link to SEB SJ Prio invoice download
+      - Navigation to chart visualization page
+      - Data update functionality through UpdateSjAggregatedButton
+      - Authentication-based access control
+      - Responsive design with container layout
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Filters transactions by user ID for authenticated user
+      - Uses TypeScript Transaction interface with comprehensive field mapping
+      - Real-time state management with React hooks
+      - Bank-specific filtering applied to TransactionTable component
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with responsive padding (mx-auto p-4)
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view your transactions."
+        - **Authenticated State**:
+          - Page title: "SEB SJ Prio Transactions" (h1, centered, bold, mb-6)
+          - **Action Buttons Section** (Right-aligned with gap-3 spacing):
+            - `UpdateSjAggregatedButton` component for data updates
+            - "Download Invoice" button - Opens SEB SJ Prio login page in new tab (https://secure.sebkort.com/nis/m/sjse/external/t/login/index)
+              - **Styling**: Black background, white text, green hover effect (hover:bg-green-300)
+            - "Go to Chart Page" button - Navigates to chart visualization (./chart)
+              - **Styling**: Black background, white text, green hover and border effects
+          - `TransactionTable` component with full configuration:
+            - **Data**: All fetched transactions from Sweden aggregated table
+            - **Bank Filter**: "SEB SJ Prio" (pre-filtered)
+            - **Initial Sort**: Date column, descending order
+            - **Column Visibility**: All columns visible (hiddenColumns: [])
+            - **Filters Enabled**: Month, category, and description filters
+            - **Features**: Total amount display enabled
+            - **Responsive**: Full-width table layout
 - **Subdirectories:**
   - `chart/` - Chart visualizations for SJPrio
+
+### `app/sjprio/chart`
+
+- **Parent Directory:** `sjprio`
+- **Path:** `app/sjprio/chart`
+- **Summary:** Chart components for visualizing SEB SJ Prio transaction data.
+- **Files:**
+  - `page.tsx` - SEB SJ Prio chart visualization component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for SEB SJ Prio category chart visualization
+      - `fetchTransactions()` - Async function to fetch SEB SJ Prio transaction data from Supabase
+      - `transactions.filter()` - Filters out specific invoice and administrative categories from chart data
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (SEB SJ Prio only)
+      - Category-based chart visualization with filtered data
+      - Responsive chart display with centered layout
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Category filtering to exclude invoice and administrative transactions
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Applies dual filtering: user ID and bank ("SEB SJ Prio")
+      - Filters out categories: "Amex Invoice", "SEB SJ Prio Invoice", "Investment", "Sek to Reais", "SJ PRIO MASTER Invoice", "Income - Salary", "Income - Skat"
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout and full screen height
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - Container div with vertical padding (pt-8 pb-8)
+          - `CustomBarChart` component with configuration:
+            - **Data**: Filtered SEB SJ Prio transaction data (excludes invoice/administrative categories)
+            - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+            - **Title**: "Total Amount per Category"
+            - **Description**: "Showing totals for SEB SJ Prio transactions"
+            - **Layout**: Responsive chart with automatic sizing
 
 ### `app/types`
 
@@ -886,9 +1133,12 @@ This document outlines the directory structure of the project.
 | `category`        | `inter-account`  | `app/inter-account/category`       |
 | `chart`           | `category`       | `app/inter-account/category/chart` |
 | `info`            | `inter-account`  | `app/inter-account/info`           |
+| `overview`        | `inter-account`  | `app/inter-account/overview`       |
+| `chart`           | `overview`       | `app/inter-account/overview/chart` |
 | `profile`         | `app`            | `app/profile`                      |
 | `recurrent`       | `app`            | `app/recurrent`                    |
 | `sjprio`          | `app`            | `app/sjprio`                       |
+| `chart`           | `sjprio`         | `app/sjprio/chart`                 |
 | `types`           | `app`            | `app/types`                        |
 | `unauthorized`    | `app`            | `app/unauthorized`                 |
 | `upload`          | `app`            | `app/upload`                       |

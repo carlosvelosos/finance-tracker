@@ -250,63 +250,83 @@ export default function Home() {
                 <div className="space-y-2">
                   <h4 className="text-sm font-semibold">Update Inter Data</h4>
                   <p className="text-sm text-muted-foreground">
-                    This button specifically updates transaction data from Inter
-                    Bank Brasil accounts. It processes Inter bank statements and
-                    integrates them into the aggregated data system.
+                    This button aggregates transaction data from Inter Bank
+                    Brasil source tables (monthly/yearly tables like IN_2023,
+                    IN_2024, IN_202401, etc.) into the unified
+                    Brasil_transactions_agregated_2025 table. This allows for
+                    comprehensive analysis across multiple time periods in a
+                    single view.
                   </p>
                   <div className="text-xs text-muted-foreground">
                     <strong>What happens when clicked:</strong>
                     <ol className="list-decimal list-inside mt-1 space-y-1">
-                      <li>Opens a dialog with Inter table selection options</li>
+                      <li>
+                        Opens a dialog with Inter source table selection options
+                      </li>
                       <li>
                         Calls <code>getInterUpdatePreview()</code> to scan for
-                        IN_* tables
+                        available IN_* source tables (monthly/yearly)
                       </li>
                       <li>
-                        Detects available Inter tables (IN_2023, IN_2024, etc.)
+                        Detects available Inter source tables (IN_2023, IN_2024,
+                        IN_202401, etc.)
                       </li>
-                      <li>Allows selection of specific tables to process</li>
                       <li>
-                        Shows preview of transactions from selected tables
+                        Allows selection of specific source tables to aggregate
+                      </li>
+                      <li>
+                        Shows preview of transactions from selected source
+                        tables
                       </li>
                       <li>
                         Upon confirmation, calls{" "}
                         <code>executeInterUpdate()</code>
                       </li>
                       <li>
-                        Processes each selected table and adds to aggregated
-                        data
+                        Copies transactions from each selected source table into
+                        the aggregated Brasil_transactions_agregated_2025 table
                       </li>
                     </ol>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     <strong>User Interaction Required:</strong>
                     <ul className="list-disc list-inside mt-1 space-y-1 text-orange-600">
-                      <li>⚠️ Click to start the update process</li>
+                      <li>⚠️ Click to start the aggregation process</li>
                       <li>
-                        ⚠️ Select which Inter tables to process (IN_2023,
-                        IN_2024, etc.)
+                        ⚠️ Select which Inter source tables to aggregate
+                        (IN_2023, IN_2024, IN_202401, etc.)
                       </li>
                       <li>
-                        ⚠️ Review preview of transactions from selected tables
+                        ⚠️ Review preview of transactions from selected source
+                        tables
                       </li>
-                      <li>⚠️ Confirm or cancel the update operation</li>
+                      <li>⚠️ Confirm or cancel the aggregation operation</li>
                     </ul>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     <strong>Automatic Operations:</strong>
                     <ul className="list-disc list-inside mt-1 space-y-1 text-green-600">
-                      <li>✓ Detect available Inter tables (IN_*)</li>
-                      <li>✓ Check which tables are already processed</li>
-                      <li>✓ Load transaction previews for selected tables</li>
                       <li>
-                        ✓ Format Inter transactions to match aggregated schema
+                        ✓ Detect available Inter source tables (IN_* patterns)
                       </li>
                       <li>
-                        ✓ Insert approved transactions with Inter-BR bank
-                        designation
+                        ✓ Check which source tables are already aggregated
                       </li>
-                      <li>✓ Update source_table references and metadata</li>
+                      <li>
+                        ✓ Load transaction previews for selected source tables
+                      </li>
+                      <li>
+                        ✓ Format Inter transactions to match aggregated table
+                        schema
+                      </li>
+                      <li>
+                        ✓ Copy approved transactions from source tables to
+                        aggregated table with Inter-BR bank designation
+                      </li>
+                      <li>
+                        ✓ Update source_table references and metadata for
+                        traceability
+                      </li>
                     </ul>
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -325,8 +345,8 @@ export default function Home() {
                         <code>executeInterUpdate()</code>
                       </li>
                       <li>
-                        Supabase operations on IN_* and
-                        Brasil_transactions_agregated_2025 tables
+                        Supabase operations on IN_* source tables and
+                        Brasil_transactions_agregated_2025 aggregated table
                       </li>
                     </ul>
                   </div>

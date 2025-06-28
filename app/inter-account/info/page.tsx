@@ -54,10 +54,31 @@ export default function InterAccountInfo() {
             <CardContent>
               <p className="text-sm text-muted-foreground">
                 This page serves as the central hub for managing Inter Bank
-                Brasil transaction data, allowing users to view, update, and
-                analyze their financial information through various interactive
-                components and tools.
+                Brasil transaction data. The main table{" "}
+                <strong>Brasil_transactions_agregated_2025</strong> is an
+                aggregated table that consolidates transaction data from
+                multiple source tables (monthly/yearly tables) into a single
+                unified view for easier analysis and reporting.
               </p>
+              <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-200">
+                <h5 className="font-semibold text-sm text-blue-800 mb-1">
+                  Key Architecture:
+                </h5>
+                <ul className="list-disc list-inside text-xs text-blue-700 space-y-1">
+                  <li>
+                    <strong>Source Tables:</strong> Individual monthly/yearly
+                    tables (IN_2023, IN_2024, IN_202401, etc.)
+                  </li>
+                  <li>
+                    <strong>Aggregated Table:</strong>{" "}
+                    Brasil_transactions_agregated_2025 (unified view)
+                  </li>
+                  <li>
+                    <strong>Purpose:</strong> Consolidate data from multiple
+                    time periods for comprehensive analysis
+                  </li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
 
@@ -77,29 +98,39 @@ export default function InterAccountInfo() {
               <div>
                 <h4 className="font-semibold text-sm mb-2">Purpose:</h4>
                 <p className="text-sm text-muted-foreground">
-                  Provides transparency about which Supabase table is being used
-                  as the data source and displays real-time statistics about the
-                  loaded transactions.
+                  Provides transparency about the aggregated data structure. The
+                  <strong> Brasil_transactions_agregated_2025</strong> table
+                  serves as a consolidated view of transactions from multiple
+                  source tables (monthly/yearly tables like IN_2023, IN_2024,
+                  etc.). This aggregation allows for comprehensive analysis
+                  across different time periods.
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold text-sm mb-2">Components:</h4>
                 <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   <li>
-                    <strong>Table Name:</strong> Shows
-                    "Brasil_transactions_agregated_2025" as the source
+                    <strong>Aggregated Table Name:</strong> Shows
+                    "Brasil_transactions_agregated_2025" - the unified table
+                    containing data from multiple source tables
                   </li>
                   <li>
                     <strong>Transaction Count:</strong> Displays total number of
-                    loaded transactions
+                    transactions loaded from the aggregated table
                   </li>
                   <li>
-                    <strong>Bank Statistics:</strong> Shows unique banks and
-                    transaction counts per bank
+                    <strong>Bank Statistics:</strong> Shows unique banks
+                    represented in the aggregated data and transaction counts
+                    per bank
                   </li>
                   <li>
                     <strong>Date Information:</strong> Displays the newest
-                    transaction date for each bank
+                    transaction date for each bank in the aggregated dataset
+                  </li>
+                  <li>
+                    <strong>Source Table Tracking:</strong> Each transaction
+                    maintains a reference to its original source table
+                    (source_table field)
                   </li>
                 </ul>
               </div>
@@ -160,24 +191,32 @@ export default function InterAccountInfo() {
                 </h4>
                 <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   <li>
-                    <strong>Function:</strong> Updates Inter Bank Brasil
-                    specific transaction data
+                    <strong>Function:</strong> Aggregates transaction data from
+                    Inter Bank Brasil monthly/yearly source tables (IN_YYYY,
+                    IN_YYYYMM patterns) into the main aggregated table
+                    Brasil_transactions_agregated_2025
+                  </li>
+                  <li>
+                    <strong>Source Tables:</strong> Scans for available Inter
+                    tables like IN_2023, IN_2024, IN_202401, IN_202402, etc.
                   </li>
                   <li>
                     <strong>Hover Card:</strong> Shows table selection process
-                    and Inter-specific workflows
+                    and Inter-specific aggregation workflows
                   </li>
                   <li>
                     <strong>Process:</strong> Table Detection → Selection →
-                    Preview → Confirmation → Processing
+                    Preview → Confirmation → Aggregation into unified table
                   </li>
                   <li>
                     <strong>Automatic:</strong> Table detection, preview
-                    loading, formatting, metadata updates
+                    loading, data formatting to match aggregated schema,
+                    metadata updates
                   </li>
                   <li>
-                    <strong>Manual:</strong> Start process, select tables
-                    (IN_2023, IN_2024, etc.), review, confirm
+                    <strong>Manual:</strong> Start process, select source tables
+                    to aggregate (IN_2023, IN_2024, etc.), review preview,
+                    confirm aggregation
                   </li>
                 </ul>
               </div>
@@ -201,6 +240,119 @@ export default function InterAccountInfo() {
                   <li>
                     <strong>Width:</strong> Fixed 320px (w-80) for consistent
                     display
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Aggregation Architecture */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Table size={20} />
+                Data Aggregation Architecture
+              </CardTitle>
+              <CardDescription>
+                Understanding how the aggregated table works with source tables
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-sm mb-2">Table Structure:</h4>
+                <div className="bg-gray-50 p-3 rounded-md border">
+                  <div className="text-xs space-y-2">
+                    <div>
+                      <strong className="text-blue-600">
+                        Source Tables (Monthly/Yearly):
+                      </strong>
+                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                        <li>
+                          <code>IN_2023</code> - All Inter transactions for 2023
+                        </li>
+                        <li>
+                          <code>IN_2024</code> - All Inter transactions for 2024
+                        </li>
+                        <li>
+                          <code>IN_202401</code> - Inter transactions for
+                          January 2024
+                        </li>
+                        <li>
+                          <code>IN_202402</code> - Inter transactions for
+                          February 2024
+                        </li>
+                        <li>... (and so on for other months/years)</li>
+                      </ul>
+                    </div>
+                    <div className="pt-2 border-t">
+                      <strong className="text-green-600">
+                        Aggregated Table:
+                      </strong>
+                      <ul className="list-disc list-inside ml-4 mt-1">
+                        <li>
+                          <code>Brasil_transactions_agregated_2025</code> -
+                          Unified view of all transactions
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm mb-2">
+                  How Aggregation Works:
+                </h4>
+                <ol className="list-decimal list-inside text-sm text-muted-foreground space-y-1">
+                  <li>
+                    <strong>Detection:</strong> System scans for available
+                    source tables (IN_* pattern)
+                  </li>
+                  <li>
+                    <strong>Selection:</strong> User chooses which source tables
+                    to include
+                  </li>
+                  <li>
+                    <strong>Data Copy:</strong> Transactions are copied from
+                    source tables to aggregated table
+                  </li>
+                  <li>
+                    <strong>Source Tracking:</strong> Each transaction maintains
+                    a 'source_table' field
+                  </li>
+                  <li>
+                    <strong>Unified Access:</strong> All data accessible through
+                    single aggregated table
+                  </li>
+                  <li>
+                    <strong>Duplicate Prevention:</strong> System prevents
+                    re-importing already included tables
+                  </li>
+                </ol>
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm mb-2">
+                  Benefits of Aggregation:
+                </h4>
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                  <li>
+                    <strong>Simplified Queries:</strong> Query one table instead
+                    of multiple monthly tables
+                  </li>
+                  <li>
+                    <strong>Cross-Period Analysis:</strong> Analyze transactions
+                    across different time periods
+                  </li>
+                  <li>
+                    <strong>Performance:</strong> Faster queries on a single
+                    optimized table
+                  </li>
+                  <li>
+                    <strong>Unified Reporting:</strong> Generate reports across
+                    all time periods
+                  </li>
+                  <li>
+                    <strong>Data Consistency:</strong> Standardized format
+                    across all periods
                   </li>
                 </ul>
               </div>
@@ -283,11 +435,12 @@ export default function InterAccountInfo() {
                 <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   <li>
                     <strong>Data Source:</strong>{" "}
-                    Brasil_transactions_agregated_2025 table
+                    Brasil_transactions_agregated_2025 - an aggregated table
+                    containing transactions from multiple source tables
                   </li>
                   <li>
                     <strong>Bank Filter:</strong> Pre-filtered to show
-                    "Inter-BR" transactions
+                    "Inter-BR" transactions from the aggregated dataset
                   </li>
                   <li>
                     <strong>Initial Sort:</strong> Date column, descending order
@@ -295,7 +448,13 @@ export default function InterAccountInfo() {
                   </li>
                   <li>
                     <strong>Column Visibility:</strong> All columns visible
-                    (hiddenColumns: [])
+                    including source_table field showing origin of each
+                    transaction
+                  </li>
+                  <li>
+                    <strong>Multi-Source Display:</strong> Shows transactions
+                    that originated from different monthly/yearly tables but are
+                    now unified
                   </li>
                 </ul>
               </div>

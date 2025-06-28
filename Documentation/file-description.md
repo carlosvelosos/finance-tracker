@@ -60,6 +60,18 @@ This document outlines the directory structure of the project.
       - `uploadToSupabase()` - Private function to upload processed transactions to Supabase tables
       - `clearTableData()` - Function to clear all data from a specified table
   - `updateActions.ts` - Update operations actions
+    - **Functions:**
+      - `getUpdatePreview()` - Gets preview of new Handelsbanken transactions to be added to aggregated table
+      - `executeUpdate()` - Executes the update to add new Handelsbanken transactions to aggregated table
+      - `getAmexUpdatePreview()` - Gets preview of available American Express monthly tables for aggregation
+      - `previewAmexMonthTransactions()` - Previews transactions from a specific AMEX monthly table
+      - `executeAmexUpdate()` - Executes update to add AMEX monthly data to aggregated table
+      - `getSjUpdatePreview()` - Gets preview of available SJ Prio monthly tables for aggregation
+      - `previewSjMonthTransactions()` - Previews transactions from a specific SJ monthly table
+      - `executeSjUpdate()` - Executes update to add SJ Prio monthly data to aggregated table
+      - `getInterUpdatePreview()` - Gets preview of available Inter bank tables for Brazil aggregation
+      - `previewInterTableTransactions()` - Previews transactions from selected Inter bank tables
+      - `executeInterUpdate()` - Executes update to add Inter bank data to Brazil aggregated table
 
 ### `app/amex`
 

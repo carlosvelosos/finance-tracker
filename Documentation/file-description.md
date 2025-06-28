@@ -129,6 +129,34 @@ This document outlines the directory structure of the project.
 - **Summary:** Contains components for visualizing American Express account data.
 - **Files:**
   - `page.tsx` - American Express chart visualization component
+    - **Functions:**
+      - `fetchTransactions()` - Fetches American Express transactions from Sweden aggregated table with bank filtering
+    - **Features:**
+      - Protected route for authorized users only
+      - Data visualization using CustomBarChart component
+      - Bank-specific filtering (American Express only)
+      - Category-based transaction filtering with exclusions
+      - Responsive chart display with full-screen layout
+      - Real-time data fetching from Supabase
+    - **Data Filtering:**
+      - Excludes specific categories:
+        - "Amex Invoice"
+        - "SEB SJ Prio Invoice"
+        - "Investment"
+        - "Sek to Reais"
+        - "SJ PRIO MASTER Invoice"
+        - "Income - Salary"
+        - "Income - Skat"
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with allowed user ID validation
+      - Flexbox container with full-screen height and center alignment
+      - Padding wrapper div (pt-8 pb-8)
+      - `CustomBarChart` component with configuration:
+        - Data: Filtered transaction data (excluding specified categories)
+        - Bar color: CSS variable --chart-1
+        - Title: "Total Amount per Category"
+        - Description: "Showing totals for American Express transactions"
+        - Displays aggregated amounts by transaction category
 
 ### `app/auth`
 

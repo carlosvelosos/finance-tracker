@@ -1,0 +1,83 @@
+{
+  "updateActions.ts": {
+    "defined": [
+      "executeAmexUpdate",
+      "executeInterUpdate",
+      "executeSjUpdate",
+      "executeUpdate",
+      "getAmexUpdatePreview",
+      "getInterUpdatePreview",
+      "getSjUpdatePreview",
+      "getUpdatePreview",
+      "previewAmexMonthTransactions",
+      "previewInterTableTransactions",
+      "previewSjMonthTransactions"
+    ],
+    "called": [
+      "eq",
+      "error",
+      "filter",
+      "from",
+      "getFullYear",
+      "getTime",
+      "has",
+      "includes",
+      "insert",
+      "like",
+      "limit",
+      "log",
+      "map",
+      "order",
+      "padStart",
+      "push",
+      "reduce",
+      "select",
+      "sort",
+      "toISOString",
+      "toString"
+    ],
+    "both": []
+  },
+  "fileActions.ts": {
+    "defined": [
+      "clearTableData",
+      "createTableInSupabase",
+      "executeTableCreation",
+      "uploadExcel",
+      "uploadToSupabase"
+    ],
+    "called": [
+      "arrayBuffer",
+      "clearTableData",
+      "decode",
+      "delete",
+      "endsWith",
+      "error",
+      "from",
+      "includes",
+      "insert",
+      "limit",
+      "log",
+      "map",
+      "neq",
+      "order",
+      "parse",
+      "processAmex",
+      "processDEV",
+      "processHandelsbanken",
+      "processInterBR",
+      "processInterBRAccount",
+      "processSEB",
+      "read",
+      "rpc",
+      "select",
+      "sheet_to_json",
+      "slice",
+      "uploadToSupabase"
+    ],
+    "both": [
+      "clearTableData",
+      "uploadToSupabase"
+    ]
+  }
+}

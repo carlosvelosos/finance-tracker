@@ -387,7 +387,7 @@ export default function InterAccountInfo() {
                 <DataFlowDiagram />
                 <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
                   <h5 className="font-semibold text-xs text-blue-800 mb-2">
-                    � Interactive Features:
+                    🚀 Interactive Features:
                   </h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
@@ -413,14 +413,56 @@ export default function InterAccountInfo() {
                           nodes to visit pages
                         </li>
                         <li>
-                          <strong>Animated Flow:</strong> Watch data flow along
-                          connections
+                          <strong>Animated Flow Lines:</strong> Watch data flow
+                          along color-coded connections
                         </li>
                         <li>
-                          <strong>Color-Coded Steps:</strong> Each step has
-                          distinct visual identity
+                          <strong>Step Labels:</strong> Each connection shows
+                          the action being performed
                         </li>
                       </ul>
+                    </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-white rounded border border-blue-300">
+                    <h6 className="font-semibold text-xs text-blue-800 mb-2">
+                      🔗 Flow Line Guide:
+                    </h6>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-0.5 bg-blue-500 rounded"></div>
+                          <span className="text-xs text-blue-700">
+                            <strong>Download</strong> - Inter to Local Files
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-0.5 bg-purple-500 rounded"></div>
+                          <span className="text-xs text-purple-700">
+                            <strong>Upload</strong> - Local Files to App
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-0.5 bg-green-500 rounded"></div>
+                          <span className="text-xs text-green-700">
+                            <strong>Parse & Store</strong> - App to Database
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-0.5 bg-indigo-500 rounded"></div>
+                          <span className="text-xs text-indigo-700">
+                            <strong>Aggregate</strong> - Source to Unified Table
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-0.5 bg-teal-500 rounded"></div>
+                          <span className="text-xs text-teal-700">
+                            <strong>Analyze</strong> - Unified Table to
+                            Analytics
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div className="mt-3 p-2 bg-white rounded border border-blue-300">
@@ -428,7 +470,8 @@ export default function InterAccountInfo() {
                       <strong>💡 Pro Tip:</strong> This diagram is fully
                       interactive - you can rearrange it to match your workflow
                       preferences, and it will remember your layout during your
-                      session!
+                      session! The animated flow lines help you understand the
+                      data journey from start to finish.
                     </p>
                   </div>
                 </div>

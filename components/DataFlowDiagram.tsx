@@ -1,177 +1,164 @@
 "use client";
 
-import React, { useCallback } from "react";
-import {
-  ReactFlow,
-  MiniMap,
-  Controls,
+import React, { useState, useCallback } from "react";
+import ReactFlow, {
   Background,
   BackgroundVariant,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  Connection,
-  Edge,
+  Controls,
+  MiniMap,
   Node,
-  Position,
+  Edge,
+  NodeChange,
+  EdgeChange,
+  Connection,
+  applyNodeChanges,
+  applyEdgeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
-
-// Custom node component for better styling
-const CustomNode = ({ data }: { data: any }) => {
-  return (
-    <div
-      className={`px-4 py-3 shadow-lg rounded-lg border-2 min-w-[200px] max-w-[250px] ${data.bgColor} ${data.borderColor} transition-all duration-200 hover:shadow-xl hover:scale-105`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-lg">{data.icon}</span>
-        <div className="font-bold text-sm">{data.title}</div>
-      </div>
-      <div className={`text-xs mt-1 ${data.textColor} whitespace-pre-line`}>
-        {data.description}
-      </div>
-      {data.link && (
-        <a
-          href={data.link}
-          target={data.external ? "_blank" : "_self"}
-          rel={data.external ? "noopener noreferrer" : ""}
-          className={`text-xs underline mt-2 block hover:opacity-80 transition-opacity ${data.textColor} font-medium`}
-        >
-          {data.linkText}
-        </a>
-      )}
-      {data.badge && (
-        <div className="mt-2">
-          <span
-            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${data.badgeColor}`}
-          >
-            {data.badge}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const nodeTypes = {
-  custom: CustomNode,
-};
 
 const initialNodes: Node[] = [
   {
     id: "1",
-    type: "custom",
+    type: "input",
     position: { x: 50, y: 50 },
-    data: {
-      title: "Inter Bank Brasil Website",
-      description:
-        "Download bank account statements\n(NOT credit card invoices)\nDate range: Jan 1st to today",
-      icon: "🏦",
-      bgColor: "bg-blue-100",
-      borderColor: "border-blue-400",
-      textColor: "text-blue-700",
-      link: "https://inter.co/",
-      linkText: "🌐 Open inter.co",
-      external: true,
-      badge: "Manual Step",
-      badgeColor: "bg-blue-200 text-blue-800",
+    data: { label: "Download year statement from Inter bank website" },
+    style: {
+      background: "linear-gradient(to bottom, #e6f2ff, #cce6ff)",
+      color: "#0066cc",
+      border: "1px solid #99ccff",
+      borderRadius: "8px",
+      padding: "10px",
+      width: 300,
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
     },
-    sourcePosition: Position.Right,
   },
   {
     id: "2",
-    type: "custom",
-    position: { x: 350, y: 50 },
+    type: "default",
+    position: { x: 50, y: 150 },
     data: {
-      title: "Local File System",
-      description:
-        "Store files: CSV, PDF, OFX\nLocation: G:\\My Drive\\...\\Extrato\nFormat: Extrato-01-01-YYYY-a-DD-MM-YYYY",
-      icon: "📁",
-      bgColor: "bg-orange-100",
-      borderColor: "border-orange-400",
-      textColor: "text-orange-700",
-      badge: "File Storage",
-      badgeColor: "bg-orange-200 text-orange-800",
+      label: (
+        <div>
+          <p>Save year statement to:</p>
+          <code className="bg-gray-100 px-2 py-1 text-xs block mt-1 rounded-sm">
+            G:\My Drive\00_Financeiro\00_Brasil\00_BancoInter\Extrato
+          </code>
+        </div>
+      ),
     },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
+    style: {
+      background: "linear-gradient(to bottom, #f2f9ec, #e5f2d9)",
+      color: "#336600",
+      border: "1px solid #b3d998",
+      borderRadius: "8px",
+      padding: "10px",
+      width: 300,
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    },
   },
   {
     id: "3",
-    type: "custom",
-    position: { x: 650, y: 50 },
+    type: "default",
+    position: { x: 50, y: 250 },
     data: {
-      title: "Upload Files Page",
-      description:
-        'Select "Inter-BR" bank\nUpload statement files\nAutomatic parsing',
-      icon: "⬆️",
-      bgColor: "bg-purple-100",
-      borderColor: "border-purple-400",
-      textColor: "text-purple-700",
-      link: "/upload",
-      linkText: "📤 Go to /upload",
-      external: false,
-      badge: "App Feature",
-      badgeColor: "bg-purple-200 text-purple-800",
+      label: (
+        <div>
+          <p>Go to upload page and select file:</p>
+          <a
+            href="/upload"
+            className="text-blue-600 underline text-sm"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            http://localhost:3000/upload/
+          </a>
+        </div>
+      ),
     },
-    sourcePosition: Position.Bottom,
-    targetPosition: Position.Left,
+    style: {
+      background: "linear-gradient(to bottom, #f0e6ff, #e0ccff)",
+      color: "#5500cc",
+      border: "1px solid #cc99ff",
+      borderRadius: "8px",
+      padding: "10px",
+      width: 300,
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    },
   },
   {
     id: "4",
-    type: "custom",
-    position: { x: 650, y: 280 },
+    type: "default",
+    position: { x: 50, y: 350 },
     data: {
-      title: "Supabase Source Tables",
-      description:
-        "Yearly tables: IN_2023, IN_2024, IN_2025\nRaw transaction data\nBank-specific structure",
-      icon: "🗄️",
-      bgColor: "bg-green-100",
-      borderColor: "border-green-400",
-      textColor: "text-green-700",
-      badge: "Database",
-      badgeColor: "bg-green-200 text-green-800",
+      label: (
+        <div>
+          <p>Supabase Source Tables:</p>
+          <p className="text-xs mt-1">
+            IN_2023, IN_2024, IN_2025 (yearly tables)
+          </p>
+        </div>
+      ),
     },
-    sourcePosition: Position.Bottom,
-    targetPosition: Position.Top,
+    style: {
+      background: "linear-gradient(to bottom, #e6f9ff, #ccf2ff)",
+      color: "#006680",
+      border: "1px solid #99e6ff",
+      borderRadius: "8px",
+      padding: "10px",
+      width: 300,
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    },
   },
   {
     id: "5",
-    type: "custom",
-    position: { x: 650, y: 500 },
+    type: "default",
+    position: { x: 400, y: 350 },
     data: {
-      title: "Update Inter Data Button",
-      description:
-        "Aggregate source tables (IN_*)\nInto unified Brasil_transactions_agregated_2025\nMaintains source tracking",
-      icon: "🔄",
-      bgColor: "bg-indigo-100",
-      borderColor: "border-indigo-400",
-      textColor: "text-indigo-700",
-      link: "/inter-account",
-      linkText: "🔗 Go to /inter-account",
-      external: false,
-      badge: "Aggregation",
-      badgeColor: "bg-indigo-200 text-indigo-800",
+      label: (
+        <div>
+          <p>Aggregated Table:</p>
+          <p className="text-xs mt-1">Brasil_transactions_agregated_2025</p>
+        </div>
+      ),
     },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Top,
+    style: {
+      background: "linear-gradient(to bottom, #e6e6ff, #ccccff)",
+      color: "#000080",
+      border: "1px solid #9999ff",
+      borderRadius: "8px",
+      padding: "10px",
+      width: 300,
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    },
   },
   {
     id: "6",
-    type: "custom",
-    position: { x: 950, y: 500 },
+    type: "output",
+    position: { x: 400, y: 450 },
     data: {
-      title: "Inter Account Page",
-      description:
-        "View unified transactions\nFilter by month/category\nAnalyze spending patterns",
-      icon: "📊",
-      bgColor: "bg-teal-100",
-      borderColor: "border-teal-400",
-      textColor: "text-teal-700",
-      badge: "Analysis",
-      badgeColor: "bg-teal-200 text-teal-800",
+      label: (
+        <div>
+          <p>Inter Account Page:</p>
+          <a
+            href="/inter-account"
+            className="text-blue-600 underline text-sm"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            /inter-account
+          </a>
+        </div>
+      ),
     },
-    targetPosition: Position.Left,
+    style: {
+      background: "linear-gradient(to bottom, #fff2e6, #ffe0cc)",
+      color: "#994d00",
+      border: "1px solid #ffcc99",
+      borderRadius: "8px",
+      padding: "10px",
+      width: 300,
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    },
   },
 ];
 
@@ -180,62 +167,73 @@ const initialEdges: Edge[] = [
     id: "e1-2",
     source: "1",
     target: "2",
-    type: "smoothstep",
     animated: true,
-    style: { stroke: "#3b82f6", strokeWidth: 2 },
+    style: { stroke: "#4285F4", strokeWidth: 2 },
     label: "Download",
-    labelStyle: { fill: "#3b82f6", fontWeight: 600 },
+    labelStyle: { fill: "#4285F4", fontWeight: 500 },
+    labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
   {
     id: "e2-3",
     source: "2",
     target: "3",
-    type: "smoothstep",
     animated: true,
-    style: { stroke: "#8b5cf6", strokeWidth: 2 },
-    label: "Upload",
-    labelStyle: { fill: "#8b5cf6", fontWeight: 600 },
+    style: { stroke: "#8e44ad", strokeWidth: 2 },
+    label: "Prepare Upload",
+    labelStyle: { fill: "#8e44ad", fontWeight: 500 },
+    labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
   {
     id: "e3-4",
     source: "3",
     target: "4",
-    type: "smoothstep",
     animated: true,
-    style: { stroke: "#10b981", strokeWidth: 2 },
+    style: { stroke: "#27ae60", strokeWidth: 2 },
     label: "Parse & Store",
-    labelStyle: { fill: "#10b981", fontWeight: 600 },
+    labelStyle: { fill: "#27ae60", fontWeight: 500 },
+    labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
   {
     id: "e4-5",
     source: "4",
     target: "5",
-    type: "smoothstep",
     animated: true,
-    style: { stroke: "#6366f1", strokeWidth: 2 },
+    style: { stroke: "#3949ab", strokeWidth: 2 },
     label: "Aggregate",
-    labelStyle: { fill: "#6366f1", fontWeight: 600 },
+    labelStyle: { fill: "#3949ab", fontWeight: 500 },
+    labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
   {
     id: "e5-6",
     source: "5",
     target: "6",
-    type: "smoothstep",
     animated: true,
-    style: { stroke: "#14b8a6", strokeWidth: 2 },
+    style: { stroke: "#00897b", strokeWidth: 2 },
     label: "Analyze",
-    labelStyle: { fill: "#14b8a6", fontWeight: 600 },
+    labelStyle: { fill: "#00897b", fontWeight: 500 },
+    labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
 ];
 
 export default function DataFlowDiagram() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
 
-  const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
+    [],
   );
+
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [],
+  );
+
+  const onConnect = useCallback((connection: Connection) => {
+    // This would add a new connection if implemented
+  }, []);
 
   return (
     <div className="w-full h-[700px] border rounded-lg bg-gradient-to-br from-gray-50 to-blue-50 relative">
@@ -245,22 +243,23 @@ export default function DataFlowDiagram() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.2 }}
-        attributionPosition="bottom-left"
-        proOptions={{ hideAttribution: true }}
+        minZoom={0.5}
+        maxZoom={1.5}
+        defaultZoom={0.8}
+        attributionPosition="bottom-right"
       >
-        <Controls className="!left-4 !bottom-4" />
+        <Controls position="top-right" showInteractive={false} />
         <MiniMap
-          className="!bg-gray-100 !border !border-gray-300 !right-4 !top-4"
-          nodeStrokeColor={(n) => {
-            if (n.type === "custom") return "#6b7280";
-            return "#1a192b";
-          }}
-          nodeColor={(n) => {
-            if (n.type === "custom") return "#93c5fd";
-            return "#fff";
+          nodeStrokeWidth={3}
+          zoomable
+          pannable
+          position="top-left"
+          style={{
+            height: 100,
+            width: 150,
+            background: "rgba(255, 255, 255, 0.9)",
           }}
           nodeBorderRadius={8}
         />
@@ -271,16 +270,8 @@ export default function DataFlowDiagram() {
           color="#e5e7eb"
         />
       </ReactFlow>
-      <div className="absolute top-4 left-4 bg-white bg-opacity-90 backdrop-blur-sm rounded-lg p-3 shadow-md border">
-        <h6 className="text-xs font-semibold text-gray-700 mb-1">
-          💡 Interaction Guide
-        </h6>
-        <ul className="text-xs text-gray-600 space-y-0.5">
-          <li>• Drag nodes to rearrange</li>
-          <li>• Scroll to zoom in/out</li>
-          <li>• Click links to navigate</li>
-          <li>• Use minimap for overview</li>
-        </ul>
+      <div className="absolute bottom-3 left-3 text-xs text-gray-500 bg-white/80 p-2 rounded-md">
+        💡 Tip: Drag nodes to rearrange the flow, use mouse wheel to zoom
       </div>
     </div>
   );

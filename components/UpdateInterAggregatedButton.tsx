@@ -222,8 +222,8 @@ export default function UpdateInterAggregatedButton() {
                         <CardDescription>
                           Choose which Inter tables to aggregate/synchronize
                           with Brasil_transactions_agregated_2025. Already
-                          included tables can be re-processed to add new
-                          transactions.
+                          included tables can be re-processed to find and add
+                          any new transactions that weren't previously included.
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -231,8 +231,8 @@ export default function UpdateInterAggregatedButton() {
                           {preview.sourceTablesIncluded.length > 0 && (
                             <div>
                               <h4 className="text-sm font-medium text-yellow-400 mb-2">
-                                Already Included Tables (can be re-processed for
-                                new entries):
+                                Already Included Tables (can be re-processed to
+                                find new transactions):
                               </h4>
                               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                 {preview.sourceTablesIncluded.map((table) => (
@@ -295,7 +295,8 @@ export default function UpdateInterAggregatedButton() {
                               Selected: {selectedTables.length} table(s)
                             </p>
                             <p className="text-sm text-gray-400">
-                              Preview transactions: {previewTransactions.length}
+                              New transactions to add:{" "}
+                              {previewTransactions.length}
                             </p>
                           </div>
                         )}
@@ -306,10 +307,12 @@ export default function UpdateInterAggregatedButton() {
                       <Card className="bg-gray-800 border-gray-700">
                         <CardHeader>
                           <CardTitle className="text-white">
-                            Preview Transactions ({previewTransactions.length})
+                            Preview New Transactions (
+                            {previewTransactions.length})
                           </CardTitle>
                           <CardDescription>
-                            Sample transactions from selected tables
+                            Shows only transactions from selected tables that
+                            are NOT yet in Brasil_transactions_agregated_2025
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -440,7 +443,7 @@ export default function UpdateInterAggregatedButton() {
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Confirm Update ({selectedTables.length} tables,{" "}
-                  {previewTransactions.length} transactions)
+                  {previewTransactions.length} new transactions)
                 </Button>
               </>
             )}

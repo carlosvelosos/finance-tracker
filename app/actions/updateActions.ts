@@ -688,11 +688,12 @@ export async function previewInterTableTransactions(
   tableNames: string[],
 ): Promise<Transaction[]> {
   try {
-    const allTransactions: Transaction[] = [];
+    const allNewTransactions: Transaction[] = [];
 
     for (const tableName of tableNames) {
       try {
-        const { data: transactions, error } = await supabase
+        // Get all transactions from the source table
+        const { data: sourceTransactions, error } = await supabase
           .from(tableName)
           .select(
             `
@@ -716,26 +717,67 @@ export async function previewInterTableTransactions(
           continue;
         }
 
-        if (transactions) {
-          // Add source_table info for display
-          const transactionsWithSource = transactions.map((t) => ({
-            ...t,
-            source_table: tableName,
-          }));
-          allTransactions.push(...transactionsWithSource);
+        if (!sourceTransactions || sourceTransactions.length === 0) {
+          continue;
         }
+
+        // Get existing transactions from this source table in the aggregated table
+        const { data: existingTransactions, error: existingError } =
+          await supabase
+            .from("Brasil_transactions_agregated_2025")
+            .select(
+              `
+            "Date",
+            "Description", 
+            "Amount",
+            "Balance"
+          `,
+            )
+            .eq("source_table", tableName);
+
+        if (existingError) {
+          console.error(
+            `Error checking existing transactions for ${tableName}:`,
+            existingError,
+          );
+          // If we can't check for existing transactions, skip this table to avoid duplicates
+          continue;
+        }
+
+        // Create a set of existing transaction signatures for fast lookup
+        const existingSignatures = new Set(
+          (existingTransactions || []).map(
+            (t) => `${t.Date}|${t.Description}|${t.Amount}|${t.Balance}`,
+          ),
+        );
+
+        // Filter out transactions that already exist in the aggregated table
+        const newTransactions = sourceTransactions.filter((t) => {
+          const signature = `${t.Date}|${t.Description}|${t.Amount}|${t.Balance}`;
+          return !existingSignatures.has(signature);
+        });
+
+        // Add source_table info for display
+        const transactionsWithSource = newTransactions.map((t) => ({
+          ...t,
+          source_table: tableName,
+        }));
+
+        allNewTransactions.push(...transactionsWithSource);
       } catch (error) {
         console.error(`Error querying table ${tableName}:`, error);
         continue;
       }
-    } // Sort all transactions by date
-    allTransactions.sort((a, b) => {
+    }
+
+    // Sort all new transactions by date
+    allNewTransactions.sort((a, b) => {
       const dateA = a.Date ? new Date(a.Date).getTime() : 0;
       const dateB = b.Date ? new Date(b.Date).getTime() : 0;
       return dateA - dateB;
     });
 
-    return allTransactions as Transaction[];
+    return allNewTransactions as Transaction[];
   } catch (error) {
     console.error("Error in previewInterTableTransactions:", error);
     return [];
@@ -760,33 +802,8 @@ export async function executeInterUpdate(
 
     for (const tableName of selectedTables) {
       try {
-        // First check if this table was already included
-        const { data: existingCheck } = await supabase
-          .from("Brasil_transactions_agregated_2025")
-          .select("id")
-          .eq("source_table", tableName)
-          .limit(1);
-
-        if (existingCheck && existingCheck.length > 0) {
-          console.log(`Table ${tableName} already included, skipping...`);
-          continue;
-        }
-
-        // Get the highest ID in the aggregated table
-        const { data: maxIdResult, error: maxIdError } = await supabase
-          .from("Brasil_transactions_agregated_2025")
-          .select("id")
-          .order("id", { ascending: false })
-          .limit(1);
-
-        if (maxIdError) {
-          throw new Error(`Error getting max ID: ${maxIdError.message}`);
-        }
-
-        const nextId = (maxIdResult?.[0]?.id || 0) + totalTransactionsAdded + 1;
-
-        // Get new transactions from the table
-        const { data: newTransactions, error: selectError } = await supabase
+        // Get all transactions from the source table
+        const { data: sourceTransactions, error: selectError } = await supabase
           .from(tableName)
           .select(
             `
@@ -810,10 +827,61 @@ export async function executeInterUpdate(
           );
         }
 
-        if (!newTransactions || newTransactions.length === 0) {
+        if (!sourceTransactions || sourceTransactions.length === 0) {
           console.log(`No transactions found in ${tableName}, skipping...`);
           continue;
         }
+
+        // Get existing transactions from this source table in the aggregated table
+        const { data: existingTransactions, error: existingError } =
+          await supabase
+            .from("Brasil_transactions_agregated_2025")
+            .select(
+              `
+            "Date",
+            "Description", 
+            "Amount",
+            "Balance"
+          `,
+            )
+            .eq("source_table", tableName);
+
+        if (existingError) {
+          throw new Error(
+            `Error checking existing transactions for ${tableName}: ${existingError.message}`,
+          );
+        }
+
+        // Create a set of existing transaction signatures for fast lookup
+        const existingSignatures = new Set(
+          (existingTransactions || []).map(
+            (t) => `${t.Date}|${t.Description}|${t.Amount}|${t.Balance}`,
+          ),
+        );
+
+        // Filter out transactions that already exist in the aggregated table
+        const newTransactions = sourceTransactions.filter((t) => {
+          const signature = `${t.Date}|${t.Description}|${t.Amount}|${t.Balance}`;
+          return !existingSignatures.has(signature);
+        });
+
+        if (newTransactions.length === 0) {
+          console.log(`No new transactions found in ${tableName}, skipping...`);
+          continue;
+        }
+
+        // Get the highest ID in the aggregated table
+        const { data: maxIdResult, error: maxIdError } = await supabase
+          .from("Brasil_transactions_agregated_2025")
+          .select("id")
+          .order("id", { ascending: false })
+          .limit(1);
+
+        if (maxIdError) {
+          throw new Error(`Error getting max ID: ${maxIdError.message}`);
+        }
+
+        const nextId = (maxIdResult?.[0]?.id || 0) + totalTransactionsAdded + 1;
 
         // Prepare data for insertion with sequential IDs
         const transactionsToInsert = newTransactions.map(
@@ -848,7 +916,7 @@ export async function executeInterUpdate(
         totalTransactionsAdded += newTransactions.length;
         tablesProcessed.push(tableName);
         console.log(
-          `Successfully added ${newTransactions.length} transactions from ${tableName}`,
+          `Successfully added ${newTransactions.length} new transactions from ${tableName}`,
         );
       } catch (error) {
         console.error(`Error processing table ${tableName}:`, error);

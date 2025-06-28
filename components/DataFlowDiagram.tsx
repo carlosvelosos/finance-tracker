@@ -21,143 +21,208 @@ const initialNodes: Node[] = [
     id: "1",
     type: "input",
     position: { x: 50, y: 50 },
-    data: { label: "Download year statement from Inter bank website" },
-    style: {
-      background: "linear-gradient(to bottom, #e6f2ff, #cce6ff)",
-      color: "#0066cc",
-      border: "1px solid #99ccff",
-      borderRadius: "8px",
-      padding: "10px",
-      width: 300,
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    },
-  },
-  {
-    id: "2",
-    type: "default",
-    position: { x: 50, y: 150 },
     data: {
       label: (
-        <div>
-          <p>Save year statement to:</p>
-          <code className="bg-gray-100 px-2 py-1 text-xs block mt-1 rounded-sm">
-            G:\My Drive\00_Financeiro\00_Brasil\00_BancoInter\Extrato
-          </code>
-        </div>
-      ),
-    },
-    style: {
-      background: "linear-gradient(to bottom, #f2f9ec, #e5f2d9)",
-      color: "#336600",
-      border: "1px solid #b3d998",
-      borderRadius: "8px",
-      padding: "10px",
-      width: 300,
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    },
-  },
-  {
-    id: "3",
-    type: "default",
-    position: { x: 50, y: 250 },
-    data: {
-      label: (
-        <div>
-          <p>Go to upload page and select file:</p>
-          <a
-            href="/upload"
-            className="text-blue-600 underline text-sm"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            http://localhost:3000/upload/
-          </a>
-        </div>
-      ),
-    },
-    style: {
-      background: "linear-gradient(to bottom, #f0e6ff, #e0ccff)",
-      color: "#5500cc",
-      border: "1px solid #cc99ff",
-      borderRadius: "8px",
-      padding: "10px",
-      width: 300,
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    },
-  },
-  {
-    id: "4",
-    type: "default",
-    position: { x: 50, y: 350 },
-    data: {
-      label: (
-        <div>
-          <p>Supabase Source Tables:</p>
-          <p className="text-xs mt-1">
-            IN_2023, IN_2024, IN_2025 (yearly tables)
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-black font-bold text-sm">
+              1
+            </div>
+            <h3 className="font-medium">
+              Manual Download from Inter Bank Brasil
+            </h3>
+          </div>
+          <p className="text-sm">
+            🏦 Navigate to inter.co → Access "Extratos" → Download yearly bank
+            account statements (Jan 1st to current date)
+          </p>
+          <p className="text-xs text-gray-600">
+            Download all formats: CSV, PDF, OFX
           </p>
         </div>
       ),
     },
     style: {
-      background: "linear-gradient(to bottom, #e6f9ff, #ccf2ff)",
-      color: "#006680",
-      border: "1px solid #99e6ff",
-      borderRadius: "8px",
-      padding: "10px",
-      width: 300,
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      background: "#ffffff",
+      color: "#333333",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "16px",
+      width: 640,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+    },
+  },
+  {
+    id: "2",
+    type: "default",
+    position: { x: 50, y: 200 },
+    data: {
+      label: (
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-black font-bold text-sm">
+              2
+            </div>
+            <h3 className="font-medium">File Storage & Organization</h3>
+          </div>
+          <code className="bg-gray-100 px-3 py-2 text-xs block mt-1 rounded-sm w-full overflow-x-auto">
+            G:\My Drive\00_Financeiro\00_Brasil\00_BancoInter\Extrato
+          </code>
+          <p className="text-xs text-gray-600">
+            Naming: Extrato-01-01-YYYY-a-DD-MM-YYYY
+          </p>
+        </div>
+      ),
+    },
+    style: {
+      background: "#ffffff",
+      color: "#333333",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "16px",
+      width: 640,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+    },
+  },
+  {
+    id: "3",
+    type: "default",
+    position: { x: 50, y: 350 },
+    data: {
+      label: (
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-black font-bold text-sm">
+              3
+            </div>
+            <h3 className="font-medium">Upload to Application</h3>
+          </div>
+          <a
+            href="/upload"
+            className="text-blue-600 underline text-sm block mt-1 px-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            📁 /upload
+          </a>
+          <p className="text-xs text-gray-600">
+            Select "Inter-BR" bank → Upload CSV file → Automatic parsing &
+            validation
+          </p>
+        </div>
+      ),
+    },
+    style: {
+      background: "#ffffff",
+      color: "#333333",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "16px",
+      width: 640,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+    },
+  },
+  {
+    id: "4",
+    type: "default",
+    position: { x: 50, y: 500 },
+    data: {
+      label: (
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-black font-bold text-sm">
+              4
+            </div>
+            <h3 className="font-medium">Supabase Source Table Creation</h3>
+          </div>
+          <p className="text-xs mt-2 px-2">
+            🗄️ Bank Statements: IN_YYYY (yearly tables)
+          </p>
+          <p className="text-xs px-2 text-gray-600">
+            Examples: IN_2023, IN_2024, IN_2025
+          </p>
+        </div>
+      ),
+    },
+    style: {
+      background: "#ffffff",
+      color: "#333333",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "16px",
+      width: 640,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
     },
   },
   {
     id: "5",
     type: "default",
-    position: { x: 400, y: 350 },
+    position: { x: 50, y: 650 },
     data: {
       label: (
-        <div>
-          <p>Aggregated Table:</p>
-          <p className="text-xs mt-1">Brasil_transactions_agregated_2025</p>
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-black font-bold text-sm">
+              5
+            </div>
+            <h3 className="font-medium">Data Aggregation Process</h3>
+          </div>
+          <p className="text-xs mt-2 px-2">
+            🔄 Use "Update Inter Data" button → Select source tables → Aggregate
+            to unified table
+          </p>
+          <p className="text-xs px-2 text-gray-600">
+            Target: Brasil_transactions_agregated_2025
+          </p>
         </div>
       ),
     },
     style: {
-      background: "linear-gradient(to bottom, #e6e6ff, #ccccff)",
-      color: "#000080",
-      border: "1px solid #9999ff",
-      borderRadius: "8px",
-      padding: "10px",
-      width: 300,
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      background: "#ffffff",
+      color: "#333333",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "16px",
+      width: 640,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
     },
   },
   {
     id: "6",
     type: "output",
-    position: { x: 400, y: 450 },
+    position: { x: 50, y: 800 },
     data: {
       label: (
-        <div>
-          <p>Inter Account Page:</p>
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-black font-bold text-sm">
+              6
+            </div>
+            <h3 className="font-medium">Data Analysis & Visualization</h3>
+          </div>
           <a
             href="/inter-account"
-            className="text-blue-600 underline text-sm"
+            className="text-blue-600 underline text-sm block mt-2 px-2"
             target="_blank"
             rel="noopener noreferrer"
           >
-            /inter-account
+            📊 /inter-account
           </a>
+          <p className="text-xs text-gray-600">
+            Auto-filter Inter-BR transactions → Month/category filtering →
+            Charts & analysis
+          </p>
         </div>
       ),
     },
     style: {
-      background: "linear-gradient(to bottom, #fff2e6, #ffe0cc)",
-      color: "#994d00",
-      border: "1px solid #ffcc99",
-      borderRadius: "8px",
-      padding: "10px",
-      width: 300,
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      background: "#ffffff",
+      color: "#333333",
+      border: "1px solid #e2e8f0",
+      borderRadius: "12px",
+      padding: "16px",
+      width: 640,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
     },
   },
 ];
@@ -169,7 +234,7 @@ const initialEdges: Edge[] = [
     target: "2",
     animated: true,
     style: { stroke: "#4285F4", strokeWidth: 2 },
-    label: "Download",
+    label: "Save Files",
     labelStyle: { fill: "#4285F4", fontWeight: 500 },
     labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
@@ -179,7 +244,7 @@ const initialEdges: Edge[] = [
     target: "3",
     animated: true,
     style: { stroke: "#8e44ad", strokeWidth: 2 },
-    label: "Prepare Upload",
+    label: "Upload CSV",
     labelStyle: { fill: "#8e44ad", fontWeight: 500 },
     labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
@@ -189,7 +254,7 @@ const initialEdges: Edge[] = [
     target: "4",
     animated: true,
     style: { stroke: "#27ae60", strokeWidth: 2 },
-    label: "Parse & Store",
+    label: "Create Tables",
     labelStyle: { fill: "#27ae60", fontWeight: 500 },
     labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
@@ -199,7 +264,7 @@ const initialEdges: Edge[] = [
     target: "5",
     animated: true,
     style: { stroke: "#3949ab", strokeWidth: 2 },
-    label: "Aggregate",
+    label: "Aggregate Data",
     labelStyle: { fill: "#3949ab", fontWeight: 500 },
     labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
@@ -209,7 +274,7 @@ const initialEdges: Edge[] = [
     target: "6",
     animated: true,
     style: { stroke: "#00897b", strokeWidth: 2 },
-    label: "Analyze",
+    label: "Analyze & Visualize",
     labelStyle: { fill: "#00897b", fontWeight: 500 },
     labelBgStyle: { fill: "rgba(255, 255, 255, 0.8)" },
   },
@@ -236,7 +301,7 @@ export default function DataFlowDiagram() {
   }, []);
 
   return (
-    <div className="w-full h-[700px] border rounded-lg bg-gradient-to-br from-gray-50 to-blue-50 relative">
+    <div className="w-full h-[1200px] border rounded-lg bg-gradient-to-br from-gray-50 to-blue-50 relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -244,10 +309,9 @@ export default function DataFlowDiagram() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.5}
+        fitViewOptions={{ padding: 0.3 }}
+        minZoom={0.4}
         maxZoom={1.5}
-        defaultZoom={0.8}
         attributionPosition="bottom-right"
       >
         <Controls position="top-right" showInteractive={false} />

@@ -264,24 +264,25 @@ export default function InterAccountInfo() {
                   <div className="text-xs space-y-2">
                     <div>
                       <strong className="text-blue-600">
-                        Source Tables (Monthly/Yearly):
+                        Source Tables (Yearly for Bank Statements):
                       </strong>
                       <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
                         <li>
-                          <code>IN_2023</code> - All Inter transactions for 2023
+                          <code>IN_2023</code> - All Inter bank account
+                          transactions for 2023
                         </li>
                         <li>
-                          <code>IN_2024</code> - All Inter transactions for 2024
+                          <code>IN_2024</code> - All Inter bank account
+                          transactions for 2024
                         </li>
                         <li>
-                          <code>IN_202401</code> - Inter transactions for
-                          January 2024
+                          <code>IN_2025</code> - All Inter bank account
+                          transactions for 2025 (up to current date)
                         </li>
-                        <li>
-                          <code>IN_202402</code> - Inter transactions for
-                          February 2024
+                        <li className="text-gray-500 italic">
+                          Note: Monthly tables (IN_YYYYMM) are used only for
+                          credit card invoices, not bank statements
                         </li>
-                        <li>... (and so on for other months/years)</li>
                       </ul>
                     </div>
                     <div className="pt-2 border-t">
@@ -353,6 +354,556 @@ export default function InterAccountInfo() {
                   <li>
                     <strong>Data Consistency:</strong> Standardized format
                     across all periods
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Flow Illustration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ArrowLeft size={20} />
+                Data Flow: From Bank App to Inter Account Page
+              </CardTitle>
+              <CardDescription>
+                Complete data journey from Brazilian bank statements to your
+                application
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Visual Flow Diagram */}
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg border">
+                <h4 className="font-semibold text-sm mb-4 text-center">
+                  Data Flow Visualization
+                </h4>
+
+                {/* Step 1 */}
+                <div className="flex items-center mb-4">
+                  <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    1
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="bg-blue-100 p-3 rounded-md border border-blue-200">
+                      <h5 className="font-semibold text-blue-800">
+                        🏦 Inter Bank Brasil Website
+                      </h5>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Download bank account statements manually from{" "}
+                        <a
+                          href="https://inter.co/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          inter.co
+                        </a>
+                        (NOT credit card invoices)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mx-3 text-gray-400">→</div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex items-center mb-4">
+                  <div className="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    2
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="bg-orange-100 p-3 rounded-md border border-orange-200">
+                      <h5 className="font-semibold text-orange-800">
+                        📁 Local File System
+                      </h5>
+                      <p className="text-xs text-orange-700 mt-1">
+                        Bank statement files (CSV, Excel, PDF) saved to your
+                        computer
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mx-3 text-gray-400">→</div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex items-center mb-4">
+                  <div className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    3
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="bg-purple-100 p-3 rounded-md border border-purple-200">
+                      <h5 className="font-semibold text-purple-800">
+                        ⬆️ Upload Files Page (/upload)
+                      </h5>
+                      <p className="text-xs text-purple-700 mt-1">
+                        Select "Inter-BR" bank and upload Inter bank account
+                        statement files
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mx-3 text-gray-400">→</div>
+                </div>
+
+                {/* Step 4 */}
+                <div className="flex items-center mb-4">
+                  <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    4
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="bg-green-100 p-3 rounded-md border border-green-200">
+                      <h5 className="font-semibold text-green-800">
+                        🗄️ Supabase Source Tables
+                      </h5>
+                      <p className="text-xs text-green-700 mt-1">
+                        Data parsed and stored in monthly/yearly tables
+                        (IN_2023, IN_2024, IN_202401, etc.)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mx-3 text-gray-400">→</div>
+                </div>
+
+                {/* Step 5 */}
+                <div className="flex items-center mb-4">
+                  <div className="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    5
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="bg-indigo-100 p-3 rounded-md border border-indigo-200">
+                      <h5 className="font-semibold text-indigo-800">
+                        🔄 Update Inter Data Button (/inter-account)
+                      </h5>
+                      <p className="text-xs text-indigo-700 mt-1">
+                        Aggregate Inter source tables (IN_*) into
+                        Brasil_transactions_agregated_2025
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mx-3 text-gray-400">→</div>
+                </div>
+
+                {/* Step 6 */}
+                <div className="flex items-center">
+                  <div className="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    6
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="bg-teal-100 p-3 rounded-md border border-teal-200">
+                      <h5 className="font-semibold text-teal-800">
+                        📊 Inter Account Page
+                      </h5>
+                      <p className="text-xs text-teal-700 mt-1">
+                        View and analyze your transactions in the unified table
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Process Steps */}
+              <div>
+                <h4 className="font-semibold text-sm mb-3">
+                  Detailed Process Steps:
+                </h4>
+                <div className="space-y-4">
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <h5 className="font-semibold text-sm text-blue-700">
+                      Step 1: Manual Download from Inter Bank Brasil
+                    </h5>
+                    <div className="bg-blue-50 p-3 rounded-md mt-2 mb-3">
+                      <p className="text-xs font-semibold text-blue-800 mb-2">
+                        🏦 Inter Bank Brasil Website:{" "}
+                        <a
+                          href="https://inter.co/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline hover:text-blue-800"
+                        >
+                          https://inter.co/
+                        </a>
+                      </p>
+                      <div className="text-xs text-blue-700">
+                        <strong>Important:</strong> Inter offers two types of
+                        financial data:
+                        <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                          <li>
+                            <strong>Bank Account Statements</strong> - Current
+                            account balance and transactions (what we display)
+                          </li>
+                          <li>
+                            <strong>Credit Card Invoices</strong> - Credit card
+                            purchases and payments (separate system)
+                          </li>
+                        </ul>
+                        <p className="mt-2 font-medium">
+                          For the Inter Account page, we need{" "}
+                          <strong>Bank Account Statements</strong> only.
+                        </p>
+                      </div>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
+                      <li>
+                        <strong>Navigate to Inter:</strong> Go to{" "}
+                        <a
+                          href="https://inter.co/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          inter.co
+                        </a>{" "}
+                        and log into your account
+                      </li>
+                      <li>
+                        <strong>Access Statements:</strong> Look for "Extratos"
+                        or "Conta Corrente" section
+                      </li>
+                      <li>
+                        <strong>Select Date Range Strategy:</strong> For Inter
+                        bank account statements, always download the complete
+                        year from January 1st to today's date
+                        <div className="bg-blue-50 p-2 rounded-md mt-1 mb-2 border-l-4 border-blue-400">
+                          <p className="text-xs text-blue-700 font-medium mb-1">
+                            📅 Yearly Download Strategy:
+                          </p>
+                          <ul className="list-disc list-inside text-xs text-blue-600 space-y-1">
+                            <li>
+                              <strong>Date Range:</strong> January 1st, YYYY to
+                              Current Date
+                            </li>
+                            <li>
+                              <strong>Supabase Table:</strong> Updates yearly
+                              table (IN_YYYY format)
+                            </li>
+                            <li>
+                              <strong>Purpose:</strong> Maintains complete
+                              yearly transaction history
+                            </li>
+                            <li>
+                              <strong>Example:</strong> January 1st, 2024 to
+                              June 28th, 2025 → IN_2024 table
+                            </li>
+                          </ul>
+                          <p className="text-xs text-blue-600 mt-2 italic">
+                            ⚠️ Note: Monthly tables (IN_YYYYMM) are only used
+                            for credit card invoices, not bank account
+                            statements.
+                          </p>
+                        </div>
+                      </li>
+                      <li>
+                        <strong>Download Format:</strong> Download all three
+                        formats: CSV, PDF, and OFX files
+                      </li>
+                      <li>
+                        <strong>Important:</strong> Ensure you're downloading
+                        bank account statements, NOT credit card invoices
+                      </li>
+                      <li>
+                        <strong>File Storage Location:</strong> Save all
+                        downloaded files to your organized Google Drive folder:
+                        <div className="bg-blue-50 p-2 rounded-md mt-1 mb-2">
+                          <code className="bg-gray-200 px-2 py-1 rounded text-xs block">
+                            G:\My
+                            Drive\00_Financeiro\00_Brasil\00_BancoInter\Extrato
+                          </code>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          This maintains your financial document organization
+                          and ensures easy access for future uploads.
+                        </p>
+                      </li>
+                      <li>
+                        <strong>File Naming Convention:</strong> Use the
+                        standardized format for yearly bank statements:
+                        <div className="bg-green-50 p-2 rounded-md mt-1 mb-2">
+                          <code className="bg-gray-200 px-2 py-1 rounded text-xs block">
+                            Extrato-01-01-YYYY-a-DD-MM-YYYY
+                          </code>
+                          <p className="text-xs text-green-700 mt-1">
+                            Example: "Extrato-01-01-2024-a-28-06-2025" (January
+                            1st, 2024 to June 28th, 2025)
+                          </p>
+                          <p className="text-xs text-green-600 mt-1 italic">
+                            💡 Always start from January 1st to ensure complete
+                            yearly data for the IN_YYYY table.
+                          </p>
+                        </div>
+                      </li>
+                      <li>
+                        <strong>Download All File Formats:</strong> Store all
+                        three file types for each statement period:
+                        <div className="bg-amber-50 p-2 rounded-md mt-1">
+                          <ul className="list-disc list-inside text-xs space-y-1">
+                            <li>
+                              <strong>CSV file:</strong> Primary format for app
+                              upload and data parsing
+                            </li>
+                            <li>
+                              <strong>PDF file:</strong> Human-readable backup
+                              for visual reference and records
+                            </li>
+                            <li>
+                              <strong>OFX file:</strong> Universal format for
+                              compatibility with other financial software
+                            </li>
+                          </ul>
+                          <p className="text-xs text-amber-700 mt-2 font-medium">
+                            💡 Having all formats ensures data redundancy and
+                            compatibility with different tools.
+                          </p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="border-l-4 border-purple-500 pl-4">
+                    <h5 className="font-semibold text-sm text-purple-700">
+                      Step 2: Upload to Your Application
+                    </h5>
+                    <div className="bg-purple-50 p-3 rounded-md mt-2 mb-3">
+                      <p className="text-xs font-semibold text-purple-800 mb-2">
+                        📁 Upload Files Page:{" "}
+                        <a
+                          href="/upload"
+                          className="text-purple-600 underline hover:text-purple-800"
+                        >
+                          /upload
+                        </a>
+                      </p>
+                      <p className="text-xs text-purple-700">
+                        This page handles file parsing and creates/updates
+                        Supabase source tables automatically.
+                      </p>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
+                      <li>
+                        <strong>Navigate:</strong> Go to your app's Upload Files
+                        page at{" "}
+                        <a href="/upload" className="text-purple-600 underline">
+                          /upload
+                        </a>
+                      </li>
+                      <li>
+                        <strong>Select Bank:</strong> Choose "Inter-BR" from the
+                        bank dropdown (important for correct table creation)
+                      </li>
+                      <li>
+                        <strong>Choose File:</strong> Select the downloaded
+                        Inter bank statement file
+                      </li>
+                      <li>
+                        <strong>Upload Process:</strong> Click "Upload" - the
+                        app will parse CSV/Excel columns and transaction data
+                      </li>
+                      <li>
+                        <strong>Table Creation:</strong> If needed, the app will
+                        automatically create new Supabase tables (IN_YYYY or
+                        IN_YYYYMM pattern)
+                      </li>
+                      <li>
+                        <strong>Data Validation:</strong> System validates and
+                        formats data before storage
+                      </li>
+                      <li>
+                        <strong>Confirmation:</strong> You'll receive upload
+                        success/failure notification
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <h5 className="font-semibold text-sm text-green-700">
+                      Step 3: Supabase Source Table Management
+                    </h5>
+                    <div className="bg-green-50 p-3 rounded-md mt-2 mb-3">
+                      <p className="text-xs font-semibold text-green-800 mb-2">
+                        🗄️ Table Structure in Supabase
+                      </p>
+                      <p className="text-xs text-green-700">
+                        Each upload creates or updates source tables that store
+                        raw transaction data before aggregation.
+                      </p>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
+                      <li>
+                        <strong>Table Creation Strategy:</strong> Upload process
+                        creates yearly tables for bank account statements
+                        <div className="bg-green-50 p-2 rounded-md mt-1 mb-2 border-l-4 border-green-400">
+                          <p className="text-xs text-green-700 font-medium mb-1">
+                            🗄️ Table Naming Convention:
+                          </p>
+                          <ul className="list-disc list-inside text-xs text-green-600 space-y-1">
+                            <li>
+                              <strong>Bank Account Statements:</strong> IN_YYYY
+                              (yearly tables) - Example: IN_2024, IN_2025
+                            </li>
+                            <li>
+                              <strong>Credit Card Invoices:</strong> IN_YYYYMM
+                              (monthly tables) - Example: IN_202401, IN_202402
+                            </li>
+                          </ul>
+                          <p className="text-xs text-green-600 mt-2 italic">
+                            💡 Since we download yearly bank statements, only
+                            IN_YYYY tables are created for account data.
+                          </p>
+                        </div>
+                      </li>
+                      <li>
+                        <strong>Data Structure:</strong> Tables maintain
+                        original Inter bank statement column structure
+                      </li>
+                      <li>
+                        <strong>Multiple Uploads:</strong> Different periods
+                        create separate source tables for organization
+                      </li>
+                      <li>
+                        <strong>Data Integrity:</strong> Each table represents a
+                        specific time period from Inter bank
+                      </li>
+                      <li>
+                        <strong>Bank Filter Ready:</strong> All tables tagged
+                        with "Inter-BR" bank designation
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="border-l-4 border-indigo-500 pl-4">
+                    <h5 className="font-semibold text-sm text-indigo-700">
+                      Step 4: Data Aggregation Process
+                    </h5>
+                    <div className="bg-indigo-50 p-3 rounded-md mt-2 mb-3">
+                      <p className="text-xs font-semibold text-indigo-800 mb-2">
+                        🔄 Inter Account Page:{" "}
+                        <a
+                          href="/inter-account"
+                          className="text-indigo-600 underline hover:text-indigo-800"
+                        >
+                          /inter-account
+                        </a>
+                      </p>
+                      <p className="text-xs text-indigo-700">
+                        Use the "Update Inter Data" button to aggregate source
+                        tables into the unified view.
+                      </p>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
+                      <li>
+                        <strong>Navigate:</strong> Go to Inter Account page at{" "}
+                        <a
+                          href="/inter-account"
+                          className="text-indigo-600 underline"
+                        >
+                          /inter-account
+                        </a>
+                      </li>
+                      <li>
+                        <strong>Click Button:</strong> Use "Update Inter Data"
+                        button to start aggregation process
+                      </li>
+                      <li>
+                        <strong>Table Detection:</strong> System automatically
+                        detects available IN_* source tables
+                      </li>
+                      <li>
+                        <strong>Selection:</strong> Choose which source
+                        tables/periods to include in aggregation
+                      </li>
+                      <li>
+                        <strong>Preview:</strong> Review transactions that will
+                        be added to the aggregated table
+                      </li>
+                      <li>
+                        <strong>Confirmation:</strong> Confirm aggregation to
+                        copy data to Brasil_transactions_agregated_2025
+                      </li>
+                      <li>
+                        <strong>Source Tracking:</strong> Each transaction
+                        maintains reference to its original source table
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="border-l-4 border-teal-500 pl-4">
+                    <h5 className="font-semibold text-sm text-teal-700">
+                      Step 5: Data Analysis & Visualization
+                    </h5>
+                    <div className="bg-teal-50 p-3 rounded-md mt-2 mb-3">
+                      <p className="text-xs font-semibold text-teal-800 mb-2">
+                        📊 Transaction Analysis Tools
+                      </p>
+                      <p className="text-xs text-teal-700">
+                        The Inter Account page automatically filters and
+                        displays only Inter-BR bank account transactions.
+                      </p>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
+                      <li>
+                        <strong>Auto-Filter:</strong> Page automatically shows
+                        only "Inter-BR" transactions from aggregated table
+                      </li>
+                      <li>
+                        <strong>Month Filter:</strong> Filter transactions by
+                        specific months for detailed analysis
+                      </li>
+                      <li>
+                        <strong>Category Filter:</strong> Group and filter by
+                        transaction categories
+                      </li>
+                      <li>
+                        <strong>Description Search:</strong> Search within
+                        transaction descriptions for specific items
+                      </li>
+                      <li>
+                        <strong>Amount Totals:</strong> Real-time calculation of
+                        filtered transaction totals
+                      </li>
+                      <li>
+                        <strong>Sorting:</strong> Sort by date, amount, or any
+                        other column
+                      </li>
+                      <li>
+                        <strong>Source Traceability:</strong> See which original
+                        source table each transaction came from
+                      </li>
+                      <li>
+                        <strong>Chart Navigation:</strong> Access category and
+                        overview charts for visual analysis
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Benefits */}
+              <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+                <h4 className="font-semibold text-sm text-yellow-800 mb-2">
+                  💡 Key Benefits of This Flow:
+                </h4>
+                <ul className="list-disc list-inside text-xs text-yellow-700 space-y-1">
+                  <li>
+                    <strong>Data Ownership:</strong> Your financial data stays
+                    in your Supabase instance
+                  </li>
+                  <li>
+                    <strong>Flexibility:</strong> Upload statements at your own
+                    pace and schedule
+                  </li>
+                  <li>
+                    <strong>Historical Data:</strong> Maintain separate source
+                    tables for different periods
+                  </li>
+                  <li>
+                    <strong>Aggregation Control:</strong> Choose which periods
+                    to include in analysis
+                  </li>
+                  <li>
+                    <strong>Traceability:</strong> Always know which source
+                    table each transaction came from
+                  </li>
+                  <li>
+                    <strong>Security:</strong> Manual process ensures you
+                    control what data is uploaded
                   </li>
                 </ul>
               </div>

@@ -53,6 +53,12 @@ This document outlines the directory structure of the project.
 - **Summary:** This directory probably holds server-side actions or functions that handle data manipulation and business logic, such as updating database records.
 - **Files:**
   - `fileActions.ts` - File handling actions
+    - **Functions:**
+      - `uploadExcel()` - Main function to upload and process Excel/CSV files from different banks
+      - `createTableInSupabase()` - Returns SQL instructions for manually creating tables in Supabase
+      - `executeTableCreation()` - Attempts to automatically create tables with proper RLS policies
+      - `uploadToSupabase()` - Private function to upload processed transactions to Supabase tables
+      - `clearTableData()` - Function to clear all data from a specified table
   - `updateActions.ts` - Update operations actions
 
 ### `app/amex`

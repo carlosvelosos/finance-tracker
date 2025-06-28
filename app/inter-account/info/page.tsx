@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
+import DataFlowDiagram from "@/components/DataFlowDiagram";
 import {
   Card,
   CardContent,
@@ -365,137 +366,70 @@ export default function InterAccountInfo() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ArrowLeft size={20} />
-                Data Flow: From Bank App to Inter Account Page
+                Interactive Data Flow: From Bank App to Inter Account Page
               </CardTitle>
               <CardDescription>
-                Complete data journey from Brazilian bank statements to your
-                application
+                Interactive visualization of the complete data journey from
+                Brazilian bank statements to your application
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Visual Flow Diagram */}
-              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg border">
+              {/* Interactive Flow Diagram */}
+              <div>
                 <h4 className="font-semibold text-sm mb-4 text-center">
-                  Data Flow Visualization
+                  Interactive Data Flow Visualization
                 </h4>
-
-                {/* Step 1 */}
-                <div className="flex items-center mb-4">
-                  <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                    1
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="bg-blue-100 p-3 rounded-md border border-blue-200">
-                      <h5 className="font-semibold text-blue-800">
-                        🏦 Inter Bank Brasil Website
-                      </h5>
-                      <p className="text-xs text-blue-700 mt-1">
-                        Download bank account statements manually from{" "}
-                        <a
-                          href="https://inter.co/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          inter.co
-                        </a>
-                        (NOT credit card invoices)
-                      </p>
+                <p className="text-xs text-muted-foreground mb-4 text-center">
+                  Explore the complete data journey with this interactive
+                  diagram. Drag nodes around, zoom in/out, and click on the
+                  links within nodes to navigate directly to the relevant pages.
+                </p>
+                <DataFlowDiagram />
+                <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                  <h5 className="font-semibold text-xs text-blue-800 mb-2">
+                    � Interactive Features:
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <ul className="list-disc list-inside text-xs text-blue-700 space-y-1">
+                        <li>
+                          <strong>Drag & Drop:</strong> Move nodes to customize
+                          the layout
+                        </li>
+                        <li>
+                          <strong>Zoom Control:</strong> Mouse wheel or controls
+                          to zoom
+                        </li>
+                        <li>
+                          <strong>Minimap:</strong> Overview navigation in
+                          top-right corner
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <ul className="list-disc list-inside text-xs text-blue-700 space-y-1">
+                        <li>
+                          <strong>Direct Navigation:</strong> Click links in
+                          nodes to visit pages
+                        </li>
+                        <li>
+                          <strong>Animated Flow:</strong> Watch data flow along
+                          connections
+                        </li>
+                        <li>
+                          <strong>Color-Coded Steps:</strong> Each step has
+                          distinct visual identity
+                        </li>
+                      </ul>
                     </div>
                   </div>
-                  <div className="mx-3 text-gray-400">→</div>
-                </div>
-
-                {/* Step 2 */}
-                <div className="flex items-center mb-4">
-                  <div className="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                    2
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="bg-orange-100 p-3 rounded-md border border-orange-200">
-                      <h5 className="font-semibold text-orange-800">
-                        📁 Local File System
-                      </h5>
-                      <p className="text-xs text-orange-700 mt-1">
-                        Bank statement files (CSV, Excel, PDF) saved to your
-                        computer
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mx-3 text-gray-400">→</div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="flex items-center mb-4">
-                  <div className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                    3
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="bg-purple-100 p-3 rounded-md border border-purple-200">
-                      <h5 className="font-semibold text-purple-800">
-                        ⬆️ Upload Files Page (/upload)
-                      </h5>
-                      <p className="text-xs text-purple-700 mt-1">
-                        Select "Inter-BR" bank and upload Inter bank account
-                        statement files
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mx-3 text-gray-400">→</div>
-                </div>
-
-                {/* Step 4 */}
-                <div className="flex items-center mb-4">
-                  <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                    4
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="bg-green-100 p-3 rounded-md border border-green-200">
-                      <h5 className="font-semibold text-green-800">
-                        🗄️ Supabase Source Tables
-                      </h5>
-                      <p className="text-xs text-green-700 mt-1">
-                        Data parsed and stored in monthly/yearly tables
-                        (IN_2023, IN_2024, IN_202401, etc.)
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mx-3 text-gray-400">→</div>
-                </div>
-
-                {/* Step 5 */}
-                <div className="flex items-center mb-4">
-                  <div className="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                    5
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="bg-indigo-100 p-3 rounded-md border border-indigo-200">
-                      <h5 className="font-semibold text-indigo-800">
-                        🔄 Update Inter Data Button (/inter-account)
-                      </h5>
-                      <p className="text-xs text-indigo-700 mt-1">
-                        Aggregate Inter source tables (IN_*) into
-                        Brasil_transactions_agregated_2025
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mx-3 text-gray-400">→</div>
-                </div>
-
-                {/* Step 6 */}
-                <div className="flex items-center">
-                  <div className="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                    6
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <div className="bg-teal-100 p-3 rounded-md border border-teal-200">
-                      <h5 className="font-semibold text-teal-800">
-                        📊 Inter Account Page
-                      </h5>
-                      <p className="text-xs text-teal-700 mt-1">
-                        View and analyze your transactions in the unified table
-                      </p>
-                    </div>
+                  <div className="mt-3 p-2 bg-white rounded border border-blue-300">
+                    <p className="text-xs text-blue-600">
+                      <strong>💡 Pro Tip:</strong> This diagram is fully
+                      interactive - you can rearrange it to match your workflow
+                      preferences, and it will remember your layout during your
+                      session!
+                    </p>
                   </div>
                 </div>
               </div>

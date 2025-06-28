@@ -133,10 +133,17 @@ export default function FunctionAnalysisPage() {
       const cellContent = getCellContent(functionName, fileName);
       if (cellContent) {
         uniqueValues.add(cellContent);
+      } else {
+        uniqueValues.add(""); // Add empty as a unique value
       }
     });
 
-    return Array.from(uniqueValues).sort();
+    return Array.from(uniqueValues).sort((a, b) => {
+      // Sort empty values last
+      if (a === "" && b !== "") return 1;
+      if (a !== "" && b === "") return -1;
+      return a.localeCompare(b);
+    });
   };
 
   // Get cell content for function-file intersection
@@ -206,20 +213,6 @@ export default function FunctionAnalysisPage() {
     }));
   };
 
-  // Check if function should be visible in a column based on filter
-  const isFunctionVisibleInColumn = (
-    functionName: string,
-    fileName: string,
-  ): boolean => {
-    const cellContent = getCellContent(functionName, fileName);
-    if (!cellContent) return false; // Don't show empty cells
-
-    const columnFilter = columnFilters[fileName];
-    if (!columnFilter) return true; // Show if no filter set
-
-    return columnFilter[cellContent] !== false; // Show if cell value is not filtered out
-  };
-
   // Get filtered and sorted functions
   const getFilteredFunctions = useMemo((): string[] => {
     const allFunctions = getAllFunctions();
@@ -229,9 +222,17 @@ export default function FunctionAnalysisPage() {
     if (Object.keys(columnFilters).length > 0) {
       filtered = filtered.filter((functionName) => {
         const filteredFileNames = getFilteredFileNames();
-        return filteredFileNames.some((fileName) =>
-          isFunctionVisibleInColumn(functionName, fileName),
-        );
+        // A function should only be shown if it has at least one visible cell in any column
+        return filteredFileNames.some((fileName) => {
+          const cellContent = getCellContent(functionName, fileName);
+          const columnFilter = columnFilters[fileName];
+
+          // If no filter is set for this column, show the function
+          if (!columnFilter) return true;
+
+          // Check if this specific cell content is visible based on the filter
+          return columnFilter[cellContent] === true;
+        });
       });
     }
 
@@ -399,6 +400,18 @@ export default function FunctionAnalysisPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className="bg-gray-100 text-gray-600"
+                  >
+                    —
+                  </Badge>
+                  <span>
+                    <strong>No relationship</strong> - function not used in this
+                    file
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
                   <span className="text-gray-600 text-sm">
                     💡 <strong>Tip:</strong> Click column headers to sort
                   </span>
@@ -478,7 +491,8 @@ export default function FunctionAnalysisPage() {
                 Object.values(filter).some((checked) => !checked),
               ) && (
                 <div className="text-sm text-blue-600 mt-2">
-                  ⚡ Column filters active - showing filtered results
+                  ⚡ Column filters active - showing {filteredFunctions.length}{" "}
+                  of {allFunctions.length} functions
                 </div>
               )}
             </CardHeader>
@@ -590,7 +604,7 @@ export default function FunctionAnalysisPage() {
 
                                       return (
                                         <DropdownMenuCheckboxItem
-                                          key={cellValue}
+                                          key={cellValue || "empty"}
                                           checked={isChecked}
                                           onCheckedChange={(checked) =>
                                             handleColumnFilterChange(
@@ -609,6 +623,8 @@ export default function FunctionAnalysisPage() {
                                                 "Called (C)"}
                                               {cellValue === "D/C" &&
                                                 "Defined & Called (D/C)"}
+                                              {cellValue === "" &&
+                                                "No Relationship (Empty)"}
                                             </span>
                                             <Badge
                                               variant="outline"
@@ -622,7 +638,7 @@ export default function FunctionAnalysisPage() {
                                                       : "bg-gray-100 text-gray-600"
                                               }`}
                                             >
-                                              {cellValue}
+                                              {cellValue || "—"}
                                             </Badge>
                                           </div>
                                         </DropdownMenuCheckboxItem>
@@ -658,21 +674,17 @@ export default function FunctionAnalysisPage() {
                               functionName,
                               fileName,
                             );
-                            const isVisible = isFunctionVisibleInColumn(
-                              functionName,
-                              fileName,
-                            );
 
                             return (
                               <td
                                 key={`${functionName}-${fileName}`}
                                 className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${
-                                  isVisible && content
+                                  content
                                     ? getCellStyle(content)
-                                    : "bg-gray-50 text-gray-300"
+                                    : "bg-gray-50 text-gray-400"
                                 }`}
                               >
-                                {isVisible ? content : ""}
+                                {content || "—"}
                               </td>
                             );
                           })}
@@ -681,6 +693,48 @@ export default function FunctionAnalysisPage() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* No results message */}
+        {reportData && filteredFunctions.length === 0 && (
+          <Card>
+            <CardContent className="text-center py-8">
+              <div className="text-gray-500">
+                <Filter className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium mb-2">
+                  No functions match the current filters
+                </h3>
+                <p className="text-sm mb-4">
+                  Try adjusting your column filters to see more results.
+                </p>
+                {Object.values(columnFilters).some((filter) =>
+                  Object.values(filter).some((checked) => !checked),
+                ) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSortState({ column: null, direction: null });
+                      // Reset all column filters to show all
+                      if (reportData) {
+                        const resetFilters: ColumnFilter = {};
+                        Object.keys(reportData).forEach((fileName) => {
+                          const uniqueValues = getUniqueValuesInFile(fileName);
+                          resetFilters[fileName] = {};
+                          uniqueValues.forEach((cellValue) => {
+                            resetFilters[fileName][cellValue] = true;
+                          });
+                        });
+                        setColumnFilters(resetFilters);
+                      }
+                    }}
+                  >
+                    Clear All Filters
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

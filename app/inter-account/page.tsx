@@ -190,6 +190,7 @@ export default function Home() {
           showCategoryFilter={true}
           showDescriptionFilter={true}
           showTotalAmount={true}
+          TransactionTableName="Brasil_transactions_agregated_2025"
         />
       </div>
     </ProtectedRoute>

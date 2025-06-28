@@ -12,6 +12,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ChevronDown, Filter } from "lucide-react";
 import ProtectedRoute from "@/components/protected-route";
 
 interface FunctionData {
@@ -31,6 +41,12 @@ interface SortState {
   direction: SortDirection;
 }
 
+interface ColumnFilter {
+  [fileName: string]: {
+    [functionName: string]: boolean;
+  };
+}
+
 export default function FunctionAnalysisPage() {
   const [availableReports, setAvailableReports] = useState<string[]>([]);
   const [selectedReport, setSelectedReport] = useState<string>("");
@@ -43,6 +59,7 @@ export default function FunctionAnalysisPage() {
     column: null,
     direction: null,
   });
+  const [columnFilters, setColumnFilters] = useState<ColumnFilter>({});
 
   // Load available report files on component mount
   useEffect(() => {
@@ -130,6 +147,85 @@ export default function FunctionAnalysisPage() {
     return "";
   };
 
+  // Get functions that have content in a specific file
+  const getFunctionsInFile = (fileName: string): string[] => {
+    if (!reportData || !reportData[fileName]) return [];
+
+    const fileData = reportData[fileName];
+    const functionsInFile = new Set<string>();
+
+    fileData.defined.forEach((func) => functionsInFile.add(func));
+    fileData.called.forEach((func) => functionsInFile.add(func));
+
+    return Array.from(functionsInFile).sort();
+  };
+
+  // Initialize column filters when report data changes
+  useEffect(() => {
+    if (reportData) {
+      const newColumnFilters: ColumnFilter = {};
+
+      Object.keys(reportData).forEach((fileName) => {
+        const functionsInFile = getFunctionsInFile(fileName);
+        newColumnFilters[fileName] = {};
+
+        functionsInFile.forEach((functionName) => {
+          newColumnFilters[fileName][functionName] = true; // Show all by default
+        });
+      });
+
+      setColumnFilters(newColumnFilters);
+    }
+  }, [reportData]);
+
+  // Handle column filter changes
+  const handleColumnFilterChange = (
+    fileName: string,
+    functionName: string,
+    checked: boolean,
+  ) => {
+    setColumnFilters((prev) => ({
+      ...prev,
+      [fileName]: {
+        ...prev[fileName],
+        [functionName]: checked,
+      },
+    }));
+  };
+
+  // Handle select all/none for a column
+  const handleColumnFilterSelectAll = (
+    fileName: string,
+    selectAll: boolean,
+  ) => {
+    const functionsInFile = getFunctionsInFile(fileName);
+
+    setColumnFilters((prev) => ({
+      ...prev,
+      [fileName]: functionsInFile.reduce(
+        (acc, functionName) => {
+          acc[functionName] = selectAll;
+          return acc;
+        },
+        {} as { [functionName: string]: boolean },
+      ),
+    }));
+  };
+
+  // Check if function should be visible in a column based on filter
+  const isFunctionVisibleInColumn = (
+    functionName: string,
+    fileName: string,
+  ): boolean => {
+    const cellContent = getCellContent(functionName, fileName);
+    if (!cellContent) return false; // Don't show empty cells
+
+    const columnFilter = columnFilters[fileName];
+    if (!columnFilter) return true; // Show if no filter set
+
+    return columnFilter[functionName] !== false; // Show if not explicitly hidden
+  };
+
   // Get filtered and sorted functions
   const getFilteredFunctions = useMemo((): string[] => {
     const allFunctions = getAllFunctions();
@@ -141,6 +237,16 @@ export default function FunctionAnalysisPage() {
       filtered = filtered.filter((func) =>
         func.toLowerCase().includes(functionFilter.toLowerCase()),
       );
+    }
+
+    // Apply column filters - only show functions that are visible in at least one column
+    if (Object.keys(columnFilters).length > 0) {
+      filtered = filtered.filter((functionName) => {
+        const filteredFileNames = getFilteredFileNames();
+        return filteredFileNames.some((fileName) =>
+          isFunctionVisibleInColumn(functionName, fileName),
+        );
+      });
     }
 
     // Apply sorting
@@ -180,7 +286,7 @@ export default function FunctionAnalysisPage() {
     }
 
     return filtered;
-  }, [reportData, functionFilter, sortState]);
+  }, [reportData, functionFilter, sortState, columnFilters]);
 
   // Handle column header click for sorting
   const handleSort = (column: string) => {
@@ -310,7 +416,11 @@ export default function FunctionAnalysisPage() {
               </div>
 
               {/* Clear filters */}
-              {(functionFilter || fileFilter) && (
+              {(functionFilter ||
+                fileFilter ||
+                Object.values(columnFilters).some((filter) =>
+                  Object.values(filter).some((checked) => !checked),
+                )) && (
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -319,6 +429,18 @@ export default function FunctionAnalysisPage() {
                       setFunctionFilter("");
                       setFileFilter("");
                       setSortState({ column: null, direction: null });
+                      // Reset all column filters to show all
+                      if (reportData) {
+                        const resetFilters: ColumnFilter = {};
+                        Object.keys(reportData).forEach((fileName) => {
+                          const functionsInFile = getFunctionsInFile(fileName);
+                          resetFilters[fileName] = {};
+                          functionsInFile.forEach((functionName) => {
+                            resetFilters[fileName][functionName] = true;
+                          });
+                        });
+                        setColumnFilters(resetFilters);
+                      }
                     }}
                   >
                     Clear All Filters
@@ -345,6 +467,13 @@ export default function FunctionAnalysisPage() {
                   ` across ${filteredFileNames.length} of ${Object.keys(reportData).length} files`}
                 {sortState.column &&
                   ` (sorted by ${sortState.column} ${sortState.direction})`}
+                {Object.values(columnFilters).some((filter) =>
+                  Object.values(filter).some((checked) => !checked),
+                ) && (
+                  <span className="block mt-1 text-blue-600">
+                    ⚡ Column filters active
+                  </span>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -382,6 +511,13 @@ export default function FunctionAnalysisPage() {
                     💡 <strong>Tip:</strong> Click column headers to sort
                   </span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-gray-600" />
+                  <span className="text-gray-600 text-sm">
+                    <strong>Column Filters:</strong> Use filter buttons in
+                    headers to show/hide specific functions per file
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -417,24 +553,139 @@ export default function FunctionAnalysisPage() {
                         </div>
                       </th>
                       {filteredFileNames.map(
-                        (fileName: string, index: number) => (
-                          <th
-                            key={fileName}
-                            className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
-                            title={`${fileName} (Column ${index + 1}) - Click to sort`}
-                            onClick={() => handleSort(fileName)}
-                          >
-                            <div className="text-sm truncate">
-                              {fileName.replace(/\.(tsx?|js)$/, "")}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1 font-mono">
-                              .{fileName.split(".").pop()}
-                            </div>
-                            <div className="text-xs mt-1">
-                              {getSortIndicator(fileName)}
-                            </div>
-                          </th>
-                        ),
+                        (fileName: string, index: number) => {
+                          const functionsInFile = getFunctionsInFile(fileName);
+                          const selectedCount = functionsInFile.filter(
+                            (func) => columnFilters[fileName]?.[func] !== false,
+                          ).length;
+                          const hasActiveFilter =
+                            selectedCount < functionsInFile.length;
+
+                          return (
+                            <th
+                              key={fileName}
+                              className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative"
+                              title={`${fileName} (Column ${index + 1})`}
+                            >
+                              <div className="flex flex-col items-center space-y-2">
+                                <div
+                                  className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full"
+                                  onClick={() => handleSort(fileName)}
+                                >
+                                  <div className="flex-1">
+                                    <div className="text-sm truncate">
+                                      {fileName.replace(/\.(tsx?|js)$/, "")}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                                      .{fileName.split(".").pop()}
+                                    </div>
+                                  </div>
+                                  <div className="text-xs ml-1">
+                                    {getSortIndicator(fileName)}
+                                  </div>
+                                </div>
+
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className={`h-6 w-6 p-0 ${hasActiveFilter ? "text-blue-600" : "text-gray-400"}`}
+                                      title="Filter column"
+                                    >
+                                      <Filter className="h-3 w-3" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent className="w-64 max-h-96 overflow-y-auto">
+                                    <div className="p-2 border-b">
+                                      <div className="text-sm font-medium mb-2">
+                                        Filter {fileName}
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() =>
+                                            handleColumnFilterSelectAll(
+                                              fileName,
+                                              true,
+                                            )
+                                          }
+                                          className="text-xs h-7"
+                                        >
+                                          Select All
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() =>
+                                            handleColumnFilterSelectAll(
+                                              fileName,
+                                              false,
+                                            )
+                                          }
+                                          className="text-xs h-7"
+                                        >
+                                          Select None
+                                        </Button>
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {selectedCount} of{" "}
+                                        {functionsInFile.length} selected
+                                      </div>
+                                    </div>
+
+                                    {functionsInFile.map((functionName) => {
+                                      const cellContent = getCellContent(
+                                        functionName,
+                                        fileName,
+                                      );
+                                      const isChecked =
+                                        columnFilters[fileName]?.[
+                                          functionName
+                                        ] !== false;
+
+                                      return (
+                                        <DropdownMenuCheckboxItem
+                                          key={functionName}
+                                          checked={isChecked}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              fileName,
+                                              functionName,
+                                              checked,
+                                            )
+                                          }
+                                          className="text-xs"
+                                        >
+                                          <div className="flex items-center justify-between w-full">
+                                            <code className="text-xs">
+                                              {functionName}
+                                            </code>
+                                            <Badge
+                                              variant="outline"
+                                              className={`ml-2 text-xs h-4 ${
+                                                cellContent === "D"
+                                                  ? "bg-blue-100 text-blue-800"
+                                                  : cellContent === "C"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : cellContent === "D/C"
+                                                      ? "bg-purple-100 text-purple-800"
+                                                      : "bg-gray-100 text-gray-600"
+                                              }`}
+                                            >
+                                              {cellContent}
+                                            </Badge>
+                                          </div>
+                                        </DropdownMenuCheckboxItem>
+                                      );
+                                    })}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </th>
+                          );
+                        },
                       )}
                     </tr>
                   </thead>
@@ -459,12 +710,21 @@ export default function FunctionAnalysisPage() {
                               functionName,
                               fileName,
                             );
+                            const isVisible = isFunctionVisibleInColumn(
+                              functionName,
+                              fileName,
+                            );
+
                             return (
                               <td
                                 key={`${functionName}-${fileName}`}
-                                className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${getCellStyle(content)}`}
+                                className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${
+                                  isVisible && content
+                                    ? getCellStyle(content)
+                                    : "bg-gray-50 text-gray-300"
+                                }`}
                               >
-                                {content}
+                                {isVisible ? content : ""}
                               </td>
                             );
                           })}

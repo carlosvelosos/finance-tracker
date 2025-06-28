@@ -662,8 +662,9 @@ export default function InterAccountInfo() {
                         </a>
                       </li>
                       <li>
-                        <strong>Select Bank:</strong> Choose "Inter-BR" from the
-                        bank dropdown (important for correct table creation)
+                        <strong>Select Bank:</strong> Choose "Inter-BR-Account"
+                        from the bank dropdown (important for correct table
+                        creation for bank account statements)
                       </li>
                       <li>
                         <strong>Choose File:</strong> Select the downloaded
@@ -740,7 +741,8 @@ export default function InterAccountInfo() {
                       </li>
                       <li>
                         <strong>Bank Filter Ready:</strong> All tables tagged
-                        with "Inter-BR" bank designation
+                        with "Inter-BR-Account" bank designation for account
+                        statements
                       </li>
                     </ul>
                   </div>
@@ -811,13 +813,15 @@ export default function InterAccountInfo() {
                       </p>
                       <p className="text-xs text-teal-700">
                         The Inter Account page automatically filters and
-                        displays only Inter-BR bank account transactions.
+                        displays only Inter-BR-Account bank account
+                        transactions.
                       </p>
                     </div>
                     <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
                       <li>
                         <strong>Auto-Filter:</strong> Page automatically shows
-                        only "Inter-BR" transactions from aggregated table
+                        only "Inter-BR-Account" transactions from aggregated
+                        table
                       </li>
                       <li>
                         <strong>Month Filter:</strong> Filter transactions by
@@ -968,7 +972,7 @@ export default function InterAccountInfo() {
                   </li>
                   <li>
                     <strong>Bank Filter:</strong> Pre-filtered to show
-                    "Inter-BR" transactions from the aggregated dataset
+                    "Inter-BR-Account" transactions from the aggregated dataset
                   </li>
                   <li>
                     <strong>Initial Sort:</strong> Date column, descending order

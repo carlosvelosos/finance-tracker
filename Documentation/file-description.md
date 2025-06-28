@@ -23,7 +23,10 @@ This document outlines the directory structure of the project.
 - [`app/handelsbanken`](#apphandelsbanken)
 - [`app/handelsbanken/category`](#apphandelsbankencategory)
 - [`app/handelsbanken/category/chart`](#apphandelsbankencategorychart)
+- [`app/handelsbanken/overview`](#apphandelsbankenview)
+- [`app/handelsbanken/overview/chart`](#apphandelsbankenoverviewchart)
 - [`app/inter`](#appinter)
+- [`app/inter/chart`](#appinterchart)
 - [`app/inter-account`](#appinter-account)
 - [`app/inter-account/category`](#appinter-accountcategory)
 - [`app/inter-account/category/chart`](#appinter-accountcategorychart)
@@ -419,6 +422,45 @@ This document outlines the directory structure of the project.
 - **Summary:** This directory is dedicated to features for Handelsbanken accounts.
 - **Files:**
   - `page.tsx` - Handelsbanken main page component
+    - **Functions:**
+      - `Home()` - Main component function for Handelsbanken transactions page
+      - `fetchTransactions()` - Async function to fetch Handelsbanken transaction data from Supabase
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (Handelsbanken only)
+      - Comprehensive transaction filtering and sorting capabilities
+      - Navigation to category and overview chart visualizations
+      - Data update functionality through UpdateAggregatedButton
+      - Authentication-based access control
+      - Responsive design with container layout
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Filters transactions by user ID for authenticated user
+      - Uses TypeScript Transaction interface with comprehensive field mapping
+      - Real-time state management with React hooks
+      - Bank-specific filtering applied to TransactionTable component
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with responsive padding (mx-auto p-4)
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view your transactions."
+        - **Authenticated State**:
+          - Page title: "Handelsbanken Transactions" (h1, centered, bold, mb-6)
+          - **Action Buttons Section** (Flexbox with space-between layout):
+            - **Left Side**: `UpdateAggregatedButton` component for data updates
+            - **Right Side**: Two navigation buttons with space-x-4 gap:
+              - "Category Chart" button - Navigates to `./category/chart`
+              - "Overview Chart" button - Navigates to `./overview/chart`
+            - **Button Styling**: Black background, white text, green hover and border effects
+          - `TransactionTable` component with full configuration:
+            - **Data**: All fetched transactions
+            - **Bank Filter**: "Handelsbanken" (pre-filtered)
+            - **Initial Sort**: Date column, descending order
+            - **Column Visibility**: All columns visible (hiddenColumns: [])
+            - **Filters Enabled**: Month, category, and description filters
+            - **Features**: Total amount display enabled
+            - **Responsive**: Full-width table layout
 - **Subdirectories:**
   - `category/` - Transaction categories for Handelsbanken
   - `overview/` - Overview features for Handelsbanken
@@ -438,6 +480,94 @@ This document outlines the directory structure of the project.
 - **Summary:** Chart components for visualizing Handelsbanken transaction categories.
 - **Files:**
   - `page.tsx` - Handelsbanken category chart component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for Handelsbanken category chart visualization
+      - `fetchTransactions()` - Async function to fetch Handelsbanken transaction data from Supabase
+      - `transactions.filter()` - Filters out specific invoice and administrative categories from chart data
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (Handelsbanken only)
+      - Category-based chart visualization with filtered data
+      - Responsive chart display with centered layout
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Category filtering to exclude invoice and administrative transactions
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Applies dual filtering: user ID and bank ("Handelsbanken")
+      - Filters out categories: "Amex Invoice", "SEB SJ Prio Invoice", "Investment", "Sek to Reais", "SJ PRIO MASTER Invoice", "Income - Salary", "Income - Skat"
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout and full screen height
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - Container div with vertical padding (pt-8 pb-8)
+          - `CustomBarChart` component with configuration:
+            - **Data**: Filtered Handelsbanken transaction data (excludes invoice/administrative categories)
+            - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+            - **Title**: "Total Amount per Category"
+            - **Description**: "Showing totals for Handelsbanken transactions"
+            - **Layout**: Responsive chart with automatic sizing
+
+### `app/handelsbanken/overview`
+
+- **Parent Directory:** `handelsbanken`
+- **Path:** `app/handelsbanken/overview`
+- **Summary:** Overview features for Handelsbanken accounts.
+- **Subdirectories:**
+  - `chart/` - Chart visualizations for overview data
+
+### `app/handelsbanken/overview/chart`
+
+- **Parent Directory:** `overview`
+- **Path:** `app/handelsbanken/overview/chart`
+- **Summary:** Chart components for visualizing Handelsbanken overview data with multiple chart types.
+- **Files:**
+  - `page.tsx` - Handelsbanken overview chart component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for Handelsbanken overview chart visualization
+      - `fetchTransactions()` - Async function to fetch Handelsbanken transaction data from Supabase
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (Handelsbanken only)
+      - Dual chart visualization with line and bar charts
+      - Responsive chart display with centered layout and vertical stacking
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Full transaction data visualization (no category filtering)
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Applies dual filtering: user ID and bank ("Handelsbanken")
+      - No category filtering applied (shows all transaction data)
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout, full screen height, and vertical spacing (space-y-50)
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - **First Chart Section**:
+            - Container div with top padding (pt-20) and full width with max-width constraint (max-w-7xl)
+            - `TransactionLineChart` component with configuration:
+              - **Data**: All Handelsbanken transaction data (unfiltered)
+              - **Title**: "Handelsbanken Cumulative Flow"
+              - **Description**: Empty string (no description)
+              - **Styling**: Border-none, transparent background, no shadow (className: "border-none bg-transparent shadow-none")
+              - **Layout**: Responsive line chart showing cumulative transaction flow over time
+          - **Second Chart Section**:
+            - Container div with bottom padding (pb-8) and full width with max-width constraint (max-w-5xl)
+            - `CustomBarChart` component with configuration:
+              - **Data**: All Handelsbanken transaction data (unfiltered)
+              - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+              - **Title**: "Total Amount per Category"
+              - **Description**: "Showing totals for Handelsbanken transactions"
+              - **Layout**: Responsive bar chart displaying category-based aggregation
 
 ### `app/inter`
 
@@ -446,6 +576,89 @@ This document outlines the directory structure of the project.
 - **Summary:** This directory is likely for features related to Inter bank accounts.
 - **Files:**
   - `page.tsx` - Inter bank main page component
+    - **Functions:**
+      - `Home()` - Main component function for Inter bank transactions page
+      - `fetchTransactions()` - Async function to fetch Inter bank transaction data from Supabase
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Inter-specific table
+      - Bank-specific filtering (Inter Black only)
+      - Comprehensive transaction filtering and sorting capabilities
+      - External link to Inter bank statement download
+      - Navigation to chart visualization page
+      - Authentication-based access control
+      - Responsive design with container layout
+      - Uses custom table name configuration
+    - **Data Processing:**
+      - Fetches from `IN_ALL` table (Inter-specific table)
+      - Filters transactions by user ID for authenticated user
+      - Uses TypeScript Transaction interface with comprehensive field mapping
+      - Real-time state management with React hooks
+      - Bank-specific filtering applied to TransactionTable component
+      - Custom TransactionTableName parameter passed to table component
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with responsive padding (mx-auto p-4)
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view your transactions."
+        - **Authenticated State**:
+          - Page title: "Inter Transactions" (h1, centered, bold, mb-6)
+          - **Action Buttons Section** (Right-aligned with gap-3 spacing):
+            - "Download Invoice" button - Opens Inter bank statement page in new tab (https://contadigital.inter.co/extrato)
+              - **Styling**: Black background, white text, green hover effect (hover:bg-green-300)
+            - "Go to Chart Page" button - Navigates to chart visualization (./chart)
+              - **Styling**: Black background, white text, green hover and border effects
+          - `TransactionTable` component with full configuration:
+            - **Data**: All fetched transactions from IN_ALL table
+            - **TransactionTableName**: "IN_ALL" (custom table identifier)
+            - **Bank Filter**: "Inter Black" (pre-filtered)
+            - **Initial Sort**: Date column, descending order
+            - **Column Visibility**: All columns visible (hiddenColumns: [])
+            - **Filters Enabled**: Month, category, and description filters
+            - **Features**: Total amount display enabled
+            - **Responsive**: Full-width table layout
+
+### `app/inter/chart`
+
+- **Parent Directory:** `inter`
+- **Path:** `app/inter/chart`
+- **Summary:** Chart components for visualizing Inter bank transaction data.
+- **Files:**
+  - `page.tsx` - Inter bank chart visualization component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for Inter bank category chart visualization
+      - `fetchTransactions()` - Async function to fetch Inter bank transaction data from Supabase
+      - `transactions.filter()` - Filters out specific invoice and administrative categories from chart data
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Inter-specific table
+      - Bank-specific filtering (Inter Black only)
+      - Category-based chart visualization with filtered data
+      - Responsive chart display with centered layout
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Category filtering to exclude invoice and administrative transactions
+      - Uses custom table name configuration
+    - **Data Processing:**
+      - Fetches from `IN_ALL` table (Inter-specific table)
+      - Applies dual filtering: user ID and bank ("Inter Black")
+      - Filters out categories: "Amex Invoice", "SEB SJ Prio Invoice", "Investment", "Sek to Reais", "SJ PRIO MASTER Invoice", "Income - Salary", "Income - Skat"
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+      - Custom TransactionTableName constant set to "IN_ALL"
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout and full screen height
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - Container div with vertical padding (pt-8 pb-8)
+          - `CustomBarChart` component with configuration:
+            - **Data**: Filtered Inter bank transaction data (excludes invoice/administrative categories)
+            - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+            - **Title**: "Total Amount per Category"
+            - **Description**: "Showing totals for Inter transactions"
+            - **Layout**: Responsive chart with automatic sizing
 
 ### `app/inter-account`
 
@@ -454,6 +667,67 @@ This document outlines the directory structure of the project.
 - **Summary:** This directory likely contains features for managing Inter bank accounts.
 - **Files:**
   - `page.tsx` - Inter account main page component
+    - **Functions:**
+      - `Home()` - Main component function for Inter account transactions page
+      - `fetchTransactions()` - Async function to fetch Inter account transaction data from Supabase
+      - `calculateBankInfo()` - Processes transaction data to extract bank statistics and metadata
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Brasil aggregated table
+      - Bank information dashboard with comprehensive statistics
+      - Data source transparency with table information display
+      - Bank-specific filtering (Inter-BR only)
+      - Comprehensive transaction filtering and sorting capabilities
+      - Multiple update buttons for data aggregation
+      - Navigation to category and overview chart visualizations
+      - Info page integration for component guidance
+      - Authentication-based access control
+      - Responsive design with container layout
+    - **Data Processing:**
+      - Fetches from `Brasil_transactions_agregated_2025` table
+      - Filters transactions by user ID for authenticated user
+      - Calculates unique banks from transaction data
+      - Determines newest transaction date per bank
+      - Counts transactions per bank
+      - Uses TypeScript Transaction interface with comprehensive field mapping
+      - Real-time state management with React hooks for transactions and bank info
+      - Bank-specific filtering applied to TransactionTable component
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with responsive padding (mx-auto p-4)
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view your transactions."
+        - **Authenticated State**:
+          - Page title: "Inter Account Transactions" (h1, centered, bold, mb-6)
+          - **Info Button Section** (Centered):
+            - "Page Info & Component Guide" button with Info icon - Navigates to ./info
+            - **Styling**: Gray background, white text, gray hover effects, Info icon from Lucide
+          - **Data Sources Information Panel** (Gray background container):
+            - Section title: "Data Sources" (h2, semibold)
+            - Description of Supabase table usage
+            - **Table Information**:
+              - Brasil_transactions_agregated_2025 table description
+            - **Statistics Grid** (1 column mobile, 3 columns desktop):
+              - **Column 1**: Total transactions and unique banks summary
+              - **Column 2**: Transaction count per bank breakdown
+              - **Column 3**: Newest transaction date per bank
+          - **Action Buttons Section** (Flexbox with space-between layout):
+            - **Left Side**: Two update buttons with space-x-3 gap:
+              - `UpdateAggregatedButton` component for general data updates
+              - `UpdateInterAggregatedButton` component for Inter-specific updates
+            - **Right Side**: Two navigation buttons with space-x-4 gap:
+              - "Category Chart" button - Navigates to `./category/chart`
+              - "Overview Chart" button - Navigates to `./overview/chart`
+            - **Button Styling**: Black background, white text, green hover and border effects
+          - `TransactionTable` component with full configuration:
+            - **Data**: All fetched transactions from Brasil aggregated table
+            - **Bank Filter**: "Inter-BR" (pre-filtered)
+            - **Initial Sort**: Date column, descending order
+            - **Column Visibility**: All columns visible (hiddenColumns: [])
+            - **Filters Enabled**: Month, category, and description filters
+            - **Features**: Total amount display enabled
+            - **TransactionTableName**: "Brasil_transactions_agregated_2025" (custom table identifier)
+            - **Responsive**: Full-width table layout
 - **Subdirectories:**
   - `category/` - Transaction categories for Inter accounts
   - `info/` - Account information
@@ -474,6 +748,43 @@ This document outlines the directory structure of the project.
 - **Summary:** Chart components for visualizing Inter bank account transaction categories.
 - **Files:**
   - `page.tsx` - Inter account category chart component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for Inter account category chart visualization
+      - `fetchTransactions()` - Async function to fetch transaction data from Supabase
+      - `transactions.filter()` - Filters out specific invoice and administrative categories from chart data
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Bank-specific filtering (configured for Handelsbanken - appears to be misconfigured)
+      - Category-based chart visualization with filtered data
+      - Responsive chart display with centered layout
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Category filtering to exclude invoice and administrative transactions
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table (Note: This appears inconsistent with Inter-account context)
+      - Applies dual filtering: user ID and bank ("Handelsbanken" - likely should be "Inter-BR")
+      - Filters out categories: "Amex Invoice", "SEB SJ Prio Invoice", "Investment", "Sek to Reais", "SJ PRIO MASTER Invoice", "Income - Salary", "Income - Skat"
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout and full screen height
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - Container div with vertical padding (pt-8 pb-8)
+          - `CustomBarChart` component with configuration:
+            - **Data**: Filtered transaction data (excludes invoice/administrative categories)
+            - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+            - **Title**: "Total Amount per Category"
+            - **Description**: "Showing totals for Handelsbanken transactions" (Note: Inconsistent with Inter-account context)
+            - **Layout**: Responsive chart with automatic sizing
+    - **⚠️ Configuration Issues:**
+      - Bank filter is set to "Handelsbanken" instead of expected "Inter-BR"
+      - Table source is "Sweden_transactions_agregated_2025" instead of expected "Brasil_transactions_agregated_2025"
+      - Chart description mentions "Handelsbanken transactions" instead of "Inter account transactions"
+      - This appears to be copied from Handelsbanken chart without proper Inter-account customization
 
 ### `app/inter-account/info`
 
@@ -567,7 +878,10 @@ This document outlines the directory structure of the project.
 | `handelsbanken`   | `app`            | `app/handelsbanken`                |
 | `category`        | `handelsbanken`  | `app/handelsbanken/category`       |
 | `chart`           | `category`       | `app/handelsbanken/category/chart` |
+| `overview`        | `handelsbanken`  | `app/handelsbanken/overview`       |
+| `chart`           | `overview`       | `app/handelsbanken/overview/chart` |
 | `inter`           | `app`            | `app/inter`                        |
+| `chart`           | `inter`          | `app/inter/chart`                  |
 | `inter-account`   | `app`            | `app/inter-account`                |
 | `category`        | `inter-account`  | `app/inter-account/category`       |
 | `chart`           | `category`       | `app/inter-account/category/chart` |

@@ -9,6 +9,11 @@ import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
 import UpdateInterAggregatedButton from "@/components/UpdateInterAggregatedButton";
 import { Transaction } from "@/types/transaction";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export default function Home() {
   const { user } = useAuth();
@@ -150,8 +155,173 @@ export default function Home() {
         {/* Chart Buttons */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex space-x-3">
-            <UpdateAggregatedButton />
-            <UpdateInterAggregatedButton />
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <div>
+                  <UpdateAggregatedButton />
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold">
+                    Update Aggregated Data
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    This button updates the aggregated transaction data by
+                    consolidating information from multiple source tables into
+                    the main aggregated table. It processes new transactions and
+                    ensures all data is properly synchronized and categorized.
+                  </p>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>What happens when clicked:</strong>
+                    <ol className="list-decimal list-inside mt-1 space-y-1">
+                      <li>Opens a preview dialog showing pending updates</li>
+                      <li>
+                        Calls <code>getUpdatePreview()</code> to analyze new
+                        transactions
+                      </li>
+                      <li>Scans HB_2025 table for unprocessed transactions</li>
+                      <li>Shows summary of transactions to be added</li>
+                      <li>
+                        Upon confirmation, calls <code>executeUpdate()</code>
+                      </li>
+                      <li>
+                        Inserts new transactions into
+                        Brasil_transactions_agregated_2025
+                      </li>
+                    </ol>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>User Interaction Required:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1 text-orange-600">
+                      <li>⚠️ Click to start the update process</li>
+                      <li>⚠️ Review preview of transactions to be added</li>
+                      <li>⚠️ Confirm or cancel the update operation</li>
+                    </ul>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Automatic Operations:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1 text-green-600">
+                      <li>✓ Scan HB_2025 table for new transactions</li>
+                      <li>✓ Compare with existing aggregated data</li>
+                      <li>✓ Format and categorize transactions</li>
+                      <li>✓ Insert approved transactions into database</li>
+                      <li>✓ Update transaction counters and statistics</li>
+                    </ul>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Function Stack:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1">
+                      <li>
+                        <code>handleStartUpdate()</code> →{" "}
+                        <code>getUpdatePreview()</code>
+                      </li>
+                      <li>
+                        <code>handleConfirmUpdate()</code> →{" "}
+                        <code>executeUpdate()</code>
+                      </li>
+                      <li>
+                        Supabase operations on HB_2025 and aggregated tables
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <div>
+                  <UpdateInterAggregatedButton />
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold">Update Inter Data</h4>
+                  <p className="text-sm text-muted-foreground">
+                    This button specifically updates transaction data from Inter
+                    Bank Brasil accounts. It processes Inter bank statements and
+                    integrates them into the aggregated data system.
+                  </p>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>What happens when clicked:</strong>
+                    <ol className="list-decimal list-inside mt-1 space-y-1">
+                      <li>Opens a dialog with Inter table selection options</li>
+                      <li>
+                        Calls <code>getInterUpdatePreview()</code> to scan for
+                        IN_* tables
+                      </li>
+                      <li>
+                        Detects available Inter tables (IN_2023, IN_2024, etc.)
+                      </li>
+                      <li>Allows selection of specific tables to process</li>
+                      <li>
+                        Shows preview of transactions from selected tables
+                      </li>
+                      <li>
+                        Upon confirmation, calls{" "}
+                        <code>executeInterUpdate()</code>
+                      </li>
+                      <li>
+                        Processes each selected table and adds to aggregated
+                        data
+                      </li>
+                    </ol>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>User Interaction Required:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1 text-orange-600">
+                      <li>⚠️ Click to start the update process</li>
+                      <li>
+                        ⚠️ Select which Inter tables to process (IN_2023,
+                        IN_2024, etc.)
+                      </li>
+                      <li>
+                        ⚠️ Review preview of transactions from selected tables
+                      </li>
+                      <li>⚠️ Confirm or cancel the update operation</li>
+                    </ul>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Automatic Operations:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1 text-green-600">
+                      <li>✓ Detect available Inter tables (IN_*)</li>
+                      <li>✓ Check which tables are already processed</li>
+                      <li>✓ Load transaction previews for selected tables</li>
+                      <li>
+                        ✓ Format Inter transactions to match aggregated schema
+                      </li>
+                      <li>
+                        ✓ Insert approved transactions with Inter-BR bank
+                        designation
+                      </li>
+                      <li>✓ Update source_table references and metadata</li>
+                    </ul>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Function Stack:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1">
+                      <li>
+                        <code>handleStartUpdate()</code> →{" "}
+                        <code>getInterUpdatePreview()</code>
+                      </li>
+                      <li>
+                        <code>handleTableSelection()</code> →{" "}
+                        <code>previewInterTableTransactions()</code>
+                      </li>
+                      <li>
+                        <code>handleConfirmUpdate()</code> →{" "}
+                        <code>executeInterUpdate()</code>
+                      </li>
+                      <li>
+                        Supabase operations on IN_* and
+                        Brasil_transactions_agregated_2025 tables
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
           </div>
           <div className="flex space-x-4">
             <Button

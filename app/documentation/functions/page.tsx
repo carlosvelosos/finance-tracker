@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import ProtectedRoute from "@/components/protected-route";
 
 interface FunctionData {
@@ -23,12 +24,25 @@ interface ReportData {
   [fileName: string]: FunctionData;
 }
 
+type SortDirection = "asc" | "desc" | null;
+
+interface SortState {
+  column: string | null;
+  direction: SortDirection;
+}
+
 export default function FunctionAnalysisPage() {
   const [availableReports, setAvailableReports] = useState<string[]>([]);
   const [selectedReport, setSelectedReport] = useState<string>("");
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [functionFilter, setFunctionFilter] = useState<string>("");
+  const [fileFilter, setFileFilter] = useState<string>("");
+  const [sortState, setSortState] = useState<SortState>({
+    column: null,
+    direction: null,
+  });
 
   // Load available report files on component mount
   useEffect(() => {
@@ -74,7 +88,7 @@ export default function FunctionAnalysisPage() {
     loadReportData(reportFileName);
   };
 
-  // Get all unique functions across all files
+  // Get all unique functions across all files with filtering and sorting
   const getAllFunctions = (): string[] => {
     if (!reportData) return [];
 
@@ -85,6 +99,21 @@ export default function FunctionAnalysisPage() {
     });
 
     return Array.from(allFunctions).sort();
+  };
+
+  // Get filtered file names
+  const getFilteredFileNames = (): string[] => {
+    if (!reportData) return [];
+
+    const fileNames = Object.keys(reportData);
+
+    if (!fileFilter) return fileNames.sort();
+
+    return fileNames
+      .filter((fileName) =>
+        fileName.toLowerCase().includes(fileFilter.toLowerCase()),
+      )
+      .sort();
   };
 
   // Get cell content for function-file intersection
@@ -99,6 +128,85 @@ export default function FunctionAnalysisPage() {
     if (isDefined) return "D";
     if (isCalled) return "C";
     return "";
+  };
+
+  // Get filtered and sorted functions
+  const getFilteredFunctions = useMemo((): string[] => {
+    const allFunctions = getAllFunctions();
+
+    let filtered = allFunctions;
+
+    // Apply function name filter
+    if (functionFilter) {
+      filtered = filtered.filter((func) =>
+        func.toLowerCase().includes(functionFilter.toLowerCase()),
+      );
+    }
+
+    // Apply sorting
+    if (sortState.column && sortState.direction) {
+      if (sortState.column === "function") {
+        filtered = filtered.sort((a, b) => {
+          const comparison = a.localeCompare(b);
+          return sortState.direction === "asc" ? comparison : -comparison;
+        });
+      } else {
+        // Sort by file column (count of D, C, or D/C in that file)
+        const fileName = sortState.column;
+        if (reportData && reportData[fileName]) {
+          filtered = filtered.sort((a, b) => {
+            const aContent = getCellContent(a, fileName);
+            const bContent = getCellContent(b, fileName);
+
+            // Sort order: D/C > D > C > empty
+            const getWeight = (content: string) => {
+              switch (content) {
+                case "D/C":
+                  return 4;
+                case "D":
+                  return 3;
+                case "C":
+                  return 2;
+                default:
+                  return 1;
+              }
+            };
+
+            const comparison = getWeight(aContent) - getWeight(bContent);
+            return sortState.direction === "asc" ? comparison : -comparison;
+          });
+        }
+      }
+    }
+
+    return filtered;
+  }, [reportData, functionFilter, sortState]);
+
+  // Handle column header click for sorting
+  const handleSort = (column: string) => {
+    setSortState((prev) => {
+      if (prev.column === column) {
+        // Cycle through: asc -> desc -> null
+        const newDirection: SortDirection =
+          prev.direction === "asc"
+            ? "desc"
+            : prev.direction === "desc"
+              ? null
+              : "asc";
+        return {
+          column: newDirection ? column : null,
+          direction: newDirection,
+        };
+      } else {
+        return { column, direction: "asc" };
+      }
+    });
+  };
+
+  // Get sort indicator for column headers
+  const getSortIndicator = (column: string): string => {
+    if (sortState.column !== column) return "↕️";
+    return sortState.direction === "asc" ? "↑" : "↓";
   };
 
   // Get cell styling based on content
@@ -116,7 +224,8 @@ export default function FunctionAnalysisPage() {
   };
 
   const allFunctions = getAllFunctions();
-  const fileNames = reportData ? Object.keys(reportData).sort() : [];
+  const filteredFunctions = getFilteredFunctions;
+  const filteredFileNames = getFilteredFileNames();
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
@@ -170,6 +279,77 @@ export default function FunctionAnalysisPage() {
           </CardContent>
         </Card>
 
+        {/* Filters */}
+        {reportData && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Filters & Search</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Filter Functions:
+                  </label>
+                  <Input
+                    placeholder="Search function names..."
+                    value={functionFilter}
+                    onChange={(e) => setFunctionFilter(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Filter Files:</label>
+                  <Input
+                    placeholder="Search file names..."
+                    value={fileFilter}
+                    onChange={(e) => setFileFilter(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* Clear filters */}
+              {(functionFilter || fileFilter) && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFunctionFilter("");
+                      setFileFilter("");
+                      setSortState({ column: null, direction: null });
+                    }}
+                  >
+                    Clear All Filters
+                  </Button>
+                  {sortState.column && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setSortState({ column: null, direction: null })
+                      }
+                    >
+                      Clear Sort
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Filter summary */}
+              <div className="text-sm text-gray-600">
+                Showing {filteredFunctions.length} of {allFunctions.length}{" "}
+                functions
+                {filteredFileNames.length !== Object.keys(reportData).length &&
+                  ` across ${filteredFileNames.length} of ${Object.keys(reportData).length} files`}
+                {sortState.column &&
+                  ` (sorted by ${sortState.column} ${sortState.direction})`}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Legend */}
         {reportData && (
           <Card>
@@ -197,20 +377,25 @@ export default function FunctionAnalysisPage() {
                     file
                   </span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 text-sm">
+                    💡 <strong>Tip:</strong> Click column headers to sort
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
         )}
 
         {/* Function Analysis Table */}
-        {reportData && allFunctions.length > 0 && (
+        {reportData && filteredFunctions.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">
                 Function Analysis Matrix
                 <span className="text-sm font-normal ml-2 text-gray-600">
-                  ({allFunctions.length} functions across {fileNames.length}{" "}
-                  files)
+                  ({filteredFunctions.length} functions across{" "}
+                  {filteredFileNames.length} files)
                 </span>
               </CardTitle>
             </CardHeader>
@@ -219,56 +404,73 @@ export default function FunctionAnalysisPage() {
                 <table className="w-full border-collapse border border-gray-200">
                   <thead>
                     <tr className="bg-white border-b-2 border-gray-200">
-                      <th className="border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-900 sticky left-0 bg-white z-10 min-w-[200px]">
-                        Function Name
+                      <th
+                        className="border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-900 sticky left-0 bg-white z-10 min-w-[200px] cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleSort("function")}
+                        title="Click to sort by function name"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>Function Name</span>
+                          <span className="text-xs">
+                            {getSortIndicator("function")}
+                          </span>
+                        </div>
                       </th>
-                      {fileNames.map((fileName, index) => (
-                        <th
-                          key={fileName}
-                          className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white hover:bg-gray-50 transition-colors duration-150"
-                          title={`${fileName} (Column ${index + 1})`}
-                        >
-                          <div className="text-sm truncate">
-                            {fileName.replace(/\.(tsx?|js)$/, "")}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1 font-mono">
-                            .{fileName.split(".").pop()}
-                          </div>
-                        </th>
-                      ))}
+                      {filteredFileNames.map(
+                        (fileName: string, index: number) => (
+                          <th
+                            key={fileName}
+                            className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                            title={`${fileName} (Column ${index + 1}) - Click to sort`}
+                            onClick={() => handleSort(fileName)}
+                          >
+                            <div className="text-sm truncate">
+                              {fileName.replace(/\.(tsx?|js)$/, "")}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 font-mono">
+                              .{fileName.split(".").pop()}
+                            </div>
+                            <div className="text-xs mt-1">
+                              {getSortIndicator(fileName)}
+                            </div>
+                          </th>
+                        ),
+                      )}
                     </tr>
                   </thead>
                   <tbody>
-                    {allFunctions.map((functionName, index) => (
-                      <tr
-                        key={functionName}
-                        className={
-                          index % 2 === 0
-                            ? "bg-white hover:bg-gray-50"
-                            : "bg-gray-50/50 hover:bg-gray-100"
-                        }
-                      >
-                        <td className="border-r border-gray-200 px-4 py-3 font-medium sticky left-0 bg-inherit z-10 border-b border-gray-200">
-                          <code className="text-sm text-gray-800">
-                            {functionName}
-                          </code>
-                        </td>
-                        {fileNames.map((fileName) => {
-                          const content = getCellContent(
-                            functionName,
-                            fileName,
-                          );
-                          return (
-                            <td
-                              key={`${functionName}-${fileName}`}
-                              className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${getCellStyle(content)}`}
-                            >
-                              {content}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                    {filteredFunctions.map(
+                      (functionName: string, index: number) => (
+                        <tr
+                          key={functionName}
+                          className={
+                            index % 2 === 0
+                              ? "bg-white hover:bg-gray-50"
+                              : "bg-gray-50/50 hover:bg-gray-100"
+                          }
+                        >
+                          <td className="border-r border-gray-200 px-4 py-3 font-medium sticky left-0 bg-inherit z-10 border-b border-gray-200">
+                            <code className="text-sm text-gray-800">
+                              {functionName}
+                            </code>
+                          </td>
+                          {filteredFileNames.map((fileName: string) => {
+                            const content = getCellContent(
+                              functionName,
+                              fileName,
+                            );
+                            return (
+                              <td
+                                key={`${functionName}-${fileName}`}
+                                className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${getCellStyle(content)}`}
+                              >
+                                {content}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ),
+                    )}
                   </tbody>
                 </table>
               </div>

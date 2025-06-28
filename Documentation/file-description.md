@@ -243,6 +243,58 @@ This document outlines the directory structure of the project.
 - **Files:**
   - `layout.tsx` - Family section layout component
   - `page.tsx` - Family page component
+    - **Functions:**
+      - `fetchTransactions()` - Fetches transactions from Brasil aggregated tables (2024 & 2025)
+      - `adjustTransactionAmounts()` - Adjusts transaction amounts based on Comment field (Income/Outcome)
+      - `handleSort()` - Generic sorting handler for transaction tables
+      - `sortTransactions()` - Sorts transactions based on specified column and direction
+    - **Features:**
+      - Protected route access for all authenticated users
+      - Multi-year data aggregation (Brasil 2024 & 2025)
+      - Family expense tracking with multiple responsible parties (Amanda, Carlos, "us")
+      - Responsive design with mobile and desktop layouts
+      - Interactive carousel for detail cards on desktop
+      - Column visibility toggles (Comments, Date, ID)
+      - Transaction amount adjustment based on transaction type
+      - Hardcoded sample data for Amanda's transactions (March 2025)
+      - Multiple financial categories (Personal, Sweden, Brasil, PIX, Wedding)
+    - **Data Management:**
+      - Fetches from both `Brasil_transactions_agregated_2024` and `Brasil_transactions_agregated_2025`
+      - Filters transactions by responsible party: "Amanda", "us", "Carlos"
+      - Includes hardcoded `usTransactionsAmanda` array with 26 sample transactions
+      - Sorting configurations for each transaction section
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper (no specific user ID restriction)
+      - Main container with full-screen height and gray background
+      - **Main Summary Section** (Grid layout: 1 column mobile, 4 columns desktop):
+        - **Left Column (25% width)**:
+          - `FinanceSummaryCard` with all transaction data
+        - **Right Column (75% width)**:
+          - **Desktop View**: `Carousel` component with:
+            - `CarouselContent` containing 5 detail cards:
+              - "Amanda - Personal" (`FinanceDetailCard`)
+              - "Sweden Dec 24 - Jan 25" (`FinanceDetailCard`)
+              - "Brasil Fev - Mar 25" (`FinanceDetailCard`)
+              - "Amanda - PIX" (`FinanceDetailCard`)
+              - "Casamento Karlinha e Perna" (`FinanceDetailCard`)
+            - Navigation controls:
+              - `CarouselPrevious` button (green theme)
+              - `CarouselDotsResponsive` for pagination
+              - `CarouselNext` button (green theme)
+          - **Mobile View**: Vertical stack of the same 5 `FinanceDetailCard` components
+      - `Separator` component for visual section division
+      - **Toggle Controls Section**:
+        - Three `Switch` components for column visibility:
+          - "Show Comments" toggle
+          - "Show Date" toggle
+          - "Show Id" toggle
+      - **Transactions Section** (Grid layout: 1 column mobile, 2 columns desktop):
+        - **Carlos' Transactions** (`TableCardFamily`):
+          - 3 sections: Amanda, US, Carlos transactions
+          - Individual sort configurations for each section
+        - **Amanda's Transactions** (`TableCardFamily`):
+          - 3 sections: Amanda (empty), US (hardcoded data), Carlos (empty)
+          - Sort configuration for US section only
 
 ### `app/global`
 

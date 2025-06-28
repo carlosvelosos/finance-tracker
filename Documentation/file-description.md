@@ -80,6 +80,17 @@ This document outlines the directory structure of the project.
 - **Summary:** This directory is likely dedicated to features related to American Express accounts, such as displaying transactions and account details.
 - **Files:**
   - `page.tsx` - Main American Express page component
+    - **Functions:**
+      - `fetchTransactions()` - Fetches American Express transactions from Sweden aggregated table
+    - **Features:**
+      - Protected route for authorized users only
+      - Two accordion sections: Main Transactions and Invoice Transactions
+      - Transaction filtering by bank (American Express)
+      - Separate views for regular transactions (excluding invoices) and invoice-only transactions
+      - Integration with UpdateAmexAggregatedButton for data updates
+      - External link to American Express login page for invoice downloads
+      - Navigation to chart visualization page
+      - Uses TransactionTable component with customizable filters and sorting
 
 ### `app/amex/chart`
 

@@ -216,19 +216,23 @@ export default function FunctionAnalysisPage() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-300">
+                <table className="w-full border-collapse border border-gray-200">
                   <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold sticky left-0 bg-gray-100 z-10 min-w-[200px]">
+                    <tr className="bg-white border-b-2 border-gray-200">
+                      <th className="border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-900 sticky left-0 bg-white z-10 min-w-[200px]">
                         Function Name
                       </th>
-                      {fileNames.map((fileName) => (
+                      {fileNames.map((fileName, index) => (
                         <th
                           key={fileName}
-                          className="border border-gray-300 px-2 py-2 text-center font-semibold min-w-[120px] max-w-[150px]"
+                          className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white hover:bg-gray-50 transition-colors duration-150"
+                          title={`${fileName} (Column ${index + 1})`}
                         >
-                          <div className="transform -rotate-45 origin-bottom-left text-xs">
-                            {fileName.replace(/\.tsx?$/, "")}
+                          <div className="text-sm truncate">
+                            {fileName.replace(/\.(tsx?|js)$/, "")}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 font-mono">
+                            .{fileName.split(".").pop()}
                           </div>
                         </th>
                       ))}
@@ -238,10 +242,16 @@ export default function FunctionAnalysisPage() {
                     {allFunctions.map((functionName, index) => (
                       <tr
                         key={functionName}
-                        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                        className={
+                          index % 2 === 0
+                            ? "bg-white hover:bg-gray-50"
+                            : "bg-gray-50/50 hover:bg-gray-100"
+                        }
                       >
-                        <td className="border border-gray-300 px-3 py-2 font-medium sticky left-0 bg-inherit z-10">
-                          <code className="text-sm">{functionName}</code>
+                        <td className="border-r border-gray-200 px-4 py-3 font-medium sticky left-0 bg-inherit z-10 border-b border-gray-200">
+                          <code className="text-sm text-gray-800">
+                            {functionName}
+                          </code>
                         </td>
                         {fileNames.map((fileName) => {
                           const content = getCellContent(
@@ -251,7 +261,7 @@ export default function FunctionAnalysisPage() {
                           return (
                             <td
                               key={`${functionName}-${fileName}`}
-                              className={`border border-gray-300 px-2 py-2 text-center text-sm ${getCellStyle(content)}`}
+                              className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${getCellStyle(content)}`}
                             >
                               {content}
                             </td>

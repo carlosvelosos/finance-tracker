@@ -1088,9 +1088,97 @@ ProtectedRoute (User ID restriction)
 
 - **Parent Directory:** `app`
 - **Path:** `app/upload`
-- **Summary:** This directory contains the UI and logic for uploading files, such as bank statements.
+- **Summary:** This directory contains the UI and logic for uploading files, such as bank statements. Provides a comprehensive file upload interface with bank selection, table management, and error handling.
 - **Files:**
   - `page.tsx` - File upload page component
+    - **Functions:**
+      - `UploadPage()` - Main component function for the file upload page
+      - `handleFileChange()` - Handles file input change events and validates file types
+      - `handleUpload()` - Main upload function that processes files and handles errors
+      - `handleCopyInstructions()` - Copies SQL table creation instructions to clipboard
+      - `handleCreateTable()` - Automatically creates database tables when they don't exist
+      - `handleCloseDialog()` - Closes table creation dialog and resets state
+      - `handleClearDataChange()` - Handles clear data checkbox changes with warning
+      - `confirmClearData()` - Confirms and enables data clearing before upload
+      - `cancelClearData()` - Cancels data clearing operation
+      - `getTableName()` - Determines target table name based on bank and file patterns
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Multi-bank support with predefined bank options
+      - File type validation (Excel and CSV files)
+      - Automatic table creation when tables don't exist
+      - Data clearing option with safety warnings
+      - Real-time table name prediction
+      - Error handling with user-friendly messages
+      - SQL instruction generation and copying
+      - Retry mechanism after table creation
+      - Development debug information
+    - **Bank Support:**
+      - DEV (Development/Testing)
+      - Inter-BR (Inter Bank Brasil credit card)
+      - Inter-BR-Account (Inter Bank Brasil account statements)
+      - Handelsbanken-SE (Swedish bank)
+      - AmericanExpress-SE (American Express Sweden)
+      - SEB_SJ_Prio-SE (SEB SJ Prio Sweden)
+    - **Table Naming Logic:**
+      - DEV → `test_transactions`
+      - Inter-BR → `IN_YYYY` (extracts year from filename)
+      - Inter-BR-Account → `IN_YYYY` (extracts year from filename)
+      - Handelsbanken-SE → `handelsbanken_transactions`
+      - AmericanExpress-SE → `amex_YYYY` (extracts year from filename)
+      - SEB_SJ_Prio-SE → `seb_sj_prio_YYYY` (extracts year from filename)
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container with centered layout and gray background
+      - `Card` component with shadow styling:
+        - `CardHeader` with upload title
+        - `CardContent` with form elements:
+          - **Bank Selection Dropdown**:
+            - `Select` component with all bank options
+            - `SelectTrigger` with placeholder text
+            - `SelectContent` with `SelectItem` for each bank
+          - **File Input**:
+            - `Input` component with file type restrictions (.xlsx, .xls, .csv)
+            - File validation on change
+          - **Clear Data Option**:
+            - `Checkbox` with warning styling (red/yellow backgrounds)
+            - Dynamic target table name display
+            - Conditional warning messages
+          - **Upload Button**:
+            - `Button` with loading state and full width
+            - Disabled during upload process
+          - **Development Debug Info** (dev mode only):
+            - Dialog state, table names, and configuration display
+      - **Table Creation Dialog**:
+        - `Dialog` component for table creation workflow
+        - `DialogContent` with large content area:
+          - `DialogHeader` with title and description
+          - SQL instructions display (terminal-style with syntax highlighting)
+          - Action buttons: Copy SQL, Create Table Automatically, Cancel
+      - **Clear Data Warning Dialog**:
+        - `Dialog` component for data clearing confirmation
+        - `DialogContent` with warning styling:
+          - Red warning title with warning icon
+          - Target table name display
+          - Strong warning about data loss
+          - Cancel and confirm buttons (red confirm button)
+    - **State Management:**
+      - `file` - Selected file for upload
+      - `selectedBank` - Currently selected bank option
+      - `uploading` - Upload process status
+      - `clearData` - Whether to clear existing data
+      - `showClearDataWarning` - Clear data warning dialog visibility
+      - `showCreateTableDialog` - Table creation dialog visibility
+      - `pendingTableName` - Table name waiting for creation
+      - `tableInstructions` - SQL instructions for table creation
+      - `creatingTable` - Table creation process status
+      - `pendingFile` and `pendingBank` - File and bank for retry after table creation
+    - **Error Handling:**
+      - File type validation with user feedback
+      - Missing file/bank selection validation
+      - Table not exists error with automatic table creation option
+      - Generic error handling with fallback messages
+      - Retry mechanism after successful table creation
 
 ### `app/welcome`
 
@@ -1170,6 +1258,7 @@ This table shows where functions are **defined** (O) and where they are **called
 | `app/inter-account/overview/chart/page.tsx` |                 |                           |                          |                      |                    |                      |                   |                          |                                  |                       |                        |                                |                     |                           |                                   |                        |           O           |                              |                |                      |                       |                         |           O           |          |                       |                      |
 | `app/sjprio/page.tsx`                       |                 |                           |                          |                      |                    |                      |                   |                          |                                  |                       |           X            |               X                |          X          |                           |                                   |                        |           O           |                              |                |                      |                       |                         |                       |    O     |                       |                      |
 | `app/sjprio/chart/page.tsx`                 |                 |                           |                          |                      |                    |                      |                   |                          |                                  |                       |                        |                                |                     |                           |                                   |                        |           O           |                              |                |                      |                       |            O            |           O           |          |                       |                      |
+| `app/upload/page.tsx`                       |        X        |             X             |            X             |                      |                    |                      |                   |                          |                                  |                       |                        |                                |                     |                           |                                   |                        |                       |                              |                |                      |                       |                         |                       |          |                       |                      |
 
 ### Legend:
 
@@ -1185,3 +1274,4 @@ This table shows where functions are **defined** (O) and where they are **called
 4. Main pages typically use `Home()` as their main component function
 5. Some functions like `transactions.filter()` and `processedData.map()` are inline operations rather than named functions
 6. The `InterAccountInfo()` function is unique to the info page which serves as a documentation component
+7. The upload page (`app/upload/page.tsx`) calls the three main file action functions: `uploadExcel()`, `createTableInSupabase()`, and `executeTableCreation()`

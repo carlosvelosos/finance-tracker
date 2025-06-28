@@ -303,6 +303,77 @@ This document outlines the directory structure of the project.
 - **Summary:** This could be for global settings or data that applies across the entire application.
 - **Files:**
   - `page.tsx` - Global page component
+    - **Functions:**
+      - `fetchTransactions()` - Fetches all transactions from Sweden aggregated table for authenticated user
+      - `processedData.map()` - Processes transaction data to invert amount signs for specific banks (SEB SJ Prio, American Express)
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Multi-bank transaction aggregation and display
+      - Amount sign inversion for credit card transactions
+      - Categorized transaction filtering with accordion sections
+      - Chart visualization integration
+      - Real-time data fetching from Supabase
+      - Multiple transaction categories with separate tables
+      - Comprehensive transaction filtering and sorting capabilities
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Inverts amount signs for "SEB SJ Prio" and "American Express" banks
+      - Filters transactions by various categories for different sections
+      - Excludes specific categories from main table view
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Container div with responsive padding and margins
+      - Page title: "Your Transactions" (h1, centered, bold)
+      - Action button (right-aligned):
+        - "Go to Chart Page" button - Navigates to chart visualization (./chart)
+      - `Accordion` component (single collapsible type, default open: "main-table"):
+        - **Section 1: "Main Transactions"**
+          - `AccordionItem` with value "main-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` with full filtering capabilities:
+              - Excludes categories: "Amex Invoice", "SEB SJ Prio Invoice", "Investment", "Sek to Reais", "SJ PRIO MASTER Invoice", "Income - Salary", "Income - Skat"
+              - Initial sort: ChronologicalDate descending
+              - Hidden columns: "Balance", "Date"
+              - Month, category, and description filters enabled
+              - Total amount display enabled
+        - **Section 2: "Credit Card Invoices"**
+          - `AccordionItem` with value "credit-card-invoice-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` for invoice transactions:
+              - Includes only: "Amex Invoice", "SEB SJ Prio Invoice", "SJ PRIO MASTER Invoice"
+              - Initial sort: Date descending
+              - All columns visible
+              - No filters enabled (showFilters: false)
+              - Total amount display enabled
+        - **Section 3: "Investment"**
+          - `AccordionItem` with value "investment-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` for investment transactions:
+              - Filters for "Investment" category only
+              - Initial sort: Date descending
+              - No filters enabled
+              - Total amount display enabled
+        - **Section 4: "Sek to Reais"**
+          - `AccordionItem` with value "sek-to-reais-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` for currency exchange:
+              - Filters for "Sek to Reais" category only
+              - Initial sort: Date descending
+              - No filters enabled
+              - Total amount display enabled
+        - **Section 5: "Income"**
+          - `AccordionItem` with value "Income-table"
+          - `AccordionTrigger` with section title
+          - `AccordionContent` containing:
+            - `TransactionTable` for income transactions:
+              - Includes: "Income - Salary", "Income - Skat"
+              - Initial sort: Date descending
+              - No filters enabled
+              - Total amount display enabled
 
 ### `app/global/chart`
 
@@ -311,6 +382,35 @@ This document outlines the directory structure of the project.
 - **Summary:** Contains chart components that are used globally across the application.
 - **Files:**
   - `page.tsx` - Global chart page component
+    - **Functions:**
+      - `CategoryChartPage()` - Main component function for category chart visualization
+      - `fetchTransactions()` - Async function to fetch transaction data from Supabase
+      - `transactions.filter()` - Filters out specific invoice and administrative categories
+    - **Features:**
+      - Protected route for specific authorized user only
+      - Real-time transaction data fetching from Sweden aggregated table
+      - Category-based chart visualization with filtered data
+      - Responsive chart display with centered layout
+      - Authentication-based access control
+      - Automatic data refresh on user authentication
+      - Category filtering to exclude invoice and administrative transactions
+    - **Data Processing:**
+      - Fetches from `Sweden_transactions_agregated_2025` table
+      - Filters out categories: "Amex Invoice", "SEB SJ Prio Invoice", "Investment", "Sek to Reais", "SJ PRIO MASTER Invoice", "Income - Salary", "Income - Skat"
+      - Uses TypeScript Transaction interface with fields: id, Category, Amount, Bank, Description, Date
+      - Real-time state management with React hooks
+    - **UI Components (Top to Bottom):**
+      - `ProtectedRoute` wrapper with specific allowed user ID: "2b5c5467-04e0-4820-bea9-1645821fa1b7"
+      - Main container div with centered flex layout and full screen height
+      - Conditional rendering:
+        - **Unauthenticated State**: Center-aligned message "Please log in to view the chart."
+        - **Authenticated State**:
+          - Container div with vertical padding (pt-8 pb-8)
+          - `CustomBarChart` component with configuration:
+            - **Data**: Filtered transaction data (excludes invoice/administrative categories)
+            - **Styling**: Custom bar color using CSS variable `hsl(var(--chart-1))`
+            - **Title**: "Total Amount per Category"
+            - **Description**: "Showing totals for American Express, SJ Prio and Handelsbanken transactions"
 
 ### `app/handelsbanken`
 

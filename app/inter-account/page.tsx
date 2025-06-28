@@ -14,6 +14,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Info } from "lucide-react";
 
 export default function Home() {
   const { user } = useAuth();
@@ -99,7 +100,17 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-center mb-6">
           Inter Account Transactions
-        </h1>{" "}
+        </h1>
+        {/* Info button */}
+        <div className="flex justify-center mb-4">
+          <Button
+            onClick={() => (window.location.href = "./info")}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 border border-gray-500 flex items-center gap-2"
+          >
+            <Info size={16} />
+            Page Info & Component Guide
+          </Button>
+        </div>
         {/* Data Source Information */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
           <h2 className="text-lg font-semibold mb-2 text-gray-800">

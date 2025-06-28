@@ -54,8 +54,8 @@ export default function UpdateInterAggregatedButton() {
     try {
       const previewData = await getInterUpdatePreview();
       setPreview(previewData);
-      // Auto-select all available tables
-      setSelectedTables(previewData.availableNewTables);
+      // Start with no tables selected by default - user must choose
+      setSelectedTables([]);
       setState("preview");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load preview");
@@ -211,40 +211,83 @@ export default function UpdateInterAggregatedButton() {
                   </CardContent>
                 </Card>
 
-                {preview.availableNewTables.length > 0 ? (
+                {preview.availableNewTables.length > 0 ||
+                preview.sourceTablesIncluded.length > 0 ? (
                   <>
                     <Card className="bg-gray-800 border-gray-700">
                       <CardHeader>
                         <CardTitle className="text-white">
-                          Select Tables to Aggregate
+                          Select Tables to Process
                         </CardTitle>
                         <CardDescription>
-                          Choose which Inter tables to add to
-                          Brasil_transactions_agregated_2025
+                          Choose which Inter tables to aggregate/synchronize
+                          with Brasil_transactions_agregated_2025. Already
+                          included tables can be re-processed to add new
+                          transactions.
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-40 overflow-y-auto">
-                          {preview.availableNewTables.map((table) => (
-                            <div
-                              key={table}
-                              className="flex items-center space-x-2"
-                            >
-                              <Checkbox
-                                id={table}
-                                checked={selectedTables.includes(table)}
-                                onCheckedChange={(checked) =>
-                                  handleTableSelection(table, !!checked)
-                                }
-                              />
-                              <label
-                                htmlFor={table}
-                                className="text-sm text-white cursor-pointer"
-                              >
-                                {table}
-                              </label>
+                        <div className="space-y-4">
+                          {preview.sourceTablesIncluded.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium text-yellow-400 mb-2">
+                                Already Included Tables (can be re-processed for
+                                new entries):
+                              </h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {preview.sourceTablesIncluded.map((table) => (
+                                  <div
+                                    key={table}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <Checkbox
+                                      id={table}
+                                      checked={selectedTables.includes(table)}
+                                      onCheckedChange={(checked) =>
+                                        handleTableSelection(table, !!checked)
+                                      }
+                                    />
+                                    <label
+                                      htmlFor={table}
+                                      className="text-sm text-yellow-300 cursor-pointer"
+                                    >
+                                      {table}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          ))}
+                          )}
+
+                          {preview.availableNewTables.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium text-green-400 mb-2">
+                                New Tables (never been aggregated):
+                              </h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {preview.availableNewTables.map((table) => (
+                                  <div
+                                    key={table}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <Checkbox
+                                      id={table}
+                                      checked={selectedTables.includes(table)}
+                                      onCheckedChange={(checked) =>
+                                        handleTableSelection(table, !!checked)
+                                      }
+                                    />
+                                    <label
+                                      htmlFor={table}
+                                      className="text-sm text-green-300 cursor-pointer"
+                                    >
+                                      {table}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                         {selectedTables.length > 0 && (
                           <div className="mt-4">

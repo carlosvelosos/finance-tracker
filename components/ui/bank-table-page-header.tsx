@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Info } from "lucide-react";
 
 interface ChartButton {
   url: string;
@@ -18,6 +19,12 @@ interface BankTablePageHeaderProps {
   chartButtons?: ChartButton[];
   layout?: "right-aligned" | "split";
   className?: string;
+  // New props for Inter Account page features
+  showInfoButton?: boolean;
+  infoButtonUrl?: string;
+  infoButtonText?: string;
+  dataSourceComponent?: React.ReactNode;
+  additionalUpdateButtons?: React.ReactNode[];
 }
 
 export default function BankTablePageHeader({
@@ -30,6 +37,12 @@ export default function BankTablePageHeader({
   chartButtons = [],
   layout = "right-aligned",
   className = "",
+  // New props
+  showInfoButton = false,
+  infoButtonUrl,
+  infoButtonText = "Page Info & Component Guide",
+  dataSourceComponent,
+  additionalUpdateButtons = [],
 }: BankTablePageHeaderProps) {
   const handleDownload = () => {
     if (downloadUrl) {
@@ -41,19 +54,53 @@ export default function BankTablePageHeader({
     window.location.href = url;
   };
 
+  const handleInfoButton = () => {
+    if (infoButtonUrl) {
+      window.location.href = infoButtonUrl;
+    }
+  };
+
   // Combine single chart button with multiple chart buttons
   const allChartButtons = [
     ...chartButtons,
     ...(chartUrl ? [{ url: chartUrl, text: chartButtonText }] : []),
   ];
 
+  // Combine all update buttons
+  const allUpdateButtons = [
+    updateButtonComponent,
+    ...additionalUpdateButtons,
+  ].filter(Boolean);
+
   if (layout === "split") {
     return (
       <div className={`mb-6 ${className}`}>
         <h1 className="text-2xl font-bold text-center mb-6">{title}</h1>
 
+        {/* Info button */}
+        {showInfoButton && infoButtonUrl && (
+          <div className="flex justify-center mb-4">
+            <Button
+              onClick={handleInfoButton}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 border border-gray-500 flex items-center gap-2"
+            >
+              <Info size={16} />
+              {infoButtonText}
+            </Button>
+          </div>
+        )}
+
+        {/* Data Source Information */}
+        {dataSourceComponent && (
+          <div className="mb-4">{dataSourceComponent}</div>
+        )}
+
         <div className="flex justify-between items-center mb-4">
-          <div>{updateButtonComponent}</div>
+          <div className="flex space-x-3">
+            {allUpdateButtons.map((button, index) => (
+              <div key={index}>{button}</div>
+            ))}
+          </div>
           <div className="flex space-x-4">
             {downloadUrl && (
               <Button
@@ -87,8 +134,26 @@ export default function BankTablePageHeader({
     <div className={`mb-6 ${className}`}>
       <h1 className="text-2xl font-bold text-center mb-6">{title}</h1>
 
+      {/* Info button */}
+      {showInfoButton && infoButtonUrl && (
+        <div className="flex justify-center mb-4">
+          <Button
+            onClick={handleInfoButton}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 border border-gray-500 flex items-center gap-2"
+          >
+            <Info size={16} />
+            {infoButtonText}
+          </Button>
+        </div>
+      )}
+
+      {/* Data Source Information */}
+      {dataSourceComponent && <div className="mb-4">{dataSourceComponent}</div>}
+
       <div className="text-right mb-4 flex justify-end gap-3">
-        {updateButtonComponent}
+        {allUpdateButtons.map((button, index) => (
+          <div key={index}>{button}</div>
+        ))}
 
         {downloadUrl && (
           <Button

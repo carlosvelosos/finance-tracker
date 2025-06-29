@@ -25,6 +25,7 @@ interface TableSection {
   excludeCategories?: string[];
   includeCategories?: string[];
   customFilter?: (transaction: Transaction) => boolean;
+  TransactionTableName?: string; // Added for Inter Account page
 }
 
 interface BankTablePageBodyProps {
@@ -89,6 +90,7 @@ export default function BankTablePageBody({
                   showFilters={section.showFilters ?? true}
                   showTotalAmount={section.showTotalAmount ?? true}
                   excludeCategories={section.excludeCategories}
+                  TransactionTableName={section.TransactionTableName}
                 />
               </AccordionContent>
             </AccordionItem>

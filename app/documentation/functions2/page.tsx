@@ -28,54 +28,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FileText, Folder, Calendar, Hash, Eye, Download } from "lucide-react";
-
-interface ReportDirectory {
-  name: string;
-  type: "directory";
-  isNew: boolean;
-}
-
-interface SummaryData {
-  metadata: {
-    scannedDirectory: string;
-    timestamp: string;
-    scanDate: string;
-    totalFiles: number;
-    successfulWrites: number;
-    errors: number;
-  };
-  fileList: Array<{
-    originalPath: string;
-    jsonFile: string;
-  }>;
-}
-
-interface DirectoryData {
-  summary: SummaryData;
-  jsonFiles: string[];
-}
-
-interface FunctionData {
-  functionName: string;
-  source: string;
-  files: Record<string, { type: "defined" | "called" | "both" }>; // filename -> type in that file
-}
-
-interface JsonFileData {
-  metadata: {
-    originalFilePath: string;
-    scannedDirectory: string;
-    timestamp: string;
-    scanDate: string;
-  };
-  analysis: {
-    defined: string[];
-    called: string[];
-    both: string[];
-    imports: Record<string, any>;
-    calledWithImports: Record<string, any>;
-  };
-}
+import FunctionAnalysisTable from "@/components/ui/function-analysis-table";
+import {
+  FunctionData,
+  JsonFileData,
+  ReportDirectory,
+  SummaryData,
+  DirectoryData,
+} from "@/types/function-reports";
 
 export default function FunctionReportsPage() {
   const [directories, setDirectories] = useState<ReportDirectory[]>([]);
@@ -515,136 +475,12 @@ export default function FunctionReportsPage() {
           </Card>
 
           {/* Function Analysis Table */}
-          {tableData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="h-5 w-5" />
-                  <span>Function Analysis Table</span>
-                  <Badge variant="outline">{tableData.length} functions</Badge>
-                </CardTitle>
-                <CardDescription>
-                  Functions analyzed across selected files. Each row represents
-                  a function, each column represents a file.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="rounded-md border overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[200px] sticky left-0 bg-background border-r">
-                          Function Name
-                        </TableHead>
-                        <TableHead className="w-[150px] sticky left-[200px] bg-background border-r">
-                          Source
-                        </TableHead>
-                        {selectedJsonFiles.map((fileName) => (
-                          <TableHead
-                            key={fileName}
-                            className="min-w-[120px] text-center"
-                          >
-                            <div
-                              className="truncate"
-                              title={formatJsonFileName(fileName)}
-                            >
-                              {formatJsonFileName(fileName)}
-                            </div>
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tableData.map((funcData, index) => (
-                        <TableRow key={`${funcData.functionName}-${index}`}>
-                          <TableCell className="font-medium sticky left-0 bg-background border-r">
-                            <div
-                              className="truncate"
-                              title={funcData.functionName}
-                            >
-                              {funcData.functionName}
-                            </div>
-                          </TableCell>
-                          <TableCell className="sticky left-[200px] bg-background border-r">
-                            <div
-                              className="truncate text-xs text-muted-foreground"
-                              title={funcData.source}
-                            >
-                              {funcData.source}
-                            </div>
-                          </TableCell>
-                          {selectedJsonFiles.map((fileName) => {
-                            const readableFileName =
-                              formatJsonFileName(fileName);
-                            const fileData = funcData.files[readableFileName];
-                            return (
-                              <TableCell key={fileName} className="text-center">
-                                {fileData ? (
-                                  <Badge
-                                    variant={
-                                      fileData.type === "defined"
-                                        ? "default"
-                                        : fileData.type === "both"
-                                          ? "destructive"
-                                          : "secondary"
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {fileData.type}
-                                  </Badge>
-                                ) : (
-                                  <div
-                                    className="w-4 h-4 bg-gray-200 rounded-full mx-auto"
-                                    title="Function not present"
-                                  />
-                                )}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                <div className="mt-4 text-sm text-muted-foreground">
-                  <div className="flex items-center space-x-4 flex-wrap gap-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-gray-200 rounded-full" />
-                      <span>Function not present</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="default" className="text-xs">
-                        defined
-                      </Badge>
-                      <span>Function defined in file</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="secondary" className="text-xs">
-                        called
-                      </Badge>
-                      <span>Function called in file</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="destructive" className="text-xs">
-                        both
-                      </Badge>
-                      <span>Function both defined and called</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {loadingTable && (
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-muted-foreground">
-                  Generating function analysis table...
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          <FunctionAnalysisTable
+            tableData={tableData}
+            selectedJsonFiles={selectedJsonFiles}
+            formatJsonFileName={formatJsonFileName}
+            loadingTable={loadingTable}
+          />
 
           {/* File List from Summary */}
           {directoryData.summary.fileList &&

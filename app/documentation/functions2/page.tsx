@@ -16,24 +16,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   FileText,
   Folder,
   Calendar,
   Hash,
   Eye,
-  Download,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -42,7 +32,6 @@ import {
   FunctionData,
   JsonFileData,
   ReportDirectory,
-  SummaryData,
   DirectoryData,
 } from "@/types/function-reports";
 
@@ -74,7 +63,7 @@ export default function FunctionReportsPage() {
 
         // Filter only directories (new format)
         const directoriesOnly = data.filter(
-          (item: any) => item.type === "directory",
+          (item: { type: string }) => item.type === "directory",
         );
         setDirectories(directoriesOnly);
       } catch (err) {
@@ -365,6 +354,7 @@ export default function FunctionReportsPage() {
       const allGroupNames = Object.keys(groupedFiles);
       setCollapsedGroups(new Set(allGroupNames));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDirectory, directoryData]);
 
   return (

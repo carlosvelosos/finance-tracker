@@ -223,7 +223,8 @@ export default function UpdateInterAggregatedButton() {
                           Choose which Inter tables to aggregate/synchronize
                           with Brasil_transactions_agregated_2025. Already
                           included tables can be re-processed to find and add
-                          any new transactions that weren't previously included.
+                          any new transactions that weren&apos;t previously
+                          included.
                         </CardDescription>
                       </CardHeader>
                       <CardContent>

@@ -34,7 +34,7 @@ export async function GET(
         (file) => file.endsWith(".json") && file !== "_SUMMARY.json",
       );
 
-      const reportData: Record<string, any> = {};
+      const reportData: Record<string, unknown> = {};
 
       // Load each JSON file and extract the analysis data
       for (const jsonFile of jsonFiles) {

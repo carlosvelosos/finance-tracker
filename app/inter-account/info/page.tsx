@@ -112,8 +112,8 @@ export default function InterAccountInfo() {
                 <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   <li>
                     <strong>Aggregated Table Name:</strong> Shows
-                    "Brasil_transactions_agregated_2025" - the unified table
-                    containing data from multiple source tables
+                    &quot;Brasil_transactions_agregated_2025&quot; - the unified
+                    table containing data from multiple source tables
                   </li>
                   <li>
                     <strong>Transaction Count:</strong> Displays total number of
@@ -319,7 +319,7 @@ export default function InterAccountInfo() {
                   </li>
                   <li>
                     <strong>Source Tracking:</strong> Each transaction maintains
-                    a 'source_table' field
+                    a &apos;source_table&apos; field
                   </li>
                   <li>
                     <strong>Unified Access:</strong> All data accessible through
@@ -532,13 +532,14 @@ export default function InterAccountInfo() {
                         and log into your account
                       </li>
                       <li>
-                        <strong>Access Statements:</strong> Look for "Extratos"
-                        or "Conta Corrente" section
+                        <strong>Access Statements:</strong> Look for
+                        &quot;Extratos&quot; or &quot;Conta Corrente&quot;
+                        section
                       </li>
                       <li>
                         <strong>Select Date Range Strategy:</strong> For Inter
                         bank account statements, always download the complete
-                        year from January 1st to today's date
+                        year from January 1st to today&apos;s date
                         <div className="bg-blue-50 p-2 rounded-md mt-1 mb-2 border-l-4 border-blue-400">
                           <p className="text-xs text-blue-700 font-medium mb-1">
                             📅 Yearly Download Strategy:
@@ -573,8 +574,9 @@ export default function InterAccountInfo() {
                         formats: CSV, PDF, and OFX files
                       </li>
                       <li>
-                        <strong>Important:</strong> Ensure you're downloading
-                        bank account statements, NOT credit card invoices
+                        <strong>Important:</strong> Ensure you&apos;re
+                        downloading bank account statements, NOT credit card
+                        invoices
                       </li>
                       <li>
                         <strong>File Storage Location:</strong> Save all
@@ -598,8 +600,8 @@ export default function InterAccountInfo() {
                             Extrato-01-01-YYYY-a-DD-MM-YYYY
                           </code>
                           <p className="text-xs text-green-700 mt-1">
-                            Example: "Extrato-01-01-2024-a-28-06-2025" (January
-                            1st, 2024 to June 28th, 2025)
+                            Example: &quot;Extrato-01-01-2024-a-28-06-2025&quot;
+                            (January 1st, 2024 to June 28th, 2025)
                           </p>
                           <p className="text-xs text-green-600 mt-1 italic">
                             💡 Always start from January 1st to ensure complete
@@ -655,24 +657,26 @@ export default function InterAccountInfo() {
                     </div>
                     <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
                       <li>
-                        <strong>Navigate:</strong> Go to your app's Upload Files
-                        page at{" "}
+                        <strong>Navigate:</strong> Go to your app&apos;s Upload
+                        Files page at{" "}
                         <a href="/upload" className="text-purple-600 underline">
                           /upload
                         </a>
                       </li>
                       <li>
-                        <strong>Select Bank:</strong> Choose "Inter-BR-Account"
-                        from the bank dropdown (important for correct table
-                        creation for bank account statements)
+                        <strong>Select Bank:</strong> Choose
+                        &quot;Inter-BR-Account&quot; from the bank dropdown
+                        (important for correct table creation for bank account
+                        statements)
                       </li>
                       <li>
                         <strong>Choose File:</strong> Select the downloaded
                         Inter bank statement file
                       </li>
                       <li>
-                        <strong>Upload Process:</strong> Click "Upload" - the
-                        app will parse CSV/Excel columns and transaction data
+                        <strong>Upload Process:</strong> Click
+                        &quot;Upload&quot; - the app will parse CSV/Excel
+                        columns and transaction data
                       </li>
                       <li>
                         <strong>Table Creation:</strong> If needed, the app will
@@ -684,8 +688,8 @@ export default function InterAccountInfo() {
                         formats data before storage
                       </li>
                       <li>
-                        <strong>Confirmation:</strong> You'll receive upload
-                        success/failure notification
+                        <strong>Confirmation:</strong> You&apos;ll receive
+                        upload success/failure notification
                       </li>
                     </ul>
                   </div>
@@ -741,8 +745,8 @@ export default function InterAccountInfo() {
                       </li>
                       <li>
                         <strong>Bank Filter Ready:</strong> All tables tagged
-                        with "Inter-BR-Account" bank designation for account
-                        statements
+                        with &quot;Inter-BR-Account&quot; bank designation for
+                        account statements
                       </li>
                     </ul>
                   </div>
@@ -762,8 +766,8 @@ export default function InterAccountInfo() {
                         </a>
                       </p>
                       <p className="text-xs text-indigo-700">
-                        Use the "Update Inter Data" button to aggregate source
-                        tables into the unified view.
+                        Use the &quot;Update Inter Data&quot; button to
+                        aggregate source tables into the unified view.
                       </p>
                     </div>
                     <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
@@ -777,8 +781,8 @@ export default function InterAccountInfo() {
                         </a>
                       </li>
                       <li>
-                        <strong>Click Button:</strong> Use "Update Inter Data"
-                        button to start aggregation process
+                        <strong>Click Button:</strong> Use &quot;Update Inter
+                        Data&quot; button to start aggregation process
                       </li>
                       <li>
                         <strong>Table Detection:</strong> System automatically
@@ -820,8 +824,8 @@ export default function InterAccountInfo() {
                     <ul className="list-disc list-inside text-xs text-muted-foreground mt-1 space-y-1">
                       <li>
                         <strong>Auto-Filter:</strong> Page automatically shows
-                        only "Inter-BR-Account" transactions from aggregated
-                        table
+                        only &quot;Inter-BR-Account&quot; transactions from
+                        aggregated table
                       </li>
                       <li>
                         <strong>Month Filter:</strong> Filter transactions by
@@ -972,7 +976,8 @@ export default function InterAccountInfo() {
                   </li>
                   <li>
                     <strong>Bank Filter:</strong> Pre-filtered to show
-                    "Inter-BR-Account" transactions from the aggregated dataset
+                    &quot;Inter-BR-Account&quot; transactions from the
+                    aggregated dataset
                   </li>
                   <li>
                     <strong>Initial Sort:</strong> Date column, descending order

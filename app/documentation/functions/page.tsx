@@ -28,13 +28,18 @@ type ReportItem = {
   isNew: boolean;
 };
 
+interface ImportInfo {
+  type?: string;
+  source?: string;
+}
+
 interface FileData {
   defined: string[];
   called: string[];
   both: string[];
-  imports?: Record<string, any>;
-  calledWithImports?: Record<string, any>;
-  destructuredFunctions?: Record<string, any>;
+  imports?: Record<string, ImportInfo>;
+  calledWithImports?: Record<string, ImportInfo>;
+  destructuredFunctions?: Record<string, ImportInfo>;
 }
 
 interface ReportData {
@@ -242,6 +247,7 @@ export default function FunctionAnalysisPage() {
       setColumnFilters(newColumnFilters);
       setColumnVisibility(newColumnVisibility);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportData]);
 
   // Handle column filter changes for cell values
@@ -543,6 +549,7 @@ export default function FunctionAnalysisPage() {
 
     // Apply pagination - only return visible rows for performance
     return filtered.slice(0, maxRowsToShow);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportData, sortState, columnFilters, searchFilter, maxRowsToShow]);
 
   // Handle column header click for sorting
@@ -732,8 +739,8 @@ export default function FunctionAnalysisPage() {
                 />
                 {searchFilter && (
                   <p className="text-xs text-gray-500">
-                    Found {allFunctions.length} functions matching "
-                    {searchFilter}"
+                    Found {allFunctions.length} functions matching &quot;
+                    {searchFilter}&quot;
                   </p>
                 )}
               </div>
@@ -1743,7 +1750,7 @@ export default function FunctionAnalysisPage() {
                 <div className="space-y-2 text-sm text-gray-600 mb-4">
                   <p>📊 {allFunctions.length} total functions found</p>
                   <p>👁️ {getVisibleColumnCount()} columns visible</p>
-                  {searchFilter && <p>🔍 Search: "{searchFilter}"</p>}
+                  {searchFilter && <p>🔍 Search: &quot;{searchFilter}&quot;</p>}
                 </div>
                 <Button
                   size="sm"
@@ -1769,8 +1776,8 @@ export default function FunctionAnalysisPage() {
                   No file columns are visible
                 </h3>
                 <p className="text-sm mb-4">
-                  Select at least one file column in the "Column Visibility"
-                  section above to view the analysis table.
+                  Select at least one file column in the &quot;Column
+                  Visibility&quot; section above to view the analysis table.
                 </p>
                 <Button
                   variant="outline"
@@ -1803,7 +1810,9 @@ export default function FunctionAnalysisPage() {
                   <div className="space-y-1 text-xs text-gray-600 mb-4">
                     <p>📊 {allFunctions.length} total functions in dataset</p>
                     <p>📋 Showing max {maxRowsToShow} rows</p>
-                    {searchFilter && <p>🔍 Search filter: "{searchFilter}"</p>}
+                    {searchFilter && (
+                      <p>🔍 Search filter: &quot;{searchFilter}&quot;</p>
+                    )}
                   </div>
                   {Object.entries(columnFilters).some(
                     ([fileName, filterSet]) => {

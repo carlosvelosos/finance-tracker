@@ -32,8 +32,8 @@ const initialNodes: Node[] = [
             </h3>
           </div>
           <p className="text-sm">
-            🏦 Navigate to inter.co → Access "Extratos" → Download yearly bank
-            account statements (Jan 1st to current date)
+            🏦 Navigate to inter.co → Access &quot;Extratos&quot; → Download
+            yearly bank account statements (Jan 1st to current date)
           </p>
           <p className="text-xs text-gray-600">
             Download all formats: CSV, PDF, OFX
@@ -105,8 +105,8 @@ const initialNodes: Node[] = [
             📁 /upload
           </a>
           <p className="text-xs text-gray-600">
-            Select "Inter-BR" bank → Upload CSV file → Automatic parsing &
-            validation
+            Select &quot;Inter-BR&quot; bank → Upload CSV file → Automatic
+            parsing & validation
           </p>
         </div>
       ),
@@ -167,8 +167,8 @@ const initialNodes: Node[] = [
             <h3 className="font-medium">Data Aggregation Process</h3>
           </div>
           <p className="text-xs mt-2 px-2">
-            🔄 Use "Update Inter Data" button → Select source tables → Aggregate
-            to unified table
+            🔄 Use &quot;Update Inter Data&quot; button → Select source tables →
+            Aggregate to unified table
           </p>
           <p className="text-xs px-2 text-gray-600">
             Target: Brasil_transactions_agregated_2025

@@ -61,7 +61,9 @@ export default function Home() {
             />
           }
           updateButtonComponent={<UpdateAggregatedButton />}
-          additionalUpdateButtons={[<UpdateInterAggregatedButton />]}
+          additionalUpdateButtons={[
+            <UpdateInterAggregatedButton key="inter-update" />,
+          ]}
           chartButtons={[
             {
               url: "./category/chart",

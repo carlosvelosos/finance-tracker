@@ -4,15 +4,6 @@ import { useAmexChartTransactions } from "../../../lib/hooks/useTransactions";
 import { CustomBarChart } from "@/components/ui/custombarchart";
 import ProtectedRoute from "@/components/protected-route";
 
-type Transaction = {
-  id: number;
-  Category: string | null;
-  Amount: number | null;
-  Bank: string | null;
-  Description: string | null;
-  Date: string | null; // Add Date field to match the expected type in CustomBarChart
-};
-
 export default function CategoryChartPage() {
   const { transactions, loading, error, user } = useAmexChartTransactions();
 

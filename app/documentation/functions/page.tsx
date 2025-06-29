@@ -15,13 +15,11 @@ import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronDown, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import ProtectedRoute from "@/components/protected-route";
 
 type ReportItem = {
@@ -60,7 +58,6 @@ interface ColumnVisibility {
 
 export default function FunctionAnalysisPage() {
   const [availableReports, setAvailableReports] = useState<ReportItem[]>([]);
-  const [selectedReport, setSelectedReport] = useState<string>("");
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -131,7 +128,7 @@ export default function FunctionAnalysisPage() {
   };
 
   const handleReportSelection = (reportFileName: string) => {
-    setSelectedReport(reportFileName);
+    // setSelectedReport(reportFileName); // Commented out as variable is not used
     loadReportData(reportFileName);
   };
 

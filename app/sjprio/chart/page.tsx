@@ -1,47 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "../../../lib/supabaseClient";
-import { useAuth } from "../../../context/AuthContext";
+import { useSjPrioChartTransactions } from "../../../lib/hooks/useTransactions";
 import { CustomBarChart } from "@/components/ui/custombarchart";
 import ProtectedRoute from "@/components/protected-route";
 
-type Transaction = {
-  id: number;
-  Category: string | null;
-  Amount: number | null;
-  Bank: string | null;
-  Description: string | null;
-  Date: string | null; // Add Date field to match the expected type in CustomBarChart
-};
-
 export default function CategoryChartPage() {
-  const { user } = useAuth();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      const fetchTransactions = async () => {
-        const { data, error } = await supabase
-          .from("Sweden_transactions_agregated_2025")
-          .select("id, Category, Amount, Bank, Description, Date") // Include id and Date in the query
-          .eq("user_id", user.id)
-          .eq("Bank", "SEB SJ Prio"); // Filter by Bank = SEB SJ Prio
-
-        if (error) {
-          console.error("Error fetching transactions:", error);
-        } else {
-          setTransactions(data as Transaction[]);
-        }
-      };
-
-      fetchTransactions();
-    }
-  }, [user]);
+  const { transactions, loading, error, user } = useSjPrioChartTransactions();
 
   if (!user) {
     return (
       <div className="text-center mt-10">Please log in to view the chart.</div>
+    );
+  }
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading chart...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Error loading chart: {(error as Error)?.message || "Unknown error"}
+      </div>
     );
   }
 
@@ -61,7 +41,7 @@ export default function CategoryChartPage() {
                   t.Category === "SJ PRIO MASTER Invoice" ||
                   t.Category === "Income - Salary" ||
                   t.Category === "Income - Skat"
-                )
+                ),
             )}
             // height={400}
             barColor="hsl(var(--chart-1))"

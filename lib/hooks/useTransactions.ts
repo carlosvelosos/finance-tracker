@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
   fetchTransactions,
   FetchTransactionsOptions,
 } from "../utils/transactionFetchers";
 import { Transaction } from "@/types/transaction";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { User } from "@supabase/auth-helpers-nextjs";
 
 interface UseTransactionsOptions
   extends Omit<FetchTransactionsOptions, "userId"> {
@@ -19,43 +21,10 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
 
   const { enabled = true, ...fetchOptions } = options;
 
-  useEffect(() => {
+  const memoizedFetchOptions = useMemo(() => fetchOptions, [fetchOptions]);
+
+  const loadTransactions = useCallback(async () => {
     if (!user || !enabled) return;
-
-    const loadTransactions = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const { data, error: fetchError } = await fetchTransactions({
-          userId: user.id,
-          ...fetchOptions,
-        });
-
-        if (fetchError) {
-          setError(fetchError);
-        } else {
-          setTransactions(data || []);
-        }
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTransactions();
-  }, [
-    user,
-    enabled,
-    fetchOptions.tableName,
-    fetchOptions.bankFilter,
-    fetchOptions.orderBy,
-    fetchOptions.orderDirection,
-  ]);
-
-  const refetch = async () => {
-    if (!user) return;
 
     setLoading(true);
     setError(null);
@@ -63,7 +32,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     try {
       const { data, error: fetchError } = await fetchTransactions({
         userId: user.id,
-        ...fetchOptions,
+        ...memoizedFetchOptions,
       });
 
       if (fetchError) {
@@ -76,7 +45,15 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, enabled, memoizedFetchOptions]);
+
+  useEffect(() => {
+    loadTransactions();
+  }, [loadTransactions]);
+
+  const refetch = useCallback(async () => {
+    await loadTransactions();
+  }, [loadTransactions]);
 
   return {
     transactions,
@@ -136,6 +113,66 @@ export function useHandelsbankenChartTransactions() {
 export function useAmexChartTransactions() {
   return useTransactions({
     bankFilter: "American Express",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+export function useInterChartTransactions() {
+  return useTransactions({
+    tableName: "IN_ALL",
+    bankFilter: "Inter Black",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+export function useSjPrioChartTransactions() {
+  return useTransactions({
+    bankFilter: "SEB SJ Prio",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+export function useGlobalChartTransactions() {
+  return useTransactions({
+    tableName: "Sweden_transactions_agregated_2025",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+// Specialized hooks for Handelsbanken chart pages
+export function useHandelsbankenCategoryChartTransactions() {
+  return useTransactions({
+    bankFilter: "Handelsbanken",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+export function useHandelsbankenOverviewChartTransactions() {
+  return useTransactions({
+    bankFilter: "Handelsbanken",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+// Specialized hooks for Inter-account chart pages
+export function useInterAccountCategoryChartTransactions() {
+  return useTransactions({
+    tableName: "Brasil_transactions_agregated_2025",
+    bankFilter: "Handelsbanken",
+    orderBy: '"Date"',
+    orderDirection: "desc",
+  });
+}
+
+export function useInterAccountOverviewChartTransactions() {
+  return useTransactions({
+    tableName: "Brasil_transactions_agregated_2025",
     orderBy: '"Date"',
     orderDirection: "desc",
   });
@@ -244,6 +281,136 @@ export function useInterAccountTransactionsWithBankInfo() {
   return {
     transactions,
     bankInfo,
+    loading,
+    error,
+    user,
+    refetch,
+  };
+}
+
+// Hook for family page that fetches from both Brazilian tables and applies custom logic
+export function useFamilyTransactions() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>(
+    [],
+  );
+  const [usTransactions, setUsTransactions] = useState<Transaction[]>([]);
+  const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  const supabase = createClientComponentClient();
+
+  // Helper function to adjust the amount based on the Balance
+  const adjustTransactionAmounts = (
+    transactions: Transaction[],
+  ): Transaction[] => {
+    return transactions.map((transaction) => {
+      if (
+        transaction.Comment?.includes("Outcome") &&
+        transaction.Amount &&
+        transaction.Amount > 0
+      ) {
+        return { ...transaction, Amount: -Math.abs(transaction.Amount) };
+      } else if (
+        transaction.Comment?.includes("Income") &&
+        transaction.Amount &&
+        transaction.Amount < 0
+      ) {
+        return { ...transaction, Amount: Math.abs(transaction.Amount) };
+      }
+      return transaction;
+    });
+  };
+
+  const fetchAndProcessTransactions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Get current user
+      const {
+        data: { user: currentUser },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        throw userError;
+      }
+
+      setUser(currentUser);
+
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
+
+      console.log("Fetching transactions from Supabase..."); // Debug log
+
+      // Fetch data from both tables
+      const { data: data2024, error: error2024 } = await supabase
+        .from("Brasil_transactions_agregated_2024")
+        .select("*");
+
+      const { data: data2025, error: error2025 } = await supabase
+        .from("Brasil_transactions_agregated_2025")
+        .select("*");
+
+      if (error2024 || error2025) {
+        throw new Error(
+          `Error fetching transactions: ${error2024?.message || error2025?.message}`,
+        );
+      }
+
+      console.log("Fetched transactions from 2024:", data2024); // Log 2024 data
+      console.log("Fetched transactions from 2025:", data2025); // Log 2025 data
+
+      // Combine data from both years
+      const combinedData = [...(data2024 || []), ...(data2025 || [])];
+
+      const adjustedTransactions = adjustTransactionAmounts(
+        combinedData as Transaction[],
+      );
+      console.log("Adjusted transactions:", adjustedTransactions);
+
+      setTransactions(adjustedTransactions);
+      setAmandaTransactions(
+        adjustedTransactions.filter(
+          (transaction) => transaction.Responsible === "Amanda",
+        ),
+      );
+      setUsTransactions(
+        adjustedTransactions.filter(
+          (transaction) => transaction.Responsible === "us",
+        ),
+      );
+      setMeTransactions(
+        adjustedTransactions.filter(
+          (transaction) => transaction.Responsible === "Carlos",
+        ),
+      );
+    } catch (err) {
+      console.error("Error fetching transactions:", err);
+      setError(err instanceof Error ? err : new Error("Unknown error"));
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchAndProcessTransactions();
+  }, [fetchAndProcessTransactions]);
+
+  const refetch = useCallback(async () => {
+    await fetchAndProcessTransactions();
+  }, [fetchAndProcessTransactions]);
+
+  return {
+    transactions,
+    amandaTransactions,
+    usTransactions,
+    meTransactions,
     loading,
     error,
     user,

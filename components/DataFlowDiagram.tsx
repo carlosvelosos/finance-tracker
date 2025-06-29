@@ -10,7 +10,6 @@ import ReactFlow, {
   Edge,
   NodeChange,
   EdgeChange,
-  Connection,
   applyNodeChanges,
   applyEdgeChanges,
 } from "reactflow";
@@ -296,7 +295,7 @@ export default function DataFlowDiagram() {
     [],
   );
 
-  const onConnect = useCallback((connection: Connection) => {
+  const onConnect = useCallback(() => {
     // This would add a new connection if implemented
   }, []);
 

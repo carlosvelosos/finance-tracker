@@ -363,7 +363,7 @@ export async function clearTableData(tableName: string) {
     console.log("Clearing all data from table:", tableName);
 
     // Check if table exists first
-    const { data: existsCheck, error: existsError } = await supabase
+    const { error: existsError } = await supabase
       .from(tableName)
       .select("id")
       .limit(1);

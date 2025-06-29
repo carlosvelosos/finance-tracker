@@ -79,6 +79,8 @@ const directoryPath = pathParts.length > 0 ? pathParts.join("/") + "/" : "";
 - **Faster navigation**: Easier to find specific files in the table
 - **Reduced clutter**: Focus on the actual file structure rather than report metadata
 - **Consistent formatting**: All headers follow the same display pattern
+- **Interactive feedback**: Column headers highlight when functions are selected, showing file relationships at a glance
+- **Visual context**: Instantly see which files contain the selected function across the entire analysis
 
 ## Examples
 
@@ -110,6 +112,15 @@ profile.tsx
 components/forms/auth/
 login-form.tsx
 ```
+
+### Interactive Column Highlighting
+
+When a function is selected by clicking on its name in the function column:
+
+- **Row highlighting**: The entire row is highlighted in blue
+- **Column highlighting**: Any column headers where the function is found are highlighted in blue with a distinctive background
+- **Enhanced visual feedback**: Users can immediately see which files contain the selected function across the entire table
+- **Dynamic styling**: Text colors are adjusted to maintain readability on the highlighted background
 
 ## Technical Notes
 

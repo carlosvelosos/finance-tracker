@@ -428,23 +428,50 @@ export default function FunctionAnalysisTable({
                   const directoryPath =
                     pathParts.length > 0 ? pathParts.join("/") + "/" : "";
 
+                  // Check if this column contains the selected function
+                  const selectedFunctionData = selectedFunctionName
+                    ? tableData.find(
+                        (func) => func.functionName === selectedFunctionName,
+                      )
+                    : null;
+                  const hasSelectedFunction =
+                    selectedFunctionData?.files[fullFileName];
+                  const isHighlighted =
+                    selectedFunctionName && hasSelectedFunction;
+
                   return (
                     <TableHead
                       key={fullFileName}
-                      className="min-w-[120px] text-center"
+                      className={`min-w-[120px] text-center ${
+                        isHighlighted ? "bg-blue-100 border-blue-300" : ""
+                      }`}
                     >
                       <div className="flex flex-col items-center space-y-1">
                         <div className="flex flex-col items-center space-y-0.5">
                           <div
-                            className="text-xs leading-tight text-center max-w-[110px]"
+                            className={`text-xs leading-tight text-center max-w-[110px] ${
+                              isHighlighted ? "text-blue-800" : ""
+                            }`}
                             title={displayName}
                           >
                             {directoryPath && (
-                              <div className="text-muted-foreground font-normal">
+                              <div
+                                className={`font-normal ${
+                                  isHighlighted
+                                    ? "text-blue-600"
+                                    : "text-muted-foreground"
+                                }`}
+                              >
                                 {directoryPath}
                               </div>
                             )}
-                            <div className="font-medium break-words">
+                            <div
+                              className={`font-medium break-words ${
+                                isHighlighted
+                                  ? "text-blue-800 font-semibold"
+                                  : ""
+                              }`}
+                            >
                               {fileName}
                             </div>
                           </div>

@@ -3,15 +3,9 @@
 import { useAmexTransactions } from "../../lib/hooks/useTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";
 import ProtectedRoute from "@/components/protected-route";
-import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import UpdateAmexAggregatedButton from "@/components/UpdateAmexAggregatedButton";
 import BankTablePageHeader from "@/components/ui/bank-table-page-header";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+import BankTablePageBody from "@/components/ui/bank-table-page-body";
 
 export default function Home() {
   const { transactions, loading, error, user } = useAmexTransactions();
@@ -25,6 +19,39 @@ export default function Home() {
   const earlyReturn = renderContent();
   if (earlyReturn) return earlyReturn;
 
+  // Define the sections for the accordion
+  const tableSections = [
+    {
+      id: "main-table",
+      title: "Main Transactions",
+      transactions: transactions,
+      bankFilter: "American Express",
+      initialSortColumn: "Date",
+      initialSortDirection: "desc" as const,
+      hiddenColumns: [],
+      showMonthFilter: true,
+      showCategoryFilter: true,
+      showDescriptionFilter: true,
+      showTotalAmount: true,
+      excludeCategories: ["Amex Invoice"],
+    },
+    {
+      id: "invoice-table",
+      title: "Invoice Transactions",
+      transactions: transactions,
+      bankFilter: "American Express",
+      includeCategories: ["Amex Invoice"],
+      initialSortColumn: "Date",
+      initialSortDirection: "desc" as const,
+      hiddenColumns: [],
+      showMonthFilter: false,
+      showCategoryFilter: false,
+      showDescriptionFilter: false,
+      showFilters: false,
+      showTotalAmount: true,
+    },
+  ];
+
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4">
@@ -37,51 +64,7 @@ export default function Home() {
           chartButtonText="Go to Chart Page"
         />
 
-        {/* Accordion */}
-        <Accordion type="single" collapsible>
-          {/* Main Table Section */}
-          <AccordionItem value="main-table">
-            <AccordionTrigger>Main Transactions</AccordionTrigger>
-            <AccordionContent>
-              {/* Use the new TransactionTable component for main transactions */}
-              <TransactionTable
-                transactions={transactions}
-                bankFilter="American Express"
-                initialSortColumn="Date"
-                initialSortDirection="desc"
-                hiddenColumns={[]} // Show all columns
-                showMonthFilter={true}
-                showCategoryFilter={true}
-                showDescriptionFilter={true}
-                showTotalAmount={true}
-                excludeCategories={["Amex Invoice"]} // Exclude Invoice category
-              />
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Invoice Table Section */}
-          <AccordionItem value="invoice-table">
-            <AccordionTrigger>Invoice Transactions</AccordionTrigger>
-            <AccordionContent>
-              {/* Use the new TransactionTable component for invoice transactions */}
-              <TransactionTable
-                transactions={transactions.filter(
-                  (t) =>
-                    t.Category === "Amex Invoice" &&
-                    t.Bank === "American Express",
-                )}
-                initialSortColumn="Date"
-                initialSortDirection="desc"
-                hiddenColumns={[]} // Show all columns
-                showMonthFilter={false}
-                showCategoryFilter={false}
-                showDescriptionFilter={false}
-                showFilters={false}
-                showTotalAmount={true}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <BankTablePageBody sections={tableSections} />
       </div>
     </ProtectedRoute>
   );

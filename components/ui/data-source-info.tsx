@@ -1,4 +1,5 @@
 import React from "react";
+import { Transaction } from "@/types/transaction";
 
 interface BankInfo {
   uniqueBanks: string[];
@@ -7,7 +8,7 @@ interface BankInfo {
 }
 
 interface DataSourceInfoProps {
-  transactions: any[];
+  transactions: Transaction[];
   bankInfo: BankInfo;
   tableName: string;
   tableDescription: string;

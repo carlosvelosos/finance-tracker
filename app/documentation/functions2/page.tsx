@@ -349,11 +349,18 @@ export default function FunctionReportsPage() {
     }
   };
 
-  // Reset selections when directory changes
+  // Reset selections when directory changes and collapse all groups by default
   useEffect(() => {
     setSelectedJsonFiles([]);
     setTableData([]);
-  }, [selectedDirectory]);
+
+    // Collapse all groups when directory changes
+    if (directoryData?.jsonFiles) {
+      const groupedFiles = groupFilesByPath(directoryData.jsonFiles);
+      const allGroupNames = Object.keys(groupedFiles);
+      setCollapsedGroups(new Set(allGroupNames));
+    }
+  }, [selectedDirectory, directoryData]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">

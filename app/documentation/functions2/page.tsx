@@ -65,6 +65,9 @@ export default function FunctionReportsPage() {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     new Set(),
   );
+  const [collapsedDirectories, setCollapsedDirectories] = useState<Set<string>>(
+    new Set(),
+  );
   const [isJsonFilesCollapsed, setIsJsonFilesCollapsed] = useState(false);
 
   // Fetch available directories on component mount
@@ -169,38 +172,47 @@ export default function FunctionReportsPage() {
       .replace(/js$/, ".js");
   };
 
-  // Group files by their directory and path
-  const groupFilesByDirectoryAndPath = (selectedDirs: SelectedDirectory[]) => {
+  // Group files by their directory
+  const groupFilesByDirectory = (selectedDirs: SelectedDirectory[]) => {
     const groups: Record<string, FileWithDirectory[]> = {};
 
     selectedDirs.forEach((directory) => {
-      directory.data.jsonFiles.forEach((fileName) => {
-        const fileWithDir: FileWithDirectory = {
-          fileName,
-          directoryName: directory.name,
-          displayName: `${directory.name}/${formatJsonFileName(fileName)}`,
-        };
+      const files = directory.data.jsonFiles.map((fileName) => ({
+        fileName,
+        directoryName: directory.name,
+        displayName: `${directory.name}/${formatJsonFileName(fileName)}`,
+      }));
 
-        const readableName = formatJsonFileName(fileName);
-        const pathParts = readableName.split("/");
-
-        let groupName = "";
-        if (pathParts.length === 1) {
-          // Root level files
-          groupName = `${directory.name}/Root`;
-        } else {
-          // Files in subdirectories - use only the first directory level
-          groupName = `${directory.name}/${pathParts[0]}`;
-        }
-
-        if (!groups[groupName]) {
-          groups[groupName] = [];
-        }
-        groups[groupName].push(fileWithDir);
-      });
+      groups[directory.name] = files;
     });
 
     return groups;
+  };
+
+  // Group files by their directory and path (for subdirectory grouping within a directory)
+  const groupFilesByPath = (files: FileWithDirectory[]) => {
+    const pathGroups: Record<string, FileWithDirectory[]> = {};
+
+    files.forEach((file) => {
+      const readableName = formatJsonFileName(file.fileName);
+      const pathParts = readableName.split("/");
+
+      let pathGroupName = "";
+      if (pathParts.length === 1) {
+        // Root level files
+        pathGroupName = "Root";
+      } else {
+        // Files in subdirectories - use only the first directory level
+        pathGroupName = pathParts[0];
+      }
+
+      if (!pathGroups[pathGroupName]) {
+        pathGroups[pathGroupName] = [];
+      }
+      pathGroups[pathGroupName].push(file);
+    });
+
+    return pathGroups;
   };
 
   const toggleGroup = (groupName: string) => {
@@ -215,18 +227,33 @@ export default function FunctionReportsPage() {
     });
   };
 
+  const toggleDirectory = (directoryName: string) => {
+    setCollapsedDirectories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(directoryName)) {
+        newSet.delete(directoryName);
+      } else {
+        newSet.add(directoryName);
+      }
+      return newSet;
+    });
+  };
+
   const isGroupCollapsed = (groupName: string) =>
     collapsedGroups.has(groupName);
+
+  const isDirectoryCollapsed = (directoryName: string) =>
+    collapsedDirectories.has(directoryName);
 
   const toggleJsonFilesCollapse = () => {
     setIsJsonFilesCollapsed((prev) => !prev);
   };
 
-  const getGroupFileCount = (
-    groupName: string,
-    groupedFiles: Record<string, FileWithDirectory[]>,
+  const getPathGroupFileCount = (
+    pathGroupName: string,
+    pathGroupFiles: Record<string, FileWithDirectory[]>,
   ) => {
-    const files = groupedFiles[groupName] || [];
+    const files = pathGroupFiles[pathGroupName] || [];
     const selectedCount = files.filter((file) =>
       selectedJsonFiles.some(
         (sf) =>
@@ -237,11 +264,11 @@ export default function FunctionReportsPage() {
     return { total: files.length, selected: selectedCount };
   };
 
-  const toggleGroupSelection = (
-    groupName: string,
-    groupedFiles: Record<string, FileWithDirectory[]>,
+  const togglePathGroupSelection = (
+    pathGroupName: string,
+    pathGroupFiles: Record<string, FileWithDirectory[]>,
   ) => {
-    const groupFiles = groupedFiles[groupName] || [];
+    const groupFiles = pathGroupFiles[pathGroupName] || [];
     const allSelected = groupFiles.every((file) =>
       selectedJsonFiles.some(
         (sf) =>
@@ -252,7 +279,7 @@ export default function FunctionReportsPage() {
 
     setSelectedJsonFiles((prev) => {
       if (allSelected) {
-        // Deselect all files in group
+        // Deselect all files in path group
         return prev.filter(
           (sf) =>
             !groupFiles.some(
@@ -262,9 +289,65 @@ export default function FunctionReportsPage() {
             ),
         );
       } else {
-        // Select all files in group
+        // Select all files in path group
         const newSelected = [...prev];
         groupFiles.forEach((file) => {
+          if (
+            !newSelected.some(
+              (sf) =>
+                sf.fileName === file.fileName &&
+                sf.directoryName === file.directoryName,
+            )
+          ) {
+            newSelected.push(file);
+          }
+        });
+        return newSelected;
+      }
+    });
+  };
+
+  const getDirectoryFileCount = (directoryName: string) => {
+    const directoryData = selectedDirectories.find(
+      (d) => d.name === directoryName,
+    );
+    if (!directoryData) return { total: 0, selected: 0 };
+
+    const total = directoryData.data.jsonFiles.length;
+    const selected = selectedJsonFiles.filter(
+      (sf) => sf.directoryName === directoryName,
+    ).length;
+    return { total, selected };
+  };
+
+  const toggleDirectorySelection = (directoryName: string) => {
+    const directoryData = selectedDirectories.find(
+      (d) => d.name === directoryName,
+    );
+    if (!directoryData) return;
+
+    const directoryFiles = directoryData.data.jsonFiles.map((fileName) => ({
+      fileName,
+      directoryName,
+      displayName: `${directoryName}/${formatJsonFileName(fileName)}`,
+    }));
+
+    const allSelected = directoryFiles.every((file) =>
+      selectedJsonFiles.some(
+        (sf) =>
+          sf.fileName === file.fileName &&
+          sf.directoryName === file.directoryName,
+      ),
+    );
+
+    setSelectedJsonFiles((prev) => {
+      if (allSelected) {
+        // Deselect all files in directory
+        return prev.filter((sf) => sf.directoryName !== directoryName);
+      } else {
+        // Select all files in directory
+        const newSelected = [...prev];
+        directoryFiles.forEach((file) => {
           if (
             !newSelected.some(
               (sf) =>
@@ -338,7 +421,7 @@ export default function FunctionReportsPage() {
       // Combine all functions from all files
       const functionMap = new Map<string, FunctionData>();
 
-      fileResults.forEach(({ fileName, directoryName, displayName, data }) => {
+      fileResults.forEach(({ fileName, directoryName, data }) => {
         const readableFileName = formatJsonFileName(fileName);
         const fullDisplayName = `${directoryName}/${readableFileName}`;
 
@@ -469,11 +552,11 @@ export default function FunctionReportsPage() {
     setSelectedJsonFiles([]);
     setTableData([]);
 
-    // Collapse all groups when directories change
+    // Collapse all directories when directories change
     if (selectedDirectories.length > 0) {
-      const groupedFiles = groupFilesByDirectoryAndPath(selectedDirectories);
-      const allGroupNames = Object.keys(groupedFiles);
-      setCollapsedGroups(new Set(allGroupNames));
+      const groupedFiles = groupFilesByDirectory(selectedDirectories);
+      const allDirectoryNames = Object.keys(groupedFiles);
+      setCollapsedDirectories(new Set(allDirectoryNames));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDirectories]);
@@ -717,33 +800,40 @@ export default function FunctionReportsPage() {
                 </div>
 
                 {selectedDirectories.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {(() => {
-                      const groupedFiles =
-                        groupFilesByDirectoryAndPath(selectedDirectories);
-                      const groupNames = Object.keys(groupedFiles).sort();
+                      const directoryGroups =
+                        groupFilesByDirectory(selectedDirectories);
+                      const directoryNames =
+                        Object.keys(directoryGroups).sort();
 
-                      return groupNames.map((groupName) => {
-                        const groupFiles = groupedFiles[groupName];
-                        const isCollapsed = isGroupCollapsed(groupName);
-                        const { total, selected } = getGroupFileCount(
-                          groupName,
-                          groupedFiles,
-                        );
+                      return directoryNames.map((directoryName) => {
+                        const directoryFiles = directoryGroups[directoryName];
+                        const isDirCollapsed =
+                          isDirectoryCollapsed(directoryName);
+                        const { total, selected } =
+                          getDirectoryFileCount(directoryName);
                         const allSelected = selected === total && total > 0;
                         const someSelected = selected > 0 && selected < total;
 
+                        // Group files within the directory by their paths
+                        const pathGroups = groupFilesByPath(directoryFiles);
+                        const pathGroupNames = Object.keys(pathGroups).sort();
+
                         return (
-                          <div key={groupName} className="border rounded-lg">
-                            {/* Group Header */}
-                            <div className="flex items-center space-x-2 p-3 border-b bg-muted/30">
+                          <div
+                            key={directoryName}
+                            className="border rounded-lg"
+                          >
+                            {/* Directory Header */}
+                            <div className="flex items-center space-x-3 p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 className="h-6 w-6 p-0"
-                                onClick={() => toggleGroup(groupName)}
+                                onClick={() => toggleDirectory(directoryName)}
                               >
-                                {isCollapsed ? (
+                                {isDirCollapsed ? (
                                   <ChevronRight className="h-4 w-4" />
                                 ) : (
                                   <ChevronDown className="h-4 w-4" />
@@ -751,7 +841,7 @@ export default function FunctionReportsPage() {
                               </Button>
 
                               <Checkbox
-                                id={`group-${groupName}`}
+                                id={`directory-${directoryName}`}
                                 checked={allSelected}
                                 className={
                                   someSelected
@@ -759,26 +849,27 @@ export default function FunctionReportsPage() {
                                     : ""
                                 }
                                 onCheckedChange={() =>
-                                  toggleGroupSelection(groupName, groupedFiles)
+                                  toggleDirectorySelection(directoryName)
                                 }
                               />
 
                               <div className="flex-1 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
-                                  <Folder className="h-4 w-4 text-muted-foreground" />
+                                  <Folder className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                   <label
-                                    htmlFor={`group-${groupName}`}
-                                    className="text-sm font-medium cursor-pointer"
+                                    htmlFor={`directory-${directoryName}`}
+                                    className="text-sm font-semibold cursor-pointer text-blue-900 dark:text-blue-100"
                                   >
-                                    {groupName.includes("/Root")
-                                      ? groupName.replace("/Root", " (Root)")
-                                      : groupName}
+                                    {directoryName}
                                   </label>
                                 </div>
 
-                                <div className="flex items-center space-x-2">
-                                  <Badge variant="outline" className="text-xs">
-                                    {selected}/{total}
+                                <div className="flex items-center space-x-3">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs font-medium"
+                                  >
+                                    {selected}/{total} selected
                                   </Badge>
                                   <Badge
                                     variant="secondary"
@@ -790,47 +881,143 @@ export default function FunctionReportsPage() {
                               </div>
                             </div>
 
-                            {/* Group Content */}
-                            {!isCollapsed && (
-                              <div className="p-2">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                  {groupFiles.map((file) => (
+                            {/* Directory Content - Path Groups */}
+                            {!isDirCollapsed && (
+                              <div className="p-3 space-y-2">
+                                {pathGroupNames.map((pathGroupName) => {
+                                  const pathGroupFiles =
+                                    pathGroups[pathGroupName];
+                                  const pathGroupKey = `${directoryName}/${pathGroupName}`;
+                                  const isPathGroupCollapsed =
+                                    isGroupCollapsed(pathGroupKey);
+                                  const {
+                                    total: pathTotal,
+                                    selected: pathSelected,
+                                  } = getPathGroupFileCount(
+                                    pathGroupName,
+                                    pathGroups,
+                                  );
+                                  const pathAllSelected =
+                                    pathSelected === pathTotal && pathTotal > 0;
+                                  const pathSomeSelected =
+                                    pathSelected > 0 &&
+                                    pathSelected < pathTotal;
+
+                                  return (
                                     <div
-                                      key={`${file.directoryName}-${file.fileName}`}
-                                      className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
+                                      key={pathGroupKey}
+                                      className="border rounded-md"
                                     >
-                                      <Checkbox
-                                        id={`${file.directoryName}-${file.fileName}`}
-                                        checked={selectedJsonFiles.some(
-                                          (sf) =>
-                                            sf.fileName === file.fileName &&
-                                            sf.directoryName ===
-                                              file.directoryName,
-                                        )}
-                                        onCheckedChange={(checked) =>
-                                          handleFileSelection(
-                                            file,
-                                            checked as boolean,
-                                          )
-                                        }
-                                      />
-                                      <FileText className="h-4 w-4 text-muted-foreground" />
-                                      <div className="flex-1 min-w-0">
-                                        <label
-                                          htmlFor={`${file.directoryName}-${file.fileName}`}
-                                          className="text-sm font-medium truncate block cursor-pointer"
+                                      {/* Path Group Header */}
+                                      <div className="flex items-center space-x-2 p-2 border-b bg-muted/20">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-5 w-5 p-0"
+                                          onClick={() =>
+                                            toggleGroup(pathGroupKey)
+                                          }
                                         >
-                                          {formatJsonFileName(file.fileName)
-                                            .split("/")
-                                            .pop()}
-                                        </label>
-                                        <p className="text-xs text-muted-foreground truncate">
-                                          {file.directoryName}/{file.fileName}
-                                        </p>
+                                          {isPathGroupCollapsed ? (
+                                            <ChevronRight className="h-3 w-3" />
+                                          ) : (
+                                            <ChevronDown className="h-3 w-3" />
+                                          )}
+                                        </Button>
+
+                                        <Checkbox
+                                          id={`pathgroup-${pathGroupKey}`}
+                                          checked={pathAllSelected}
+                                          className={
+                                            pathSomeSelected
+                                              ? "data-[state=checked]:bg-orange-500"
+                                              : ""
+                                          }
+                                          onCheckedChange={() =>
+                                            togglePathGroupSelection(
+                                              pathGroupName,
+                                              pathGroups,
+                                            )
+                                          }
+                                        />
+
+                                        <div className="flex-1 flex items-center justify-between">
+                                          <div className="flex items-center space-x-2">
+                                            <Folder className="h-3 w-3 text-muted-foreground" />
+                                            <label
+                                              htmlFor={`pathgroup-${pathGroupKey}`}
+                                              className="text-xs font-medium cursor-pointer"
+                                            >
+                                              {pathGroupName === "Root"
+                                                ? "Root Files"
+                                                : pathGroupName}
+                                            </label>
+                                          </div>
+
+                                          <div className="flex items-center space-x-2">
+                                            <Badge
+                                              variant="outline"
+                                              className="text-xs"
+                                            >
+                                              {pathSelected}/{pathTotal}
+                                            </Badge>
+                                          </div>
+                                        </div>
                                       </div>
+
+                                      {/* Path Group Files */}
+                                      {!isPathGroupCollapsed && (
+                                        <div className="p-2">
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                            {pathGroupFiles.map(
+                                              (file: FileWithDirectory) => (
+                                                <div
+                                                  key={`${file.directoryName}-${file.fileName}`}
+                                                  className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/30 transition-colors"
+                                                >
+                                                  <Checkbox
+                                                    id={`${file.directoryName}-${file.fileName}`}
+                                                    checked={selectedJsonFiles.some(
+                                                      (sf) =>
+                                                        sf.fileName ===
+                                                          file.fileName &&
+                                                        sf.directoryName ===
+                                                          file.directoryName,
+                                                    )}
+                                                    onCheckedChange={(
+                                                      checked,
+                                                    ) =>
+                                                      handleFileSelection(
+                                                        file,
+                                                        checked as boolean,
+                                                      )
+                                                    }
+                                                  />
+                                                  <FileText className="h-3 w-3 text-muted-foreground" />
+                                                  <div className="flex-1 min-w-0">
+                                                    <label
+                                                      htmlFor={`${file.directoryName}-${file.fileName}`}
+                                                      className="text-xs font-medium truncate block cursor-pointer"
+                                                    >
+                                                      {formatJsonFileName(
+                                                        file.fileName,
+                                                      )
+                                                        .split("/")
+                                                        .pop()}
+                                                    </label>
+                                                    <p className="text-xs text-muted-foreground truncate">
+                                                      {file.fileName}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              ),
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
-                                  ))}
-                                </div>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>

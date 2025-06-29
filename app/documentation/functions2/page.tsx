@@ -58,7 +58,7 @@ interface DirectoryData {
 interface FunctionData {
   functionName: string;
   source: string;
-  files: Record<string, { type: 'defined' | 'called' | 'both' }>; // filename -> type in that file
+  files: Record<string, { type: "defined" | "called" | "both" }>; // filename -> type in that file
 }
 
 interface JsonFileData {
@@ -225,11 +225,11 @@ export default function FunctionReportsPage() {
           const existing = functionMap.get(funcName)!;
           if (existing.files[readableFileName]) {
             // If already exists as called, mark as both
-            if (existing.files[readableFileName].type === 'called') {
-              existing.files[readableFileName].type = 'both';
+            if (existing.files[readableFileName].type === "called") {
+              existing.files[readableFileName].type = "both";
             }
           } else {
-            existing.files[readableFileName] = { type: 'defined' };
+            existing.files[readableFileName] = { type: "defined" };
           }
         });
 
@@ -258,11 +258,11 @@ export default function FunctionReportsPage() {
           const existing = functionMap.get(funcName)!;
           if (existing.files[readableFileName]) {
             // If already exists as defined, mark as both
-            if (existing.files[readableFileName].type === 'defined') {
-              existing.files[readableFileName].type = 'both';
+            if (existing.files[readableFileName].type === "defined") {
+              existing.files[readableFileName].type = "both";
             }
           } else {
-            existing.files[readableFileName] = { type: 'called' };
+            existing.files[readableFileName] = { type: "called" };
           }
         });
 
@@ -275,7 +275,7 @@ export default function FunctionReportsPage() {
               files: {},
             });
           }
-          functionMap.get(funcName)!.files[readableFileName] = { type: 'both' };
+          functionMap.get(funcName)!.files[readableFileName] = { type: "both" };
         });
       });
 

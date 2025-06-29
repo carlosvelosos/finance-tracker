@@ -410,18 +410,43 @@ export default function FunctionAnalysisTable({
                     {renderFilterDropdown("source", "Source")}
                   </div>
                 </TableHead>
-                {selectedJsonFiles.map((fileName) => {
-                  // fileName is now the full display name (directory/file)
-                  const displayName = fileName;
+                {selectedJsonFiles.map((fullFileName) => {
+                  // fullFileName is now the full display name (directory/file)
+                  const displayName = fullFileName;
+
+                  // Extract just the file path without the directory report name
+                  // Format: "scan-functions-report-app-2025-06-29_14-23-26/amex/chart/page.tsx"
+                  // becomes: "amex/chart/page.tsx"
+                  const pathOnly = displayName.includes("/")
+                    ? displayName.split("/").slice(1).join("/")
+                    : displayName;
+
+                  // Split the path for better wrapping display
+                  // "amex/chart/page.tsx" becomes ["amex/chart/", "page.tsx"]
+                  const pathParts = pathOnly.split("/");
+                  const fileName = pathParts.pop() || pathOnly;
+                  const directoryPath =
+                    pathParts.length > 0 ? pathParts.join("/") + "/" : "";
+
                   return (
                     <TableHead
-                      key={fileName}
+                      key={fullFileName}
                       className="min-w-[120px] text-center"
                     >
                       <div className="flex flex-col items-center space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <div className="truncate" title={displayName}>
-                            {displayName}
+                        <div className="flex flex-col items-center space-y-0.5">
+                          <div
+                            className="text-xs leading-tight text-center max-w-[110px]"
+                            title={displayName}
+                          >
+                            {directoryPath && (
+                              <div className="text-muted-foreground font-normal">
+                                {directoryPath}
+                              </div>
+                            )}
+                            <div className="font-medium break-words">
+                              {fileName}
+                            </div>
                           </div>
                           <Button
                             variant="ghost"
@@ -432,7 +457,7 @@ export default function FunctionAnalysisTable({
                             {getSortIcon(displayName)}
                           </Button>
                         </div>
-                        {renderFilterDropdown(displayName, displayName)}
+                        {renderFilterDropdown(displayName, pathOnly)}
                       </div>
                     </TableHead>
                   );
@@ -491,11 +516,11 @@ export default function FunctionAnalysisTable({
                           {funcData.source}
                         </div>
                       </TableCell>
-                      {selectedJsonFiles.map((fileName) => {
-                        // fileName is now the full display name that matches funcData.files keys
-                        const fileData = funcData.files[fileName];
+                      {selectedJsonFiles.map((fullFileName) => {
+                        // fullFileName is now the full display name that matches funcData.files keys
+                        const fileData = funcData.files[fullFileName];
                         return (
-                          <TableCell key={fileName} className="text-center">
+                          <TableCell key={fullFileName} className="text-center">
                             {fileData ? (
                               <Badge
                                 variant={

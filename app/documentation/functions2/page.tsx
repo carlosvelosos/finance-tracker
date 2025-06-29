@@ -17,7 +17,17 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Folder, Calendar, Hash } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FileText, Folder, Calendar, Hash, Eye, Download } from "lucide-react";
 
 interface ReportDirectory {
   name: string;
@@ -45,12 +55,37 @@ interface DirectoryData {
   jsonFiles: string[];
 }
 
+interface FunctionData {
+  functionName: string;
+  source: string;
+  files: Record<string, { type: 'defined' | 'called' | 'both' }>; // filename -> type in that file
+}
+
+interface JsonFileData {
+  metadata: {
+    originalFilePath: string;
+    scannedDirectory: string;
+    timestamp: string;
+    scanDate: string;
+  };
+  analysis: {
+    defined: string[];
+    called: string[];
+    both: string[];
+    imports: Record<string, any>;
+    calledWithImports: Record<string, any>;
+  };
+}
+
 export default function FunctionReportsPage() {
   const [directories, setDirectories] = useState<ReportDirectory[]>([]);
   const [selectedDirectory, setSelectedDirectory] = useState<string>("");
   const [directoryData, setDirectoryData] = useState<DirectoryData | null>(
     null,
   );
+  const [selectedJsonFiles, setSelectedJsonFiles] = useState<string[]>([]);
+  const [tableData, setTableData] = useState<FunctionData[]>([]);
+  const [loadingTable, setLoadingTable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -140,6 +175,139 @@ export default function FunctionReportsPage() {
       .replace(/ts$/, ".ts")
       .replace(/js$/, ".js");
   };
+
+  const handleFileSelection = (fileName: string, checked: boolean) => {
+    setSelectedJsonFiles((prev) => {
+      if (checked) {
+        return [...prev, fileName];
+      } else {
+        return prev.filter((f) => f !== fileName);
+      }
+    });
+  };
+
+  const loadTableData = async () => {
+    if (selectedJsonFiles.length === 0 || !selectedDirectory) return;
+
+    setLoadingTable(true);
+    setError("");
+
+    try {
+      // Fetch all selected JSON files
+      const fileDataPromises = selectedJsonFiles.map(async (fileName) => {
+        const response = await fetch(
+          `/api/function-reports/${selectedDirectory}/${fileName.replace(".json", "")}`,
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${fileName}`);
+        }
+        const data = await response.json();
+        return { fileName, data: data as JsonFileData };
+      });
+
+      const fileResults = await Promise.all(fileDataPromises);
+
+      // Combine all functions from all files
+      const functionMap = new Map<string, FunctionData>();
+
+      fileResults.forEach(({ fileName, data }) => {
+        const readableFileName = formatJsonFileName(fileName);
+
+        // Process defined functions
+        data.analysis.defined.forEach((funcName) => {
+          if (!functionMap.has(funcName)) {
+            functionMap.set(funcName, {
+              functionName: funcName,
+              source: "local",
+              files: {},
+            });
+          }
+          const existing = functionMap.get(funcName)!;
+          if (existing.files[readableFileName]) {
+            // If already exists as called, mark as both
+            if (existing.files[readableFileName].type === 'called') {
+              existing.files[readableFileName].type = 'both';
+            }
+          } else {
+            existing.files[readableFileName] = { type: 'defined' };
+          }
+        });
+
+        // Process called functions
+        data.analysis.called.forEach((funcName) => {
+          if (!functionMap.has(funcName)) {
+            // Determine source from imports
+            const importInfo = data.analysis.calledWithImports[funcName];
+            let source = "unknown";
+            if (importInfo) {
+              if (importInfo.type === "npm") {
+                source = importInfo.source;
+              } else if (importInfo.type === "alias") {
+                source = importInfo.source;
+              } else if (importInfo.memberOf) {
+                source = importInfo.memberOf;
+              }
+            }
+
+            functionMap.set(funcName, {
+              functionName: funcName,
+              source: source,
+              files: {},
+            });
+          }
+          const existing = functionMap.get(funcName)!;
+          if (existing.files[readableFileName]) {
+            // If already exists as defined, mark as both
+            if (existing.files[readableFileName].type === 'defined') {
+              existing.files[readableFileName].type = 'both';
+            }
+          } else {
+            existing.files[readableFileName] = { type: 'called' };
+          }
+        });
+
+        // Process both functions
+        data.analysis.both.forEach((funcName) => {
+          if (!functionMap.has(funcName)) {
+            functionMap.set(funcName, {
+              functionName: funcName,
+              source: "local",
+              files: {},
+            });
+          }
+          functionMap.get(funcName)!.files[readableFileName] = { type: 'both' };
+        });
+      });
+
+      // Convert to array and sort by function name
+      const tableDataArray = Array.from(functionMap.values()).sort((a, b) => {
+        return a.functionName.localeCompare(b.functionName);
+      });
+
+      setTableData(tableDataArray);
+    } catch (err) {
+      setError("Failed to load table data");
+      console.error("Error loading table data:", err);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (!directoryData) return;
+
+    if (selectedJsonFiles.length === directoryData.jsonFiles.length) {
+      setSelectedJsonFiles([]);
+    } else {
+      setSelectedJsonFiles([...directoryData.jsonFiles]);
+    }
+  };
+
+  // Reset selections when directory changes
+  useEffect(() => {
+    setSelectedJsonFiles([]);
+    setTableData([]);
+  }, [selectedDirectory]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -270,12 +438,45 @@ export default function FunctionReportsPage() {
                 <Badge variant="outline">
                   {directoryData.jsonFiles.length}
                 </Badge>
+                {selectedJsonFiles.length > 0 && (
+                  <Badge variant="default">
+                    {selectedJsonFiles.length} selected
+                  </Badge>
+                )}
               </CardTitle>
               <CardDescription>
-                JSON files containing function analysis data (excluding summary)
+                Select JSON files to analyze and compare function usage across
+                files
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={
+                    selectedJsonFiles.length ===
+                      directoryData.jsonFiles.length &&
+                    directoryData.jsonFiles.length > 0
+                  }
+                  onCheckedChange={toggleSelectAll}
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Select All
+                </label>
+                <Button
+                  onClick={loadTableData}
+                  disabled={selectedJsonFiles.length === 0 || loadingTable}
+                  size="sm"
+                  className="ml-auto"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  {loadingTable ? "Loading..." : "Generate Table"}
+                </Button>
+              </div>
+
               {directoryData.jsonFiles.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {directoryData.jsonFiles.map((fileName) => (
@@ -283,11 +484,21 @@ export default function FunctionReportsPage() {
                       key={fileName}
                       className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                     >
+                      <Checkbox
+                        id={fileName}
+                        checked={selectedJsonFiles.includes(fileName)}
+                        onCheckedChange={(checked) =>
+                          handleFileSelection(fileName, checked as boolean)
+                        }
+                      />
                       <FileText className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
+                        <label
+                          htmlFor={fileName}
+                          className="text-sm font-medium truncate block cursor-pointer"
+                        >
                           {formatJsonFileName(fileName)}
-                        </p>
+                        </label>
                         <p className="text-xs text-muted-foreground truncate">
                           {fileName}
                         </p>
@@ -302,6 +513,138 @@ export default function FunctionReportsPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Function Analysis Table */}
+          {tableData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5" />
+                  <span>Function Analysis Table</span>
+                  <Badge variant="outline">{tableData.length} functions</Badge>
+                </CardTitle>
+                <CardDescription>
+                  Functions analyzed across selected files. Each row represents
+                  a function, each column represents a file.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[200px] sticky left-0 bg-background border-r">
+                          Function Name
+                        </TableHead>
+                        <TableHead className="w-[150px] sticky left-[200px] bg-background border-r">
+                          Source
+                        </TableHead>
+                        {selectedJsonFiles.map((fileName) => (
+                          <TableHead
+                            key={fileName}
+                            className="min-w-[120px] text-center"
+                          >
+                            <div
+                              className="truncate"
+                              title={formatJsonFileName(fileName)}
+                            >
+                              {formatJsonFileName(fileName)}
+                            </div>
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tableData.map((funcData, index) => (
+                        <TableRow key={`${funcData.functionName}-${index}`}>
+                          <TableCell className="font-medium sticky left-0 bg-background border-r">
+                            <div
+                              className="truncate"
+                              title={funcData.functionName}
+                            >
+                              {funcData.functionName}
+                            </div>
+                          </TableCell>
+                          <TableCell className="sticky left-[200px] bg-background border-r">
+                            <div
+                              className="truncate text-xs text-muted-foreground"
+                              title={funcData.source}
+                            >
+                              {funcData.source}
+                            </div>
+                          </TableCell>
+                          {selectedJsonFiles.map((fileName) => {
+                            const readableFileName =
+                              formatJsonFileName(fileName);
+                            const fileData = funcData.files[readableFileName];
+                            return (
+                              <TableCell key={fileName} className="text-center">
+                                {fileData ? (
+                                  <Badge
+                                    variant={
+                                      fileData.type === "defined"
+                                        ? "default"
+                                        : fileData.type === "both"
+                                          ? "destructive"
+                                          : "secondary"
+                                    }
+                                    className="text-xs"
+                                  >
+                                    {fileData.type}
+                                  </Badge>
+                                ) : (
+                                  <div
+                                    className="w-4 h-4 bg-gray-200 rounded-full mx-auto"
+                                    title="Function not present"
+                                  />
+                                )}
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="mt-4 text-sm text-muted-foreground">
+                  <div className="flex items-center space-x-4 flex-wrap gap-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-gray-200 rounded-full" />
+                      <span>Function not present</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="default" className="text-xs">
+                        defined
+                      </Badge>
+                      <span>Function defined in file</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="secondary" className="text-xs">
+                        called
+                      </Badge>
+                      <span>Function called in file</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="destructive" className="text-xs">
+                        both
+                      </Badge>
+                      <span>Function both defined and called</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {loadingTable && (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground">
+                  Generating function analysis table...
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* File List from Summary */}
           {directoryData.summary.fileList &&

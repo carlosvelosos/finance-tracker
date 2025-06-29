@@ -325,6 +325,33 @@ export default function FunctionAnalysisPage() {
           const comparison = a.localeCompare(b);
           return sortState.direction === "asc" ? comparison : -comparison;
         });
+      } else if (sortState.column === "type") {
+        // Sort by function type
+        filtered = filtered.sort((a, b) => {
+          const aType = getFunctionType(a);
+          const bType = getFunctionType(b);
+
+          // Define sort order for types: npm > local > alias > relative > unknown
+          const getTypeWeight = (type: string) => {
+            switch (type) {
+              case "npm":
+                return 5;
+              case "local":
+                return 4;
+              case "alias":
+                return 3;
+              case "relative":
+                return 2;
+              case "unknown":
+                return 1;
+              default:
+                return 0;
+            }
+          };
+
+          const comparison = getTypeWeight(aType) - getTypeWeight(bType);
+          return sortState.direction === "asc" ? comparison : -comparison;
+        });
       } else {
         // Sort by file column (count of D, C, or D/C in that file)
         const fileName = sortState.column;

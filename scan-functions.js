@@ -262,24 +262,26 @@ async function analyzeFile(filePath) {
             const functionName = property.node.name;
             called.add(functionName);
 
-            // For member expressions, try to get the object name
-            const object = callee.get("object");
-            if (object.isIdentifier()) {
-              const objectName = object.node.name;
-              if (imports.has(objectName)) {
-                calledWithImports.set(functionName, {
-                  ...imports.get(objectName),
-                  memberOf: objectName,
-                  functionName,
-                });
-              } else {
-                calledWithImports.set(functionName, {
-                  source: "unknown",
-                  type: "unknown",
-                  memberOf: objectName,
-                  functionName,
-                });
-              }
+            // For member expressions, try to get the root object name
+            const { rootObject, fullPath } = getRootObjectAndPath(callee);
+
+            if (rootObject && imports.has(rootObject)) {
+              calledWithImports.set(functionName, {
+                ...imports.get(rootObject),
+                memberOf: fullPath,
+                functionName,
+                fullMemberPath: fullPath + "." + functionName,
+              });
+            } else {
+              calledWithImports.set(functionName, {
+                source: "unknown",
+                type: "unknown",
+                memberOf: fullPath || "unknown",
+                functionName,
+                fullMemberPath: fullPath
+                  ? fullPath + "." + functionName
+                  : functionName,
+              });
             }
           }
         }
@@ -311,6 +313,40 @@ async function analyzeFile(filePath) {
     both,
     imports: importsObj,
     calledWithImports: calledWithImportsObj,
+  };
+}
+
+/**
+ * Helper function to get the root object and full path from a member expression
+ * Handles nested member expressions like XLSX.utils.sheet_to_json
+ */
+function getRootObjectAndPath(memberExpression) {
+  const parts = [];
+  let current = memberExpression;
+
+  // Traverse up the member expression chain
+  while (current.isMemberExpression()) {
+    const property = current.get("property");
+    if (property.isIdentifier()) {
+      parts.unshift(property.node.name);
+    }
+    current = current.get("object");
+  }
+
+  // Get the root object
+  let rootObject = null;
+  if (current.isIdentifier()) {
+    rootObject = current.node.name;
+  }
+
+  // Build the full path (excluding the final method name)
+  const fullPath = rootObject
+    ? [rootObject, ...parts.slice(0, -1)].join(".")
+    : parts.slice(0, -1).join(".");
+
+  return {
+    rootObject,
+    fullPath: fullPath || rootObject,
   };
 }
 

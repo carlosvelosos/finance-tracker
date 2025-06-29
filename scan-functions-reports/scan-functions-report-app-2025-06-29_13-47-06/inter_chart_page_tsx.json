@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "originalFilePath": "inter/chart/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "CategoryChartPage"
+    ],
+    "called": [
+      "transactions.filter",
+      "useInterChartTransactions"
+    ],
+    "both": [],
+    "imports": {
+      "useInterChartTransactions": {
+        "source": "../../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useInterChartTransactions",
+        "localName": "useInterChartTransactions"
+      },
+      "CustomBarChart": {
+        "source": "@/components/ui/custombarchart",
+        "type": "alias",
+        "importedName": "CustomBarChart",
+        "localName": "CustomBarChart"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      }
+    },
+    "calledWithImports": {
+      "useInterChartTransactions": {
+        "source": "../../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useInterChartTransactions",
+        "localName": "useInterChartTransactions"
+      },
+      "transactions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.filter",
+        "fullMemberPath": "transactions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

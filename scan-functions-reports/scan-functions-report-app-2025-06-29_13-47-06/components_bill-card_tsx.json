@@ -1,0 +1,448 @@
+{
+  "metadata": {
+    "originalFilePath": "components/bill-card.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "BillCard",
+      "formatCurrency",
+      "getBillDetailsForMonth"
+    ],
+    "called": [
+      "bills.filter",
+      "carouselApi.off",
+      "carouselApi.on",
+      "carouselApi.scrollNext",
+      "carouselApi.scrollPrev",
+      "carouselApi.scrollTo",
+      "carouselApi.selectedScrollSnap",
+      "cn",
+      "countryBills.map",
+      "formatCurrency",
+      "getBillDetailsForMonth",
+      "monthName.toLowerCase.substring",
+      "months.findIndex",
+      "months.map",
+      "onMonthChange",
+      "onNextMonth",
+      "onPrevMonth",
+      "setCarouselApi",
+      "setCurrentSlide",
+      "setSelectedMonth",
+      "sort",
+      "sortedBills.filter",
+      "sortedBills.filter.reduce",
+      "sortedBills.reduce",
+      "useCallback",
+      "useEffect",
+      "useMemo",
+      "useState",
+      "value.toLocaleString"
+    ],
+    "both": [
+      "formatCurrency",
+      "getBillDetailsForMonth"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useCallback": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useCallback",
+        "localName": "useCallback"
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "Bill": {
+        "source": "../types/bill",
+        "type": "relative",
+        "importedName": "Bill",
+        "localName": "Bill"
+      },
+      "BillItem": {
+        "source": "./bill-item",
+        "type": "relative",
+        "importedName": "default",
+        "localName": "BillItem"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "Carousel": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "Carousel",
+        "localName": "Carousel"
+      },
+      "CarouselContent": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselContent",
+        "localName": "CarouselContent"
+      },
+      "CarouselItem": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselItem",
+        "localName": "CarouselItem"
+      },
+      "CarouselPrevious": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselPrevious",
+        "localName": "CarouselPrevious"
+      },
+      "CarouselNext": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselNext",
+        "localName": "CarouselNext"
+      },
+      "CarouselApi": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselApi",
+        "localName": "CarouselApi"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useCallback": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useCallback",
+        "localName": "useCallback"
+      },
+      "setCarouselApi": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCarouselApi"
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "months.findIndex": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "months",
+        "functionName": "months.findIndex",
+        "fullMemberPath": "months.findIndex",
+        "methodChain": [
+          "findIndex"
+        ],
+        "isChainedCall": true
+      },
+      "carouselApi.scrollTo": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "carouselApi",
+        "functionName": "carouselApi.scrollTo",
+        "fullMemberPath": "carouselApi.scrollTo",
+        "methodChain": [
+          "scrollTo"
+        ],
+        "isChainedCall": true
+      },
+      "setCurrentSlide": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentSlide"
+      },
+      "carouselApi.selectedScrollSnap": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "carouselApi",
+        "functionName": "carouselApi.selectedScrollSnap",
+        "fullMemberPath": "carouselApi.selectedScrollSnap",
+        "methodChain": [
+          "selectedScrollSnap"
+        ],
+        "isChainedCall": true
+      },
+      "setSelectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedMonth"
+      },
+      "onMonthChange": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "onMonthChange",
+        "localName": "onMonthChange"
+      },
+      "carouselApi.on": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "carouselApi",
+        "functionName": "carouselApi.on",
+        "fullMemberPath": "carouselApi.on",
+        "methodChain": [
+          "on"
+        ],
+        "isChainedCall": true
+      },
+      "carouselApi.off": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "carouselApi",
+        "functionName": "carouselApi.off",
+        "fullMemberPath": "carouselApi.off",
+        "methodChain": [
+          "off"
+        ],
+        "isChainedCall": true
+      },
+      "carouselApi.scrollPrev": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "carouselApi",
+        "functionName": "carouselApi.scrollPrev",
+        "fullMemberPath": "carouselApi.scrollPrev",
+        "methodChain": [
+          "scrollPrev"
+        ],
+        "isChainedCall": true
+      },
+      "onPrevMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "onPrevMonth",
+        "localName": "onPrevMonth"
+      },
+      "carouselApi.scrollNext": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "carouselApi",
+        "functionName": "carouselApi.scrollNext",
+        "fullMemberPath": "carouselApi.scrollNext",
+        "methodChain": [
+          "scrollNext"
+        ],
+        "isChainedCall": true
+      },
+      "onNextMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "onNextMonth",
+        "localName": "onNextMonth"
+      },
+      "monthName.toLowerCase.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "monthName",
+        "functionName": "monthName.toLowerCase.substring",
+        "fullMemberPath": "monthName.toLowerCase.substring",
+        "methodChain": [
+          "toLowerCase",
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "bills.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bills",
+        "functionName": "bills.filter",
+        "fullMemberPath": "bills.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "sort",
+        "fullMemberPath": "sort"
+      },
+      "sortedBills.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sortedBills",
+        "functionName": "sortedBills.reduce",
+        "fullMemberPath": "sortedBills.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "sortedBills.filter.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sortedBills",
+        "functionName": "sortedBills.filter.reduce",
+        "fullMemberPath": "sortedBills.filter.reduce",
+        "methodChain": [
+          "filter",
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "sortedBills.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sortedBills",
+        "functionName": "sortedBills.filter",
+        "fullMemberPath": "sortedBills.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "value.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "value",
+        "functionName": "value.toLocaleString",
+        "fullMemberPath": "value.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "months.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "months",
+        "functionName": "months.map",
+        "fullMemberPath": "months.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "getBillDetailsForMonth": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getBillDetailsForMonth",
+        "localName": "getBillDetailsForMonth"
+      },
+      "formatCurrency": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatCurrency",
+        "localName": "formatCurrency"
+      },
+      "countryBills.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "countryBills",
+        "functionName": "countryBills.map",
+        "fullMemberPath": "countryBills.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "destructuredFunctions": {
+      "setSelectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedMonth"
+      },
+      "carouselApi": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "carouselApi"
+      },
+      "setCarouselApi": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCarouselApi"
+      },
+      "currentSlide": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "currentSlide"
+      },
+      "setCurrentSlide": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentSlide"
+      }
+    }
+  }
+}

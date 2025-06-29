@@ -1,0 +1,542 @@
+{
+  "metadata": {
+    "originalFilePath": "profile/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "ProfilePage",
+      "fetchBankDetails",
+      "generateSupabaseTableName",
+      "handleCancelEditTableName",
+      "handleEditTableName",
+      "handleSaveTableName",
+      "handleTableNameInputChange",
+      "handleToggleAccountStatus",
+      "loadInitialBankData",
+      "setupPage"
+    ],
+    "called": [
+      "JSON.stringify",
+      "Object.entries",
+      "Object.entries.map",
+      "account.replace",
+      "accounts.map",
+      "bankAccounts.find",
+      "bankName.toLowerCase.replace.replace",
+      "banks.map",
+      "console.error",
+      "console.log",
+      "dateObj.toLocaleDateString",
+      "fetchBankDetails",
+      "generateSupabaseTableName",
+      "handleCancelEditTableName",
+      "handleEditTableName",
+      "handleSaveTableName",
+      "handleTableNameInputChange",
+      "handleToggleAccountStatus",
+      "loadInitialBankData",
+      "prev.map",
+      "setBankAccounts",
+      "setCurrentUser",
+      "setIsInitialLoading",
+      "settingsMap.get",
+      "setupPage",
+      "supabase.from.select.eq",
+      "supabase.from.select.order.limit.maybeSingle",
+      "supabase.from.upsert.select",
+      "supabase.getSession",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "fetchBankDetails",
+      "generateSupabaseTableName",
+      "handleCancelEditTableName",
+      "handleEditTableName",
+      "handleSaveTableName",
+      "handleTableNameInputChange",
+      "handleToggleAccountStatus",
+      "loadInitialBankData",
+      "setupPage"
+    ],
+    "imports": {
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "User": {
+        "source": "@supabase/supabase-js",
+        "type": "npm",
+        "importedName": "User",
+        "localName": "User"
+      },
+      "Switch": {
+        "source": "@/components/ui/switch",
+        "type": "alias",
+        "importedName": "Switch",
+        "localName": "Switch"
+      },
+      "Label": {
+        "source": "@/components/ui/label",
+        "type": "alias",
+        "importedName": "Label",
+        "localName": "Label"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardDescription": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardDescription",
+        "localName": "CardDescription"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "Accordion": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "Accordion",
+        "localName": "Accordion"
+      },
+      "AccordionContent": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionContent",
+        "localName": "AccordionContent"
+      },
+      "AccordionItem": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionItem",
+        "localName": "AccordionItem"
+      },
+      "AccordionTrigger": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionTrigger",
+        "localName": "AccordionTrigger"
+      },
+      "Badge": {
+        "source": "@/components/ui/badge",
+        "type": "alias",
+        "importedName": "Badge",
+        "localName": "Badge"
+      }
+    },
+    "calledWithImports": {
+      "bankName.toLowerCase.replace.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bankName",
+        "functionName": "bankName.toLowerCase.replace.replace",
+        "fullMemberPath": "bankName.toLowerCase.replace.replace",
+        "methodChain": [
+          "toLowerCase",
+          "replace",
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "setIsInitialLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsInitialLoading"
+      },
+      "supabase.getSession": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.getSession",
+        "fullMemberPath": "supabase.getSession",
+        "methodChain": [
+          "getSession"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setCurrentUser": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentUser"
+      },
+      "loadInitialBankData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "loadInitialBankData",
+        "localName": "loadInitialBankData"
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "setupPage": {
+        "source": "local",
+        "type": "local",
+        "importedName": "setupPage",
+        "localName": "setupPage"
+      },
+      "supabase.from.select.eq": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.eq",
+        "fullMemberPath": "supabase.from.select.eq",
+        "methodChain": [
+          "from",
+          "select",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries",
+        "fullMemberPath": "Object.entries",
+        "methodChain": [
+          "entries"
+        ],
+        "isChainedCall": true
+      },
+      "banks.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "banks",
+        "functionName": "banks.map",
+        "fullMemberPath": "banks.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "settingsMap.get": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "settingsMap",
+        "functionName": "settingsMap.get",
+        "fullMemberPath": "settingsMap.get",
+        "methodChain": [
+          "get"
+        ],
+        "isChainedCall": true
+      },
+      "generateSupabaseTableName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "generateSupabaseTableName",
+        "localName": "generateSupabaseTableName"
+      },
+      "setBankAccounts": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setBankAccounts"
+      },
+      "fetchBankDetails": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchBankDetails",
+        "localName": "fetchBankDetails"
+      },
+      "supabase.from.select.order.limit.maybeSingle": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.order.limit.maybeSingle",
+        "fullMemberPath": "supabase.from.select.order.limit.maybeSingle",
+        "methodChain": [
+          "from",
+          "select",
+          "order",
+          "limit",
+          "maybeSingle"
+        ],
+        "isChainedCall": true
+      },
+      "dateObj.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dateObj",
+        "functionName": "dateObj.toLocaleDateString",
+        "fullMemberPath": "dateObj.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "prev.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "prev",
+        "functionName": "prev.map",
+        "fullMemberPath": "prev.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.upsert.select": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.upsert.select",
+        "fullMemberPath": "supabase.from.upsert.select",
+        "methodChain": [
+          "from",
+          "upsert",
+          "select"
+        ],
+        "isChainedCall": true
+      },
+      "bankAccounts.find": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bankAccounts",
+        "functionName": "bankAccounts.find",
+        "fullMemberPath": "bankAccounts.find",
+        "methodChain": [
+          "find"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.map",
+        "fullMemberPath": "Object.entries.map",
+        "methodChain": [
+          "entries",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "accounts.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "accounts",
+        "functionName": "accounts.map",
+        "fullMemberPath": "accounts.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "handleEditTableName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleEditTableName",
+        "localName": "handleEditTableName"
+      },
+      "handleTableNameInputChange": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleTableNameInputChange",
+        "localName": "handleTableNameInputChange"
+      },
+      "handleCancelEditTableName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleCancelEditTableName",
+        "localName": "handleCancelEditTableName"
+      },
+      "handleSaveTableName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleSaveTableName",
+        "localName": "handleSaveTableName"
+      },
+      "account.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "account",
+        "functionName": "account.replace",
+        "fullMemberPath": "account.replace",
+        "methodChain": [
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "handleToggleAccountStatus": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleToggleAccountStatus",
+        "localName": "handleToggleAccountStatus"
+      },
+      "JSON.stringify": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "JSON",
+        "functionName": "JSON.stringify",
+        "fullMemberPath": "JSON.stringify",
+        "methodChain": [
+          "stringify"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "bankAccounts": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "bankAccounts"
+      },
+      "setBankAccounts": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setBankAccounts"
+      },
+      "isInitialLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isInitialLoading"
+      },
+      "setIsInitialLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsInitialLoading"
+      },
+      "currentUser": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "currentUser"
+      },
+      "setCurrentUser": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentUser"
+      }
+    }
+  }
+}

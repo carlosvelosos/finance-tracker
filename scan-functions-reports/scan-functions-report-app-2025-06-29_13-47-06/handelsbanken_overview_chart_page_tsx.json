@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "originalFilePath": "handelsbanken/overview/chart/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "CategoryChartPage"
+    ],
+    "called": [
+      "useHandelsbankenOverviewChartTransactions"
+    ],
+    "both": [],
+    "imports": {
+      "useHandelsbankenOverviewChartTransactions": {
+        "source": "../../../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useHandelsbankenOverviewChartTransactions",
+        "localName": "useHandelsbankenOverviewChartTransactions"
+      },
+      "CustomBarChart": {
+        "source": "@/components/ui/custombarchart",
+        "type": "alias",
+        "importedName": "CustomBarChart",
+        "localName": "CustomBarChart"
+      },
+      "TransactionLineChart": {
+        "source": "@/components/ui/bank-line-chart",
+        "type": "alias",
+        "importedName": "TransactionLineChart",
+        "localName": "TransactionLineChart"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      }
+    },
+    "calledWithImports": {
+      "useHandelsbankenOverviewChartTransactions": {
+        "source": "../../../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useHandelsbankenOverviewChartTransactions",
+        "localName": "useHandelsbankenOverviewChartTransactions"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

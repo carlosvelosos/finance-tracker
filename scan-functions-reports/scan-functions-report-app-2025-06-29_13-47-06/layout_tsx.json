@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "originalFilePath": "layout.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "RootLayout"
+    ],
+    "called": [],
+    "both": [],
+    "imports": {
+      "AuthProvider": {
+        "source": "../context/AuthContext",
+        "type": "relative",
+        "importedName": "AuthProvider",
+        "localName": "AuthProvider"
+      },
+      "NavbarWrapper": {
+        "source": "./NavbarWrapper",
+        "type": "relative",
+        "importedName": "default",
+        "localName": "NavbarWrapper"
+      },
+      "Toaster": {
+        "source": "@/components/ui/sonner",
+        "type": "alias",
+        "importedName": "Toaster",
+        "localName": "Toaster"
+      }
+    },
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

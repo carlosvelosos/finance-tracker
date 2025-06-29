@@ -74,6 +74,9 @@ export default function FunctionAnalysisTable({
   });
 
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  const [selectedFunctionName, setSelectedFunctionName] = useState<
+    string | null
+  >(null);
 
   // Get unique values for each column
   const uniqueValues = useMemo(() => {
@@ -225,6 +228,12 @@ export default function FunctionAnalysisTable({
     });
 
     setFilters(clearedFilters);
+  };
+
+  const handleFunctionNameClick = (functionName: string) => {
+    setSelectedFunctionName((prevSelected) =>
+      prevSelected === functionName ? null : functionName,
+    );
   };
 
   const handleSort = (column: string) => {
@@ -450,50 +459,75 @@ export default function FunctionAnalysisTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredAndSortedData.map((funcData, index) => (
-                  <TableRow key={`${funcData.functionName}-${index}`}>
-                    <TableCell className="font-medium sticky left-0 bg-background border-r">
-                      <div className="truncate" title={funcData.functionName}>
-                        {funcData.functionName}
-                      </div>
-                    </TableCell>
-                    <TableCell className="sticky left-[200px] bg-background border-r">
-                      <div
-                        className="truncate text-xs text-muted-foreground"
-                        title={funcData.source}
+                filteredAndSortedData.map((funcData, index) => {
+                  const isSelected =
+                    selectedFunctionName === funcData.functionName;
+                  return (
+                    <TableRow
+                      key={`${funcData.functionName}-${index}`}
+                      className={
+                        isSelected ? "bg-blue-50 hover:bg-blue-100" : ""
+                      }
+                    >
+                      <TableCell
+                        className={`font-medium sticky left-0 border-r ${
+                          isSelected ? "bg-blue-50" : "bg-background"
+                        }`}
                       >
-                        {funcData.source}
-                      </div>
-                    </TableCell>
-                    {selectedJsonFiles.map((fileName) => {
-                      const readableFileName = formatJsonFileName(fileName);
-                      const fileData = funcData.files[readableFileName];
-                      return (
-                        <TableCell key={fileName} className="text-center">
-                          {fileData ? (
-                            <Badge
-                              variant={
-                                fileData.type === "defined"
-                                  ? "default"
-                                  : fileData.type === "both"
-                                    ? "destructive"
-                                    : "secondary"
-                              }
-                              className="text-xs"
-                            >
-                              {fileData.type}
-                            </Badge>
-                          ) : (
-                            <div
-                              className="w-4 h-4 bg-gray-200 rounded-full mx-auto"
-                              title="Function not present"
-                            />
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))
+                        <div
+                          className={`truncate cursor-pointer hover:text-blue-600 transition-colors ${
+                            isSelected ? "text-blue-600 font-semibold" : ""
+                          }`}
+                          title={funcData.functionName}
+                          onClick={() =>
+                            handleFunctionNameClick(funcData.functionName)
+                          }
+                        >
+                          {funcData.functionName}
+                        </div>
+                      </TableCell>
+                      <TableCell
+                        className={`sticky left-[200px] border-r ${
+                          isSelected ? "bg-blue-50" : "bg-background"
+                        }`}
+                      >
+                        <div
+                          className="truncate text-xs text-muted-foreground"
+                          title={funcData.source}
+                        >
+                          {funcData.source}
+                        </div>
+                      </TableCell>
+                      {selectedJsonFiles.map((fileName) => {
+                        const readableFileName = formatJsonFileName(fileName);
+                        const fileData = funcData.files[readableFileName];
+                        return (
+                          <TableCell key={fileName} className="text-center">
+                            {fileData ? (
+                              <Badge
+                                variant={
+                                  fileData.type === "defined"
+                                    ? "default"
+                                    : fileData.type === "both"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
+                                className="text-xs"
+                              >
+                                {fileData.type}
+                              </Badge>
+                            ) : (
+                              <div
+                                className="w-4 h-4 bg-gray-200 rounded-full mx-auto"
+                                title="Function not present"
+                              />
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

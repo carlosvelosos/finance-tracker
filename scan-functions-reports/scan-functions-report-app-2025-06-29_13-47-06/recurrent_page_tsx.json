@@ -1,0 +1,890 @@
+{
+  "metadata": {
+    "originalFilePath": "recurrent/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "BillsPage",
+      "fetchBills",
+      "handleBillUpdate",
+      "handleExpenseSubmit",
+      "handleMonthChange",
+      "handleSort",
+      "handleTogglePaid",
+      "nextMonth",
+      "prevMonth"
+    ],
+    "called": [
+      "JSON.stringify",
+      "MONTHS.findIndex",
+      "MONTHS.forEach",
+      "MONTHS.slice.map",
+      "MONTHS.toLowerCase.substring",
+      "Object.entries.map",
+      "React.useMemo",
+      "aValue.localeCompare",
+      "bValue.localeCompare",
+      "bills.find",
+      "bills.reduce",
+      "console.error",
+      "currentValue.toLocaleString",
+      "fetchBills",
+      "getMonth",
+      "handleSort",
+      "month.toLowerCase.substring",
+      "newExpense.toLocaleString",
+      "parseFloat",
+      "parseInt",
+      "prevBills.map",
+      "relevantMonths.forEach",
+      "setBills",
+      "setCurrentMonth",
+      "setCurrentMonthIndex",
+      "setIsSubmitting",
+      "setLoading",
+      "setNewExpense",
+      "setSelectedCountry",
+      "setSortConfig",
+      "setUpdating",
+      "sort",
+      "sortedBills.filter.map",
+      "supabase.from.insert.select",
+      "supabase.from.select",
+      "supabase.from.update.eq",
+      "toast.error",
+      "toast.success",
+      "total.toLocaleString",
+      "useEffect",
+      "useState",
+      "values.includes"
+    ],
+    "both": [
+      "fetchBills",
+      "handleSort"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "React"
+      },
+      "Table": {
+        "source": "@/components/ui/table",
+        "type": "alias",
+        "importedName": "Table",
+        "localName": "Table"
+      },
+      "TableBody": {
+        "source": "@/components/ui/table",
+        "type": "alias",
+        "importedName": "TableBody",
+        "localName": "TableBody"
+      },
+      "TableCell": {
+        "source": "@/components/ui/table",
+        "type": "alias",
+        "importedName": "TableCell",
+        "localName": "TableCell"
+      },
+      "TableHead": {
+        "source": "@/components/ui/table",
+        "type": "alias",
+        "importedName": "TableHead",
+        "localName": "TableHead"
+      },
+      "TableHeader": {
+        "source": "@/components/ui/table",
+        "type": "alias",
+        "importedName": "TableHeader",
+        "localName": "TableHeader"
+      },
+      "TableRow": {
+        "source": "@/components/ui/table",
+        "type": "alias",
+        "importedName": "TableRow",
+        "localName": "TableRow"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "BillCard": {
+        "source": "../components/bill-card",
+        "type": "relative",
+        "importedName": "default",
+        "localName": "BillCard"
+      },
+      "Bill": {
+        "source": "../types/bill",
+        "type": "relative",
+        "importedName": "Bill",
+        "localName": "Bill"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "BillChart": {
+        "source": "@/components/ui/bill-chart",
+        "type": "alias",
+        "importedName": "BillChart",
+        "localName": "BillChart"
+      },
+      "Label": {
+        "source": "../../components/ui/label",
+        "type": "relative",
+        "importedName": "Label",
+        "localName": "Label"
+      },
+      "ToggleGroup": {
+        "source": "@/components/ui/toggle-group",
+        "type": "alias",
+        "importedName": "ToggleGroup",
+        "localName": "ToggleGroup"
+      },
+      "ToggleGroupItem": {
+        "source": "@/components/ui/toggle-group",
+        "type": "alias",
+        "importedName": "ToggleGroupItem",
+        "localName": "ToggleGroupItem"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "toast": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast"
+      },
+      "Select": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "Select",
+        "localName": "Select"
+      },
+      "SelectContent": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectContent",
+        "localName": "SelectContent"
+      },
+      "SelectItem": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectItem",
+        "localName": "SelectItem"
+      },
+      "SelectTrigger": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectTrigger",
+        "localName": "SelectTrigger"
+      },
+      "SelectValue": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectValue",
+        "localName": "SelectValue"
+      },
+      "Sheet": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "Sheet",
+        "localName": "Sheet"
+      },
+      "SheetContent": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetContent",
+        "localName": "SheetContent"
+      },
+      "SheetDescription": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetDescription",
+        "localName": "SheetDescription"
+      },
+      "SheetHeader": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetHeader",
+        "localName": "SheetHeader"
+      },
+      "SheetTitle": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetTitle",
+        "localName": "SheetTitle"
+      },
+      "SheetTrigger": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetTrigger",
+        "localName": "SheetTrigger"
+      },
+      "SheetFooter": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetFooter",
+        "localName": "SheetFooter"
+      },
+      "SheetClose": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetClose",
+        "localName": "SheetClose"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "getMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getMonth",
+        "fullMemberPath": "getMonth"
+      },
+      "supabase.from.select": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select",
+        "fullMemberPath": "supabase.from.select",
+        "methodChain": [
+          "from",
+          "select"
+        ],
+        "isChainedCall": true
+      },
+      "setBills": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setBills"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "JSON.stringify": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "JSON",
+        "functionName": "JSON.stringify",
+        "fullMemberPath": "JSON.stringify",
+        "methodChain": [
+          "stringify"
+        ],
+        "isChainedCall": true
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "setUpdating": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUpdating"
+      },
+      "MONTHS.toLowerCase.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "MONTHS",
+        "functionName": "MONTHS.toLowerCase.substring",
+        "fullMemberPath": "MONTHS.toLowerCase.substring",
+        "methodChain": [
+          "toLowerCase",
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "bills.find": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bills",
+        "functionName": "bills.find",
+        "fullMemberPath": "bills.find",
+        "methodChain": [
+          "find"
+        ],
+        "isChainedCall": true
+      },
+      "prevBills.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "prevBills",
+        "functionName": "prevBills.map",
+        "fullMemberPath": "prevBills.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.update.eq": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.update.eq",
+        "fullMemberPath": "supabase.from.update.eq",
+        "methodChain": [
+          "from",
+          "update",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "toast.error": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.error",
+        "fullMemberPath": "toast.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setIsSubmitting": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsSubmitting"
+      },
+      "MONTHS.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "MONTHS",
+        "functionName": "MONTHS.forEach",
+        "fullMemberPath": "MONTHS.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "month.toLowerCase.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "month",
+        "functionName": "month.toLowerCase.substring",
+        "fullMemberPath": "month.toLowerCase.substring",
+        "methodChain": [
+          "toLowerCase",
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.insert.select": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.insert.select",
+        "fullMemberPath": "supabase.from.insert.select",
+        "methodChain": [
+          "from",
+          "insert",
+          "select"
+        ],
+        "isChainedCall": true
+      },
+      "toast.success": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.success",
+        "fullMemberPath": "toast.success",
+        "methodChain": [
+          "success"
+        ],
+        "isChainedCall": true
+      },
+      "newExpense.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newExpense",
+        "functionName": "newExpense.toLocaleString",
+        "fullMemberPath": "newExpense.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "setNewExpense": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setNewExpense"
+      },
+      "MONTHS.findIndex": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "MONTHS",
+        "functionName": "MONTHS.findIndex",
+        "fullMemberPath": "MONTHS.findIndex",
+        "methodChain": [
+          "findIndex"
+        ],
+        "isChainedCall": true
+      },
+      "setCurrentMonthIndex": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentMonthIndex"
+      },
+      "setCurrentMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentMonth"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "fetchBills": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchBills",
+        "localName": "fetchBills"
+      },
+      "bills.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bills",
+        "functionName": "bills.reduce",
+        "fullMemberPath": "bills.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "MONTHS.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "MONTHS",
+        "functionName": "MONTHS.slice.map",
+        "fullMemberPath": "MONTHS.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "relevantMonths.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "relevantMonths",
+        "functionName": "relevantMonths.forEach",
+        "fullMemberPath": "relevantMonths.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "React.useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useMemo",
+        "fullMemberPath": "React.useMemo",
+        "methodChain": [
+          "useMemo"
+        ],
+        "isChainedCall": true
+      },
+      "sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "sort",
+        "fullMemberPath": "sort"
+      },
+      "aValue.localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "aValue",
+        "functionName": "aValue.localeCompare",
+        "fullMemberPath": "aValue.localeCompare",
+        "methodChain": [
+          "localeCompare"
+        ],
+        "isChainedCall": true
+      },
+      "bValue.localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bValue",
+        "functionName": "bValue.localeCompare",
+        "fullMemberPath": "bValue.localeCompare",
+        "methodChain": [
+          "localeCompare"
+        ],
+        "isChainedCall": true
+      },
+      "setSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSortConfig"
+      },
+      "setSelectedCountry": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedCountry"
+      },
+      "values.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "values",
+        "functionName": "values.includes",
+        "fullMemberPath": "values.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.map",
+        "fullMemberPath": "Object.entries.map",
+        "methodChain": [
+          "entries",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "total.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "total",
+        "functionName": "total.toLocaleString",
+        "fullMemberPath": "total.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "handleSort": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleSort",
+        "localName": "handleSort"
+      },
+      "sortedBills.filter.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sortedBills",
+        "functionName": "sortedBills.filter.map",
+        "fullMemberPath": "sortedBills.filter.map",
+        "methodChain": [
+          "filter",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "currentValue.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentValue",
+        "functionName": "currentValue.toLocaleString",
+        "fullMemberPath": "currentValue.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "parseInt": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseInt",
+        "localName": "parseInt"
+      },
+      "parseFloat": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseFloat",
+        "localName": "parseFloat"
+      }
+    },
+    "destructuredFunctions": {
+      "bills": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "bills"
+      },
+      "setBills": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setBills"
+      },
+      "loading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loading"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "updating": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "updating"
+      },
+      "setUpdating": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUpdating"
+      },
+      "currentMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "currentMonth"
+      },
+      "setCurrentMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentMonth"
+      },
+      "currentMonthIndex": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "currentMonthIndex"
+      },
+      "setCurrentMonthIndex": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentMonthIndex"
+      },
+      "selectedCountry": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedCountry"
+      },
+      "setSelectedCountry": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedCountry"
+      },
+      "sortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "sortConfig"
+      },
+      "setSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSortConfig"
+      },
+      "newExpense": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "newExpense"
+      },
+      "setNewExpense": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setNewExpense"
+      },
+      "isSubmitting": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isSubmitting"
+      },
+      "setIsSubmitting": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsSubmitting"
+      }
+    }
+  }
+}

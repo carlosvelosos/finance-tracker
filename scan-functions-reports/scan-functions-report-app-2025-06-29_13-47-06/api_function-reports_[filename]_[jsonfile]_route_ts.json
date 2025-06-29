@@ -1,0 +1,200 @@
+{
+  "metadata": {
+    "originalFilePath": "api/function-reports/[filename]/[jsonfile]/route.ts",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "GET"
+    ],
+    "called": [
+      "JSON.parse",
+      "NextResponse.json",
+      "console.error",
+      "filename.includes",
+      "filename.startsWith",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "fs.statSync.isDirectory",
+      "jsonfile.endsWith",
+      "jsonfile.includes",
+      "path.join",
+      "process.cwd"
+    ],
+    "both": [],
+    "imports": {
+      "NextRequest": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextRequest",
+        "localName": "NextRequest"
+      },
+      "NextResponse": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextResponse",
+        "localName": "NextResponse"
+      },
+      "fs": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs"
+      },
+      "path": {
+        "source": "path",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "path"
+      }
+    },
+    "calledWithImports": {
+      "filename.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filename",
+        "functionName": "filename.includes",
+        "fullMemberPath": "filename.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "jsonfile.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "jsonfile",
+        "functionName": "jsonfile.includes",
+        "fullMemberPath": "jsonfile.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "NextResponse.json": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextResponse",
+        "localName": "NextResponse",
+        "memberOf": "NextResponse",
+        "functionName": "NextResponse.json",
+        "fullMemberPath": "NextResponse.json",
+        "methodChain": [
+          "json"
+        ],
+        "isChainedCall": true
+      },
+      "path.join": {
+        "source": "path",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "path",
+        "memberOf": "path",
+        "functionName": "path.join",
+        "fullMemberPath": "path.join",
+        "methodChain": [
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "process.cwd": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "process",
+        "functionName": "process.cwd",
+        "fullMemberPath": "process.cwd",
+        "methodChain": [
+          "cwd"
+        ],
+        "isChainedCall": true
+      },
+      "filename.startsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filename",
+        "functionName": "filename.startsWith",
+        "fullMemberPath": "filename.startsWith",
+        "methodChain": [
+          "startsWith"
+        ],
+        "isChainedCall": true
+      },
+      "fs.existsSync": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.existsSync",
+        "fullMemberPath": "fs.existsSync",
+        "methodChain": [
+          "existsSync"
+        ],
+        "isChainedCall": true
+      },
+      "fs.statSync.isDirectory": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.statSync.isDirectory",
+        "fullMemberPath": "fs.statSync.isDirectory",
+        "methodChain": [
+          "statSync",
+          "isDirectory"
+        ],
+        "isChainedCall": true
+      },
+      "jsonfile.endsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "jsonfile",
+        "functionName": "jsonfile.endsWith",
+        "fullMemberPath": "jsonfile.endsWith",
+        "methodChain": [
+          "endsWith"
+        ],
+        "isChainedCall": true
+      },
+      "fs.readFileSync": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.readFileSync",
+        "fullMemberPath": "fs.readFileSync",
+        "methodChain": [
+          "readFileSync"
+        ],
+        "isChainedCall": true
+      },
+      "JSON.parse": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "JSON",
+        "functionName": "JSON.parse",
+        "fullMemberPath": "JSON.parse",
+        "methodChain": [
+          "parse"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

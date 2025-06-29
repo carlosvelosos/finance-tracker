@@ -1,0 +1,350 @@
+{
+  "metadata": {
+    "originalFilePath": "actions/fileActions.ts",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_13-47-06",
+    "scanDate": "2025-06-29T11:47:06.505Z"
+  },
+  "analysis": {
+    "defined": [
+      "clearTableData",
+      "createTableInSupabase",
+      "executeTableCreation",
+      "uploadExcel",
+      "uploadToSupabase"
+    ],
+    "called": [
+      "Papa.parse",
+      "XLSX.read",
+      "XLSX.sheet_to_json",
+      "clearTableData",
+      "console.error",
+      "console.log",
+      "data.slice",
+      "decode",
+      "error.includes",
+      "file.arrayBuffer",
+      "file.endsWith",
+      "processAmex",
+      "processDEV",
+      "processHandelsbanken",
+      "processInterBR",
+      "processInterBRAccount",
+      "processSEB",
+      "supabase.from.delete.neq",
+      "supabase.from.insert",
+      "supabase.from.select.limit",
+      "supabase.from.select.order.limit",
+      "supabase.rpc",
+      "transactions.map",
+      "uploadToSupabase"
+    ],
+    "both": [
+      "clearTableData",
+      "uploadToSupabase"
+    ],
+    "imports": {
+      "XLSX": {
+        "source": "xlsx",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "XLSX"
+      },
+      "Papa": {
+        "source": "papaparse",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Papa"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "processDEV": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processDEV",
+        "localName": "processDEV"
+      },
+      "processInterBR": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBR",
+        "localName": "processInterBR"
+      },
+      "processInterBRAccount": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBRAccount",
+        "localName": "processInterBRAccount"
+      },
+      "processHandelsbanken": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processHandelsbanken",
+        "localName": "processHandelsbanken"
+      },
+      "processAmex": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processAmex",
+        "localName": "processAmex"
+      },
+      "processSEB": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processSEB",
+        "localName": "processSEB"
+      }
+    },
+    "calledWithImports": {
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "file.arrayBuffer": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "file",
+        "functionName": "file.arrayBuffer",
+        "fullMemberPath": "file.arrayBuffer",
+        "methodChain": [
+          "arrayBuffer"
+        ],
+        "isChainedCall": true
+      },
+      "file.endsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "file",
+        "functionName": "file.endsWith",
+        "fullMemberPath": "file.endsWith",
+        "methodChain": [
+          "endsWith"
+        ],
+        "isChainedCall": true
+      },
+      "decode": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "decode",
+        "fullMemberPath": "decode"
+      },
+      "Papa.parse": {
+        "source": "papaparse",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Papa",
+        "memberOf": "Papa",
+        "functionName": "Papa.parse",
+        "fullMemberPath": "Papa.parse",
+        "methodChain": [
+          "parse"
+        ],
+        "isChainedCall": true
+      },
+      "XLSX.read": {
+        "source": "xlsx",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "XLSX",
+        "memberOf": "XLSX",
+        "functionName": "XLSX.read",
+        "fullMemberPath": "XLSX.read",
+        "methodChain": [
+          "read"
+        ],
+        "isChainedCall": true
+      },
+      "XLSX.sheet_to_json": {
+        "source": "xlsx",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "XLSX",
+        "memberOf": "XLSX",
+        "functionName": "XLSX.sheet_to_json",
+        "fullMemberPath": "XLSX.sheet_to_json",
+        "methodChain": [
+          "sheet_to_json"
+        ],
+        "isChainedCall": true
+      },
+      "data.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.slice",
+        "fullMemberPath": "data.slice",
+        "methodChain": [
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "processDEV": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processDEV",
+        "localName": "processDEV"
+      },
+      "processInterBR": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBR",
+        "localName": "processInterBR"
+      },
+      "processInterBRAccount": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBRAccount",
+        "localName": "processInterBRAccount"
+      },
+      "processHandelsbanken": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processHandelsbanken",
+        "localName": "processHandelsbanken"
+      },
+      "processAmex": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processAmex",
+        "localName": "processAmex"
+      },
+      "processSEB": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processSEB",
+        "localName": "processSEB"
+      },
+      "uploadToSupabase": {
+        "source": "local",
+        "type": "local",
+        "importedName": "uploadToSupabase",
+        "localName": "uploadToSupabase"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.rpc": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.rpc",
+        "fullMemberPath": "supabase.rpc",
+        "methodChain": [
+          "rpc"
+        ],
+        "isChainedCall": true
+      },
+      "error.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "error",
+        "functionName": "error.includes",
+        "fullMemberPath": "error.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.select.limit": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.limit",
+        "fullMemberPath": "supabase.from.select.limit",
+        "methodChain": [
+          "from",
+          "select",
+          "limit"
+        ],
+        "isChainedCall": true
+      },
+      "clearTableData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "clearTableData",
+        "localName": "clearTableData"
+      },
+      "supabase.from.select.order.limit": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.order.limit",
+        "fullMemberPath": "supabase.from.select.order.limit",
+        "methodChain": [
+          "from",
+          "select",
+          "order",
+          "limit"
+        ],
+        "isChainedCall": true
+      },
+      "transactions.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.map",
+        "fullMemberPath": "transactions.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.insert": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.insert",
+        "fullMemberPath": "supabase.from.insert",
+        "methodChain": [
+          "from",
+          "insert"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.delete.neq": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.delete.neq",
+        "fullMemberPath": "supabase.from.delete.neq",
+        "methodChain": [
+          "from",
+          "delete",
+          "neq"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

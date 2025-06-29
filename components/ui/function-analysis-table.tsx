@@ -37,7 +37,6 @@ import { FunctionData } from "@/types/function-reports";
 interface FunctionAnalysisTableProps {
   tableData: FunctionData[];
   selectedJsonFiles: string[];
-  formatJsonFileName: (fileName: string) => string;
   loadingTable?: boolean;
 }
 
@@ -55,7 +54,6 @@ type SortConfig = {
 export default function FunctionAnalysisTable({
   tableData,
   selectedJsonFiles,
-  formatJsonFileName,
   loadingTable = false,
 }: FunctionAnalysisTableProps) {
   const [filters, setFilters] = useState<FilterState>(() => {
@@ -166,7 +164,7 @@ export default function FunctionAnalysisTable({
       const comparison = aValue.localeCompare(bValue);
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
-  }, [tableData, filters, selectedJsonFiles, formatJsonFileName, sortConfig]);
+  }, [tableData, filters, selectedJsonFiles, sortConfig]);
 
   const handleFilterChange = (
     column: string,
@@ -421,12 +419,51 @@ export default function FunctionAnalysisTable({
                     ? displayName.split("/").slice(1).join("/")
                     : displayName;
 
-                  // Split the path for better wrapping display
-                  // "amex/chart/page.tsx" becomes ["amex/chart/", "page.tsx"]
+                  // Split the path for better wrapping display at every "/"
+                  // "amex/chart/page.tsx" becomes ["amex", "chart", "page.tsx"]
                   const pathParts = pathOnly.split("/");
                   const fileName = pathParts.pop() || pathOnly;
-                  const directoryPath =
-                    pathParts.length > 0 ? pathParts.join("/") + "/" : "";
+
+                  // Helper function to wrap text at every "/" for better readability
+                  const renderWrappedPath = () => {
+                    if (pathParts.length === 0) {
+                      // Root level file - just show the filename
+                      return (
+                        <div
+                          className={`font-medium break-words text-center ${
+                            isHighlighted ? "text-blue-800 font-semibold" : ""
+                          }`}
+                        >
+                          {fileName}
+                        </div>
+                      );
+                    }
+
+                    // Multi-level path - show each part on a new line
+                    return (
+                      <div className="text-center">
+                        {pathParts.map((part, index) => (
+                          <div
+                            key={index}
+                            className={`text-[10px] leading-tight ${
+                              isHighlighted
+                                ? "text-blue-600"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {part}/
+                          </div>
+                        ))}
+                        <div
+                          className={`font-medium break-words text-xs ${
+                            isHighlighted ? "text-blue-800 font-semibold" : ""
+                          }`}
+                        >
+                          {fileName}
+                        </div>
+                      </div>
+                    );
+                  };
 
                   // Check if this column contains the selected function
                   const selectedFunctionData = selectedFunctionName
@@ -454,26 +491,7 @@ export default function FunctionAnalysisTable({
                             }`}
                             title={displayName}
                           >
-                            {directoryPath && (
-                              <div
-                                className={`font-normal ${
-                                  isHighlighted
-                                    ? "text-blue-600"
-                                    : "text-muted-foreground"
-                                }`}
-                              >
-                                {directoryPath}
-                              </div>
-                            )}
-                            <div
-                              className={`font-medium break-words ${
-                                isHighlighted
-                                  ? "text-blue-800 font-semibold"
-                                  : ""
-                              }`}
-                            >
-                              {fileName}
-                            </div>
+                            {renderWrappedPath()}
                           </div>
                           <Button
                             variant="ghost"
@@ -484,7 +502,7 @@ export default function FunctionAnalysisTable({
                             {getSortIcon(displayName)}
                           </Button>
                         </div>
-                        {renderFilterDropdown(displayName, pathOnly)}
+                        {renderFilterDropdown(displayName, fileName)}
                       </div>
                     </TableHead>
                   );

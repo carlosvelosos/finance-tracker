@@ -21,11 +21,6 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
 
   const { enabled = true, ...fetchOptions } = options;
 
-  // Stringify additionalFilters to handle object comparison
-  const additionalFiltersString = JSON.stringify(
-    fetchOptions.additionalFilters,
-  );
-
   // Memoize the fetch options properly to prevent infinite re-renders
   const memoizedFetchOptions = useMemo(
     () => ({
@@ -34,12 +29,11 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       additionalFilters: fetchOptions.additionalFilters,
       orderBy: fetchOptions.orderBy,
       orderDirection: fetchOptions.orderDirection,
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     [
       fetchOptions.tableName,
       fetchOptions.bankFilter,
-      additionalFiltersString,
+      fetchOptions.additionalFilters,
       fetchOptions.orderBy,
       fetchOptions.orderDirection,
     ],

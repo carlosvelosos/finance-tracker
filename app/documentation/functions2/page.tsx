@@ -1039,7 +1039,6 @@ export default function FunctionReportsPage() {
           <FunctionAnalysisTable
             tableData={tableData}
             selectedJsonFiles={selectedJsonFiles.map((f) => f.displayName)}
-            formatJsonFileName={formatJsonFileName}
             loadingTable={loadingTable}
           />
         </div>

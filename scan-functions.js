@@ -353,6 +353,7 @@ async function findSourceFiles(targetDir) {
 async function analyzeFile(filePath) {
   const defined = new Set();
   const called = new Set();
+  const exportDefault = new Set(); // Track export default functions
   const imports = new Map(); // Map function name to import info
   const calledWithImports = new Map(); // Map called functions to their import info
   const destructuredFunctions = new Map(); // Track functions from destructuring (e.g., useState setters)
@@ -401,6 +402,27 @@ async function analyzeFile(filePath) {
       FunctionDeclaration(path) {
         if (path.node.id) {
           defined.add(path.node.id.name);
+        }
+      },
+
+      // Catches: export default function() {} or export default function Name() {}
+      ExportDefaultDeclaration(path) {
+        if (path.node.declaration) {
+          if (path.node.declaration.type === "FunctionDeclaration") {
+            if (path.node.declaration.id) {
+              // Named function: export default function MyComponent() {}
+              exportDefault.add(path.node.declaration.id.name);
+            } else {
+              // Anonymous function: export default function() {}
+              exportDefault.add("default");
+            }
+          } else if (path.node.declaration.type === "ArrowFunctionExpression") {
+            // Arrow function: export default () => {}
+            exportDefault.add("default");
+          } else if (path.node.declaration.type === "Identifier") {
+            // Named export: const MyComponent = () => {}; export default MyComponent;
+            exportDefault.add(path.node.declaration.name);
+          }
         }
       },
       // Catches: class MyClass { myMethod() {} } | const obj = { myMethod() {} }
@@ -622,6 +644,7 @@ async function analyzeFile(filePath) {
 
   const definedArr = Array.from(defined).sort();
   const calledArr = Array.from(called).sort();
+  const exportDefaultArr = Array.from(exportDefault).sort();
   const both = definedArr.filter((func) => called.has(func));
 
   // Convert Maps to Objects for JSON serialization
@@ -644,6 +667,7 @@ async function analyzeFile(filePath) {
     defined: definedArr,
     called: calledArr,
     both,
+    exportDefault: exportDefaultArr,
     imports: importsObj,
     calledWithImports: calledWithImportsObj,
     destructuredFunctions: destructuredFunctionsObj,

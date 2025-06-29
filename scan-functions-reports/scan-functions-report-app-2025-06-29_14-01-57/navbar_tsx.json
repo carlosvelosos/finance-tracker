@@ -1,0 +1,364 @@
+{
+  "metadata": {
+    "originalFilePath": "navbar.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-01-57",
+    "scanDate": "2025-06-29T12:01:57.793Z"
+  },
+  "analysis": {
+    "defined": [
+      "Navbar",
+      "handleLinkClick",
+      "handleLogout",
+      "handleMouseLeave",
+      "performCleanupAndRedirect"
+    ],
+    "called": [
+      "console.error",
+      "console.log",
+      "e.preventDefault",
+      "e.stopPropagation",
+      "error.includes",
+      "localStorage.removeItem",
+      "navLinks.map",
+      "performCleanupAndRedirect",
+      "restrictedUserIds.includes",
+      "sessionStorage.clear",
+      "setIsMenuOpen",
+      "setNavLinks",
+      "setShowLegacyNav",
+      "supabase.signOut",
+      "useAuth",
+      "useEffect",
+      "useState",
+      "window.alert"
+    ],
+    "both": [
+      "performCleanupAndRedirect"
+    ],
+    "exportDefault": [
+      "Navbar"
+    ],
+    "imports": {
+      "useAuth": {
+        "source": "../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "supabase": {
+        "source": "../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "DropdownMenu": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenu",
+        "localName": "DropdownMenu"
+      },
+      "DropdownMenuContent": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenuContent",
+        "localName": "DropdownMenuContent"
+      },
+      "DropdownMenuItem": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenuItem",
+        "localName": "DropdownMenuItem"
+      },
+      "DropdownMenuTrigger": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenuTrigger",
+        "localName": "DropdownMenuTrigger"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Link": {
+        "source": "next/link",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Link"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "Menu": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Menu",
+        "localName": "Menu"
+      },
+      "X": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "X",
+        "localName": "X"
+      },
+      "DarkNavigationMenuDemo": {
+        "source": "@/components/DarkNavigationMenuDemo",
+        "type": "alias",
+        "importedName": "DarkNavigationMenuDemo",
+        "localName": "DarkNavigationMenuDemo"
+      }
+    },
+    "calledWithImports": {
+      "useAuth": {
+        "source": "../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "restrictedUserIds.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "restrictedUserIds",
+        "functionName": "restrictedUserIds.includes",
+        "fullMemberPath": "restrictedUserIds.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "setNavLinks": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setNavLinks"
+      },
+      "setShowLegacyNav": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowLegacyNav"
+      },
+      "e.preventDefault": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "e",
+        "functionName": "e.preventDefault",
+        "fullMemberPath": "e.preventDefault",
+        "methodChain": [
+          "preventDefault"
+        ],
+        "isChainedCall": true
+      },
+      "e.stopPropagation": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "e",
+        "functionName": "e.stopPropagation",
+        "fullMemberPath": "e.stopPropagation",
+        "methodChain": [
+          "stopPropagation"
+        ],
+        "isChainedCall": true
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.signOut": {
+        "source": "../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.signOut",
+        "fullMemberPath": "supabase.signOut",
+        "methodChain": [
+          "signOut"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "error.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "error",
+        "functionName": "error.includes",
+        "fullMemberPath": "error.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "performCleanupAndRedirect": {
+        "source": "local",
+        "type": "local",
+        "importedName": "performCleanupAndRedirect",
+        "localName": "performCleanupAndRedirect"
+      },
+      "window.alert": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.alert",
+        "fullMemberPath": "window.alert",
+        "methodChain": [
+          "alert"
+        ],
+        "isChainedCall": true
+      },
+      "localStorage.removeItem": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "localStorage",
+        "functionName": "localStorage.removeItem",
+        "fullMemberPath": "localStorage.removeItem",
+        "methodChain": [
+          "removeItem"
+        ],
+        "isChainedCall": true
+      },
+      "sessionStorage.clear": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sessionStorage",
+        "functionName": "sessionStorage.clear",
+        "fullMemberPath": "sessionStorage.clear",
+        "methodChain": [
+          "clear"
+        ],
+        "isChainedCall": true
+      },
+      "setIsMenuOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsMenuOpen"
+      },
+      "navLinks.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "navLinks",
+        "functionName": "navLinks.map",
+        "fullMemberPath": "navLinks.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "isMenuOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isMenuOpen"
+      },
+      "setIsMenuOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsMenuOpen"
+      },
+      "navLinks": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "navLinks"
+      },
+      "setNavLinks": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setNavLinks"
+      },
+      "showLegacyNav": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showLegacyNav"
+      },
+      "setShowLegacyNav": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowLegacyNav"
+      }
+    }
+  }
+}

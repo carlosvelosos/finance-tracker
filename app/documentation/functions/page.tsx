@@ -37,6 +37,7 @@ interface FileData {
   defined: string[];
   called: string[];
   both: string[];
+  exportDefault?: string[]; // Add export default functions
   imports?: Record<string, ImportInfo>;
   calledWithImports?: Record<string, ImportInfo>;
   destructuredFunctions?: Record<string, ImportInfo>;
@@ -145,6 +146,9 @@ export default function FunctionAnalysisPage() {
     Object.values(reportData).forEach((fileData) => {
       fileData.defined.forEach((func) => allFunctions.add(func));
       fileData.called.forEach((func) => allFunctions.add(func));
+      if (fileData.exportDefault) {
+        fileData.exportDefault.forEach((func) => allFunctions.add(func));
+      }
     });
 
     let functions = Array.from(allFunctions);
@@ -201,8 +205,11 @@ export default function FunctionAnalysisPage() {
     const fileData = reportData[fileName];
     const isDefined = fileData.defined.includes(functionName);
     const isCalled = fileData.called.includes(functionName);
+    const isExportDefault =
+      fileData.exportDefault && fileData.exportDefault.includes(functionName);
 
     if (isDefined && isCalled) return "D/C";
+    if (isExportDefault) return "ED"; // Export Default
     if (isDefined) return "D";
     if (isCalled) return "C";
     return "";

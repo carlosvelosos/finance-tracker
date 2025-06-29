@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "originalFilePath": "page.tsx",
+    "scannedDirectory": "app/amex",
+    "timestamp": "2025-06-29_14-01-03",
+    "scanDate": "2025-06-29T12:01:03.669Z"
+  },
+  "analysis": {
+    "defined": [
+      "Home"
+    ],
+    "called": [
+      "transactions.filter",
+      "useAmexTransactions",
+      "window.open"
+    ],
+    "both": [],
+    "exportDefault": [
+      "Home"
+    ],
+    "imports": {
+      "useAmexTransactions": {
+        "source": "../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useAmexTransactions",
+        "localName": "useAmexTransactions"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "TransactionTable": {
+        "source": "@/components/ui/transaction/TransactionTable",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "TransactionTable"
+      },
+      "UpdateAmexAggregatedButton": {
+        "source": "@/components/UpdateAmexAggregatedButton",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "UpdateAmexAggregatedButton"
+      },
+      "Accordion": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "Accordion",
+        "localName": "Accordion"
+      },
+      "AccordionItem": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionItem",
+        "localName": "AccordionItem"
+      },
+      "AccordionTrigger": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionTrigger",
+        "localName": "AccordionTrigger"
+      },
+      "AccordionContent": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionContent",
+        "localName": "AccordionContent"
+      }
+    },
+    "calledWithImports": {
+      "useAmexTransactions": {
+        "source": "../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useAmexTransactions",
+        "localName": "useAmexTransactions"
+      },
+      "window.open": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.open",
+        "fullMemberPath": "window.open",
+        "methodChain": [
+          "open"
+        ],
+        "isChainedCall": true
+      },
+      "transactions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.filter",
+        "fullMemberPath": "transactions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

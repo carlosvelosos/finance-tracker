@@ -1,7 +1,10 @@
 export interface FunctionData {
   functionName: string;
   source: string;
-  files: Record<string, { type: "defined" | "called" | "both" }>; // filename -> type in that file
+  files: Record<
+    string,
+    { type: "defined" | "called" | "both" | "export-default" }
+  >; // filename -> type in that file
 }
 
 export interface JsonFileData {
@@ -15,6 +18,7 @@ export interface JsonFileData {
     defined: string[];
     called: string[];
     both: string[];
+    exportDefault: string[]; // Add export default functions
     imports: Record<string, any>;
     calledWithImports: Record<string, any>;
   };

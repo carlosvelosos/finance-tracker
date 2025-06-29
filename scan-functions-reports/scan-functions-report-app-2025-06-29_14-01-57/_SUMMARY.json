@@ -1,0 +1,202 @@
+{
+  "metadata": {
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-01-57",
+    "scanDate": "2025-06-29T12:01:57.793Z",
+    "totalFiles": 46,
+    "successfulWrites": 46,
+    "errors": 0
+  },
+  "fileList": [
+    {
+      "originalPath": "page.tsx",
+      "jsonFile": "page_tsx.json"
+    },
+    {
+      "originalPath": "NavbarWrapper.tsx",
+      "jsonFile": "NavbarWrapper_tsx.json"
+    },
+    {
+      "originalPath": "navbar.tsx",
+      "jsonFile": "navbar_tsx.json"
+    },
+    {
+      "originalPath": "layout.tsx",
+      "jsonFile": "layout_tsx.json"
+    },
+    {
+      "originalPath": "welcome/page.tsx",
+      "jsonFile": "welcome_page_tsx.json"
+    },
+    {
+      "originalPath": "upload/page.tsx",
+      "jsonFile": "upload_page_tsx.json"
+    },
+    {
+      "originalPath": "unauthorized/page.tsx",
+      "jsonFile": "unauthorized_page_tsx.json"
+    },
+    {
+      "originalPath": "types/window.d.ts",
+      "jsonFile": "types_window_d_ts.json"
+    },
+    {
+      "originalPath": "types/bill.ts",
+      "jsonFile": "types_bill_ts.json"
+    },
+    {
+      "originalPath": "sjprio/page.tsx",
+      "jsonFile": "sjprio_page_tsx.json"
+    },
+    {
+      "originalPath": "recurrent/page.tsx",
+      "jsonFile": "recurrent_page_tsx.json"
+    },
+    {
+      "originalPath": "profile/page.tsx",
+      "jsonFile": "profile_page_tsx.json"
+    },
+    {
+      "originalPath": "inter/page.tsx",
+      "jsonFile": "inter_page_tsx.json"
+    },
+    {
+      "originalPath": "inter-account/page.tsx",
+      "jsonFile": "inter-account_page_tsx.json"
+    },
+    {
+      "originalPath": "global/page.tsx",
+      "jsonFile": "global_page_tsx.json"
+    },
+    {
+      "originalPath": "handelsbanken/page.tsx",
+      "jsonFile": "handelsbanken_page_tsx.json"
+    },
+    {
+      "originalPath": "family/page.tsx",
+      "jsonFile": "family_page_tsx.json"
+    },
+    {
+      "originalPath": "family/layout.tsx",
+      "jsonFile": "family_layout_tsx.json"
+    },
+    {
+      "originalPath": "email-merge/page.tsx",
+      "jsonFile": "email-merge_page_tsx.json"
+    },
+    {
+      "originalPath": "email-client/page.tsx",
+      "jsonFile": "email-client_page_tsx.json"
+    },
+    {
+      "originalPath": "components/bill-item.tsx",
+      "jsonFile": "components_bill-item_tsx.json"
+    },
+    {
+      "originalPath": "components/bill-card.tsx",
+      "jsonFile": "components_bill-card_tsx.json"
+    },
+    {
+      "originalPath": "actions/updateActions.ts",
+      "jsonFile": "actions_updateActions_ts.json"
+    },
+    {
+      "originalPath": "actions/fileActions.ts",
+      "jsonFile": "actions_fileActions_ts.json"
+    },
+    {
+      "originalPath": "amex/page.tsx",
+      "jsonFile": "amex_page_tsx.json"
+    },
+    {
+      "originalPath": "about/page.tsx",
+      "jsonFile": "about_page_tsx.json"
+    },
+    {
+      "originalPath": "sjprio/chart/page.tsx",
+      "jsonFile": "sjprio_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "inter/chart/page.tsx",
+      "jsonFile": "inter_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "inter-account/info/page.tsx",
+      "jsonFile": "inter-account_info_page_tsx.json"
+    },
+    {
+      "originalPath": "global/chart/page.tsx",
+      "jsonFile": "global_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "documentation/functions2/page.tsx",
+      "jsonFile": "documentation_functions2_page_tsx.json"
+    },
+    {
+      "originalPath": "documentation/functions/page.tsx",
+      "jsonFile": "documentation_functions_page_tsx.json"
+    },
+    {
+      "originalPath": "api/function-reports/route.ts",
+      "jsonFile": "api_function-reports_route_ts.json"
+    },
+    {
+      "originalPath": "auth/reset-password/page.tsx",
+      "jsonFile": "auth_reset-password_page_tsx.json"
+    },
+    {
+      "originalPath": "auth/signup/page.tsx",
+      "jsonFile": "auth_signup_page_tsx.json"
+    },
+    {
+      "originalPath": "auth/login/page.tsx",
+      "jsonFile": "auth_login_page_tsx.json"
+    },
+    {
+      "originalPath": "auth/forgot-password/page.tsx",
+      "jsonFile": "auth_forgot-password_page_tsx.json"
+    },
+    {
+      "originalPath": "auth/callback/route.ts",
+      "jsonFile": "auth_callback_route_ts.json"
+    },
+    {
+      "originalPath": "amex/chart/page.tsx",
+      "jsonFile": "amex_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "inter-account/overview/chart/page.tsx",
+      "jsonFile": "inter-account_overview_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "inter-account/category/chart/page.tsx",
+      "jsonFile": "inter-account_category_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "handelsbanken/overview/chart/page.tsx",
+      "jsonFile": "handelsbanken_overview_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "handelsbanken/category/chart/page.tsx",
+      "jsonFile": "handelsbanken_category_chart_page_tsx.json"
+    },
+    {
+      "originalPath": "api/function-reports/[filename]/route.ts",
+      "jsonFile": "api_function-reports_[filename]_route_ts.json"
+    },
+    {
+      "originalPath": "api/function-reports/[filename]/[jsonfile]/route.ts",
+      "jsonFile": "api_function-reports_[filename]_[jsonfile]_route_ts.json"
+    },
+    {
+      "originalPath": "api/function-reports/[filename]/summary/route.ts",
+      "jsonFile": "api_function-reports_[filename]_summary_route_ts.json"
+    }
+  ],
+  "summary": {
+    "totalFunctionsDefined": 172,
+    "totalFunctionsCalled": 832,
+    "totalImports": 430,
+    "totalDestructuredFunctions": 228
+  }
+}

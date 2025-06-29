@@ -508,13 +508,17 @@ export default function FunctionAnalysisTable({
                                 variant={
                                   fileData.type === "defined"
                                     ? "default"
-                                    : fileData.type === "both"
-                                      ? "destructive"
-                                      : "secondary"
+                                    : fileData.type === "export-default"
+                                      ? "outline"
+                                      : fileData.type === "both"
+                                        ? "destructive"
+                                        : "secondary"
                                 }
                                 className="text-xs"
                               >
-                                {fileData.type}
+                                {fileData.type === "export-default"
+                                  ? "export default"
+                                  : fileData.type}
                               </Badge>
                             ) : (
                               <div
@@ -543,6 +547,12 @@ export default function FunctionAnalysisTable({
                 defined
               </Badge>
               <span>Function defined in file</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-xs">
+                export default
+              </Badge>
+              <span>Export default function</span>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="secondary" className="text-xs">

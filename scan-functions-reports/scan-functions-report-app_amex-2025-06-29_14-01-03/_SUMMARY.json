@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "scannedDirectory": "app/amex",
+    "timestamp": "2025-06-29_14-01-03",
+    "scanDate": "2025-06-29T12:01:03.669Z",
+    "totalFiles": 2,
+    "successfulWrites": 2,
+    "errors": 0
+  },
+  "fileList": [
+    {
+      "originalPath": "page.tsx",
+      "jsonFile": "page_tsx.json"
+    },
+    {
+      "originalPath": "chart/page.tsx",
+      "jsonFile": "chart_page_tsx.json"
+    }
+  ],
+  "summary": {
+    "totalFunctionsDefined": 2,
+    "totalFunctionsCalled": 5,
+    "totalImports": 12,
+    "totalDestructuredFunctions": 0
+  }
+}

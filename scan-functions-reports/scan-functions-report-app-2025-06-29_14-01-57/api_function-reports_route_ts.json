@@ -1,0 +1,219 @@
+{
+  "metadata": {
+    "originalFilePath": "api/function-reports/route.ts",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-01-57",
+    "scanDate": "2025-06-29T12:01:57.793Z"
+  },
+  "analysis": {
+    "defined": [
+      "GET",
+      "getTimestamp"
+    ],
+    "called": [
+      "NextResponse.json",
+      "console.error",
+      "fs.existsSync",
+      "fs.readdirSync",
+      "getTimestamp",
+      "item.endsWith",
+      "item.isDirectory",
+      "item.isFile",
+      "item.startsWith",
+      "items.filter.map",
+      "localeCompare",
+      "name.match",
+      "path.join",
+      "process.cwd",
+      "sort"
+    ],
+    "both": [
+      "getTimestamp"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "NextResponse": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextResponse",
+        "localName": "NextResponse"
+      },
+      "fs": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs"
+      },
+      "path": {
+        "source": "path",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "path"
+      }
+    },
+    "calledWithImports": {
+      "path.join": {
+        "source": "path",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "path",
+        "memberOf": "path",
+        "functionName": "path.join",
+        "fullMemberPath": "path.join",
+        "methodChain": [
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "process.cwd": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "process",
+        "functionName": "process.cwd",
+        "fullMemberPath": "process.cwd",
+        "methodChain": [
+          "cwd"
+        ],
+        "isChainedCall": true
+      },
+      "fs.existsSync": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.existsSync",
+        "fullMemberPath": "fs.existsSync",
+        "methodChain": [
+          "existsSync"
+        ],
+        "isChainedCall": true
+      },
+      "NextResponse.json": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextResponse",
+        "localName": "NextResponse",
+        "memberOf": "NextResponse",
+        "functionName": "NextResponse.json",
+        "fullMemberPath": "NextResponse.json",
+        "methodChain": [
+          "json"
+        ],
+        "isChainedCall": true
+      },
+      "fs.readdirSync": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.readdirSync",
+        "fullMemberPath": "fs.readdirSync",
+        "methodChain": [
+          "readdirSync"
+        ],
+        "isChainedCall": true
+      },
+      "items.filter.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "items",
+        "functionName": "items.filter.map",
+        "fullMemberPath": "items.filter.map",
+        "methodChain": [
+          "filter",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "item.isDirectory": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "item",
+        "functionName": "item.isDirectory",
+        "fullMemberPath": "item.isDirectory",
+        "methodChain": [
+          "isDirectory"
+        ],
+        "isChainedCall": true
+      },
+      "item.startsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "item",
+        "functionName": "item.startsWith",
+        "fullMemberPath": "item.startsWith",
+        "methodChain": [
+          "startsWith"
+        ],
+        "isChainedCall": true
+      },
+      "item.isFile": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "item",
+        "functionName": "item.isFile",
+        "fullMemberPath": "item.isFile",
+        "methodChain": [
+          "isFile"
+        ],
+        "isChainedCall": true
+      },
+      "item.endsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "item",
+        "functionName": "item.endsWith",
+        "fullMemberPath": "item.endsWith",
+        "methodChain": [
+          "endsWith"
+        ],
+        "isChainedCall": true
+      },
+      "sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "sort",
+        "fullMemberPath": "sort"
+      },
+      "name.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "name",
+        "functionName": "name.match",
+        "fullMemberPath": "name.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "localeCompare",
+        "fullMemberPath": "localeCompare"
+      },
+      "getTimestamp": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getTimestamp",
+        "localName": "getTimestamp"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

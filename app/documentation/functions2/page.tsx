@@ -273,6 +273,32 @@ export default function FunctionReportsPage() {
           }
         });
 
+        // Process export default functions
+        if (data.analysis.exportDefault) {
+          data.analysis.exportDefault.forEach((funcName) => {
+            if (!functionMap.has(funcName)) {
+              functionMap.set(funcName, {
+                functionName: funcName,
+                source: "local",
+                files: {},
+              });
+            }
+            const existing = functionMap.get(funcName)!;
+            if (existing.files[readableFileName]) {
+              // If already exists as called, prioritize export-default over called
+              if (existing.files[readableFileName].type === "called") {
+                existing.files[readableFileName].type = "both";
+              }
+              // If already defined, export default takes precedence
+              else if (existing.files[readableFileName].type === "defined") {
+                existing.files[readableFileName].type = "export-default";
+              }
+            } else {
+              existing.files[readableFileName] = { type: "export-default" };
+            }
+          });
+        }
+
         // Process called functions
         data.analysis.called.forEach((funcName) => {
           if (!functionMap.has(funcName)) {

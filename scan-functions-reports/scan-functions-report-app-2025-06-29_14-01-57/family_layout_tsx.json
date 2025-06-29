@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "originalFilePath": "family/layout.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-01-57",
+    "scanDate": "2025-06-29T12:01:57.793Z"
+  },
+  "analysis": {
+    "defined": [
+      "FamilyLayout"
+    ],
+    "called": [
+      "clearTimeout",
+      "setIsEntering",
+      "setTimeout",
+      "useEffect",
+      "useState"
+    ],
+    "both": [],
+    "exportDefault": [
+      "FamilyLayout"
+    ],
+    "imports": {
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "setTimeout": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setTimeout",
+        "localName": "setTimeout"
+      },
+      "setIsEntering": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsEntering"
+      },
+      "clearTimeout": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "clearTimeout",
+        "localName": "clearTimeout"
+      }
+    },
+    "destructuredFunctions": {
+      "isEntering": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isEntering"
+      },
+      "setIsEntering": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsEntering"
+      }
+    }
+  }
+}

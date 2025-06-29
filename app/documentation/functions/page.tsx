@@ -42,9 +42,7 @@ interface SortState {
 }
 
 interface ColumnFilter {
-  [fileName: string]: {
-    [cellValue: string]: boolean; // D, C, D/C, or empty
-  };
+  [fileName: string]: Set<string>; // Set of visible values for each column
 }
 
 export default function FunctionAnalysisPage() {
@@ -131,11 +129,7 @@ export default function FunctionAnalysisPage() {
 
     allFunctions.forEach((functionName) => {
       const cellContent = getCellContent(functionName, fileName);
-      if (cellContent) {
-        uniqueValues.add(cellContent);
-      } else {
-        uniqueValues.add(""); // Add empty as a unique value
-      }
+      uniqueValues.add(cellContent); // Add the content (which could be empty string)
     });
 
     return Array.from(uniqueValues).sort((a, b) => {
@@ -160,6 +154,21 @@ export default function FunctionAnalysisPage() {
     return "";
   };
 
+  // Get count of each cell value for a specific file column
+  const getCellValueCounts = (fileName: string): Record<string, number> => {
+    if (!reportData || !reportData[fileName]) return {};
+
+    const allFunctions = getAllFunctions();
+    const counts: Record<string, number> = {};
+
+    allFunctions.forEach((functionName) => {
+      const cellContent = getCellContent(functionName, fileName);
+      counts[cellContent] = (counts[cellContent] || 0) + 1;
+    });
+
+    return counts;
+  };
+
   // Initialize column filters when report data changes
   useEffect(() => {
     if (reportData) {
@@ -167,12 +176,8 @@ export default function FunctionAnalysisPage() {
 
       Object.keys(reportData).forEach((fileName) => {
         const uniqueValues = getUniqueValuesInFile(fileName);
-        newColumnFilters[fileName] = {};
-
-        // Initialize all unique cell values as visible by default
-        uniqueValues.forEach((cellValue) => {
-          newColumnFilters[fileName][cellValue] = true;
-        });
+        // Initialize with all values visible (Set contains all unique values)
+        newColumnFilters[fileName] = new Set(uniqueValues);
       });
 
       setColumnFilters(newColumnFilters);
@@ -185,13 +190,19 @@ export default function FunctionAnalysisPage() {
     cellValue: string,
     checked: boolean,
   ) => {
-    setColumnFilters((prev) => ({
-      ...prev,
-      [fileName]: {
-        ...prev[fileName],
-        [cellValue]: checked,
-      },
-    }));
+    setColumnFilters((prev) => {
+      const newFilters = { ...prev };
+      const currentSet = new Set(prev[fileName] || []);
+
+      if (checked) {
+        currentSet.add(cellValue);
+      } else {
+        currentSet.delete(cellValue);
+      }
+
+      newFilters[fileName] = currentSet;
+      return newFilters;
+    });
   };
 
   // Handle select all/none for a column
@@ -203,13 +214,7 @@ export default function FunctionAnalysisPage() {
 
     setColumnFilters((prev) => ({
       ...prev,
-      [fileName]: uniqueValues.reduce(
-        (acc, cellValue) => {
-          acc[cellValue] = selectAll;
-          return acc;
-        },
-        {} as { [cellValue: string]: boolean },
-      ),
+      [fileName]: selectAll ? new Set(uniqueValues) : new Set(),
     }));
   };
 
@@ -218,20 +223,29 @@ export default function FunctionAnalysisPage() {
     const allFunctions = getAllFunctions();
     let filtered = allFunctions;
 
-    // Apply column filters - only show functions that are visible in at least one column
+    // Apply column filters - hide functions that don't match ALL active column filters
     if (Object.keys(columnFilters).length > 0) {
       filtered = filtered.filter((functionName) => {
         const filteredFileNames = getFilteredFileNames();
-        // A function should only be shown if it has at least one visible cell in any column
-        return filteredFileNames.some((fileName) => {
+        // A function should only be shown if it passes ALL column filters
+        return filteredFileNames.every((fileName) => {
           const cellContent = getCellContent(functionName, fileName);
           const columnFilter = columnFilters[fileName];
 
-          // If no filter is set for this column, show the function
-          if (!columnFilter) return true;
+          // If no filter is set for this column, or all values are selected, show the function
+          if (!columnFilter || columnFilter.size === 0) {
+            const uniqueValues = getUniqueValuesInFile(fileName);
+            return uniqueValues.length === 0 || true; // No filter = show all
+          }
+
+          // If all unique values are selected, treat as no filter
+          const uniqueValues = getUniqueValuesInFile(fileName);
+          if (columnFilter.size === uniqueValues.length) {
+            return true; // All values selected = show all
+          }
 
           // Check if this specific cell content is visible based on the filter
-          return columnFilter[cellContent] === true;
+          return columnFilter.has(cellContent);
         });
       });
     }
@@ -443,9 +457,15 @@ export default function FunctionAnalysisPage() {
                 </CardTitle>
 
                 {/* Clear filters button */}
-                {Object.values(columnFilters).some((filter) =>
-                  Object.values(filter).some((checked) => !checked),
-                ) && (
+                {Object.values(columnFilters).some((filterSet) => {
+                  // Check if any column has fewer selected items than total unique values
+                  const fileName = Object.keys(columnFilters).find(
+                    (key) => columnFilters[key] === filterSet,
+                  );
+                  if (!fileName) return false;
+                  const uniqueValues = getUniqueValuesInFile(fileName);
+                  return filterSet.size < uniqueValues.length;
+                }) && (
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -458,10 +478,7 @@ export default function FunctionAnalysisPage() {
                           Object.keys(reportData).forEach((fileName) => {
                             const uniqueValues =
                               getUniqueValuesInFile(fileName);
-                            resetFilters[fileName] = {};
-                            uniqueValues.forEach((cellValue) => {
-                              resetFilters[fileName][cellValue] = true;
-                            });
+                            resetFilters[fileName] = new Set(uniqueValues);
                           });
                           setColumnFilters(resetFilters);
                         }
@@ -487,9 +504,10 @@ export default function FunctionAnalysisPage() {
               </div>
 
               {/* Filter summary */}
-              {Object.values(columnFilters).some((filter) =>
-                Object.values(filter).some((checked) => !checked),
-              ) && (
+              {Object.entries(columnFilters).some(([fileName, filterSet]) => {
+                const uniqueValues = getUniqueValuesInFile(fileName);
+                return filterSet.size < uniqueValues.length;
+              }) && (
                 <div className="text-sm text-blue-600 mt-2">
                   ⚡ Column filters active - showing {filteredFunctions.length}{" "}
                   of {allFunctions.length} functions
@@ -516,10 +534,9 @@ export default function FunctionAnalysisPage() {
                       {filteredFileNames.map(
                         (fileName: string, index: number) => {
                           const uniqueValues = getUniqueValuesInFile(fileName);
-                          const selectedCount = uniqueValues.filter(
-                            (value) =>
-                              columnFilters[fileName]?.[value] !== false,
-                          ).length;
+                          const selectedCount =
+                            columnFilters[fileName]?.size ||
+                            uniqueValues.length;
                           const hasActiveFilter =
                             selectedCount < uniqueValues.length;
 
@@ -537,6 +554,11 @@ export default function FunctionAnalysisPage() {
                                   <div className="flex-1">
                                     <div className="text-sm truncate">
                                       {fileName.replace(/\.(tsx?|js)$/, "")}
+                                      {hasActiveFilter && (
+                                        <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                          {selectedCount}/{uniqueValues.length}
+                                        </span>
+                                      )}
                                     </div>
                                     <div className="text-xs text-gray-500 mt-1 font-mono">
                                       .{fileName.split(".").pop()}
@@ -552,8 +574,12 @@ export default function FunctionAnalysisPage() {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className={`h-6 w-6 p-0 ${hasActiveFilter ? "text-blue-600" : "text-gray-400"}`}
-                                      title="Filter column"
+                                      className={`h-6 w-6 p-0 transition-colors ${
+                                        hasActiveFilter
+                                          ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                                          : "text-gray-400 hover:text-gray-600"
+                                      }`}
+                                      title={`Filter column${hasActiveFilter ? " (filtered)" : ""}`}
                                     >
                                       <Filter className="h-3 w-3" />
                                     </Button>
@@ -599,8 +625,12 @@ export default function FunctionAnalysisPage() {
 
                                     {uniqueValues.map((cellValue) => {
                                       const isChecked =
-                                        columnFilters[fileName]?.[cellValue] !==
-                                        false;
+                                        columnFilters[fileName]?.has(
+                                          cellValue,
+                                        ) ?? true;
+                                      const cellCounts =
+                                        getCellValueCounts(fileName);
+                                      const count = cellCounts[cellValue] || 0;
 
                                       return (
                                         <DropdownMenuCheckboxItem
@@ -616,16 +646,21 @@ export default function FunctionAnalysisPage() {
                                           className="text-sm"
                                         >
                                           <div className="flex items-center justify-between w-full">
-                                            <span className="font-medium">
-                                              {cellValue === "D" &&
-                                                "Defined (D)"}
-                                              {cellValue === "C" &&
-                                                "Called (C)"}
-                                              {cellValue === "D/C" &&
-                                                "Defined & Called (D/C)"}
-                                              {cellValue === "" &&
-                                                "No Relationship (Empty)"}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                              <span className="font-medium">
+                                                {cellValue === "D" &&
+                                                  "Defined (D)"}
+                                                {cellValue === "C" &&
+                                                  "Called (C)"}
+                                                {cellValue === "D/C" &&
+                                                  "Defined & Called (D/C)"}
+                                                {cellValue === "" &&
+                                                  "No Relationship (Empty)"}
+                                              </span>
+                                              <span className="text-xs text-gray-500">
+                                                ({count})
+                                              </span>
+                                            </div>
                                             <Badge
                                               variant="outline"
                                               className={`ml-2 text-xs h-5 ${
@@ -710,9 +745,10 @@ export default function FunctionAnalysisPage() {
                 <p className="text-sm mb-4">
                   Try adjusting your column filters to see more results.
                 </p>
-                {Object.values(columnFilters).some((filter) =>
-                  Object.values(filter).some((checked) => !checked),
-                ) && (
+                {Object.entries(columnFilters).some(([fileName, filterSet]) => {
+                  const uniqueValues = getUniqueValuesInFile(fileName);
+                  return filterSet.size < uniqueValues.length;
+                }) && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -723,10 +759,7 @@ export default function FunctionAnalysisPage() {
                         const resetFilters: ColumnFilter = {};
                         Object.keys(reportData).forEach((fileName) => {
                           const uniqueValues = getUniqueValuesInFile(fileName);
-                          resetFilters[fileName] = {};
-                          uniqueValues.forEach((cellValue) => {
-                            resetFilters[fileName][cellValue] = true;
-                          });
+                          resetFilters[fileName] = new Set(uniqueValues);
                         });
                         setColumnFilters(resetFilters);
                       }

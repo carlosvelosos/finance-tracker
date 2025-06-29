@@ -418,6 +418,54 @@ async function analyzeFile(filePath) {
       // Catches all function calls: hello(), obj.hello(), console.log()
       CallExpression(path) {
         const callee = path.get("callee");
+
+        // Check if this call is part of a chain (has a parent CallExpression)
+        const isPartOfChain =
+          path.parent &&
+          path.parent.type === "MemberExpression" &&
+          path.parentPath.parent &&
+          path.parentPath.parent.type === "CallExpression";
+
+        // If this call is part of a chain, skip it - we'll handle it at the top level
+        if (isPartOfChain) {
+          return;
+        }
+
+        // Check if this call has chained method calls
+        const chainedCall = getChainedMethodCall(path);
+        if (chainedCall) {
+          // Handle chained method calls as a single function
+          const { rootObject, methodChain, fullChainPath } = chainedCall;
+
+          // Add the full chain as a single "function call"
+          const chainKey = fullChainPath;
+          called.add(chainKey);
+
+          if (rootObject && imports.has(rootObject)) {
+            calledWithImports.set(chainKey, {
+              ...imports.get(rootObject),
+              memberOf: rootObject,
+              functionName: chainKey,
+              fullMemberPath: fullChainPath,
+              methodChain: methodChain,
+              isChainedCall: true,
+            });
+          } else {
+            calledWithImports.set(chainKey, {
+              source:
+                rootObject && defined.has(rootObject) ? "local" : "unknown",
+              type: rootObject && defined.has(rootObject) ? "local" : "unknown",
+              memberOf: rootObject || "unknown",
+              functionName: chainKey,
+              fullMemberPath: fullChainPath,
+              methodChain: methodChain,
+              isChainedCall: true,
+            });
+          }
+          return;
+        }
+
+        // Handle regular function calls (non-chained)
         if (callee.isIdentifier()) {
           const functionName = callee.node.name;
           called.add(functionName);
@@ -508,6 +556,66 @@ async function analyzeFile(filePath) {
  * Helper function to get the root object and full path from a member expression
  * Handles nested member expressions like XLSX.utils.sheet_to_json
  */
+function getChainedMethodCall(callPath) {
+  const methodChain = [];
+  let currentPath = callPath;
+  let rootObject = null;
+
+  // Walk up the chain to collect all method calls
+  while (currentPath && currentPath.isCallExpression()) {
+    const callee = currentPath.get("callee");
+
+    if (callee.isMemberExpression()) {
+      const property = callee.get("property");
+      if (property.isIdentifier()) {
+        methodChain.unshift(property.node.name);
+      }
+
+      // Get the object being called on
+      const object = callee.get("object");
+
+      // If the object is another call expression, continue the chain
+      if (object.isCallExpression()) {
+        currentPath = object;
+      } else if (object.isIdentifier()) {
+        // We've reached the root object
+        rootObject = object.node.name;
+        break;
+      } else if (object.isMemberExpression()) {
+        // Handle cases like obj.prop.method()
+        const { rootObject: nestedRoot, fullPath } =
+          getRootObjectAndPath(object);
+        rootObject = nestedRoot;
+        if (fullPath && fullPath !== nestedRoot) {
+          // Add the intermediate path to the beginning of the chain
+          const intermediateParts = fullPath.split(".").slice(1); // Remove the root
+          methodChain.unshift(...intermediateParts);
+        }
+        break;
+      } else {
+        break;
+      }
+    } else {
+      break;
+    }
+  }
+
+  // Only consider it a chain if there are multiple methods or if it's a method on an object
+  if (methodChain.length >= 2 || (methodChain.length >= 1 && rootObject)) {
+    const fullChainPath = rootObject
+      ? `${rootObject}.${methodChain.join(".")}`
+      : methodChain.join(".");
+
+    return {
+      rootObject,
+      methodChain,
+      fullChainPath,
+    };
+  }
+
+  return null;
+}
+
 function getRootObjectAndPath(memberExpression) {
   const parts = [];
   let current = memberExpression;

@@ -186,6 +186,10 @@ export default function FunctionAnalysisPage() {
       const uniqueTypes = getUniqueTypes();
       newColumnFilters["type"] = new Set(uniqueTypes);
 
+      // Initialize filter for Source column
+      const uniqueSources = getUniqueSources();
+      newColumnFilters["source"] = new Set(uniqueSources);
+
       setColumnFilters(newColumnFilters);
     }
   }, [reportData]);
@@ -221,6 +225,12 @@ export default function FunctionAnalysisPage() {
       setColumnFilters((prev) => ({
         ...prev,
         [fileName]: selectAll ? new Set(uniqueTypes) : new Set(),
+      }));
+    } else if (fileName === "source") {
+      const uniqueSources = getUniqueSources();
+      setColumnFilters((prev) => ({
+        ...prev,
+        [fileName]: selectAll ? new Set(uniqueSources) : new Set(),
       }));
     } else {
       const uniqueValues = getUniqueValuesInFile(fileName);
@@ -274,6 +284,49 @@ export default function FunctionAnalysisPage() {
     return Array.from(types).sort();
   };
 
+  // Get function source based on import information
+  const getFunctionSource = (functionName: string): string => {
+    if (!reportData) return "unknown";
+
+    // Check across all files to find the most specific source for this function
+    let mostSpecificSource = "unknown";
+
+    Object.values(reportData).forEach((fileData) => {
+      // Check if it's defined locally in any file
+      if (fileData.defined && fileData.defined.includes(functionName)) {
+        mostSpecificSource = "local";
+      }
+
+      // Check imports for more specific source information
+      if (
+        fileData.calledWithImports &&
+        fileData.calledWithImports[functionName]
+      ) {
+        const importInfo = fileData.calledWithImports[functionName];
+        if (importInfo.source && importInfo.source !== "unknown") {
+          mostSpecificSource = importInfo.source;
+        }
+      }
+    });
+
+    return mostSpecificSource;
+  };
+
+  // Get unique sources for the Source column
+  const getUniqueSources = (): string[] => {
+    if (!reportData) return [];
+
+    const sources = new Set<string>();
+    const allFunctions = getAllFunctions();
+
+    allFunctions.forEach((functionName) => {
+      const source = getFunctionSource(functionName);
+      sources.add(source);
+    });
+
+    return Array.from(sources).sort();
+  };
+
   // Get filtered and sorted functions
   const getFilteredFunctions = useMemo((): string[] => {
     const allFunctions = getAllFunctions();
@@ -314,7 +367,16 @@ export default function FunctionAnalysisPage() {
           typeFilter.size === getUniqueTypes().length ||
           typeFilter.has(functionType);
 
-        return passesFileFilters && passesTypeFilter;
+        // Check Source column filter
+        const sourceFilter = columnFilters["source"];
+        const functionSource = getFunctionSource(functionName);
+        const passesSourceFilter =
+          !sourceFilter ||
+          sourceFilter.size === 0 ||
+          sourceFilter.size === getUniqueSources().length ||
+          sourceFilter.has(functionSource);
+
+        return passesFileFilters && passesTypeFilter && passesSourceFilter;
       });
     }
 
@@ -350,6 +412,31 @@ export default function FunctionAnalysisPage() {
           };
 
           const comparison = getTypeWeight(aType) - getTypeWeight(bType);
+          return sortState.direction === "asc" ? comparison : -comparison;
+        });
+      } else if (sortState.column === "source") {
+        // Sort by function source
+        filtered = filtered.sort((a, b) => {
+          const aSource = getFunctionSource(a);
+          const bSource = getFunctionSource(b);
+
+          // Define sort order for sources: packages alphabetically, then local, then unknown
+          const getSourceWeight = (source: string) => {
+            if (source === "local") return 1000; // Local comes first
+            if (source === "unknown") return 0; // Unknown comes last
+            return 500; // All other sources (npm packages) in the middle
+          };
+
+          const aWeight = getSourceWeight(aSource);
+          const bWeight = getSourceWeight(bSource);
+
+          if (aWeight !== bWeight) {
+            const comparison = bWeight - aWeight; // Higher weight first
+            return sortState.direction === "asc" ? comparison : -comparison;
+          }
+
+          // If same weight, sort alphabetically
+          const comparison = aSource.localeCompare(bSource);
           return sortState.direction === "asc" ? comparison : -comparison;
         });
       } else {
@@ -579,6 +666,48 @@ export default function FunctionAnalysisPage() {
                     </Badge>
                     <span className="text-sm">
                       Import source could not be determined
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Source Column Legend */}
+              <div className="mt-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                  Function Sources (Import Packages):
+                </h4>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-100 text-blue-800 border-blue-300 text-xs"
+                    >
+                      local
+                    </Badge>
+                    <span className="text-sm">
+                      Function defined locally in this project
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-orange-100 text-orange-800 border-orange-300 text-xs"
+                    >
+                      package-name
+                    </Badge>
+                    <span className="text-sm">
+                      Function imported from specific npm package
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-100 text-gray-600 border-gray-300 text-xs"
+                    >
+                      unknown
+                    </Badge>
+                    <span className="text-sm">
+                      Import package could not be determined
                     </span>
                   </div>
                 </div>
@@ -841,6 +970,156 @@ export default function FunctionAnalysisPage() {
                           </DropdownMenu>
                         </div>
                       </th>
+
+                      {/* Source Column */}
+                      <th
+                        className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleSort("source")}
+                        title="Click to sort by function source"
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full">
+                            <div className="flex-1">
+                              <div className="text-sm truncate">
+                                Source
+                                {(() => {
+                                  const uniqueSources = getUniqueSources();
+                                  const selectedCount =
+                                    columnFilters["source"]?.size ||
+                                    uniqueSources.length;
+                                  const hasActiveFilter =
+                                    selectedCount < uniqueSources.length;
+                                  return hasActiveFilter ? (
+                                    <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                      {selectedCount}/{uniqueSources.length}
+                                    </span>
+                                  ) : null;
+                                })()}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                Import Package
+                              </div>
+                            </div>
+                            <div className="text-xs ml-1">
+                              {getSortIndicator("source")}
+                            </div>
+                          </div>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`h-6 w-6 p-0 transition-colors ${(() => {
+                                  const uniqueSources = getUniqueSources();
+                                  const selectedCount =
+                                    columnFilters["source"]?.size ||
+                                    uniqueSources.length;
+                                  const hasActiveFilter =
+                                    selectedCount < uniqueSources.length;
+                                  return hasActiveFilter
+                                    ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                                    : "text-gray-400 hover:text-gray-600";
+                                })()}`}
+                                title="Filter by source"
+                              >
+                                <Filter className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-48 max-h-96 overflow-y-auto">
+                              <div className="p-2 border-b">
+                                <div className="text-sm font-medium mb-2">
+                                  Filter by Source
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleColumnFilterSelectAll(
+                                        "source",
+                                        true,
+                                      )
+                                    }
+                                    className="text-xs h-7"
+                                  >
+                                    Select All
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleColumnFilterSelectAll(
+                                        "source",
+                                        false,
+                                      )
+                                    }
+                                    className="text-xs h-7"
+                                  >
+                                    Select None
+                                  </Button>
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {(() => {
+                                    const uniqueSources = getUniqueSources();
+                                    const selectedCount =
+                                      columnFilters["source"]?.size ||
+                                      uniqueSources.length;
+                                    return `${selectedCount} of ${uniqueSources.length} selected`;
+                                  })()}
+                                </div>
+                              </div>
+
+                              {getUniqueSources().map((sourceValue) => {
+                                const isChecked =
+                                  columnFilters["source"]?.has(sourceValue) ??
+                                  true;
+                                const sourceCount = getAllFunctions().filter(
+                                  (fn) => getFunctionSource(fn) === sourceValue,
+                                ).length;
+
+                                return (
+                                  <DropdownMenuCheckboxItem
+                                    key={sourceValue}
+                                    checked={isChecked}
+                                    onCheckedChange={(checked) =>
+                                      handleColumnFilterChange(
+                                        "source",
+                                        sourceValue,
+                                        checked,
+                                      )
+                                    }
+                                    className="text-sm"
+                                  >
+                                    <div className="flex items-center justify-between w-full">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium">
+                                          {sourceValue}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                          ({sourceCount})
+                                        </span>
+                                      </div>
+                                      <Badge
+                                        variant="outline"
+                                        className={`ml-2 text-xs h-5 ${
+                                          sourceValue === "local"
+                                            ? "bg-blue-100 text-blue-800"
+                                            : sourceValue === "unknown"
+                                              ? "bg-gray-100 text-gray-600"
+                                              : "bg-orange-100 text-orange-800"
+                                        }`}
+                                      >
+                                        {sourceValue}
+                                      </Badge>
+                                    </div>
+                                  </DropdownMenuCheckboxItem>
+                                );
+                              })}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </th>
                       {filteredFileNames.map(
                         (fileName: string, index: number) => {
                           const uniqueValues = getUniqueValuesInFile(fileName);
@@ -1036,6 +1315,28 @@ export default function FunctionAnalysisPage() {
                                   }`}
                                 >
                                   {functionType}
+                                </Badge>
+                              );
+                            })()}
+                          </td>
+
+                          {/* Source Column Data */}
+                          <td className="border-r border-b border-gray-200 px-3 py-3 text-center text-sm">
+                            {(() => {
+                              const functionSource =
+                                getFunctionSource(functionName);
+                              return (
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${
+                                    functionSource === "local"
+                                      ? "bg-blue-100 text-blue-800 border-blue-300"
+                                      : functionSource === "unknown"
+                                        ? "bg-gray-100 text-gray-600 border-gray-300"
+                                        : "bg-orange-100 text-orange-800 border-orange-300"
+                                  }`}
+                                >
+                                  {functionSource}
                                 </Badge>
                               );
                             })()}

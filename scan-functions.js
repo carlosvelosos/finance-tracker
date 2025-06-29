@@ -44,7 +44,11 @@
  *       "calledWithImports": {
  *         "useState": { "source": "react", "type": "npm" },
  *         "localFunction": { "source": "./utils", "type": "relative" },
- *         "unknownFunction": { "source": "unknown", "type": "unknown" }
+ *         "setTransactions": { "source": "react", "type": "npm", "hookName": "useState", "isHookSetter": true }
+ *       },
+ *       "destructuredFunctions": {
+ *         "setTransactions": { "source": "react", "type": "npm", "hookName": "useState", "isHookSetter": true },
+ *         "transactions": { "source": "react", "type": "npm", "hookName": "useState", "isHookSetter": false }
  *       }
  *     }
  *   }
@@ -57,8 +61,11 @@
  *   - Object methods: const obj = { myMethod() {} }
  *   - Function calls: myFunc(), obj.method(), console.log()
  *   - Import statements and their sources
+ *   - Destructured functions from hooks: const [state, setState] = useState()
+ *   - React hook patterns and their destructured setters/getters
  *   - Categorizes imports by type: npm, relative, absolute, alias
  *   - Maps called functions to their import sources
+ *   - Tracks destructured functions back to their hook origins
  *
  * IGNORED DIRECTORIES:
  *   - node_modules/
@@ -341,6 +348,7 @@ async function analyzeFile(filePath) {
   const called = new Set();
   const imports = new Map(); // Map function name to import info
   const calledWithImports = new Map(); // Map called functions to their import info
+  const destructuredFunctions = new Map(); // Track functions from destructuring (e.g., useState setters)
 
   try {
     const code = await fs.readFile(filePath, "utf-8");
@@ -388,18 +396,6 @@ async function analyzeFile(filePath) {
           defined.add(path.node.id.name);
         }
       },
-      // Catches: const hello = () => {} | const hello = function() {}
-      VariableDeclarator(path) {
-        if (
-          path.node.init &&
-          (path.node.init.type === "ArrowFunctionExpression" ||
-            path.node.init.type === "FunctionExpression")
-        ) {
-          if (path.node.id.type === "Identifier") {
-            defined.add(path.node.id.name);
-          }
-        }
-      },
       // Catches: class MyClass { myMethod() {} } | const obj = { myMethod() {} }
       ObjectMethod(path) {
         if (path.node.key.type === "Identifier") {
@@ -409,6 +405,89 @@ async function analyzeFile(filePath) {
       ClassMethod(path) {
         if (path.node.key.type === "Identifier") {
           defined.add(path.node.key.name);
+        }
+      },
+
+      // Track destructuring assignments from function calls (e.g., useState, useEffect)
+      VariableDeclarator(path) {
+        // Handle destructuring from function calls
+        if (
+          path.node.id.type === "ArrayPattern" &&
+          path.node.init &&
+          path.node.init.type === "CallExpression"
+        ) {
+          const callExpression = path.node.init;
+          let hookName = null;
+
+          // Get the function being called
+          if (callExpression.callee.type === "Identifier") {
+            hookName = callExpression.callee.name;
+          }
+
+          // Handle React hooks specifically
+          if (
+            hookName &&
+            (hookName.startsWith("use") ||
+              [
+                "useState",
+                "useEffect",
+                "useCallback",
+                "useMemo",
+                "useRef",
+                "useContext",
+              ].includes(hookName))
+          ) {
+            path.node.id.elements.forEach((element, index) => {
+              if (element && element.type === "Identifier") {
+                const destructuredName = element.name;
+
+                // For useState, the second element is typically the setter
+                if (hookName === "useState" && index === 1) {
+                  destructuredFunctions.set(destructuredName, {
+                    source: imports.has(hookName)
+                      ? imports.get(hookName).source
+                      : "react",
+                    type: imports.has(hookName)
+                      ? imports.get(hookName).type
+                      : "npm",
+                    hookName: hookName,
+                    destructuredFrom: hookName,
+                    destructuredIndex: index,
+                    isHookSetter: true,
+                    importedName: hookName,
+                    localName: destructuredName,
+                  });
+                } else {
+                  // Other destructured items from hooks
+                  destructuredFunctions.set(destructuredName, {
+                    source: imports.has(hookName)
+                      ? imports.get(hookName).source
+                      : "react",
+                    type: imports.has(hookName)
+                      ? imports.get(hookName).type
+                      : "npm",
+                    hookName: hookName,
+                    destructuredFrom: hookName,
+                    destructuredIndex: index,
+                    isHookSetter: false,
+                    importedName: hookName,
+                    localName: destructuredName,
+                  });
+                }
+              }
+            });
+          }
+        }
+
+        // Original logic for function assignments
+        if (
+          path.node.init &&
+          (path.node.init.type === "ArrowFunctionExpression" ||
+            path.node.init.type === "FunctionExpression")
+        ) {
+          if (path.node.id.type === "Identifier") {
+            defined.add(path.node.id.name);
+          }
         }
       },
     });
@@ -473,6 +552,12 @@ async function analyzeFile(filePath) {
           // Track import info for called functions
           if (imports.has(functionName)) {
             calledWithImports.set(functionName, imports.get(functionName));
+          } else if (destructuredFunctions.has(functionName)) {
+            // Function was destructured from a hook or other function call
+            calledWithImports.set(
+              functionName,
+              destructuredFunctions.get(functionName),
+            );
           } else {
             // Check if it's a locally defined function
             if (defined.has(functionName)) {
@@ -543,12 +628,18 @@ async function analyzeFile(filePath) {
     calledWithImportsObj[key] = value;
   });
 
+  const destructuredFunctionsObj = {};
+  destructuredFunctions.forEach((value, key) => {
+    destructuredFunctionsObj[key] = value;
+  });
+
   return {
     defined: definedArr,
     called: calledArr,
     both,
     imports: importsObj,
     calledWithImports: calledWithImportsObj,
+    destructuredFunctions: destructuredFunctionsObj,
   };
 }
 

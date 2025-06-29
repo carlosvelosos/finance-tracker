@@ -281,7 +281,7 @@ export default function FunctionAnalysisTable({
             <ChevronDown className="h-3 w-3 ml-1" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48">
+        <DropdownMenuContent align="start" className="w-55">
           <div className="p-2">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium">{displayName}</span>

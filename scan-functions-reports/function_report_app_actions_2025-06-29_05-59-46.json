@@ -1,0 +1,335 @@
+{
+  "updateActions.ts": {
+    "defined": [
+      "executeAmexUpdate",
+      "executeInterUpdate",
+      "executeSjUpdate",
+      "executeUpdate",
+      "getAmexUpdatePreview",
+      "getInterUpdatePreview",
+      "getSjUpdatePreview",
+      "getUpdatePreview",
+      "previewAmexMonthTransactions",
+      "previewInterTableTransactions",
+      "previewSjMonthTransactions"
+    ],
+    "called": [
+      "eq",
+      "error",
+      "filter",
+      "from",
+      "getFullYear",
+      "getTime",
+      "has",
+      "includes",
+      "insert",
+      "like",
+      "limit",
+      "log",
+      "map",
+      "order",
+      "padStart",
+      "push",
+      "reduce",
+      "select",
+      "sort",
+      "toISOString",
+      "toString"
+    ],
+    "both": [],
+    "imports": {
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "Transaction": {
+        "source": "@/types/transaction",
+        "type": "alias",
+        "importedName": "Transaction",
+        "localName": "Transaction"
+      }
+    },
+    "calledWithImports": {
+      "from": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "from"
+      },
+      "has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "existingSignatures",
+        "functionName": "has"
+      },
+      "push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "tablesProcessed",
+        "functionName": "push"
+      },
+      "reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newTransactions",
+        "functionName": "reduce"
+      },
+      "map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newTransactions",
+        "functionName": "map"
+      },
+      "error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "error"
+      },
+      "toString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "month",
+        "functionName": "toString"
+      },
+      "includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sourceTablesIncluded",
+        "functionName": "includes"
+      },
+      "sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allNewTransactions",
+        "functionName": "sort"
+      },
+      "filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sourceTransactions",
+        "functionName": "filter"
+      },
+      "log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "log"
+      }
+    }
+  },
+  "fileActions.ts": {
+    "defined": [
+      "clearTableData",
+      "createTableInSupabase",
+      "executeTableCreation",
+      "uploadExcel",
+      "uploadToSupabase"
+    ],
+    "called": [
+      "arrayBuffer",
+      "clearTableData",
+      "decode",
+      "delete",
+      "endsWith",
+      "error",
+      "from",
+      "includes",
+      "insert",
+      "limit",
+      "log",
+      "map",
+      "neq",
+      "order",
+      "parse",
+      "processAmex",
+      "processDEV",
+      "processHandelsbanken",
+      "processInterBR",
+      "processInterBRAccount",
+      "processSEB",
+      "read",
+      "rpc",
+      "select",
+      "sheet_to_json",
+      "slice",
+      "uploadToSupabase"
+    ],
+    "both": [
+      "clearTableData",
+      "uploadToSupabase"
+    ],
+    "imports": {
+      "XLSX": {
+        "source": "xlsx",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "XLSX"
+      },
+      "Papa": {
+        "source": "papaparse",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Papa"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "processDEV": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processDEV",
+        "localName": "processDEV"
+      },
+      "processInterBR": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBR",
+        "localName": "processInterBR"
+      },
+      "processInterBRAccount": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBRAccount",
+        "localName": "processInterBRAccount"
+      },
+      "processHandelsbanken": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processHandelsbanken",
+        "localName": "processHandelsbanken"
+      },
+      "processAmex": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processAmex",
+        "localName": "processAmex"
+      },
+      "processSEB": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processSEB",
+        "localName": "processSEB"
+      }
+    },
+    "calledWithImports": {
+      "log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "log"
+      },
+      "arrayBuffer": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "file",
+        "functionName": "arrayBuffer"
+      },
+      "parse": {
+        "source": "papaparse",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Papa",
+        "memberOf": "Papa",
+        "functionName": "parse"
+      },
+      "read": {
+        "source": "xlsx",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "XLSX",
+        "memberOf": "XLSX",
+        "functionName": "read"
+      },
+      "slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "slice"
+      },
+      "processDEV": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processDEV",
+        "localName": "processDEV"
+      },
+      "processInterBR": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBR",
+        "localName": "processInterBR"
+      },
+      "processInterBRAccount": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processInterBRAccount",
+        "localName": "processInterBRAccount"
+      },
+      "processHandelsbanken": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processHandelsbanken",
+        "localName": "processHandelsbanken"
+      },
+      "processAmex": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processAmex",
+        "localName": "processAmex"
+      },
+      "processSEB": {
+        "source": "@/lib/utils/bankProcessors",
+        "type": "alias",
+        "importedName": "processSEB",
+        "localName": "processSEB"
+      },
+      "uploadToSupabase": {
+        "source": "local",
+        "type": "local",
+        "importedName": "uploadToSupabase",
+        "localName": "uploadToSupabase"
+      },
+      "error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "error"
+      },
+      "rpc": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "rpc"
+      },
+      "from": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "from"
+      },
+      "clearTableData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "clearTableData",
+        "localName": "clearTableData"
+      },
+      "map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "map"
+      }
+    }
+  }
+}

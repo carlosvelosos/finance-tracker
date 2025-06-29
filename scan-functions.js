@@ -26,7 +26,7 @@
  *   node scan-functions.js --help
  *
  * OUTPUT:
- *   Creates a file named "function_report_YYYY-MM-DD_HH-MM-SS.json" in the
+ *   Creates a file named "function_report_{directory}_{timestamp}.json" in the
  *   "scan-functions-reports" directory (created automatically if needed) with
  *   the following structure:
  *
@@ -34,7 +34,18 @@
  *     "relative/path/to/file.tsx": {
  *       "defined": ["functionName1", "functionName2"],
  *       "called": ["useState", "useEffect", "functionName1"],
- *       "both": ["functionName1"]
+ *       "both": ["functionName1"],
+ *       "imports": {
+ *         "useState": { "source": "react", "type": "npm" },
+ *         "useEffect": { "source": "react", "type": "npm" },
+ *         "localFunction": { "source": "./utils", "type": "relative" },
+ *         "componentFunction": { "source": "@/components/ui", "type": "alias" }
+ *       },
+ *       "calledWithImports": {
+ *         "useState": { "source": "react", "type": "npm" },
+ *         "localFunction": { "source": "./utils", "type": "relative" },
+ *         "unknownFunction": { "source": "unknown", "type": "unknown" }
+ *       }
  *     }
  *   }
  *
@@ -45,6 +56,9 @@
  *   - Class methods: class MyClass { myMethod() {} }
  *   - Object methods: const obj = { myMethod() {} }
  *   - Function calls: myFunc(), obj.method(), console.log()
+ *   - Import statements and their sources
+ *   - Categorizes imports by type: npm, relative, absolute, alias
+ *   - Maps called functions to their import sources
  *
  * IGNORED DIRECTORIES:
  *   - node_modules/
@@ -100,7 +114,7 @@ async function main(directory) {
 
   console.log(`Scanning files in: ${targetDir}`);
   const report = await processDirectory(targetDir);
-  await generateReport(report);
+  await generateReport(report, directory);
 }
 
 /**
@@ -137,6 +151,8 @@ async function findSourceFiles(targetDir) {
 async function analyzeFile(filePath) {
   const defined = new Set();
   const called = new Set();
+  const imports = new Map(); // Map function name to import info
+  const calledWithImports = new Map(); // Map called functions to their import info
 
   try {
     const code = await fs.readFile(filePath, "utf-8");
@@ -147,6 +163,37 @@ async function analyzeFile(filePath) {
     });
 
     traverse(ast, {
+      // Track import declarations first
+      ImportDeclaration(path) {
+        const source = path.node.source.value;
+        const importType = categorizeImport(source);
+
+        path.node.specifiers.forEach((specifier) => {
+          let importedName;
+          let localName;
+
+          if (specifier.type === "ImportDefaultSpecifier") {
+            importedName = "default";
+            localName = specifier.local.name;
+          } else if (specifier.type === "ImportSpecifier") {
+            importedName = specifier.imported.name;
+            localName = specifier.local.name;
+          } else if (specifier.type === "ImportNamespaceSpecifier") {
+            importedName = "*";
+            localName = specifier.local.name;
+          }
+
+          if (localName) {
+            imports.set(localName, {
+              source,
+              type: importType,
+              importedName,
+              localName,
+            });
+          }
+        });
+      },
+
       // Catches: function hello() {} | export function hello() {} | export default function hello() {}
       FunctionDeclaration(path) {
         if (path.node.id) {
@@ -176,15 +223,64 @@ async function analyzeFile(filePath) {
           defined.add(path.node.key.name);
         }
       },
+    });
+
+    // Second pass to collect function calls with import information
+    traverse(ast, {
       // Catches all function calls: hello(), obj.hello(), console.log()
       CallExpression(path) {
         const callee = path.get("callee");
         if (callee.isIdentifier()) {
-          called.add(callee.node.name);
+          const functionName = callee.node.name;
+          called.add(functionName);
+
+          // Track import info for called functions
+          if (imports.has(functionName)) {
+            calledWithImports.set(functionName, imports.get(functionName));
+          } else {
+            // Check if it's a locally defined function
+            if (defined.has(functionName)) {
+              calledWithImports.set(functionName, {
+                source: "local",
+                type: "local",
+                importedName: functionName,
+                localName: functionName,
+              });
+            } else {
+              // Unknown source
+              calledWithImports.set(functionName, {
+                source: "unknown",
+                type: "unknown",
+                importedName: functionName,
+                localName: functionName,
+              });
+            }
+          }
         } else if (callee.isMemberExpression()) {
           const property = callee.get("property");
           if (property.isIdentifier()) {
-            called.add(property.node.name);
+            const functionName = property.node.name;
+            called.add(functionName);
+
+            // For member expressions, try to get the object name
+            const object = callee.get("object");
+            if (object.isIdentifier()) {
+              const objectName = object.node.name;
+              if (imports.has(objectName)) {
+                calledWithImports.set(functionName, {
+                  ...imports.get(objectName),
+                  memberOf: objectName,
+                  functionName,
+                });
+              } else {
+                calledWithImports.set(functionName, {
+                  source: "unknown",
+                  type: "unknown",
+                  memberOf: objectName,
+                  functionName,
+                });
+              }
+            }
           }
         }
       },
@@ -198,7 +294,56 @@ async function analyzeFile(filePath) {
   const calledArr = Array.from(called).sort();
   const both = definedArr.filter((func) => called.has(func));
 
-  return { defined: definedArr, called: calledArr, both };
+  // Convert Maps to Objects for JSON serialization
+  const importsObj = {};
+  imports.forEach((value, key) => {
+    importsObj[key] = value;
+  });
+
+  const calledWithImportsObj = {};
+  calledWithImports.forEach((value, key) => {
+    calledWithImportsObj[key] = value;
+  });
+
+  return {
+    defined: definedArr,
+    called: calledArr,
+    both,
+    imports: importsObj,
+    calledWithImports: calledWithImportsObj,
+  };
+}
+
+/**
+ * Helper function to categorize import sources
+ */
+function categorizeImport(source) {
+  // NPM packages (no path indicators)
+  if (
+    !source.startsWith(".") &&
+    !source.startsWith("/") &&
+    !source.startsWith("@/")
+  ) {
+    return "npm";
+  }
+
+  // Relative imports
+  if (source.startsWith("./") || source.startsWith("../")) {
+    return "relative";
+  }
+
+  // Absolute imports
+  if (source.startsWith("/")) {
+    return "absolute";
+  }
+
+  // Alias imports (like @/ or ~/)
+  if (source.startsWith("@/") || source.startsWith("~/")) {
+    return "alias";
+  }
+
+  // Default fallback
+  return "other";
 }
 
 /**
@@ -223,7 +368,7 @@ async function processDirectory(targetDir) {
   return report;
 }
 
-async function generateReport(report) {
+async function generateReport(report, scannedDirectory) {
   // Generate timestamp in format: YYYY-MM-DD_HH-MM-SS
   const now = new Date();
   const timestamp = now
@@ -232,6 +377,14 @@ async function generateReport(report) {
     .replace(/\./g, "-")
     .replace("T", "_")
     .substring(0, 19);
+
+  // Sanitize directory name for filename
+  const dirName = scannedDirectory
+    .replace(/[<>:"/\\|?*]/g, "_") // Replace invalid filename characters
+    .replace(/^\.+/, "") // Remove leading dots
+    .replace(/\.+$/, "") // Remove trailing dots
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .toLowerCase();
 
   // Create reports directory if it doesn't exist
   const reportsDir = path.join(process.cwd(), "scan-functions-reports");
@@ -243,7 +396,10 @@ async function generateReport(report) {
     );
   }
 
-  const outputPath = path.join(reportsDir, `function_report_${timestamp}.json`);
+  const outputPath = path.join(
+    reportsDir,
+    `function_report_${dirName}_${timestamp}.json`,
+  );
   try {
     await fs.writeFile(outputPath, JSON.stringify(report, null, 2));
     console.log(`\n✅ Success! Report generated at ${outputPath}`);

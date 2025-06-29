@@ -24,16 +24,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown, Filter } from "lucide-react";
 import ProtectedRoute from "@/components/protected-route";
 
-interface FunctionData {
+type ReportItem = {
+  name: string;
+  type: "directory" | "file";
+  isNew: boolean;
+};
+
+interface FileData {
   defined: string[];
   called: string[];
   both: string[];
   imports?: Record<string, any>;
   calledWithImports?: Record<string, any>;
+  destructuredFunctions?: Record<string, any>;
 }
 
 interface ReportData {
-  [fileName: string]: FunctionData;
+  [fileName: string]: FileData;
 }
 
 type SortDirection = "asc" | "desc" | null;
@@ -52,7 +59,7 @@ interface ColumnVisibility {
 }
 
 export default function FunctionAnalysisPage() {
-  const [availableReports, setAvailableReports] = useState<string[]>([]);
+  const [availableReports, setAvailableReports] = useState<ReportItem[]>([]);
   const [selectedReport, setSelectedReport] = useState<string>("");
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -608,8 +615,17 @@ export default function FunctionAnalysisPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {availableReports.map((report) => (
-                    <SelectItem key={report} value={report}>
-                      {report}
+                    <SelectItem key={report.name} value={report.name}>
+                      <div className="flex items-center gap-2">
+                        {report.isNew ? (
+                          <span className="text-green-600 text-xs">📁 NEW</span>
+                        ) : (
+                          <span className="text-gray-400 text-xs">
+                            📄 LEGACY
+                          </span>
+                        )}
+                        <span>{report.name}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

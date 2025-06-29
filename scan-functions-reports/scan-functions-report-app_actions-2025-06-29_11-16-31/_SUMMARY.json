@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "scannedDirectory": "app/actions",
+    "timestamp": "2025-06-29_11-16-31",
+    "scanDate": "2025-06-29T09:16:31.380Z",
+    "totalFiles": 2,
+    "successfulWrites": 2,
+    "errors": 0
+  },
+  "fileList": [
+    {
+      "originalPath": "updateActions.ts",
+      "jsonFile": "updateActions_ts.json"
+    },
+    {
+      "originalPath": "fileActions.ts",
+      "jsonFile": "fileActions_ts.json"
+    }
+  ],
+  "summary": {
+    "totalFunctionsDefined": 16,
+    "totalFunctionsCalled": 58,
+    "totalImports": 11,
+    "totalDestructuredFunctions": 0
+  }
+}

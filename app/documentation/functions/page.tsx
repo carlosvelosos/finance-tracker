@@ -1020,7 +1020,7 @@ export default function FunctionAnalysisPage() {
                                   <Filter className="h-3 w-3" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-48 max-h-96 overflow-y-auto">
+                              <DropdownMenuContent className="w-96 max-h-96 overflow-y-auto">
                                 <div className="p-2 border-b">
                                   <div className="text-sm font-medium mb-2">
                                     Filter by Type
@@ -1174,7 +1174,7 @@ export default function FunctionAnalysisPage() {
                                   <Filter className="h-3 w-3" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-48 max-h-96 overflow-y-auto">
+                              <DropdownMenuContent className="w-96 max-h-96 overflow-y-auto">
                                 <div className="p-2 border-b">
                                   <div className="text-sm font-medium mb-2">
                                     Filter by Source
@@ -1324,7 +1324,7 @@ export default function FunctionAnalysisPage() {
                                         <Filter className="h-3 w-3" />
                                       </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-48 max-h-96 overflow-y-auto">
+                                    <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto">
                                       <div className="p-2 border-b">
                                         <div className="text-sm font-medium mb-2">
                                           Filter {fileName}

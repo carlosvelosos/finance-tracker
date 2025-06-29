@@ -26,6 +26,8 @@ import {
   Eye,
   ChevronDown,
   ChevronRight,
+  X,
+  Plus,
 } from "lucide-react";
 import FunctionAnalysisTable from "@/components/ui/function-analysis-table";
 import {
@@ -35,13 +37,27 @@ import {
   DirectoryData,
 } from "@/types/function-reports";
 
+interface SelectedDirectory {
+  name: string;
+  data: DirectoryData;
+}
+
+interface FileWithDirectory {
+  fileName: string;
+  directoryName: string;
+  displayName: string;
+}
+
 export default function FunctionReportsPage() {
   const [directories, setDirectories] = useState<ReportDirectory[]>([]);
-  const [selectedDirectory, setSelectedDirectory] = useState<string>("");
-  const [directoryData, setDirectoryData] = useState<DirectoryData | null>(
-    null,
-  );
-  const [selectedJsonFiles, setSelectedJsonFiles] = useState<string[]>([]);
+  const [selectedDirectories, setSelectedDirectories] = useState<
+    SelectedDirectory[]
+  >([]);
+  const [currentDirectorySelection, setCurrentDirectorySelection] =
+    useState<string>("");
+  const [selectedJsonFiles, setSelectedJsonFiles] = useState<
+    FileWithDirectory[]
+  >([]);
   const [tableData, setTableData] = useState<FunctionData[]>([]);
   const [loadingTable, setLoadingTable] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,35 +92,50 @@ export default function FunctionReportsPage() {
   }, []);
 
   // Fetch directory data when a directory is selected
-  useEffect(() => {
-    if (!selectedDirectory) {
-      setDirectoryData(null);
-      return;
+  const addDirectory = async (directoryName: string) => {
+    if (
+      !directoryName ||
+      selectedDirectories.some((d) => d.name === directoryName)
+    ) {
+      return; // Don't add if already selected
     }
 
-    const fetchDirectoryData = async () => {
-      setLoading(true);
-      setError("");
+    setLoading(true);
+    setError("");
 
-      try {
-        const response = await fetch(
-          `/api/function-reports/${selectedDirectory}/summary`,
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch directory data");
-        }
-        const data = await response.json();
-        setDirectoryData(data);
-      } catch (err) {
-        setError("Failed to load directory data");
-        console.error("Error fetching directory data:", err);
-      } finally {
-        setLoading(false);
+    try {
+      const response = await fetch(
+        `/api/function-reports/${directoryName}/summary`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch directory data");
       }
-    };
+      const data = await response.json();
 
-    fetchDirectoryData();
-  }, [selectedDirectory]);
+      const newDirectory: SelectedDirectory = {
+        name: directoryName,
+        data: data,
+      };
+
+      setSelectedDirectories((prev) => [...prev, newDirectory]);
+      setCurrentDirectorySelection(""); // Reset the dropdown
+    } catch (err) {
+      setError("Failed to load directory data");
+      console.error("Error fetching directory data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeDirectory = (directoryName: string) => {
+    setSelectedDirectories((prev) =>
+      prev.filter((d) => d.name !== directoryName),
+    );
+    // Also remove any selected files from this directory
+    setSelectedJsonFiles((prev) =>
+      prev.filter((f) => f.directoryName !== directoryName),
+    );
+  };
 
   const formatTimestamp = (timestamp: string) => {
     try {
@@ -138,27 +169,35 @@ export default function FunctionReportsPage() {
       .replace(/js$/, ".js");
   };
 
-  // Group files by their first directory level
-  const groupFilesByPath = (files: string[]) => {
-    const groups: Record<string, string[]> = {};
+  // Group files by their directory and path
+  const groupFilesByDirectoryAndPath = (selectedDirs: SelectedDirectory[]) => {
+    const groups: Record<string, FileWithDirectory[]> = {};
 
-    files.forEach((fileName) => {
-      const readableName = formatJsonFileName(fileName);
-      const pathParts = readableName.split("/");
+    selectedDirs.forEach((directory) => {
+      directory.data.jsonFiles.forEach((fileName) => {
+        const fileWithDir: FileWithDirectory = {
+          fileName,
+          directoryName: directory.name,
+          displayName: `${directory.name}/${formatJsonFileName(fileName)}`,
+        };
 
-      let groupName = "";
-      if (pathParts.length === 1) {
-        // Root level files
-        groupName = "Root";
-      } else {
-        // Files in subdirectories - use only the first directory level
-        groupName = pathParts[0];
-      }
+        const readableName = formatJsonFileName(fileName);
+        const pathParts = readableName.split("/");
 
-      if (!groups[groupName]) {
-        groups[groupName] = [];
-      }
-      groups[groupName].push(fileName);
+        let groupName = "";
+        if (pathParts.length === 1) {
+          // Root level files
+          groupName = `${directory.name}/Root`;
+        } else {
+          // Files in subdirectories - use only the first directory level
+          groupName = `${directory.name}/${pathParts[0]}`;
+        }
+
+        if (!groups[groupName]) {
+          groups[groupName] = [];
+        }
+        groups[groupName].push(fileWithDir);
+      });
     });
 
     return groups;
@@ -185,64 +224,113 @@ export default function FunctionReportsPage() {
 
   const getGroupFileCount = (
     groupName: string,
-    groupedFiles: Record<string, string[]>,
+    groupedFiles: Record<string, FileWithDirectory[]>,
   ) => {
     const files = groupedFiles[groupName] || [];
-    const selectedCount = files.filter((fileName) =>
-      selectedJsonFiles.includes(fileName),
+    const selectedCount = files.filter((file) =>
+      selectedJsonFiles.some(
+        (sf) =>
+          sf.fileName === file.fileName &&
+          sf.directoryName === file.directoryName,
+      ),
     ).length;
     return { total: files.length, selected: selectedCount };
   };
 
   const toggleGroupSelection = (
     groupName: string,
-    groupedFiles: Record<string, string[]>,
+    groupedFiles: Record<string, FileWithDirectory[]>,
   ) => {
     const groupFiles = groupedFiles[groupName] || [];
-    const allSelected = groupFiles.every((fileName) =>
-      selectedJsonFiles.includes(fileName),
+    const allSelected = groupFiles.every((file) =>
+      selectedJsonFiles.some(
+        (sf) =>
+          sf.fileName === file.fileName &&
+          sf.directoryName === file.directoryName,
+      ),
     );
 
     setSelectedJsonFiles((prev) => {
       if (allSelected) {
         // Deselect all files in group
-        return prev.filter((fileName) => !groupFiles.includes(fileName));
+        return prev.filter(
+          (sf) =>
+            !groupFiles.some(
+              (gf) =>
+                gf.fileName === sf.fileName &&
+                gf.directoryName === sf.directoryName,
+            ),
+        );
       } else {
         // Select all files in group
-        const newSelected = new Set(prev);
-        groupFiles.forEach((fileName) => newSelected.add(fileName));
-        return Array.from(newSelected);
+        const newSelected = [...prev];
+        groupFiles.forEach((file) => {
+          if (
+            !newSelected.some(
+              (sf) =>
+                sf.fileName === file.fileName &&
+                sf.directoryName === file.directoryName,
+            )
+          ) {
+            newSelected.push(file);
+          }
+        });
+        return newSelected;
       }
     });
   };
 
-  const handleFileSelection = (fileName: string, checked: boolean) => {
+  const handleFileSelection = (file: FileWithDirectory, checked: boolean) => {
     setSelectedJsonFiles((prev) => {
       if (checked) {
-        return [...prev, fileName];
+        // Add if not already present
+        if (
+          !prev.some(
+            (sf) =>
+              sf.fileName === file.fileName &&
+              sf.directoryName === file.directoryName,
+          )
+        ) {
+          return [...prev, file];
+        }
+        return prev;
       } else {
-        return prev.filter((f) => f !== fileName);
+        // Remove if present
+        return prev.filter(
+          (sf) =>
+            !(
+              sf.fileName === file.fileName &&
+              sf.directoryName === file.directoryName
+            ),
+        );
       }
     });
   };
 
   const loadTableData = async () => {
-    if (selectedJsonFiles.length === 0 || !selectedDirectory) return;
+    if (selectedJsonFiles.length === 0) return;
 
     setLoadingTable(true);
     setError("");
 
     try {
-      // Fetch all selected JSON files
-      const fileDataPromises = selectedJsonFiles.map(async (fileName) => {
+      // Fetch all selected JSON files from their respective directories
+      const fileDataPromises = selectedJsonFiles.map(async (fileWithDir) => {
         const response = await fetch(
-          `/api/function-reports/${selectedDirectory}/${fileName.replace(".json", "")}`,
+          `/api/function-reports/${fileWithDir.directoryName}/${fileWithDir.fileName.replace(".json", "")}`,
         );
         if (!response.ok) {
-          throw new Error(`Failed to fetch ${fileName}`);
+          throw new Error(
+            `Failed to fetch ${fileWithDir.fileName} from ${fileWithDir.directoryName}`,
+          );
         }
         const data = await response.json();
-        return { fileName, data: data as JsonFileData };
+        return {
+          fileName: fileWithDir.fileName,
+          directoryName: fileWithDir.directoryName,
+          displayName: fileWithDir.displayName,
+          data: data as JsonFileData,
+        };
       });
 
       const fileResults = await Promise.all(fileDataPromises);
@@ -250,8 +338,9 @@ export default function FunctionReportsPage() {
       // Combine all functions from all files
       const functionMap = new Map<string, FunctionData>();
 
-      fileResults.forEach(({ fileName, data }) => {
+      fileResults.forEach(({ fileName, directoryName, displayName, data }) => {
         const readableFileName = formatJsonFileName(fileName);
+        const fullDisplayName = `${directoryName}/${readableFileName}`;
 
         // Process defined functions
         data.analysis.defined.forEach((funcName) => {
@@ -263,13 +352,13 @@ export default function FunctionReportsPage() {
             });
           }
           const existing = functionMap.get(funcName)!;
-          if (existing.files[readableFileName]) {
+          if (existing.files[fullDisplayName]) {
             // If already exists as called, mark as both
-            if (existing.files[readableFileName].type === "called") {
-              existing.files[readableFileName].type = "both";
+            if (existing.files[fullDisplayName].type === "called") {
+              existing.files[fullDisplayName].type = "both";
             }
           } else {
-            existing.files[readableFileName] = { type: "defined" };
+            existing.files[fullDisplayName] = { type: "defined" };
           }
         });
 
@@ -284,17 +373,17 @@ export default function FunctionReportsPage() {
               });
             }
             const existing = functionMap.get(funcName)!;
-            if (existing.files[readableFileName]) {
+            if (existing.files[fullDisplayName]) {
               // If already exists as called, prioritize export-default over called
-              if (existing.files[readableFileName].type === "called") {
-                existing.files[readableFileName].type = "both";
+              if (existing.files[fullDisplayName].type === "called") {
+                existing.files[fullDisplayName].type = "both";
               }
               // If already defined, export default takes precedence
-              else if (existing.files[readableFileName].type === "defined") {
-                existing.files[readableFileName].type = "export-default";
+              else if (existing.files[fullDisplayName].type === "defined") {
+                existing.files[fullDisplayName].type = "export-default";
               }
             } else {
-              existing.files[readableFileName] = { type: "export-default" };
+              existing.files[fullDisplayName] = { type: "export-default" };
             }
           });
         }
@@ -322,13 +411,13 @@ export default function FunctionReportsPage() {
             });
           }
           const existing = functionMap.get(funcName)!;
-          if (existing.files[readableFileName]) {
+          if (existing.files[fullDisplayName]) {
             // If already exists as defined, mark as both
-            if (existing.files[readableFileName].type === "defined") {
-              existing.files[readableFileName].type = "both";
+            if (existing.files[fullDisplayName].type === "defined") {
+              existing.files[fullDisplayName].type = "both";
             }
           } else {
-            existing.files[readableFileName] = { type: "called" };
+            existing.files[fullDisplayName] = { type: "called" };
           }
         });
 
@@ -341,7 +430,7 @@ export default function FunctionReportsPage() {
               files: {},
             });
           }
-          functionMap.get(funcName)!.files[readableFileName] = { type: "both" };
+          functionMap.get(funcName)!.files[fullDisplayName] = { type: "both" };
         });
       });
 
@@ -360,28 +449,34 @@ export default function FunctionReportsPage() {
   };
 
   const toggleSelectAll = () => {
-    if (!directoryData) return;
+    const totalFiles = selectedDirectories.flatMap((dir) =>
+      dir.data.jsonFiles.map((fileName) => ({
+        fileName,
+        directoryName: dir.name,
+        displayName: `${dir.name}/${formatJsonFileName(fileName)}`,
+      })),
+    );
 
-    if (selectedJsonFiles.length === directoryData.jsonFiles.length) {
+    if (selectedJsonFiles.length === totalFiles.length) {
       setSelectedJsonFiles([]);
     } else {
-      setSelectedJsonFiles([...directoryData.jsonFiles]);
+      setSelectedJsonFiles(totalFiles);
     }
   };
 
-  // Reset selections when directory changes and collapse all groups by default
+  // Reset selections when directories change
   useEffect(() => {
     setSelectedJsonFiles([]);
     setTableData([]);
 
-    // Collapse all groups when directory changes
-    if (directoryData?.jsonFiles) {
-      const groupedFiles = groupFilesByPath(directoryData.jsonFiles);
+    // Collapse all groups when directories change
+    if (selectedDirectories.length > 0) {
+      const groupedFiles = groupFilesByDirectoryAndPath(selectedDirectories);
       const allGroupNames = Object.keys(groupedFiles);
       setCollapsedGroups(new Set(allGroupNames));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDirectory, directoryData]);
+  }, [selectedDirectories]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -396,31 +491,74 @@ export default function FunctionReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Select Report Directory</CardTitle>
+          <CardTitle>Select Report Directories</CardTitle>
           <CardDescription>
-            Choose a directory to view its function analysis summary and
-            available JSON files.
+            Add multiple directories to compare function analysis across
+            different scanned reports.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Select
-            value={selectedDirectory}
-            onValueChange={setSelectedDirectory}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a report directory..." />
-            </SelectTrigger>
-            <SelectContent>
-              {directories.map((dir) => (
-                <SelectItem key={dir.name} value={dir.name}>
-                  <div className="flex items-center space-x-2">
-                    <Folder className="h-4 w-4" />
-                    <span>{dir.name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <CardContent className="space-y-4">
+          <div className="flex space-x-2">
+            <Select
+              value={currentDirectorySelection}
+              onValueChange={setCurrentDirectorySelection}
+            >
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select a report directory to add..." />
+              </SelectTrigger>
+              <SelectContent>
+                {directories
+                  .filter(
+                    (dir) =>
+                      !selectedDirectories.some((sd) => sd.name === dir.name),
+                  )
+                  .map((dir) => (
+                    <SelectItem key={dir.name} value={dir.name}>
+                      <div className="flex items-center space-x-2">
+                        <Folder className="h-4 w-4" />
+                        <span>{dir.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => addDirectory(currentDirectorySelection)}
+              disabled={!currentDirectorySelection || loading}
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add
+            </Button>
+          </div>
+
+          {/* Selected Directories */}
+          {selectedDirectories.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">
+                Selected Directories:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {selectedDirectories.map((directory) => (
+                  <Badge
+                    key={directory.name}
+                    variant="default"
+                    className="flex items-center space-x-1 pr-1"
+                  >
+                    <span>{directory.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => removeDirectory(directory.name)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -440,68 +578,73 @@ export default function FunctionReportsPage() {
         </Card>
       )}
 
-      {directoryData && !loading && (
+      {selectedDirectories.length > 0 && !loading && (
         <div className="space-y-6">
-          {/* Summary Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileText className="h-5 w-5" />
-                <span>Scan Summary</span>
-              </CardTitle>
-              <CardDescription>
-                Overview of the scanned directory and processing results
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Scanned Directory
-                  </p>
-                  <p className="font-medium">
-                    {directoryData.summary.metadata.scannedDirectory}
-                  </p>
-                </div>
+          {/* Summary Cards for each directory */}
+          {selectedDirectories.map((directory) => (
+            <Card key={directory.name}>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5" />
+                  <span>Summary: {directory.name}</span>
+                </CardTitle>
+                <CardDescription>
+                  Overview of the scanned directory and processing results
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Scanned Directory
+                    </p>
+                    <p className="font-medium">
+                      {directory.data.summary.metadata.scannedDirectory}
+                    </p>
+                  </div>
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground flex items-center space-x-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>Scan Date</span>
-                  </p>
-                  <p className="font-medium">
-                    {formatTimestamp(directoryData.summary.metadata.timestamp)}
-                  </p>
-                </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground flex items-center space-x-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>Scan Date</span>
+                    </p>
+                    <p className="font-medium">
+                      {formatTimestamp(
+                        directory.data.summary.metadata.timestamp,
+                      )}
+                    </p>
+                  </div>
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground flex items-center space-x-1">
-                    <Hash className="h-3 w-3" />
-                    <span>Total Files</span>
-                  </p>
-                  <Badge variant="secondary">
-                    {directoryData.summary.metadata.totalFiles}
-                  </Badge>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Processing Status
-                  </p>
-                  <div className="flex space-x-2">
-                    <Badge variant="default">
-                      {directoryData.summary.metadata.successfulWrites} Success
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground flex items-center space-x-1">
+                      <Hash className="h-3 w-3" />
+                      <span>Total Files</span>
+                    </p>
+                    <Badge variant="secondary">
+                      {directory.data.summary.metadata.totalFiles}
                     </Badge>
-                    {directoryData.summary.metadata.errors > 0 && (
-                      <Badge variant="destructive">
-                        {directoryData.summary.metadata.errors} Errors
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Processing Status
+                    </p>
+                    <div className="flex space-x-2">
+                      <Badge variant="default">
+                        {directory.data.summary.metadata.successfulWrites}{" "}
+                        Success
                       </Badge>
-                    )}
+                      {directory.data.summary.metadata.errors > 0 && (
+                        <Badge variant="destructive">
+                          {directory.data.summary.metadata.errors} Errors
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
 
           {/* JSON Files List */}
           <Card>
@@ -522,7 +665,10 @@ export default function FunctionReportsPage() {
                 <FileText className="h-5 w-5" />
                 <span>Available JSON Files</span>
                 <Badge variant="outline">
-                  {directoryData.jsonFiles.length}
+                  {selectedDirectories.reduce(
+                    (total, dir) => total + dir.data.jsonFiles.length,
+                    0,
+                  )}
                 </Badge>
                 {selectedJsonFiles.length > 0 && (
                   <Badge variant="default">
@@ -531,8 +677,8 @@ export default function FunctionReportsPage() {
                 )}
               </CardTitle>
               <CardDescription>
-                Select JSON files to analyze and compare function usage across
-                files
+                Select JSON files from multiple directories to analyze and
+                compare function usage
               </CardDescription>
             </CardHeader>
             {!isJsonFilesCollapsed && (
@@ -542,8 +688,14 @@ export default function FunctionReportsPage() {
                     id="select-all"
                     checked={
                       selectedJsonFiles.length ===
-                        directoryData.jsonFiles.length &&
-                      directoryData.jsonFiles.length > 0
+                        selectedDirectories.reduce(
+                          (total, dir) => total + dir.data.jsonFiles.length,
+                          0,
+                        ) &&
+                      selectedDirectories.reduce(
+                        (total, dir) => total + dir.data.jsonFiles.length,
+                        0,
+                      ) > 0
                     }
                     onCheckedChange={toggleSelectAll}
                   />
@@ -564,12 +716,11 @@ export default function FunctionReportsPage() {
                   </Button>
                 </div>
 
-                {directoryData.jsonFiles.length > 0 ? (
+                {selectedDirectories.length > 0 ? (
                   <div className="space-y-3">
                     {(() => {
-                      const groupedFiles = groupFilesByPath(
-                        directoryData.jsonFiles,
-                      );
+                      const groupedFiles =
+                        groupFilesByDirectoryAndPath(selectedDirectories);
                       const groupNames = Object.keys(groupedFiles).sort();
 
                       return groupNames.map((groupName) => {
@@ -619,8 +770,8 @@ export default function FunctionReportsPage() {
                                     htmlFor={`group-${groupName}`}
                                     className="text-sm font-medium cursor-pointer"
                                   >
-                                    {groupName === "Root"
-                                      ? "Root Level"
+                                    {groupName.includes("/Root")
+                                      ? groupName.replace("/Root", " (Root)")
                                       : groupName}
                                   </label>
                                 </div>
@@ -643,19 +794,22 @@ export default function FunctionReportsPage() {
                             {!isCollapsed && (
                               <div className="p-2">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                  {groupFiles.map((fileName) => (
+                                  {groupFiles.map((file) => (
                                     <div
-                                      key={fileName}
+                                      key={`${file.directoryName}-${file.fileName}`}
                                       className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
                                     >
                                       <Checkbox
-                                        id={fileName}
-                                        checked={selectedJsonFiles.includes(
-                                          fileName,
+                                        id={`${file.directoryName}-${file.fileName}`}
+                                        checked={selectedJsonFiles.some(
+                                          (sf) =>
+                                            sf.fileName === file.fileName &&
+                                            sf.directoryName ===
+                                              file.directoryName,
                                         )}
                                         onCheckedChange={(checked) =>
                                           handleFileSelection(
-                                            fileName,
+                                            file,
                                             checked as boolean,
                                           )
                                         }
@@ -663,15 +817,15 @@ export default function FunctionReportsPage() {
                                       <FileText className="h-4 w-4 text-muted-foreground" />
                                       <div className="flex-1 min-w-0">
                                         <label
-                                          htmlFor={fileName}
+                                          htmlFor={`${file.directoryName}-${file.fileName}`}
                                           className="text-sm font-medium truncate block cursor-pointer"
                                         >
-                                          {formatJsonFileName(fileName)
+                                          {formatJsonFileName(file.fileName)
                                             .split("/")
                                             .pop()}
                                         </label>
                                         <p className="text-xs text-muted-foreground truncate">
-                                          {fileName}
+                                          {file.directoryName}/{file.fileName}
                                         </p>
                                       </div>
                                     </div>
@@ -686,7 +840,8 @@ export default function FunctionReportsPage() {
                   </div>
                 ) : (
                   <p className="text-muted-foreground">
-                    No JSON files found in this directory.
+                    No directories selected. Add directories above to see their
+                    JSON files.
                   </p>
                 )}
               </CardContent>
@@ -696,45 +851,10 @@ export default function FunctionReportsPage() {
           {/* Function Analysis Table */}
           <FunctionAnalysisTable
             tableData={tableData}
-            selectedJsonFiles={selectedJsonFiles}
+            selectedJsonFiles={selectedJsonFiles.map((f) => f.displayName)}
             formatJsonFileName={formatJsonFileName}
             loadingTable={loadingTable}
           />
-
-          {/* File List from Summary */}
-          {directoryData.summary.fileList &&
-            directoryData.summary.fileList.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Original Files Processed</CardTitle>
-                  <CardDescription>
-                    Mapping of original source files to their corresponding JSON
-                    analysis files
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {directoryData.summary.fileList.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 rounded border"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {file.originalPath}
-                          </p>
-                        </div>
-                        <div className="flex-shrink-0 ml-2">
-                          <Badge variant="outline" className="text-xs">
-                            {file.jsonFile}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
         </div>
       )}
     </div>

@@ -64,10 +64,9 @@ export default function FunctionAnalysisTable({
       source: new Set(),
     };
 
-    // Initialize file column filters
-    selectedJsonFiles.forEach((fileName) => {
-      const readableFileName = formatJsonFileName(fileName);
-      initialFilters[readableFileName] = new Set();
+    // Initialize file column filters using the display names directly
+    selectedJsonFiles.forEach((displayName) => {
+      initialFilters[displayName] = new Set();
     });
 
     return initialFilters;
@@ -85,29 +84,27 @@ export default function FunctionAnalysisTable({
       source: new Set(),
     };
 
-    // Initialize file column unique values
-    selectedJsonFiles.forEach((fileName) => {
-      const readableFileName = formatJsonFileName(fileName);
-      values[readableFileName] = new Set();
+    // Initialize file column unique values using display names directly
+    selectedJsonFiles.forEach((displayName) => {
+      values[displayName] = new Set();
     });
 
     tableData.forEach((funcData) => {
       values.functionName.add(funcData.functionName);
       values.source.add(funcData.source);
 
-      selectedJsonFiles.forEach((fileName) => {
-        const readableFileName = formatJsonFileName(fileName);
-        const fileData = funcData.files[readableFileName];
+      selectedJsonFiles.forEach((displayName) => {
+        const fileData = funcData.files[displayName];
         if (fileData) {
-          values[readableFileName].add(fileData.type);
+          values[displayName].add(fileData.type);
         } else {
-          values[readableFileName].add("not-present");
+          values[displayName].add("not-present");
         }
       });
     });
 
     return values;
-  }, [tableData, selectedJsonFiles, formatJsonFileName]);
+  }, [tableData, selectedJsonFiles]);
 
   // Filter and sort the table data
   const filteredAndSortedData = useMemo(() => {
@@ -127,12 +124,11 @@ export default function FunctionAnalysisTable({
       }
 
       // Check file column filters
-      for (const fileName of selectedJsonFiles) {
-        const readableFileName = formatJsonFileName(fileName);
-        const fileFilters = filters[readableFileName];
+      for (const displayName of selectedJsonFiles) {
+        const fileFilters = filters[displayName];
 
         if (fileFilters && fileFilters.size > 0) {
-          const fileData = funcData.files[readableFileName];
+          const fileData = funcData.files[displayName];
           const value = fileData ? fileData.type : "not-present";
 
           if (!fileFilters.has(value)) {
@@ -222,9 +218,8 @@ export default function FunctionAnalysisTable({
       source: new Set(),
     };
 
-    selectedJsonFiles.forEach((fileName) => {
-      const readableFileName = formatJsonFileName(fileName);
-      clearedFilters[readableFileName] = new Set();
+    selectedJsonFiles.forEach((displayName) => {
+      clearedFilters[displayName] = new Set();
     });
 
     setFilters(clearedFilters);
@@ -416,7 +411,8 @@ export default function FunctionAnalysisTable({
                   </div>
                 </TableHead>
                 {selectedJsonFiles.map((fileName) => {
-                  const readableFileName = formatJsonFileName(fileName);
+                  // fileName is now the full display name (directory/file)
+                  const displayName = fileName;
                   return (
                     <TableHead
                       key={fileName}
@@ -424,22 +420,19 @@ export default function FunctionAnalysisTable({
                     >
                       <div className="flex flex-col items-center space-y-1">
                         <div className="flex items-center space-x-2">
-                          <div className="truncate" title={readableFileName}>
-                            {readableFileName}
+                          <div className="truncate" title={displayName}>
+                            {displayName}
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
                             className="h-6 w-6 p-0"
-                            onClick={() => handleSort(readableFileName)}
+                            onClick={() => handleSort(displayName)}
                           >
-                            {getSortIcon(readableFileName)}
+                            {getSortIcon(displayName)}
                           </Button>
                         </div>
-                        {renderFilterDropdown(
-                          readableFileName,
-                          readableFileName,
-                        )}
+                        {renderFilterDropdown(displayName, displayName)}
                       </div>
                     </TableHead>
                   );
@@ -499,8 +492,8 @@ export default function FunctionAnalysisTable({
                         </div>
                       </TableCell>
                       {selectedJsonFiles.map((fileName) => {
-                        const readableFileName = formatJsonFileName(fileName);
-                        const fileData = funcData.files[readableFileName];
+                        // fileName is now the full display name that matches funcData.files keys
+                        const fileData = funcData.files[fileName];
                         return (
                           <TableCell key={fileName} className="text-center">
                             {fileData ? (

@@ -21,7 +21,29 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
 
   const { enabled = true, ...fetchOptions } = options;
 
-  const memoizedFetchOptions = useMemo(() => fetchOptions, [fetchOptions]);
+  // Stringify additionalFilters to handle object comparison
+  const additionalFiltersString = JSON.stringify(
+    fetchOptions.additionalFilters,
+  );
+
+  // Memoize the fetch options properly to prevent infinite re-renders
+  const memoizedFetchOptions = useMemo(
+    () => ({
+      tableName: fetchOptions.tableName,
+      bankFilter: fetchOptions.bankFilter,
+      additionalFilters: fetchOptions.additionalFilters,
+      orderBy: fetchOptions.orderBy,
+      orderDirection: fetchOptions.orderDirection,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }),
+    [
+      fetchOptions.tableName,
+      fetchOptions.bankFilter,
+      additionalFiltersString,
+      fetchOptions.orderBy,
+      fetchOptions.orderDirection,
+    ],
+  );
 
   const loadTransactions = useCallback(async () => {
     if (!user || !enabled) return;

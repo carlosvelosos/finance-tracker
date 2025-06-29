@@ -1,0 +1,163 @@
+{
+  "metadata": {
+    "originalFilePath": "api/function-reports/route.ts",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "GET"
+    ],
+    "called": [
+      "NextResponse.json",
+      "console.error",
+      "file.endsWith",
+      "file.startsWith",
+      "files.filter.sort.reverse",
+      "fs.existsSync",
+      "fs.readdirSync",
+      "path.join",
+      "process.cwd"
+    ],
+    "both": [],
+    "imports": {
+      "NextRequest": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextRequest",
+        "localName": "NextRequest"
+      },
+      "NextResponse": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextResponse",
+        "localName": "NextResponse"
+      },
+      "fs": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs"
+      },
+      "path": {
+        "source": "path",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "path"
+      }
+    },
+    "calledWithImports": {
+      "path.join": {
+        "source": "path",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "path",
+        "memberOf": "path",
+        "functionName": "path.join",
+        "fullMemberPath": "path.join",
+        "methodChain": [
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "process.cwd": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "process",
+        "functionName": "process.cwd",
+        "fullMemberPath": "process.cwd",
+        "methodChain": [
+          "cwd"
+        ],
+        "isChainedCall": true
+      },
+      "fs.existsSync": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.existsSync",
+        "fullMemberPath": "fs.existsSync",
+        "methodChain": [
+          "existsSync"
+        ],
+        "isChainedCall": true
+      },
+      "NextResponse.json": {
+        "source": "next/server",
+        "type": "npm",
+        "importedName": "NextResponse",
+        "localName": "NextResponse",
+        "memberOf": "NextResponse",
+        "functionName": "NextResponse.json",
+        "fullMemberPath": "NextResponse.json",
+        "methodChain": [
+          "json"
+        ],
+        "isChainedCall": true
+      },
+      "fs.readdirSync": {
+        "source": "fs",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "fs",
+        "memberOf": "fs",
+        "functionName": "fs.readdirSync",
+        "fullMemberPath": "fs.readdirSync",
+        "methodChain": [
+          "readdirSync"
+        ],
+        "isChainedCall": true
+      },
+      "files.filter.sort.reverse": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "files",
+        "functionName": "files.filter.sort.reverse",
+        "fullMemberPath": "files.filter.sort.reverse",
+        "methodChain": [
+          "filter",
+          "sort",
+          "reverse"
+        ],
+        "isChainedCall": true
+      },
+      "file.endsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "file",
+        "functionName": "file.endsWith",
+        "fullMemberPath": "file.endsWith",
+        "methodChain": [
+          "endsWith"
+        ],
+        "isChainedCall": true
+      },
+      "file.startsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "file",
+        "functionName": "file.startsWith",
+        "fullMemberPath": "file.startsWith",
+        "methodChain": [
+          "startsWith"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

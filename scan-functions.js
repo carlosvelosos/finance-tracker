@@ -26,12 +26,19 @@
  *   node scan-functions.js --help
  *
  * OUTPUT:
- *   Creates a file named "function_report_{directory}_{timestamp}.json" in the
- *   "scan-functions-reports" directory (created automatically if needed) with
- *   the following structure:
+ *   Creates a directory named "scan-functions-report-{directory}-{timestamp}"
+ *   containing individual JSON files for each scanned file, plus a summary file.
+ *   Each file follows this structure:
+ *   Each file follows this structure:
  *
  *   {
- *     "relative/path/to/file.tsx": {
+ *     "metadata": {
+ *       "originalFilePath": "relative/path/to/file.tsx",
+ *       "scannedDirectory": "app",
+ *       "timestamp": "2025-06-29_10-46-57",
+ *       "scanDate": "2025-06-29T10:46:57.123Z"
+ *     },
+ *     "analysis": {
  *       "defined": ["functionName1", "functionName2"],
  *       "called": ["useState", "useEffect", "functionName1"],
  *       "both": ["functionName1"],
@@ -820,14 +827,105 @@ async function generateReport(report, scannedDirectory) {
     );
   }
 
-  const outputPath = path.join(
+  // Create main output directory with timestamp inside reports directory
+  const outputDir = path.join(
     reportsDir,
-    `function_report_${dirName}_${timestamp}.json`,
+    `scan-functions-report-${dirName}-${timestamp}`,
   );
+
   try {
-    await fs.writeFile(outputPath, JSON.stringify(report, null, 2));
-    console.log(`\n✅ Success! Report generated at ${outputPath}`);
+    await fs.mkdir(outputDir, { recursive: true });
+    console.log(`\n📁 Created output directory: ${outputDir}`);
   } catch (error) {
-    console.error(`\n❌ Error writing report: ${error.message}`);
+    console.error(`\n❌ Error creating output directory: ${error.message}`);
+    return;
+  }
+
+  // Write individual JSON files for each scanned file
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (const [filePath, analysisResult] of Object.entries(report)) {
+    try {
+      // Convert file path to safe filename
+      const safeFileName =
+        filePath
+          .replace(/[<>:"/\\|?*]/g, "_") // Replace invalid filename characters
+          .replace(/\//g, "_") // Replace forward slashes
+          .replace(/\./g, "_") + // Replace dots with underscores
+        ".json";
+
+      const outputFilePath = path.join(outputDir, safeFileName);
+
+      // Create file content with metadata
+      const fileContent = {
+        metadata: {
+          originalFilePath: filePath,
+          scannedDirectory: scannedDirectory,
+          timestamp: timestamp,
+          scanDate: now.toISOString(),
+        },
+        analysis: analysisResult,
+      };
+
+      await fs.writeFile(outputFilePath, JSON.stringify(fileContent, null, 2));
+      console.log(`  ✅ ${filePath} -> ${safeFileName}`);
+      successCount++;
+    } catch (error) {
+      console.error(`  ❌ Error writing ${filePath}: ${error.message}`);
+      errorCount++;
+    }
+  }
+
+  // Create a summary file
+  try {
+    const summaryContent = {
+      metadata: {
+        scannedDirectory: scannedDirectory,
+        timestamp: timestamp,
+        scanDate: now.toISOString(),
+        totalFiles: Object.keys(report).length,
+        successfulWrites: successCount,
+        errors: errorCount,
+      },
+      fileList: Object.keys(report).map((filePath) => ({
+        originalPath: filePath,
+        jsonFile:
+          filePath
+            .replace(/[<>:"/\\|?*]/g, "_")
+            .replace(/\//g, "_")
+            .replace(/\./g, "_") + ".json",
+      })),
+      summary: {
+        totalFunctionsDefined: Object.values(report).reduce(
+          (total, file) => total + file.defined.length,
+          0,
+        ),
+        totalFunctionsCalled: Object.values(report).reduce(
+          (total, file) => total + file.called.length,
+          0,
+        ),
+        totalImports: Object.values(report).reduce(
+          (total, file) => total + Object.keys(file.imports).length,
+          0,
+        ),
+        totalDestructuredFunctions: Object.values(report).reduce(
+          (total, file) =>
+            total + Object.keys(file.destructuredFunctions).length,
+          0,
+        ),
+      },
+    };
+
+    const summaryPath = path.join(outputDir, "_SUMMARY.json");
+    await fs.writeFile(summaryPath, JSON.stringify(summaryContent, null, 2));
+    console.log(`  📊 Summary file created: _SUMMARY.json`);
+  } catch (error) {
+    console.error(`  ❌ Error writing summary file: ${error.message}`);
+  }
+
+  console.log(`\n✅ Success! Generated ${successCount} files in ${outputDir}`);
+  if (errorCount > 0) {
+    console.log(`⚠️  ${errorCount} files had errors during generation`);
   }
 }

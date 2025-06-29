@@ -1,0 +1,178 @@
+{
+  "metadata": {
+    "originalFilePath": "sjprio/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "Home",
+      "fetchTransactions"
+    ],
+    "called": [
+      "console.error",
+      "fetchTransactions",
+      "setTransactions",
+      "supabase.from.select.eq",
+      "useAuth",
+      "useEffect",
+      "useState",
+      "window.open"
+    ],
+    "both": [
+      "fetchTransactions"
+    ],
+    "imports": {
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "supabase": {
+        "source": "../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "useAuth": {
+        "source": "../../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "TransactionTable": {
+        "source": "@/components/ui/transaction/TransactionTable",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "TransactionTable"
+      },
+      "UpdateSjAggregatedButton": {
+        "source": "@/components/UpdateSjAggregatedButton",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "UpdateSjAggregatedButton"
+      },
+      "Transaction": {
+        "source": "@/types/transaction",
+        "type": "alias",
+        "importedName": "Transaction",
+        "localName": "Transaction"
+      }
+    },
+    "calledWithImports": {
+      "useAuth": {
+        "source": "../../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "supabase.from.select.eq": {
+        "source": "../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.eq",
+        "fullMemberPath": "supabase.from.select.eq",
+        "methodChain": [
+          "from",
+          "select",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTransactions"
+      },
+      "fetchTransactions": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchTransactions",
+        "localName": "fetchTransactions"
+      },
+      "window.open": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.open",
+        "fullMemberPath": "window.open",
+        "methodChain": [
+          "open"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "transactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "transactions"
+      },
+      "setTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTransactions"
+      }
+    }
+  }
+}

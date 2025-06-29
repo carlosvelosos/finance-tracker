@@ -1,0 +1,492 @@
+{
+  "metadata": {
+    "originalFilePath": "family/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "FamilyFinancePage",
+      "adjustTransactionAmounts",
+      "fetchTransactions",
+      "handleSort",
+      "sortTransactions"
+    ],
+    "called": [
+      "Math.abs",
+      "aValue.localeCompare",
+      "adjustTransactionAmounts",
+      "adjustedTransactions.filter",
+      "console.error",
+      "console.log",
+      "fetchTransactions",
+      "setAmandaTransactions",
+      "setMeTransactions",
+      "setSortConfig",
+      "setUsTransactions",
+      "sort",
+      "supabase.from.select",
+      "transactions.map",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "adjustTransactionAmounts",
+      "fetchTransactions"
+    ],
+    "imports": {
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "supabase": {
+        "source": "../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "Switch": {
+        "source": "@/components/ui/switch",
+        "type": "alias",
+        "importedName": "Switch",
+        "localName": "Switch"
+      },
+      "TableCardFamily": {
+        "source": "@/components/ui/table-card-family",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "TableCardFamily"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "Separator": {
+        "source": "@/components/ui/separator",
+        "type": "alias",
+        "importedName": "Separator",
+        "localName": "Separator"
+      },
+      "FinanceSummaryCard": {
+        "source": "@/components/ui/finance-summary-card",
+        "type": "alias",
+        "importedName": "FinanceSummaryCard",
+        "localName": "FinanceSummaryCard"
+      },
+      "FinanceDetailCard": {
+        "source": "@/components/ui/finance-detail-card",
+        "type": "alias",
+        "importedName": "FinanceDetailCard",
+        "localName": "FinanceDetailCard"
+      },
+      "Carousel": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "Carousel",
+        "localName": "Carousel"
+      },
+      "CarouselContent": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselContent",
+        "localName": "CarouselContent"
+      },
+      "CarouselItem": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselItem",
+        "localName": "CarouselItem"
+      },
+      "CarouselPrevious": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselPrevious",
+        "localName": "CarouselPrevious"
+      },
+      "CarouselNext": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselNext",
+        "localName": "CarouselNext"
+      },
+      "CarouselDotsResponsive": {
+        "source": "@/components/ui/carousel",
+        "type": "alias",
+        "importedName": "CarouselDotsResponsive",
+        "localName": "CarouselDotsResponsive"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "transactions.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.map",
+        "fullMemberPath": "transactions.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "Math.abs": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.abs",
+        "fullMemberPath": "Math.abs",
+        "methodChain": [
+          "abs"
+        ],
+        "isChainedCall": true
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.from.select": {
+        "source": "../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select",
+        "fullMemberPath": "supabase.from.select",
+        "methodChain": [
+          "from",
+          "select"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "adjustTransactionAmounts": {
+        "source": "local",
+        "type": "local",
+        "importedName": "adjustTransactionAmounts",
+        "localName": "adjustTransactionAmounts"
+      },
+      "setAmandaTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAmandaTransactions"
+      },
+      "adjustedTransactions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "adjustedTransactions",
+        "functionName": "adjustedTransactions.filter",
+        "fullMemberPath": "adjustedTransactions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "setUsTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUsTransactions"
+      },
+      "setMeTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMeTransactions"
+      },
+      "fetchTransactions": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchTransactions",
+        "localName": "fetchTransactions"
+      },
+      "setSortConfig": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setSortConfig",
+        "localName": "setSortConfig"
+      },
+      "sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "sort",
+        "fullMemberPath": "sort"
+      },
+      "aValue.localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "aValue",
+        "functionName": "aValue.localeCompare",
+        "fullMemberPath": "aValue.localeCompare",
+        "methodChain": [
+          "localeCompare"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "amandaTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "amandaTransactions"
+      },
+      "setAmandaTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAmandaTransactions"
+      },
+      "usTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "usTransactions"
+      },
+      "setUsTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUsTransactions"
+      },
+      "meTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "meTransactions"
+      },
+      "setMeTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMeTransactions"
+      },
+      "showComments": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showComments"
+      },
+      "setShowComments": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowComments"
+      },
+      "showDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showDate"
+      },
+      "setShowDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowDate"
+      },
+      "showId": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showId"
+      },
+      "setShowId": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowId"
+      },
+      "usTransactionsAmanda": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "usTransactionsAmanda"
+      },
+      "amandaSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "amandaSortConfig"
+      },
+      "setAmandaSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAmandaSortConfig"
+      },
+      "usSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "usSortConfig"
+      },
+      "setUsSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUsSortConfig"
+      },
+      "meSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "meSortConfig"
+      },
+      "setMeSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMeSortConfig"
+      },
+      "usAmandaSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "usAmandaSortConfig"
+      },
+      "setUsAmandaSortConfig": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUsAmandaSortConfig"
+      }
+    }
+  }
+}

@@ -1,0 +1,673 @@
+{
+  "metadata": {
+    "originalFilePath": "upload/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "UploadPage",
+      "cancelClearData",
+      "confirmClearData",
+      "getTableName",
+      "handleClearDataChange",
+      "handleCloseDialog",
+      "handleCopyInstructions",
+      "handleCreateTable",
+      "handleFileChange",
+      "handleUpload"
+    ],
+    "called": [
+      "BANK_OPTIONS.map",
+      "console.error",
+      "console.log",
+      "createTableInSupabase",
+      "e.stopPropagation",
+      "executeTableCreation",
+      "fileName.match",
+      "getTableName",
+      "navigator.writeText",
+      "setClearData",
+      "setCreatingTable",
+      "setFile",
+      "setPendingBank",
+      "setPendingFile",
+      "setPendingTableName",
+      "setShowClearDataWarning",
+      "setShowCreateTableDialog",
+      "setTableInstructions",
+      "setUploading",
+      "tableInstructions.substring",
+      "toast.error",
+      "toast.success",
+      "uploadExcel",
+      "uploadedFile.match",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "getTableName"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "uploadExcel": {
+        "source": "@/app/actions/fileActions",
+        "type": "alias",
+        "importedName": "uploadExcel",
+        "localName": "uploadExcel"
+      },
+      "createTableInSupabase": {
+        "source": "@/app/actions/fileActions",
+        "type": "alias",
+        "importedName": "createTableInSupabase",
+        "localName": "createTableInSupabase"
+      },
+      "executeTableCreation": {
+        "source": "@/app/actions/fileActions",
+        "type": "alias",
+        "importedName": "executeTableCreation",
+        "localName": "executeTableCreation"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "toast": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast"
+      },
+      "Select": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "Select",
+        "localName": "Select"
+      },
+      "SelectContent": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectContent",
+        "localName": "SelectContent"
+      },
+      "SelectItem": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectItem",
+        "localName": "SelectItem"
+      },
+      "SelectTrigger": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectTrigger",
+        "localName": "SelectTrigger"
+      },
+      "SelectValue": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectValue",
+        "localName": "SelectValue"
+      },
+      "Checkbox": {
+        "source": "@/components/ui/checkbox",
+        "type": "alias",
+        "importedName": "Checkbox",
+        "localName": "Checkbox"
+      },
+      "Dialog": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "Dialog",
+        "localName": "Dialog"
+      },
+      "DialogContent": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogContent",
+        "localName": "DialogContent"
+      },
+      "DialogDescription": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogDescription",
+        "localName": "DialogDescription"
+      },
+      "DialogHeader": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogHeader",
+        "localName": "DialogHeader"
+      },
+      "DialogTitle": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogTitle",
+        "localName": "DialogTitle"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "tableInstructions.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "tableInstructions",
+        "functionName": "tableInstructions.substring",
+        "fullMemberPath": "tableInstructions.substring",
+        "methodChain": [
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "uploadedFile.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "uploadedFile",
+        "functionName": "uploadedFile.match",
+        "fullMemberPath": "uploadedFile.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "toast.error": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.error",
+        "fullMemberPath": "toast.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setFile"
+      },
+      "setUploading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUploading"
+      },
+      "uploadExcel": {
+        "source": "@/app/actions/fileActions",
+        "type": "alias",
+        "importedName": "uploadExcel",
+        "localName": "uploadExcel"
+      },
+      "toast.success": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.success",
+        "fullMemberPath": "toast.success",
+        "methodChain": [
+          "success"
+        ],
+        "isChainedCall": true
+      },
+      "setPendingTableName": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPendingTableName"
+      },
+      "setPendingFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPendingFile"
+      },
+      "setPendingBank": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPendingBank"
+      },
+      "createTableInSupabase": {
+        "source": "@/app/actions/fileActions",
+        "type": "alias",
+        "importedName": "createTableInSupabase",
+        "localName": "createTableInSupabase"
+      },
+      "setTableInstructions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTableInstructions"
+      },
+      "setShowCreateTableDialog": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowCreateTableDialog"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "navigator.writeText": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "navigator",
+        "functionName": "navigator.writeText",
+        "fullMemberPath": "navigator.writeText",
+        "methodChain": [
+          "writeText"
+        ],
+        "isChainedCall": true
+      },
+      "setCreatingTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCreatingTable"
+      },
+      "executeTableCreation": {
+        "source": "@/app/actions/fileActions",
+        "type": "alias",
+        "importedName": "executeTableCreation",
+        "localName": "executeTableCreation"
+      },
+      "setShowClearDataWarning": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowClearDataWarning"
+      },
+      "setClearData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setClearData"
+      },
+      "fileName.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileName",
+        "functionName": "fileName.match",
+        "fullMemberPath": "fileName.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "getTableName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getTableName",
+        "localName": "getTableName"
+      },
+      "BANK_OPTIONS.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "BANK_OPTIONS",
+        "functionName": "BANK_OPTIONS.map",
+        "fullMemberPath": "BANK_OPTIONS.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "e.stopPropagation": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "e",
+        "functionName": "e.stopPropagation",
+        "fullMemberPath": "e.stopPropagation",
+        "methodChain": [
+          "stopPropagation"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "file": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "file"
+      },
+      "setFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setFile"
+      },
+      "selectedBank": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedBank"
+      },
+      "setSelectedBank": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedBank"
+      },
+      "uploading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "uploading"
+      },
+      "setUploading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUploading"
+      },
+      "clearData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "clearData"
+      },
+      "setClearData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setClearData"
+      },
+      "showClearDataWarning": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showClearDataWarning"
+      },
+      "setShowClearDataWarning": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowClearDataWarning"
+      },
+      "showCreateTableDialog": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showCreateTableDialog"
+      },
+      "setShowCreateTableDialog": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowCreateTableDialog"
+      },
+      "pendingTableName": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "pendingTableName"
+      },
+      "setPendingTableName": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPendingTableName"
+      },
+      "tableInstructions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "tableInstructions"
+      },
+      "setTableInstructions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTableInstructions"
+      },
+      "creatingTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "creatingTable"
+      },
+      "setCreatingTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCreatingTable"
+      },
+      "pendingFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "pendingFile"
+      },
+      "setPendingFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPendingFile"
+      },
+      "pendingBank": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "pendingBank"
+      },
+      "setPendingBank": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPendingBank"
+      }
+    }
+  }
+}

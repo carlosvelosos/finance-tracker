@@ -1,0 +1,291 @@
+{
+  "metadata": {
+    "originalFilePath": "inter-account/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "Home",
+      "fetchTransactions"
+    ],
+    "called": [
+      "Object.entries.map",
+      "bankInfo.join",
+      "bankTransactions.reduce",
+      "console.error",
+      "data.filter",
+      "data.map.filter",
+      "fetchTransactions",
+      "setBankInfo",
+      "setTransactions",
+      "supabase.from.select.eq",
+      "toLocaleDateString",
+      "uniqueBanks.forEach",
+      "useAuth",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "fetchTransactions"
+    ],
+    "imports": {
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "supabase": {
+        "source": "../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "useAuth": {
+        "source": "../../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "TransactionTable": {
+        "source": "@/components/ui/transaction/TransactionTable",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "TransactionTable"
+      },
+      "UpdateAggregatedButton": {
+        "source": "@/components/UpdateAggregatedButton",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "UpdateAggregatedButton"
+      },
+      "UpdateInterAggregatedButton": {
+        "source": "@/components/UpdateInterAggregatedButton",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "UpdateInterAggregatedButton"
+      },
+      "Transaction": {
+        "source": "@/types/transaction",
+        "type": "alias",
+        "importedName": "Transaction",
+        "localName": "Transaction"
+      },
+      "Info": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Info",
+        "localName": "Info"
+      }
+    },
+    "calledWithImports": {
+      "useAuth": {
+        "source": "../../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "supabase.from.select.eq": {
+        "source": "../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.eq",
+        "fullMemberPath": "supabase.from.select.eq",
+        "methodChain": [
+          "from",
+          "select",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTransactions"
+      },
+      "data.map.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.map.filter",
+        "fullMemberPath": "data.map.filter",
+        "methodChain": [
+          "map",
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "uniqueBanks.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "uniqueBanks",
+        "functionName": "uniqueBanks.forEach",
+        "fullMemberPath": "uniqueBanks.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "data.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.filter",
+        "fullMemberPath": "data.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "bankTransactions.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bankTransactions",
+        "functionName": "bankTransactions.reduce",
+        "fullMemberPath": "bankTransactions.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "setBankInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setBankInfo"
+      },
+      "fetchTransactions": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchTransactions",
+        "localName": "fetchTransactions"
+      },
+      "bankInfo.join": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bankInfo",
+        "functionName": "bankInfo.join",
+        "fullMemberPath": "bankInfo.join",
+        "methodChain": [
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.map",
+        "fullMemberPath": "Object.entries.map",
+        "methodChain": [
+          "entries",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toLocaleDateString",
+        "fullMemberPath": "toLocaleDateString"
+      }
+    },
+    "destructuredFunctions": {
+      "transactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "transactions"
+      },
+      "setTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTransactions"
+      },
+      "bankInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "bankInfo"
+      },
+      "setBankInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setBankInfo"
+      }
+    }
+  }
+}

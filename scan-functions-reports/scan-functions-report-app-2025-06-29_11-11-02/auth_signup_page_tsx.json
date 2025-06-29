@@ -1,0 +1,372 @@
+{
+  "metadata": {
+    "originalFilePath": "auth/signup/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "SignupPage",
+      "handleOAuthSignup",
+      "handleSubmit"
+    ],
+    "called": [
+      "console.error",
+      "e.preventDefault",
+      "handleOAuthSignup",
+      "router.push",
+      "setConfirmPassword",
+      "setEmail",
+      "setLoading",
+      "setName",
+      "setPassword",
+      "supabase.signInWithOAuth",
+      "supabase.signUp",
+      "toast.error",
+      "toast.success",
+      "useRouter",
+      "useState"
+    ],
+    "both": [
+      "handleOAuthSignup"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "Separator": {
+        "source": "@/components/ui/separator",
+        "type": "alias",
+        "importedName": "Separator",
+        "localName": "Separator"
+      },
+      "Link": {
+        "source": "next/link",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Link"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "useRouter": {
+        "source": "next/navigation",
+        "type": "npm",
+        "importedName": "useRouter",
+        "localName": "useRouter"
+      },
+      "toast": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast"
+      },
+      "AuthError": {
+        "source": "@supabase/supabase-js",
+        "type": "npm",
+        "importedName": "AuthError",
+        "localName": "AuthError"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useRouter": {
+        "source": "next/navigation",
+        "type": "npm",
+        "importedName": "useRouter",
+        "localName": "useRouter"
+      },
+      "e.preventDefault": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "e",
+        "functionName": "e.preventDefault",
+        "fullMemberPath": "e.preventDefault",
+        "methodChain": [
+          "preventDefault"
+        ],
+        "isChainedCall": true
+      },
+      "toast.error": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.error",
+        "fullMemberPath": "toast.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "supabase.signUp": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.signUp",
+        "fullMemberPath": "supabase.signUp",
+        "methodChain": [
+          "signUp"
+        ],
+        "isChainedCall": true
+      },
+      "toast.success": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.success",
+        "fullMemberPath": "toast.success",
+        "methodChain": [
+          "success"
+        ],
+        "isChainedCall": true
+      },
+      "router.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "router",
+        "functionName": "router.push",
+        "fullMemberPath": "router.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.signInWithOAuth": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.signInWithOAuth",
+        "fullMemberPath": "supabase.signInWithOAuth",
+        "methodChain": [
+          "signInWithOAuth"
+        ],
+        "isChainedCall": true
+      },
+      "handleOAuthSignup": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleOAuthSignup",
+        "localName": "handleOAuthSignup"
+      },
+      "setName": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setName"
+      },
+      "setEmail": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setEmail"
+      },
+      "setPassword": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPassword"
+      },
+      "setConfirmPassword": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setConfirmPassword"
+      }
+    },
+    "destructuredFunctions": {
+      "name": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "name"
+      },
+      "setName": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setName"
+      },
+      "email": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "email"
+      },
+      "setEmail": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setEmail"
+      },
+      "password": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "password"
+      },
+      "setPassword": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setPassword"
+      },
+      "confirmPassword": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "confirmPassword"
+      },
+      "setConfirmPassword": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setConfirmPassword"
+      },
+      "loading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loading"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      }
+    }
+  }
+}

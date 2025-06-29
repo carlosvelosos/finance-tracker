@@ -1,0 +1,161 @@
+{
+  "metadata": {
+    "originalFilePath": "sjprio/chart/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_11-11-02",
+    "scanDate": "2025-06-29T09:11:02.383Z"
+  },
+  "analysis": {
+    "defined": [
+      "CategoryChartPage",
+      "fetchTransactions"
+    ],
+    "called": [
+      "console.error",
+      "fetchTransactions",
+      "setTransactions",
+      "supabase.from.select.eq.eq",
+      "transactions.filter",
+      "useAuth",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "fetchTransactions"
+    ],
+    "imports": {
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "supabase": {
+        "source": "../../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "useAuth": {
+        "source": "../../../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "CustomBarChart": {
+        "source": "@/components/ui/custombarchart",
+        "type": "alias",
+        "importedName": "CustomBarChart",
+        "localName": "CustomBarChart"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      }
+    },
+    "calledWithImports": {
+      "useAuth": {
+        "source": "../../../context/AuthContext",
+        "type": "relative",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "supabase.from.select.eq.eq": {
+        "source": "../../../lib/supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.eq.eq",
+        "fullMemberPath": "supabase.from.select.eq.eq",
+        "methodChain": [
+          "from",
+          "select",
+          "eq",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTransactions"
+      },
+      "fetchTransactions": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchTransactions",
+        "localName": "fetchTransactions"
+      },
+      "transactions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.filter",
+        "fullMemberPath": "transactions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "transactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "transactions"
+      },
+      "setTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTransactions"
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/protected-route";
 import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
 import BankTablePageHeader from "@/components/ui/bank-table-page-header";
 import BankTablePageBody from "@/components/ui/bank-table-page-body";
+import DataSourceInfo from "@/components/ui/data-source-info";
 
 export default function Home() {
   const { transactions, loading, error, user } = useHandelsbankenTransactions();
@@ -18,6 +19,21 @@ export default function Home() {
   // Return early if not ready
   const earlyReturn = renderContent();
   if (earlyReturn) return earlyReturn;
+
+  // Create bankInfo for DataSourceInfo component
+  const bankInfo = {
+    uniqueBanks: ["Handelsbanken"],
+    transactionCountsByBank: { Handelsbanken: transactions.length },
+    newestDatesByBank: {
+      Handelsbanken:
+        transactions.length > 0
+          ? transactions.reduce(
+              (latest, t) => (t.Date && t.Date > latest ? t.Date : latest),
+              transactions[0]?.Date || "",
+            )
+          : "",
+    },
+  };
 
   // Define the sections for the table
   const tableSections = [
@@ -41,6 +57,17 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <BankTablePageHeader
           title="Handelsbanken Transactions"
+          showInfoButton={true}
+          infoButtonUrl="./info"
+          infoButtonText="Page Info & Component Guide"
+          dataSourceComponent={
+            <DataSourceInfo
+              transactions={transactions}
+              bankInfo={bankInfo}
+              tableName="Sweden_transactions_agregated_2025"
+              tableDescription="Aggregated transactions for Handelsbanken accounts in 2025"
+            />
+          }
           updateButtonComponent={<UpdateAggregatedButton />}
           downloadUrl="https://www.handelsbanken.se/en/login"
           downloadButtonText="Download Invoice"

@@ -28,6 +28,8 @@ interface FunctionData {
   defined: string[];
   called: string[];
   both: string[];
+  imports?: Record<string, any>;
+  calledWithImports?: Record<string, any>;
 }
 
 interface ReportData {
@@ -42,7 +44,7 @@ interface SortState {
 }
 
 interface ColumnFilter {
-  [fileName: string]: Set<string>; // Set of visible values for each column
+  [fileName: string]: Set<string>; // Set of visible values for each column (including "type" column)
 }
 
 export default function FunctionAnalysisPage() {
@@ -174,11 +176,15 @@ export default function FunctionAnalysisPage() {
     if (reportData) {
       const newColumnFilters: ColumnFilter = {};
 
+      // Initialize filters for file columns
       Object.keys(reportData).forEach((fileName) => {
         const uniqueValues = getUniqueValuesInFile(fileName);
-        // Initialize with all values visible (Set contains all unique values)
         newColumnFilters[fileName] = new Set(uniqueValues);
       });
+
+      // Initialize filter for Type column
+      const uniqueTypes = getUniqueTypes();
+      newColumnFilters["type"] = new Set(uniqueTypes);
 
       setColumnFilters(newColumnFilters);
     }
@@ -210,12 +216,62 @@ export default function FunctionAnalysisPage() {
     fileName: string,
     selectAll: boolean,
   ) => {
-    const uniqueValues = getUniqueValuesInFile(fileName);
+    if (fileName === "type") {
+      const uniqueTypes = getUniqueTypes();
+      setColumnFilters((prev) => ({
+        ...prev,
+        [fileName]: selectAll ? new Set(uniqueTypes) : new Set(),
+      }));
+    } else {
+      const uniqueValues = getUniqueValuesInFile(fileName);
+      setColumnFilters((prev) => ({
+        ...prev,
+        [fileName]: selectAll ? new Set(uniqueValues) : new Set(),
+      }));
+    }
+  };
 
-    setColumnFilters((prev) => ({
-      ...prev,
-      [fileName]: selectAll ? new Set(uniqueValues) : new Set(),
-    }));
+  // Get function type based on import information
+  const getFunctionType = (functionName: string): string => {
+    if (!reportData) return "unknown";
+
+    // Check across all files to find the most specific type for this function
+    let mostSpecificType = "unknown";
+
+    Object.values(reportData).forEach((fileData) => {
+      // Check if it's defined locally in any file
+      if (fileData.defined && fileData.defined.includes(functionName)) {
+        mostSpecificType = "local";
+      }
+
+      // Check imports for more specific type information
+      if (
+        fileData.calledWithImports &&
+        fileData.calledWithImports[functionName]
+      ) {
+        const importInfo = fileData.calledWithImports[functionName];
+        if (importInfo.type && importInfo.type !== "unknown") {
+          mostSpecificType = importInfo.type;
+        }
+      }
+    });
+
+    return mostSpecificType;
+  };
+
+  // Get unique types for the Type column
+  const getUniqueTypes = (): string[] => {
+    if (!reportData) return [];
+
+    const types = new Set<string>();
+    const allFunctions = getAllFunctions();
+
+    allFunctions.forEach((functionName) => {
+      const type = getFunctionType(functionName);
+      types.add(type);
+    });
+
+    return Array.from(types).sort();
   };
 
   // Get filtered and sorted functions
@@ -227,8 +283,9 @@ export default function FunctionAnalysisPage() {
     if (Object.keys(columnFilters).length > 0) {
       filtered = filtered.filter((functionName) => {
         const filteredFileNames = getFilteredFileNames();
-        // A function should only be shown if it passes ALL column filters
-        return filteredFileNames.every((fileName) => {
+
+        // Check file columns
+        const passesFileFilters = filteredFileNames.every((fileName) => {
           const cellContent = getCellContent(functionName, fileName);
           const columnFilter = columnFilters[fileName];
 
@@ -247,6 +304,17 @@ export default function FunctionAnalysisPage() {
           // Check if this specific cell content is visible based on the filter
           return columnFilter.has(cellContent);
         });
+
+        // Check Type column filter
+        const typeFilter = columnFilters["type"];
+        const functionType = getFunctionType(functionName);
+        const passesTypeFilter =
+          !typeFilter ||
+          typeFilter.size === 0 ||
+          typeFilter.size === getUniqueTypes().length ||
+          typeFilter.has(functionType);
+
+        return passesFileFilters && passesTypeFilter;
       });
     }
 
@@ -425,6 +493,71 @@ export default function FunctionAnalysisPage() {
                     file
                   </span>
                 </div>
+              </div>
+
+              {/* Type Column Legend */}
+              <div className="mt-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                  Function Types (Import Sources):
+                </h4>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-100 text-green-800 border-green-300 text-xs"
+                    >
+                      npm
+                    </Badge>
+                    <span className="text-sm">External npm package import</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-100 text-blue-800 border-blue-300 text-xs"
+                    >
+                      local
+                    </Badge>
+                    <span className="text-sm">
+                      Function defined locally in project
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-purple-100 text-purple-800 border-purple-300 text-xs"
+                    >
+                      alias
+                    </Badge>
+                    <span className="text-sm">
+                      Import using path alias (e.g., @/)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs"
+                    >
+                      relative
+                    </Badge>
+                    <span className="text-sm">
+                      Relative path import (e.g., ../)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-100 text-gray-600 border-gray-300 text-xs"
+                    >
+                      unknown
+                    </Badge>
+                    <span className="text-sm">
+                      Import source could not be determined
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4 mt-4">
                 <div className="flex items-center gap-2">
                   <span className="text-gray-600 text-sm">
                     💡 <strong>Tip:</strong> Click column headers to sort
@@ -480,6 +613,9 @@ export default function FunctionAnalysisPage() {
                               getUniqueValuesInFile(fileName);
                             resetFilters[fileName] = new Set(uniqueValues);
                           });
+                          // Reset Type column filter
+                          const uniqueTypes = getUniqueTypes();
+                          resetFilters["type"] = new Set(uniqueTypes);
                           setColumnFilters(resetFilters);
                         }
                       }}
@@ -529,6 +665,153 @@ export default function FunctionAnalysisPage() {
                           <span className="text-xs">
                             {getSortIndicator("function")}
                           </span>
+                        </div>
+                      </th>
+
+                      {/* Type Column */}
+                      <th
+                        className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleSort("type")}
+                        title="Click to sort by function type"
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full">
+                            <div className="flex-1">
+                              <div className="text-sm truncate">
+                                Type
+                                {(() => {
+                                  const uniqueTypes = getUniqueTypes();
+                                  const selectedCount =
+                                    columnFilters["type"]?.size ||
+                                    uniqueTypes.length;
+                                  const hasActiveFilter =
+                                    selectedCount < uniqueTypes.length;
+                                  return hasActiveFilter ? (
+                                    <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                      {selectedCount}/{uniqueTypes.length}
+                                    </span>
+                                  ) : null;
+                                })()}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                Import Source
+                              </div>
+                            </div>
+                            <div className="text-xs ml-1">
+                              {getSortIndicator("type")}
+                            </div>
+                          </div>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`h-6 w-6 p-0 transition-colors ${(() => {
+                                  const uniqueTypes = getUniqueTypes();
+                                  const selectedCount =
+                                    columnFilters["type"]?.size ||
+                                    uniqueTypes.length;
+                                  const hasActiveFilter =
+                                    selectedCount < uniqueTypes.length;
+                                  return hasActiveFilter
+                                    ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                                    : "text-gray-400 hover:text-gray-600";
+                                })()}`}
+                                title="Filter by type"
+                              >
+                                <Filter className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-48 max-h-96 overflow-y-auto">
+                              <div className="p-2 border-b">
+                                <div className="text-sm font-medium mb-2">
+                                  Filter by Type
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleColumnFilterSelectAll("type", true)
+                                    }
+                                    className="text-xs h-7"
+                                  >
+                                    Select All
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleColumnFilterSelectAll("type", false)
+                                    }
+                                    className="text-xs h-7"
+                                  >
+                                    Select None
+                                  </Button>
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {(() => {
+                                    const uniqueTypes = getUniqueTypes();
+                                    const selectedCount =
+                                      columnFilters["type"]?.size ||
+                                      uniqueTypes.length;
+                                    return `${selectedCount} of ${uniqueTypes.length} selected`;
+                                  })()}
+                                </div>
+                              </div>
+
+                              {getUniqueTypes().map((typeValue) => {
+                                const isChecked =
+                                  columnFilters["type"]?.has(typeValue) ?? true;
+                                const typeCount = getAllFunctions().filter(
+                                  (fn) => getFunctionType(fn) === typeValue,
+                                ).length;
+
+                                return (
+                                  <DropdownMenuCheckboxItem
+                                    key={typeValue}
+                                    checked={isChecked}
+                                    onCheckedChange={(checked) =>
+                                      handleColumnFilterChange(
+                                        "type",
+                                        typeValue,
+                                        checked,
+                                      )
+                                    }
+                                    className="text-sm"
+                                  >
+                                    <div className="flex items-center justify-between w-full">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium capitalize">
+                                          {typeValue}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                          ({typeCount})
+                                        </span>
+                                      </div>
+                                      <Badge
+                                        variant="outline"
+                                        className={`ml-2 text-xs h-5 ${
+                                          typeValue === "npm"
+                                            ? "bg-green-100 text-green-800"
+                                            : typeValue === "local"
+                                              ? "bg-blue-100 text-blue-800"
+                                              : typeValue === "alias"
+                                                ? "bg-purple-100 text-purple-800"
+                                                : typeValue === "relative"
+                                                  ? "bg-yellow-100 text-yellow-800"
+                                                  : "bg-gray-100 text-gray-600"
+                                        }`}
+                                      >
+                                        {typeValue}
+                                      </Badge>
+                                    </div>
+                                  </DropdownMenuCheckboxItem>
+                                );
+                              })}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </th>
                       {filteredFileNames.map(
@@ -703,6 +986,32 @@ export default function FunctionAnalysisPage() {
                             <code className="text-sm text-gray-800">
                               {functionName}
                             </code>
+                          </td>
+
+                          {/* Type Column Data */}
+                          <td className="border-r border-b border-gray-200 px-3 py-3 text-center text-sm">
+                            {(() => {
+                              const functionType =
+                                getFunctionType(functionName);
+                              return (
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${
+                                    functionType === "npm"
+                                      ? "bg-green-100 text-green-800 border-green-300"
+                                      : functionType === "local"
+                                        ? "bg-blue-100 text-blue-800 border-blue-300"
+                                        : functionType === "alias"
+                                          ? "bg-purple-100 text-purple-800 border-purple-300"
+                                          : functionType === "relative"
+                                            ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                            : "bg-gray-100 text-gray-600 border-gray-300"
+                                  }`}
+                                >
+                                  {functionType}
+                                </Badge>
+                              );
+                            })()}
                           </td>
                           {filteredFileNames.map((fileName: string) => {
                             const content = getCellContent(

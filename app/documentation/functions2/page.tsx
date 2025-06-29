@@ -27,7 +27,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Folder, Calendar, Hash, Eye, Download } from "lucide-react";
+import {
+  FileText,
+  Folder,
+  Calendar,
+  Hash,
+  Eye,
+  Download,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import FunctionAnalysisTable from "@/components/ui/function-analysis-table";
 import {
   FunctionData,
@@ -48,6 +57,9 @@ export default function FunctionReportsPage() {
   const [loadingTable, setLoadingTable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Fetch available directories on component mount
   useEffect(() => {
@@ -134,6 +146,80 @@ export default function FunctionReportsPage() {
       .replace(/tsx$/, ".tsx")
       .replace(/ts$/, ".ts")
       .replace(/js$/, ".js");
+  };
+
+  // Group files by their first directory level
+  const groupFilesByPath = (files: string[]) => {
+    const groups: Record<string, string[]> = {};
+
+    files.forEach((fileName) => {
+      const readableName = formatJsonFileName(fileName);
+      const pathParts = readableName.split("/");
+
+      let groupName = "";
+      if (pathParts.length === 1) {
+        // Root level files
+        groupName = "Root";
+      } else {
+        // Files in subdirectories - use only the first directory level
+        groupName = pathParts[0];
+      }
+
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(fileName);
+    });
+
+    return groups;
+  };
+
+  const toggleGroup = (groupName: string) => {
+    setCollapsedGroups((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupName)) {
+        newSet.delete(groupName);
+      } else {
+        newSet.add(groupName);
+      }
+      return newSet;
+    });
+  };
+
+  const isGroupCollapsed = (groupName: string) =>
+    collapsedGroups.has(groupName);
+
+  const getGroupFileCount = (
+    groupName: string,
+    groupedFiles: Record<string, string[]>,
+  ) => {
+    const files = groupedFiles[groupName] || [];
+    const selectedCount = files.filter((fileName) =>
+      selectedJsonFiles.includes(fileName),
+    ).length;
+    return { total: files.length, selected: selectedCount };
+  };
+
+  const toggleGroupSelection = (
+    groupName: string,
+    groupedFiles: Record<string, string[]>,
+  ) => {
+    const groupFiles = groupedFiles[groupName] || [];
+    const allSelected = groupFiles.every((fileName) =>
+      selectedJsonFiles.includes(fileName),
+    );
+
+    setSelectedJsonFiles((prev) => {
+      if (allSelected) {
+        // Deselect all files in group
+        return prev.filter((fileName) => !groupFiles.includes(fileName));
+      } else {
+        // Select all files in group
+        const newSelected = new Set(prev);
+        groupFiles.forEach((fileName) => newSelected.add(fileName));
+        return Array.from(newSelected);
+      }
+    });
   };
 
   const handleFileSelection = (fileName: string, checked: boolean) => {
@@ -438,33 +524,121 @@ export default function FunctionReportsPage() {
               </div>
 
               {directoryData.jsonFiles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {directoryData.jsonFiles.map((fileName) => (
-                    <div
-                      key={fileName}
-                      className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                    >
-                      <Checkbox
-                        id={fileName}
-                        checked={selectedJsonFiles.includes(fileName)}
-                        onCheckedChange={(checked) =>
-                          handleFileSelection(fileName, checked as boolean)
-                        }
-                      />
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <div className="flex-1 min-w-0">
-                        <label
-                          htmlFor={fileName}
-                          className="text-sm font-medium truncate block cursor-pointer"
-                        >
-                          {formatJsonFileName(fileName)}
-                        </label>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {fileName}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  {(() => {
+                    const groupedFiles = groupFilesByPath(
+                      directoryData.jsonFiles,
+                    );
+                    const groupNames = Object.keys(groupedFiles).sort();
+
+                    return groupNames.map((groupName) => {
+                      const groupFiles = groupedFiles[groupName];
+                      const isCollapsed = isGroupCollapsed(groupName);
+                      const { total, selected } = getGroupFileCount(
+                        groupName,
+                        groupedFiles,
+                      );
+                      const allSelected = selected === total && total > 0;
+                      const someSelected = selected > 0 && selected < total;
+
+                      return (
+                        <div key={groupName} className="border rounded-lg">
+                          {/* Group Header */}
+                          <div className="flex items-center space-x-2 p-3 border-b bg-muted/30">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => toggleGroup(groupName)}
+                            >
+                              {isCollapsed ? (
+                                <ChevronRight className="h-4 w-4" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4" />
+                              )}
+                            </Button>
+
+                            <Checkbox
+                              id={`group-${groupName}`}
+                              checked={allSelected}
+                              className={
+                                someSelected
+                                  ? "data-[state=checked]:bg-orange-500"
+                                  : ""
+                              }
+                              onCheckedChange={() =>
+                                toggleGroupSelection(groupName, groupedFiles)
+                              }
+                            />
+
+                            <div className="flex-1 flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <Folder className="h-4 w-4 text-muted-foreground" />
+                                <label
+                                  htmlFor={`group-${groupName}`}
+                                  className="text-sm font-medium cursor-pointer"
+                                >
+                                  {groupName === "Root"
+                                    ? "Root Level"
+                                    : groupName}
+                                </label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {selected}/{total}
+                                </Badge>
+                                <Badge variant="secondary" className="text-xs">
+                                  {total} files
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Group Content */}
+                          {!isCollapsed && (
+                            <div className="p-2">
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {groupFiles.map((fileName) => (
+                                  <div
+                                    key={fileName}
+                                    className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
+                                  >
+                                    <Checkbox
+                                      id={fileName}
+                                      checked={selectedJsonFiles.includes(
+                                        fileName,
+                                      )}
+                                      onCheckedChange={(checked) =>
+                                        handleFileSelection(
+                                          fileName,
+                                          checked as boolean,
+                                        )
+                                      }
+                                    />
+                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                                    <div className="flex-1 min-w-0">
+                                      <label
+                                        htmlFor={fileName}
+                                        className="text-sm font-medium truncate block cursor-pointer"
+                                      >
+                                        {formatJsonFileName(fileName)
+                                          .split("/")
+                                          .pop()}
+                                      </label>
+                                      <p className="text-xs text-muted-foreground truncate">
+                                        {fileName}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               ) : (
                 <p className="text-muted-foreground">

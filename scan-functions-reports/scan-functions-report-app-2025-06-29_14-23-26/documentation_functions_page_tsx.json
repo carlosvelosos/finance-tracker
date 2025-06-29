@@ -1,0 +1,1361 @@
+{
+  "metadata": {
+    "originalFilePath": "documentation/functions/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-23-26",
+    "scanDate": "2025-06-29T12:23:26.790Z"
+  },
+  "analysis": {
+    "defined": [
+      "FunctionAnalysisPage",
+      "getAllFileNames",
+      "getCellContent",
+      "getCellStyle",
+      "getCellValueCounts",
+      "getFilteredFileNames",
+      "getFunctionSource",
+      "getFunctionType",
+      "getSortIndicator",
+      "getSourceWeight",
+      "getTypeWeight",
+      "getUniqueSources",
+      "getUniqueTypes",
+      "getUniqueValuesInFile",
+      "getVisibleColumnCount",
+      "getWeight",
+      "handleColumnFilterChange",
+      "handleColumnFilterSelectAll",
+      "handleColumnVisibilityChange",
+      "handleColumnVisibilitySelectAll",
+      "handleReportSelection",
+      "handleSort",
+      "loadAvailableReports",
+      "loadReportData"
+    ],
+    "called": [
+      "Array.from",
+      "Array.from.sort",
+      "Math.min",
+      "Object.entries.some",
+      "Object.keys",
+      "Object.keys.filter.sort",
+      "Object.keys.find",
+      "Object.keys.forEach",
+      "Object.keys.sort",
+      "Object.values.filter",
+      "Object.values.forEach",
+      "Object.values.reduce",
+      "Object.values.some",
+      "a.localeCompare",
+      "aSource.localeCompare",
+      "allFileNames.forEach",
+      "allFunctions.add",
+      "allFunctions.forEach",
+      "availableReports.map",
+      "columnFilter.has",
+      "console.error",
+      "currentSet.add",
+      "currentSet.delete",
+      "fetch",
+      "fileData.forEach",
+      "fileData.includes",
+      "fileName.replace",
+      "fileName.split.pop",
+      "filtered.filter",
+      "filtered.slice",
+      "filtered.sort",
+      "filteredFileNames.every",
+      "filteredFileNames.map",
+      "filteredFunctions.map",
+      "func.toLowerCase.includes",
+      "functions.filter",
+      "functions.sort",
+      "getAllFileNames",
+      "getAllFunctions.filter",
+      "getCellContent",
+      "getCellStyle",
+      "getCellValueCounts",
+      "getFilteredFileNames",
+      "getFunctionSource",
+      "getFunctionType",
+      "getSortIndicator",
+      "getSourceWeight",
+      "getTypeWeight",
+      "getUniqueSources",
+      "getUniqueTypes",
+      "getUniqueValuesInFile",
+      "getVisibleColumnCount",
+      "getWeight",
+      "handleColumnFilterChange",
+      "handleColumnFilterSelectAll",
+      "handleColumnVisibilityChange",
+      "handleColumnVisibilitySelectAll",
+      "handleSort",
+      "loadAvailableReports",
+      "loadReportData",
+      "map",
+      "maxRowsToShow.toString",
+      "parseInt",
+      "response.json",
+      "searchFilter.toLowerCase",
+      "searchFilter.trim",
+      "setAvailableReports",
+      "setColumnFilters",
+      "setColumnVisibility",
+      "setError",
+      "setFunctionCount",
+      "setIsDataLoaded",
+      "setLoading",
+      "setMaxRowsToShow",
+      "setReportData",
+      "setSearchFilter",
+      "setShowTable",
+      "setSortState",
+      "sourceFilter.has",
+      "sources.add",
+      "totalFunctions.add",
+      "typeFilter.has",
+      "types.add",
+      "uniqueValues.add",
+      "uniqueValues.map",
+      "useEffect",
+      "useMemo",
+      "useState"
+    ],
+    "both": [
+      "getAllFileNames",
+      "getCellContent",
+      "getCellStyle",
+      "getCellValueCounts",
+      "getFilteredFileNames",
+      "getFunctionSource",
+      "getFunctionType",
+      "getSortIndicator",
+      "getSourceWeight",
+      "getTypeWeight",
+      "getUniqueSources",
+      "getUniqueTypes",
+      "getUniqueValuesInFile",
+      "getVisibleColumnCount",
+      "getWeight",
+      "handleColumnFilterChange",
+      "handleColumnFilterSelectAll",
+      "handleColumnVisibilityChange",
+      "handleColumnVisibilitySelectAll",
+      "handleSort",
+      "loadAvailableReports",
+      "loadReportData"
+    ],
+    "exportDefault": [
+      "FunctionAnalysisPage"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "Select": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "Select",
+        "localName": "Select"
+      },
+      "SelectContent": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectContent",
+        "localName": "SelectContent"
+      },
+      "SelectItem": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectItem",
+        "localName": "SelectItem"
+      },
+      "SelectTrigger": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectTrigger",
+        "localName": "SelectTrigger"
+      },
+      "SelectValue": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectValue",
+        "localName": "SelectValue"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Badge": {
+        "source": "@/components/ui/badge",
+        "type": "alias",
+        "importedName": "Badge",
+        "localName": "Badge"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "DropdownMenu": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenu",
+        "localName": "DropdownMenu"
+      },
+      "DropdownMenuContent": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenuContent",
+        "localName": "DropdownMenuContent"
+      },
+      "DropdownMenuTrigger": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenuTrigger",
+        "localName": "DropdownMenuTrigger"
+      },
+      "DropdownMenuCheckboxItem": {
+        "source": "@/components/ui/dropdown-menu",
+        "type": "alias",
+        "importedName": "DropdownMenuCheckboxItem",
+        "localName": "DropdownMenuCheckboxItem"
+      },
+      "Checkbox": {
+        "source": "@/components/ui/checkbox",
+        "type": "alias",
+        "importedName": "Checkbox",
+        "localName": "Checkbox"
+      },
+      "Filter": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Filter",
+        "localName": "Filter"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "loadAvailableReports": {
+        "source": "local",
+        "type": "local",
+        "importedName": "loadAvailableReports",
+        "localName": "loadAvailableReports"
+      },
+      "fetch": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "fetch",
+        "localName": "fetch"
+      },
+      "response.json": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "response",
+        "functionName": "response.json",
+        "fullMemberPath": "response.json",
+        "methodChain": [
+          "json"
+        ],
+        "isChainedCall": true
+      },
+      "setAvailableReports": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAvailableReports"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "setIsDataLoaded": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsDataLoaded"
+      },
+      "setShowTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowTable"
+      },
+      "setReportData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setReportData"
+      },
+      "Object.values.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.values.forEach",
+        "fullMemberPath": "Object.values.forEach",
+        "methodChain": [
+          "values",
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "fileData.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileData",
+        "functionName": "fileData.forEach",
+        "fullMemberPath": "fileData.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "totalFunctions.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "totalFunctions",
+        "functionName": "totalFunctions.add",
+        "fullMemberPath": "totalFunctions.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "setFunctionCount": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setFunctionCount"
+      },
+      "loadReportData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "loadReportData",
+        "localName": "loadReportData"
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "allFunctions.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allFunctions",
+        "functionName": "allFunctions.add",
+        "fullMemberPath": "allFunctions.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "Array.from": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Array",
+        "functionName": "Array.from",
+        "fullMemberPath": "Array.from",
+        "methodChain": [
+          "from"
+        ],
+        "isChainedCall": true
+      },
+      "searchFilter.trim": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "searchFilter",
+        "functionName": "searchFilter.trim",
+        "fullMemberPath": "searchFilter.trim",
+        "methodChain": [
+          "trim"
+        ],
+        "isChainedCall": true
+      },
+      "searchFilter.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "searchFilter",
+        "functionName": "searchFilter.toLowerCase",
+        "fullMemberPath": "searchFilter.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "functions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "functions",
+        "functionName": "functions.filter",
+        "fullMemberPath": "functions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "func.toLowerCase.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "func",
+        "functionName": "func.toLowerCase.includes",
+        "fullMemberPath": "func.toLowerCase.includes",
+        "methodChain": [
+          "toLowerCase",
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "functions.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "functions",
+        "functionName": "functions.sort",
+        "fullMemberPath": "functions.sort",
+        "methodChain": [
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys.filter.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys.filter.sort",
+        "fullMemberPath": "Object.keys.filter.sort",
+        "methodChain": [
+          "keys",
+          "filter",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys.sort",
+        "fullMemberPath": "Object.keys.sort",
+        "methodChain": [
+          "keys",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "allFunctions.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allFunctions",
+        "functionName": "allFunctions.forEach",
+        "fullMemberPath": "allFunctions.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "getCellContent": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getCellContent",
+        "localName": "getCellContent"
+      },
+      "uniqueValues.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "uniqueValues",
+        "functionName": "uniqueValues.add",
+        "fullMemberPath": "uniqueValues.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "Array.from.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Array",
+        "functionName": "Array.from.sort",
+        "fullMemberPath": "Array.from.sort",
+        "methodChain": [
+          "from",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "a.localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "a",
+        "functionName": "a.localeCompare",
+        "fullMemberPath": "a.localeCompare",
+        "methodChain": [
+          "localeCompare"
+        ],
+        "isChainedCall": true
+      },
+      "fileData.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileData",
+        "functionName": "fileData.includes",
+        "fullMemberPath": "fileData.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys.forEach",
+        "fullMemberPath": "Object.keys.forEach",
+        "methodChain": [
+          "keys",
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "getUniqueValuesInFile": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getUniqueValuesInFile",
+        "localName": "getUniqueValuesInFile"
+      },
+      "getUniqueTypes": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getUniqueTypes",
+        "localName": "getUniqueTypes"
+      },
+      "getUniqueSources": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getUniqueSources",
+        "localName": "getUniqueSources"
+      },
+      "setColumnFilters": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setColumnFilters"
+      },
+      "setColumnVisibility": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setColumnVisibility"
+      },
+      "currentSet.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentSet",
+        "functionName": "currentSet.add",
+        "fullMemberPath": "currentSet.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "currentSet.delete": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentSet",
+        "functionName": "currentSet.delete",
+        "fullMemberPath": "currentSet.delete",
+        "methodChain": [
+          "delete"
+        ],
+        "isChainedCall": true
+      },
+      "getAllFileNames": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getAllFileNames",
+        "localName": "getAllFileNames"
+      },
+      "allFileNames.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allFileNames",
+        "functionName": "allFileNames.forEach",
+        "fullMemberPath": "allFileNames.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "Object.values.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.values.filter",
+        "fullMemberPath": "Object.values.filter",
+        "methodChain": [
+          "values",
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "getFunctionType": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getFunctionType",
+        "localName": "getFunctionType"
+      },
+      "types.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "types",
+        "functionName": "types.add",
+        "fullMemberPath": "types.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "getFunctionSource": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getFunctionSource",
+        "localName": "getFunctionSource"
+      },
+      "sources.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sources",
+        "functionName": "sources.add",
+        "fullMemberPath": "sources.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys",
+        "fullMemberPath": "Object.keys",
+        "methodChain": [
+          "keys"
+        ],
+        "isChainedCall": true
+      },
+      "filtered.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filtered",
+        "functionName": "filtered.filter",
+        "fullMemberPath": "filtered.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "getFilteredFileNames": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getFilteredFileNames",
+        "localName": "getFilteredFileNames"
+      },
+      "filteredFileNames.every": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredFileNames",
+        "functionName": "filteredFileNames.every",
+        "fullMemberPath": "filteredFileNames.every",
+        "methodChain": [
+          "every"
+        ],
+        "isChainedCall": true
+      },
+      "columnFilter.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "columnFilter",
+        "functionName": "columnFilter.has",
+        "fullMemberPath": "columnFilter.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "typeFilter.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "typeFilter",
+        "functionName": "typeFilter.has",
+        "fullMemberPath": "typeFilter.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "sourceFilter.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sourceFilter",
+        "functionName": "sourceFilter.has",
+        "fullMemberPath": "sourceFilter.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "filtered.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filtered",
+        "functionName": "filtered.sort",
+        "fullMemberPath": "filtered.sort",
+        "methodChain": [
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "getTypeWeight": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getTypeWeight",
+        "localName": "getTypeWeight"
+      },
+      "getSourceWeight": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getSourceWeight",
+        "localName": "getSourceWeight"
+      },
+      "aSource.localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "aSource",
+        "functionName": "aSource.localeCompare",
+        "fullMemberPath": "aSource.localeCompare",
+        "methodChain": [
+          "localeCompare"
+        ],
+        "isChainedCall": true
+      },
+      "getWeight": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getWeight",
+        "localName": "getWeight"
+      },
+      "filtered.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filtered",
+        "functionName": "filtered.slice",
+        "fullMemberPath": "filtered.slice",
+        "methodChain": [
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "setSortState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSortState"
+      },
+      "availableReports.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "availableReports",
+        "functionName": "availableReports.map",
+        "fullMemberPath": "availableReports.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "Math.min": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.min",
+        "fullMemberPath": "Math.min",
+        "methodChain": [
+          "min"
+        ],
+        "isChainedCall": true
+      },
+      "setSearchFilter": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSearchFilter"
+      },
+      "maxRowsToShow.toString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "maxRowsToShow",
+        "functionName": "maxRowsToShow.toString",
+        "fullMemberPath": "maxRowsToShow.toString",
+        "methodChain": [
+          "toString"
+        ],
+        "isChainedCall": true
+      },
+      "setMaxRowsToShow": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMaxRowsToShow"
+      },
+      "parseInt": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseInt",
+        "localName": "parseInt"
+      },
+      "getVisibleColumnCount": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getVisibleColumnCount",
+        "localName": "getVisibleColumnCount"
+      },
+      "handleColumnVisibilitySelectAll": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleColumnVisibilitySelectAll",
+        "localName": "handleColumnVisibilitySelectAll"
+      },
+      "map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "map",
+        "fullMemberPath": "map"
+      },
+      "handleColumnVisibilityChange": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleColumnVisibilityChange",
+        "localName": "handleColumnVisibilityChange"
+      },
+      "fileName.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileName",
+        "functionName": "fileName.replace",
+        "fullMemberPath": "fileName.replace",
+        "methodChain": [
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "fileName.split.pop": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileName",
+        "functionName": "fileName.split.pop",
+        "fullMemberPath": "fileName.split.pop",
+        "methodChain": [
+          "split",
+          "pop"
+        ],
+        "isChainedCall": true
+      },
+      "Object.values.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.values.some",
+        "fullMemberPath": "Object.values.some",
+        "methodChain": [
+          "values",
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys.find": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys.find",
+        "fullMemberPath": "Object.keys.find",
+        "methodChain": [
+          "keys",
+          "find"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.some",
+        "fullMemberPath": "Object.entries.some",
+        "methodChain": [
+          "entries",
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "handleSort": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleSort",
+        "localName": "handleSort"
+      },
+      "getSortIndicator": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getSortIndicator",
+        "localName": "getSortIndicator"
+      },
+      "handleColumnFilterSelectAll": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleColumnFilterSelectAll",
+        "localName": "handleColumnFilterSelectAll"
+      },
+      "getAllFunctions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "getAllFunctions",
+        "functionName": "getAllFunctions.filter",
+        "fullMemberPath": "getAllFunctions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "handleColumnFilterChange": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleColumnFilterChange",
+        "localName": "handleColumnFilterChange"
+      },
+      "filteredFileNames.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredFileNames",
+        "functionName": "filteredFileNames.map",
+        "fullMemberPath": "filteredFileNames.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "uniqueValues.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "uniqueValues",
+        "functionName": "uniqueValues.map",
+        "fullMemberPath": "uniqueValues.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "getCellValueCounts": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getCellValueCounts",
+        "localName": "getCellValueCounts"
+      },
+      "filteredFunctions.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredFunctions",
+        "functionName": "filteredFunctions.map",
+        "fullMemberPath": "filteredFunctions.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "getCellStyle": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getCellStyle",
+        "localName": "getCellStyle"
+      },
+      "Object.values.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.values.reduce",
+        "fullMemberPath": "Object.values.reduce",
+        "methodChain": [
+          "values",
+          "reduce"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "availableReports": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "availableReports"
+      },
+      "setAvailableReports": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAvailableReports"
+      },
+      "reportData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "reportData"
+      },
+      "setReportData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setReportData"
+      },
+      "loading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loading"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "error": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "error"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "sortState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "sortState"
+      },
+      "setSortState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSortState"
+      },
+      "columnFilters": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "columnFilters"
+      },
+      "setColumnFilters": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setColumnFilters"
+      },
+      "columnVisibility": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "columnVisibility"
+      },
+      "setColumnVisibility": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setColumnVisibility"
+      },
+      "isDataLoaded": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isDataLoaded"
+      },
+      "setIsDataLoaded": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsDataLoaded"
+      },
+      "showTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showTable"
+      },
+      "setShowTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowTable"
+      },
+      "maxRowsToShow": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "maxRowsToShow"
+      },
+      "setMaxRowsToShow": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMaxRowsToShow"
+      },
+      "searchFilter": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "searchFilter"
+      },
+      "setSearchFilter": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSearchFilter"
+      },
+      "functionCount": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "functionCount"
+      },
+      "setFunctionCount": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setFunctionCount"
+      }
+    }
+  }
+}

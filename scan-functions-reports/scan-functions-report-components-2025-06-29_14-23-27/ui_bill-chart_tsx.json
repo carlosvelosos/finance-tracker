@@ -1,0 +1,218 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/bill-chart.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [
+      "BillChart",
+      "PastFutureActiveDot",
+      "PastFutureDot",
+      "renderTooltipContent"
+    ],
+    "called": [
+      "bills.filter.reduce",
+      "format",
+      "getMonth",
+      "month.substring",
+      "month.toLowerCase.substring",
+      "months.map",
+      "useMemo"
+    ],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "CartesianGrid": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "CartesianGrid",
+        "localName": "CartesianGrid"
+      },
+      "Line": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "Line",
+        "localName": "Line"
+      },
+      "LineChart": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "LineChart",
+        "localName": "LineChart"
+      },
+      "XAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "XAxis",
+        "localName": "XAxis"
+      },
+      "YAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "YAxis",
+        "localName": "YAxis"
+      },
+      "ResponsiveContainer": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "ResponsiveContainer",
+        "localName": "ResponsiveContainer"
+      },
+      "Dot": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "Dot",
+        "localName": "Dot"
+      },
+      "TooltipProps": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "TooltipProps",
+        "localName": "TooltipProps"
+      },
+      "NameType": {
+        "source": "recharts/types/component/DefaultTooltipContent",
+        "type": "npm",
+        "importedName": "NameType",
+        "localName": "NameType"
+      },
+      "ValueType": {
+        "source": "recharts/types/component/DefaultTooltipContent",
+        "type": "npm",
+        "importedName": "ValueType",
+        "localName": "ValueType"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardDescription": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardDescription",
+        "localName": "CardDescription"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "ChartConfig": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartConfig",
+        "localName": "ChartConfig"
+      },
+      "ChartContainer": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartContainer",
+        "localName": "ChartContainer"
+      },
+      "ChartTooltip": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartTooltip",
+        "localName": "ChartTooltip"
+      },
+      "Bill": {
+        "source": "@/app/types/bill",
+        "type": "alias",
+        "importedName": "Bill",
+        "localName": "Bill"
+      }
+    },
+    "calledWithImports": {
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "getMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getMonth",
+        "fullMemberPath": "getMonth"
+      },
+      "months.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "months",
+        "functionName": "months.map",
+        "fullMemberPath": "months.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "month.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "month",
+        "functionName": "month.substring",
+        "fullMemberPath": "month.substring",
+        "methodChain": [
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "month.toLowerCase.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "month",
+        "functionName": "month.toLowerCase.substring",
+        "fullMemberPath": "month.toLowerCase.substring",
+        "methodChain": [
+          "toLowerCase",
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "bills.filter.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "bills",
+        "functionName": "bills.filter.reduce",
+        "fullMemberPath": "bills.filter.reduce",
+        "methodChain": [
+          "filter",
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "format": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "format",
+        "fullMemberPath": "format"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

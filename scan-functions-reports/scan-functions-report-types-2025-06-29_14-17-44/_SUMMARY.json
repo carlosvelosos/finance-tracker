@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "scannedDirectory": "types",
+    "timestamp": "2025-06-29_14-17-44",
+    "scanDate": "2025-06-29T12:17:44.283Z",
+    "totalFiles": 2,
+    "successfulWrites": 2,
+    "errors": 0
+  },
+  "fileList": [
+    {
+      "originalPath": "transaction.tsx",
+      "jsonFile": "transaction_tsx.json"
+    },
+    {
+      "originalPath": "function-reports.ts",
+      "jsonFile": "function-reports_ts.json"
+    }
+  ],
+  "summary": {
+    "totalFunctionsDefined": 0,
+    "totalFunctionsCalled": 0,
+    "totalImports": 0,
+    "totalDestructuredFunctions": 0
+  }
+}

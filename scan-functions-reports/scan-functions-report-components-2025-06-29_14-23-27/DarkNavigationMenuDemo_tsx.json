@@ -1,0 +1,148 @@
+{
+  "metadata": {
+    "originalFilePath": "DarkNavigationMenuDemo.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [
+      "BrazilFlag",
+      "DarkNavigationMenuDemo",
+      "SwedenFlag"
+    ],
+    "called": [
+      "BRbankLinks.map",
+      "React.forwardRef",
+      "SEbankLinks.map",
+      "cn",
+      "navigationMenuTriggerStyle",
+      "transactionLinks.map"
+    ],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React"
+      },
+      "Link": {
+        "source": "next/link",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Link"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "NavigationMenu": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "NavigationMenu",
+        "localName": "NavigationMenu"
+      },
+      "NavigationMenuContent": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "NavigationMenuContent",
+        "localName": "NavigationMenuContent"
+      },
+      "NavigationMenuItem": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "NavigationMenuItem",
+        "localName": "NavigationMenuItem"
+      },
+      "NavigationMenuLink": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "NavigationMenuLink",
+        "localName": "NavigationMenuLink"
+      },
+      "NavigationMenuList": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "NavigationMenuList",
+        "localName": "NavigationMenuList"
+      },
+      "NavigationMenuTrigger": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "NavigationMenuTrigger",
+        "localName": "NavigationMenuTrigger"
+      },
+      "navigationMenuTriggerStyle": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "navigationMenuTriggerStyle",
+        "localName": "navigationMenuTriggerStyle"
+      }
+    },
+    "calledWithImports": {
+      "SEbankLinks.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "SEbankLinks",
+        "functionName": "SEbankLinks.map",
+        "fullMemberPath": "SEbankLinks.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "BRbankLinks.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "BRbankLinks",
+        "functionName": "BRbankLinks.map",
+        "fullMemberPath": "BRbankLinks.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "transactionLinks.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactionLinks",
+        "functionName": "transactionLinks.map",
+        "fullMemberPath": "transactionLinks.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "navigationMenuTriggerStyle": {
+        "source": "@/components/ui/modified-navigation-menu",
+        "type": "alias",
+        "importedName": "navigationMenuTriggerStyle",
+        "localName": "navigationMenuTriggerStyle"
+      },
+      "React.forwardRef": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.forwardRef",
+        "fullMemberPath": "React.forwardRef",
+        "methodChain": [
+          "forwardRef"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

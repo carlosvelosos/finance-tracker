@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "originalFilePath": "function-reports.ts",
+    "scannedDirectory": "types",
+    "timestamp": "2025-06-29_14-17-44",
+    "scanDate": "2025-06-29T12:17:44.283Z"
+  },
+  "analysis": {
+    "defined": [],
+    "called": [],
+    "both": [],
+    "exportDefault": [],
+    "imports": {},
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

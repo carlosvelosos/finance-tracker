@@ -1,0 +1,416 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/bank-line-chart.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [
+      "ActiveDot",
+      "RegularDot",
+      "TransactionLineChart",
+      "formatXAxis",
+      "handleMouseLeave",
+      "handleMouseMove",
+      "toggleLine"
+    ],
+    "called": [
+      "Array.from",
+      "Math.abs",
+      "Math.random",
+      "String",
+      "chartContainer.querySelector",
+      "console.log",
+      "date.toLocaleDateString",
+      "document.querySelector",
+      "filter.sort",
+      "firstDot.getAttribute",
+      "format",
+      "getTime",
+      "isNaN",
+      "parseFloat",
+      "prev.filter",
+      "prev.includes",
+      "setTooltipData",
+      "setVisibleLines",
+      "sortedTransactions.map",
+      "toggleLine",
+      "useMemo",
+      "useState",
+      "visibleLines.includes"
+    ],
+    "both": [
+      "toggleLine"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "CartesianGrid": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "CartesianGrid",
+        "localName": "CartesianGrid"
+      },
+      "Line": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "Line",
+        "localName": "Line"
+      },
+      "LineChart": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "LineChart",
+        "localName": "LineChart"
+      },
+      "XAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "XAxis",
+        "localName": "XAxis"
+      },
+      "YAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "YAxis",
+        "localName": "YAxis"
+      },
+      "ResponsiveContainer": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "ResponsiveContainer",
+        "localName": "ResponsiveContainer"
+      },
+      "Dot": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "Dot",
+        "localName": "Dot"
+      },
+      "ReferenceLine": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "ReferenceLine",
+        "localName": "ReferenceLine"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardDescription": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardDescription",
+        "localName": "CardDescription"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "ChartConfig": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartConfig",
+        "localName": "ChartConfig"
+      },
+      "ChartContainer": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartContainer",
+        "localName": "ChartContainer"
+      },
+      "ChartTooltip": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartTooltip",
+        "localName": "ChartTooltip"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "setVisibleLines": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setVisibleLines"
+      },
+      "prev.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "prev",
+        "functionName": "prev.includes",
+        "fullMemberPath": "prev.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "prev.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "prev",
+        "functionName": "prev.filter",
+        "fullMemberPath": "prev.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "Array.from": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Array",
+        "functionName": "Array.from",
+        "fullMemberPath": "Array.from",
+        "methodChain": [
+          "from"
+        ],
+        "isChainedCall": true
+      },
+      "Math.random": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.random",
+        "fullMemberPath": "Math.random",
+        "methodChain": [
+          "random"
+        ],
+        "isChainedCall": true
+      },
+      "date.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.toLocaleDateString",
+        "fullMemberPath": "date.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "Math.abs": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.abs",
+        "fullMemberPath": "Math.abs",
+        "methodChain": [
+          "abs"
+        ],
+        "isChainedCall": true
+      },
+      "filter.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "filter.sort",
+        "fullMemberPath": "filter.sort",
+        "methodChain": [
+          "filter",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getTime",
+        "fullMemberPath": "getTime"
+      },
+      "sortedTransactions.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sortedTransactions",
+        "functionName": "sortedTransactions.map",
+        "fullMemberPath": "sortedTransactions.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "isNaN": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "isNaN",
+        "localName": "isNaN"
+      },
+      "String": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "String",
+        "localName": "String"
+      },
+      "setTooltipData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTooltipData"
+      },
+      "document.querySelector": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "document",
+        "functionName": "document.querySelector",
+        "fullMemberPath": "document.querySelector",
+        "methodChain": [
+          "querySelector"
+        ],
+        "isChainedCall": true
+      },
+      "chartContainer.querySelector": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "chartContainer",
+        "functionName": "chartContainer.querySelector",
+        "fullMemberPath": "chartContainer.querySelector",
+        "methodChain": [
+          "querySelector"
+        ],
+        "isChainedCall": true
+      },
+      "firstDot.getAttribute": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "firstDot",
+        "functionName": "firstDot.getAttribute",
+        "fullMemberPath": "firstDot.getAttribute",
+        "methodChain": [
+          "getAttribute"
+        ],
+        "isChainedCall": true
+      },
+      "parseFloat": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseFloat",
+        "localName": "parseFloat"
+      },
+      "format": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "format",
+        "fullMemberPath": "format"
+      },
+      "visibleLines.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "visibleLines",
+        "functionName": "visibleLines.includes",
+        "fullMemberPath": "visibleLines.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "toggleLine": {
+        "source": "local",
+        "type": "local",
+        "importedName": "toggleLine",
+        "localName": "toggleLine"
+      }
+    },
+    "destructuredFunctions": {
+      "tooltipData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "tooltipData"
+      },
+      "setTooltipData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTooltipData"
+      },
+      "visibleLines": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "visibleLines"
+      },
+      "setVisibleLines": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setVisibleLines"
+      }
+    }
+  }
+}

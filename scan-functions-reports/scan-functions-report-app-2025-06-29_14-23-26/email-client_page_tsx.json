@@ -1,0 +1,3263 @@
+{
+  "metadata": {
+    "originalFilePath": "email-client/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-23-26",
+    "scanDate": "2025-06-29T12:23:26.790Z"
+  },
+  "analysis": {
+    "defined": [
+      "EmailClient",
+      "clearAuthData",
+      "clearCache",
+      "clearUploadedData",
+      "delay",
+      "downloadJsonFile",
+      "exportEmailsForDateRange",
+      "fetchEmails",
+      "formatDate",
+      "formatGmailDate",
+      "getDateRangeInfo",
+      "getEmailsToShow",
+      "getHeader",
+      "getOrganizationIcon",
+      "getUserInfo",
+      "handleFileUpload",
+      "handleSignIn",
+      "handleSignOut",
+      "loadAuthData",
+      "loadCachedEmails",
+      "safeSetLocalStorage",
+      "saveAuthData",
+      "saveCachedEmails",
+      "showFewerEmails",
+      "showMoreEmails",
+      "updateStorageInfo"
+    ],
+    "called": [
+      "Array.isArray",
+      "Date.now",
+      "JSON.parse",
+      "JSON.stringify",
+      "Math.ceil",
+      "Math.floor",
+      "Math.max",
+      "Math.min",
+      "Math.pow",
+      "Math.round",
+      "Math.sqrt",
+      "Object.entries.filter",
+      "Object.entries.forEach",
+      "Object.entries.map.sort.slice",
+      "Object.entries.sort",
+      "Object.entries.sort.slice.map",
+      "Object.keys",
+      "Object.keys.forEach",
+      "Object.values",
+      "Promise.all",
+      "URL.createObjectURL",
+      "URL.revokeObjectURL",
+      "ageInMinutes.toFixed",
+      "allEmailResults.filter",
+      "allEmailResults.map",
+      "allEmailResults.push",
+      "batch.map",
+      "batchResults.filter",
+      "cacheAge.toLocaleString",
+      "cacheTimestamp.getTime",
+      "cartaoRicoFaturaEmails.slice.map",
+      "checkExistingAuth",
+      "clearAuthData",
+      "clearCache",
+      "clearUploadedData",
+      "console.error",
+      "console.log",
+      "console.warn",
+      "currentWeekEnd.getDate",
+      "currentWeekEnd.setDate",
+      "currentWeekEnd.setTime",
+      "currentWeekEnd.toLocaleDateString",
+      "currentWeekStart.getDate",
+      "currentWeekStart.setDate",
+      "currentWeekStart.toLocaleDateString",
+      "d.getTime",
+      "dailyCounts.reduce",
+      "data.toLowerCase.includes",
+      "date.getDate.toString.padStart",
+      "date.getFullYear",
+      "date.getHours",
+      "date.getMonth",
+      "date.getTime",
+      "date.toISOString.split",
+      "date.toLocaleDateString",
+      "date.toLocaleString",
+      "dateA.getTime",
+      "dateB.getTime",
+      "delay",
+      "details.map",
+      "dinFakturaEmails.slice.map",
+      "document.appendChild",
+      "document.createElement",
+      "document.getElementById",
+      "document.removeChild",
+      "downloadJsonFile",
+      "email.payload.filter",
+      "email.payload.filter.slice",
+      "email.payload.slice",
+      "email.substring",
+      "email.toLowerCase",
+      "emailLower.includes",
+      "emails.filter",
+      "emails.forEach",
+      "emails.map",
+      "emails.map.filter",
+      "emails.reduce",
+      "emailsData.map",
+      "emailsData.slice.map",
+      "endDateObj.getTime",
+      "expandedEmails.has",
+      "faturaCartaoEmails.slice.map",
+      "fetch",
+      "fetchDuration.toFixed",
+      "fetchEmails",
+      "file.text",
+      "formatDate",
+      "formatGmailDate",
+      "from.toLowerCase.includes",
+      "fromHeader.toLowerCase",
+      "getDateRangeInfo",
+      "getEmailsToShow",
+      "getFullYear",
+      "getHeader",
+      "getOrganizationIcon",
+      "getUserInfo",
+      "h.toLowerCase",
+      "headers.find",
+      "includes",
+      "initializeGapi",
+      "institution.toLowerCase",
+      "institutionGroups.push",
+      "institutionGroups.sort",
+      "institutionSenders.map",
+      "institutionSenders.reduce",
+      "isNaN",
+      "jsonData.map",
+      "link.click",
+      "loadAuthData",
+      "loadCachedEmails",
+      "localStorage.getItem",
+      "localStorage.removeItem",
+      "localStorage.setItem",
+      "mean.toFixed",
+      "minimalEmails.slice.map",
+      "name.toLowerCase",
+      "navigator.estimate",
+      "newSet.add",
+      "newSet.delete",
+      "newSet.has",
+      "newest.getTime",
+      "newest.toLocaleDateString",
+      "now.getTime",
+      "oldest.getTime",
+      "oldest.toLocaleDateString",
+      "org.toLowerCase",
+      "orgLower.includes",
+      "organization.toLowerCase",
+      "organizationEmails.filter",
+      "organizationEmails.slice.map",
+      "originalUploadedEmails.filter",
+      "otherAmexEmails.slice.map",
+      "otherInterEmails.slice.map",
+      "otherRicoEmails.slice.map",
+      "outlierDays.toString",
+      "outlierThreshold.toFixed",
+      "performance.now",
+      "reject",
+      "resolve",
+      "response.json",
+      "response.result.slice",
+      "safeSetLocalStorage",
+      "saveAuthData",
+      "saveCachedEmails",
+      "selectedSenders.every",
+      "selectedSenders.join",
+      "selectedSenders.map",
+      "selectedSenders.some",
+      "sender.match",
+      "sender.toLowerCase",
+      "sender.toLowerCase.includes",
+      "senderCountsArray.reduce",
+      "senderLower.includes",
+      "setCacheAge",
+      "setDataSource",
+      "setEmails",
+      "setError",
+      "setExpandedEmails",
+      "setExportEndDate",
+      "setExportProgress",
+      "setExportStartDate",
+      "setFetchTime",
+      "setInstitutionEmailCounts",
+      "setIsCheckingAuth",
+      "setIsExporting",
+      "setIsLoadingFromCache",
+      "setIsProcessingUpload",
+      "setIsSignedIn",
+      "setLoading",
+      "setOriginalUploadedEmails",
+      "setShowAllSenders",
+      "setShowAllUploadSenders",
+      "setStorageInfo",
+      "setSuccess",
+      "setTimeout",
+      "setUploadedFile",
+      "setUserInfo",
+      "showFewerEmails",
+      "showMoreEmails",
+      "sizeInMB.toFixed",
+      "stdDev.toFixed",
+      "subject.toLowerCase.includes",
+      "toDateString",
+      "toFixed",
+      "toISOString",
+      "toLocaleDateString",
+      "toString.padStart",
+      "toggleEmailExpansion",
+      "tokenClient.requestAccessToken",
+      "topSender.substring",
+      "transformedEmails.filter",
+      "trim.replace",
+      "ungroupedSenders.push",
+      "ungroupedSenders.slice.map",
+      "ungroupedSenders.sort",
+      "unusualHourPercentage.toFixed",
+      "unusualHours.reduce",
+      "updateStorageInfo",
+      "useCallback",
+      "useEffect",
+      "useMemo",
+      "useState",
+      "validDates.map",
+      "week.getTime",
+      "week.toISOString",
+      "weeklyEmailResults.filter",
+      "weeklyEmailResults.push",
+      "weeklyIntervals.map",
+      "weeklyIntervals.push",
+      "weeklyMessages.slice",
+      "window.gapi.client.gmail.getProfile",
+      "window.gapi.client.gmail.users.get",
+      "window.gapi.client.gmail.users.list",
+      "window.gapi.getToken",
+      "window.gapi.init",
+      "window.gapi.setToken",
+      "window.google.accounts.initTokenClient",
+      "window.google.accounts.revoke",
+      "window.load"
+    ],
+    "both": [
+      "clearAuthData",
+      "clearCache",
+      "clearUploadedData",
+      "delay",
+      "downloadJsonFile",
+      "fetchEmails",
+      "formatDate",
+      "formatGmailDate",
+      "getDateRangeInfo",
+      "getEmailsToShow",
+      "getHeader",
+      "getOrganizationIcon",
+      "getUserInfo",
+      "loadAuthData",
+      "loadCachedEmails",
+      "safeSetLocalStorage",
+      "saveAuthData",
+      "saveCachedEmails",
+      "showFewerEmails",
+      "showMoreEmails",
+      "updateStorageInfo"
+    ],
+    "exportDefault": [
+      "EmailClient"
+    ],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "React"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "useCallback": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useCallback",
+        "localName": "useCallback"
+      },
+      "Image": {
+        "source": "next/image",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Image"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardDescription": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardDescription",
+        "localName": "CardDescription"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "Badge": {
+        "source": "@/components/ui/badge",
+        "type": "alias",
+        "importedName": "Badge",
+        "localName": "Badge"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "Progress": {
+        "source": "@/components/ui/progress",
+        "type": "alias",
+        "importedName": "Progress",
+        "localName": "Progress"
+      },
+      "Loader2": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Loader2",
+        "localName": "Loader2"
+      },
+      "Mail": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Mail",
+        "localName": "Mail"
+      },
+      "User": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "User",
+        "localName": "User"
+      },
+      "Users": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Users",
+        "localName": "Users"
+      },
+      "Calendar": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Calendar",
+        "localName": "Calendar"
+      },
+      "AlertCircle": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "AlertCircle",
+        "localName": "AlertCircle"
+      },
+      "Filter": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Filter",
+        "localName": "Filter"
+      },
+      "BarChart3": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "BarChart3",
+        "localName": "BarChart3"
+      },
+      "TrendingUp": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "TrendingUp",
+        "localName": "TrendingUp"
+      },
+      "Building2": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Building2",
+        "localName": "Building2"
+      },
+      "CreditCard": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "CreditCard",
+        "localName": "CreditCard"
+      },
+      "Banknote": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Banknote",
+        "localName": "Banknote"
+      },
+      "Download": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Download",
+        "localName": "Download"
+      },
+      "Upload": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Upload",
+        "localName": "Upload"
+      },
+      "FileText": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "FileText",
+        "localName": "FileText"
+      },
+      "X": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "X",
+        "localName": "X"
+      },
+      "ChartContainer": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartContainer",
+        "localName": "ChartContainer"
+      },
+      "ChartTooltip": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartTooltip",
+        "localName": "ChartTooltip"
+      },
+      "ChartTooltipContent": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartTooltipContent",
+        "localName": "ChartTooltipContent"
+      },
+      "BarChart": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "BarChart",
+        "localName": "BarChart"
+      },
+      "Bar": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "Bar",
+        "localName": "Bar"
+      },
+      "XAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "XAxis",
+        "localName": "XAxis"
+      },
+      "YAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "YAxis",
+        "localName": "YAxis"
+      },
+      "ResponsiveContainer": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "ResponsiveContainer",
+        "localName": "ResponsiveContainer"
+      },
+      "HoverCard": {
+        "source": "@/components/ui/hover-card",
+        "type": "alias",
+        "importedName": "HoverCard",
+        "localName": "HoverCard"
+      },
+      "HoverCardContent": {
+        "source": "@/components/ui/hover-card",
+        "type": "alias",
+        "importedName": "HoverCardContent",
+        "localName": "HoverCardContent"
+      },
+      "HoverCardTrigger": {
+        "source": "@/components/ui/hover-card",
+        "type": "alias",
+        "importedName": "HoverCardTrigger",
+        "localName": "HoverCardTrigger"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "localStorage.setItem": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "localStorage",
+        "functionName": "localStorage.setItem",
+        "fullMemberPath": "localStorage.setItem",
+        "methodChain": [
+          "setItem"
+        ],
+        "isChainedCall": true
+      },
+      "console.warn": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.warn",
+        "fullMemberPath": "console.warn",
+        "methodChain": [
+          "warn"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "initializeGapi": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "initializeGapi",
+        "localName": "initializeGapi"
+      },
+      "loadCachedEmails": {
+        "source": "local",
+        "type": "local",
+        "importedName": "loadCachedEmails",
+        "localName": "loadCachedEmails"
+      },
+      "updateStorageInfo": {
+        "source": "local",
+        "type": "local",
+        "importedName": "updateStorageInfo",
+        "localName": "updateStorageInfo"
+      },
+      "checkExistingAuth": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "checkExistingAuth",
+        "localName": "checkExistingAuth"
+      },
+      "useCallback": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useCallback",
+        "localName": "useCallback"
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "document.getElementById": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "document",
+        "functionName": "document.getElementById",
+        "fullMemberPath": "document.getElementById",
+        "methodChain": [
+          "getElementById"
+        ],
+        "isChainedCall": true
+      },
+      "document.createElement": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "document",
+        "functionName": "document.createElement",
+        "fullMemberPath": "document.createElement",
+        "methodChain": [
+          "createElement"
+        ],
+        "isChainedCall": true
+      },
+      "document.appendChild": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "document",
+        "functionName": "document.appendChild",
+        "fullMemberPath": "document.appendChild",
+        "methodChain": [
+          "appendChild"
+        ],
+        "isChainedCall": true
+      },
+      "window.load": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.load",
+        "fullMemberPath": "window.load",
+        "methodChain": [
+          "load"
+        ],
+        "isChainedCall": true
+      },
+      "window.gapi.init": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.gapi.init",
+        "fullMemberPath": "window.gapi.init",
+        "methodChain": [
+          "gapi",
+          "init"
+        ],
+        "isChainedCall": true
+      },
+      "resolve": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "resolve",
+        "localName": "resolve"
+      },
+      "reject": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "reject",
+        "localName": "reject"
+      },
+      "setIsLoadingFromCache": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsLoadingFromCache"
+      },
+      "localStorage.getItem": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "localStorage",
+        "functionName": "localStorage.getItem",
+        "fullMemberPath": "localStorage.getItem",
+        "methodChain": [
+          "getItem"
+        ],
+        "isChainedCall": true
+      },
+      "JSON.parse": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "JSON",
+        "functionName": "JSON.parse",
+        "fullMemberPath": "JSON.parse",
+        "methodChain": [
+          "parse"
+        ],
+        "isChainedCall": true
+      },
+      "now.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "now",
+        "functionName": "now.getTime",
+        "fullMemberPath": "now.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "cacheTimestamp.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "cacheTimestamp",
+        "functionName": "cacheTimestamp.getTime",
+        "fullMemberPath": "cacheTimestamp.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "setEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setEmails"
+      },
+      "setFetchTime": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setFetchTime"
+      },
+      "setCacheAge": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCacheAge"
+      },
+      "ageInMinutes.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "ageInMinutes",
+        "functionName": "ageInMinutes.toFixed",
+        "fullMemberPath": "ageInMinutes.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "localStorage.removeItem": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "localStorage",
+        "functionName": "localStorage.removeItem",
+        "fullMemberPath": "localStorage.removeItem",
+        "methodChain": [
+          "removeItem"
+        ],
+        "isChainedCall": true
+      },
+      "emailsData.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emailsData",
+        "functionName": "emailsData.map",
+        "fullMemberPath": "emailsData.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "email.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "email",
+        "functionName": "email.substring",
+        "fullMemberPath": "email.substring",
+        "methodChain": [
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "email.payload.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "email",
+        "functionName": "email.payload.filter",
+        "fullMemberPath": "email.payload.filter",
+        "methodChain": [
+          "payload",
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "includes",
+        "fullMemberPath": "includes"
+      },
+      "toISOString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toISOString",
+        "fullMemberPath": "toISOString"
+      },
+      "JSON.stringify": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "JSON",
+        "functionName": "JSON.stringify",
+        "fullMemberPath": "JSON.stringify",
+        "methodChain": [
+          "stringify"
+        ],
+        "isChainedCall": true
+      },
+      "sizeInMB.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sizeInMB",
+        "functionName": "sizeInMB.toFixed",
+        "fullMemberPath": "sizeInMB.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "minimalEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "minimalEmails",
+        "functionName": "minimalEmails.slice.map",
+        "fullMemberPath": "minimalEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "email.payload.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "email",
+        "functionName": "email.payload.slice",
+        "fullMemberPath": "email.payload.slice",
+        "methodChain": [
+          "payload",
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "safeSetLocalStorage": {
+        "source": "local",
+        "type": "local",
+        "importedName": "safeSetLocalStorage",
+        "localName": "safeSetLocalStorage"
+      },
+      "emailsData.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emailsData",
+        "functionName": "emailsData.slice.map",
+        "fullMemberPath": "emailsData.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "email.payload.filter.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "email",
+        "functionName": "email.payload.filter.slice",
+        "fullMemberPath": "email.payload.filter.slice",
+        "methodChain": [
+          "payload",
+          "filter",
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "navigator.estimate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "navigator",
+        "functionName": "navigator.estimate",
+        "fullMemberPath": "navigator.estimate",
+        "methodChain": [
+          "estimate"
+        ],
+        "isChainedCall": true
+      },
+      "setStorageInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setStorageInfo"
+      },
+      "Date.now": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Date",
+        "functionName": "Date.now",
+        "fullMemberPath": "Date.now",
+        "methodChain": [
+          "now"
+        ],
+        "isChainedCall": true
+      },
+      "setIsCheckingAuth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsCheckingAuth"
+      },
+      "loadAuthData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "loadAuthData",
+        "localName": "loadAuthData"
+      },
+      "setTimeout": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setTimeout",
+        "localName": "setTimeout"
+      },
+      "clearAuthData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "clearAuthData",
+        "localName": "clearAuthData"
+      },
+      "window.gapi.setToken": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.gapi.setToken",
+        "fullMemberPath": "window.gapi.setToken",
+        "methodChain": [
+          "gapi",
+          "setToken"
+        ],
+        "isChainedCall": true
+      },
+      "window.gapi.client.gmail.getProfile": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.gapi.client.gmail.getProfile",
+        "fullMemberPath": "window.gapi.client.gmail.getProfile",
+        "methodChain": [
+          "gapi",
+          "client",
+          "gmail",
+          "getProfile"
+        ],
+        "isChainedCall": true
+      },
+      "setIsSignedIn": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsSignedIn"
+      },
+      "setUserInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUserInfo"
+      },
+      "fetchEmails": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchEmails",
+        "localName": "fetchEmails"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "window.google.accounts.initTokenClient": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.google.accounts.initTokenClient",
+        "fullMemberPath": "window.google.accounts.initTokenClient",
+        "methodChain": [
+          "google",
+          "accounts",
+          "initTokenClient"
+        ],
+        "isChainedCall": true
+      },
+      "getUserInfo": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getUserInfo",
+        "localName": "getUserInfo"
+      },
+      "saveAuthData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "saveAuthData",
+        "localName": "saveAuthData"
+      },
+      "tokenClient.requestAccessToken": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "tokenClient",
+        "functionName": "tokenClient.requestAccessToken",
+        "fullMemberPath": "tokenClient.requestAccessToken",
+        "methodChain": [
+          "requestAccessToken"
+        ],
+        "isChainedCall": true
+      },
+      "fetch": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "fetch",
+        "localName": "fetch"
+      },
+      "response.json": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "response",
+        "functionName": "response.json",
+        "fullMemberPath": "response.json",
+        "methodChain": [
+          "json"
+        ],
+        "isChainedCall": true
+      },
+      "performance.now": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "performance",
+        "functionName": "performance.now",
+        "fullMemberPath": "performance.now",
+        "methodChain": [
+          "now"
+        ],
+        "isChainedCall": true
+      },
+      "window.gapi.getToken": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.gapi.getToken",
+        "fullMemberPath": "window.gapi.getToken",
+        "methodChain": [
+          "gapi",
+          "getToken"
+        ],
+        "isChainedCall": true
+      },
+      "window.gapi.client.gmail.users.list": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.gapi.client.gmail.users.list",
+        "fullMemberPath": "window.gapi.client.gmail.users.list",
+        "methodChain": [
+          "gapi",
+          "client",
+          "gmail",
+          "users",
+          "list"
+        ],
+        "isChainedCall": true
+      },
+      "response.result.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "response",
+        "functionName": "response.result.slice",
+        "fullMemberPath": "response.result.slice",
+        "methodChain": [
+          "result",
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "Math.floor": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.floor",
+        "fullMemberPath": "Math.floor",
+        "methodChain": [
+          "floor"
+        ],
+        "isChainedCall": true
+      },
+      "Math.ceil": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.ceil",
+        "fullMemberPath": "Math.ceil",
+        "methodChain": [
+          "ceil"
+        ],
+        "isChainedCall": true
+      },
+      "batch.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "batch",
+        "functionName": "batch.map",
+        "fullMemberPath": "batch.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "window.gapi.client.gmail.users.get": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.gapi.client.gmail.users.get",
+        "fullMemberPath": "window.gapi.client.gmail.users.get",
+        "methodChain": [
+          "gapi",
+          "client",
+          "gmail",
+          "users",
+          "get"
+        ],
+        "isChainedCall": true
+      },
+      "Promise.all": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Promise",
+        "functionName": "Promise.all",
+        "fullMemberPath": "Promise.all",
+        "methodChain": [
+          "all"
+        ],
+        "isChainedCall": true
+      },
+      "allEmailResults.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allEmailResults",
+        "functionName": "allEmailResults.push",
+        "fullMemberPath": "allEmailResults.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "delay": {
+        "source": "local",
+        "type": "local",
+        "importedName": "delay",
+        "localName": "delay"
+      },
+      "allEmailResults.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allEmailResults",
+        "functionName": "allEmailResults.filter",
+        "fullMemberPath": "allEmailResults.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "saveCachedEmails": {
+        "source": "local",
+        "type": "local",
+        "importedName": "saveCachedEmails",
+        "localName": "saveCachedEmails"
+      },
+      "fetchDuration.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fetchDuration",
+        "functionName": "fetchDuration.toFixed",
+        "fullMemberPath": "fetchDuration.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys",
+        "fullMemberPath": "Object.keys",
+        "methodChain": [
+          "keys"
+        ],
+        "isChainedCall": true
+      },
+      "window.google.accounts.revoke": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.google.accounts.revoke",
+        "fullMemberPath": "window.google.accounts.revoke",
+        "methodChain": [
+          "google",
+          "accounts",
+          "revoke"
+        ],
+        "isChainedCall": true
+      },
+      "clearCache": {
+        "source": "local",
+        "type": "local",
+        "importedName": "clearCache",
+        "localName": "clearCache"
+      },
+      "headers.find": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "headers",
+        "functionName": "headers.find",
+        "fullMemberPath": "headers.find",
+        "methodChain": [
+          "find"
+        ],
+        "isChainedCall": true
+      },
+      "h.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "h",
+        "functionName": "h.toLowerCase",
+        "fullMemberPath": "h.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "name.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "name",
+        "functionName": "name.toLowerCase",
+        "fullMemberPath": "name.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "date.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.toLocaleDateString",
+        "fullMemberPath": "date.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "date.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.toLocaleString",
+        "fullMemberPath": "date.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "getEmailsToShow": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getEmailsToShow",
+        "localName": "getEmailsToShow"
+      },
+      "Math.min": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.min",
+        "fullMemberPath": "Math.min",
+        "methodChain": [
+          "min"
+        ],
+        "isChainedCall": true
+      },
+      "setInstitutionEmailCounts": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setInstitutionEmailCounts"
+      },
+      "setExpandedEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExpandedEmails"
+      },
+      "newSet.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSet",
+        "functionName": "newSet.has",
+        "fullMemberPath": "newSet.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "newSet.delete": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSet",
+        "functionName": "newSet.delete",
+        "fullMemberPath": "newSet.delete",
+        "methodChain": [
+          "delete"
+        ],
+        "isChainedCall": true
+      },
+      "newSet.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSet",
+        "functionName": "newSet.add",
+        "fullMemberPath": "newSet.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "setIsExporting": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsExporting"
+      },
+      "setExportProgress": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExportProgress"
+      },
+      "currentWeekEnd.setDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekEnd",
+        "functionName": "currentWeekEnd.setDate",
+        "fullMemberPath": "currentWeekEnd.setDate",
+        "methodChain": [
+          "setDate"
+        ],
+        "isChainedCall": true
+      },
+      "currentWeekEnd.getDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekEnd",
+        "functionName": "currentWeekEnd.getDate",
+        "fullMemberPath": "currentWeekEnd.getDate",
+        "methodChain": [
+          "getDate"
+        ],
+        "isChainedCall": true
+      },
+      "currentWeekEnd.setTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekEnd",
+        "functionName": "currentWeekEnd.setTime",
+        "fullMemberPath": "currentWeekEnd.setTime",
+        "methodChain": [
+          "setTime"
+        ],
+        "isChainedCall": true
+      },
+      "endDateObj.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "endDateObj",
+        "functionName": "endDateObj.getTime",
+        "fullMemberPath": "endDateObj.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "currentWeekStart.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekStart",
+        "functionName": "currentWeekStart.toLocaleDateString",
+        "fullMemberPath": "currentWeekStart.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "currentWeekEnd.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekEnd",
+        "functionName": "currentWeekEnd.toLocaleDateString",
+        "fullMemberPath": "currentWeekEnd.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "weeklyIntervals.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "weeklyIntervals",
+        "functionName": "weeklyIntervals.push",
+        "fullMemberPath": "weeklyIntervals.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "currentWeekStart.setDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekStart",
+        "functionName": "currentWeekStart.setDate",
+        "fullMemberPath": "currentWeekStart.setDate",
+        "methodChain": [
+          "setDate"
+        ],
+        "isChainedCall": true
+      },
+      "currentWeekStart.getDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentWeekStart",
+        "functionName": "currentWeekStart.getDate",
+        "fullMemberPath": "currentWeekStart.getDate",
+        "methodChain": [
+          "getDate"
+        ],
+        "isChainedCall": true
+      },
+      "date.getFullYear": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.getFullYear",
+        "fullMemberPath": "date.getFullYear",
+        "methodChain": [
+          "getFullYear"
+        ],
+        "isChainedCall": true
+      },
+      "toString.padStart": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toString.padStart",
+        "fullMemberPath": "toString.padStart",
+        "methodChain": [
+          "toString",
+          "padStart"
+        ],
+        "isChainedCall": true
+      },
+      "date.getMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.getMonth",
+        "fullMemberPath": "date.getMonth",
+        "methodChain": [
+          "getMonth"
+        ],
+        "isChainedCall": true
+      },
+      "date.getDate.toString.padStart": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.getDate.toString.padStart",
+        "fullMemberPath": "date.getDate.toString.padStart",
+        "methodChain": [
+          "getDate",
+          "toString",
+          "padStart"
+        ],
+        "isChainedCall": true
+      },
+      "formatGmailDate": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatGmailDate",
+        "localName": "formatGmailDate"
+      },
+      "week.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "week",
+        "functionName": "week.getTime",
+        "fullMemberPath": "week.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "weeklyMessages.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "weeklyMessages",
+        "functionName": "weeklyMessages.slice",
+        "fullMemberPath": "weeklyMessages.slice",
+        "methodChain": [
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "Math.round": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.round",
+        "fullMemberPath": "Math.round",
+        "methodChain": [
+          "round"
+        ],
+        "isChainedCall": true
+      },
+      "weeklyEmailResults.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "weeklyEmailResults",
+        "functionName": "weeklyEmailResults.push",
+        "fullMemberPath": "weeklyEmailResults.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "batchResults.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "batchResults",
+        "functionName": "batchResults.filter",
+        "fullMemberPath": "batchResults.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "weeklyEmailResults.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "weeklyEmailResults",
+        "functionName": "weeklyEmailResults.filter",
+        "fullMemberPath": "weeklyEmailResults.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "weeklyIntervals.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "weeklyIntervals",
+        "functionName": "weeklyIntervals.map",
+        "fullMemberPath": "weeklyIntervals.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "week.toISOString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "week",
+        "functionName": "week.toISOString",
+        "fullMemberPath": "week.toISOString",
+        "methodChain": [
+          "toISOString"
+        ],
+        "isChainedCall": true
+      },
+      "allEmailResults.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allEmailResults",
+        "functionName": "allEmailResults.map",
+        "fullMemberPath": "allEmailResults.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "getHeader": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getHeader",
+        "localName": "getHeader"
+      },
+      "downloadJsonFile": {
+        "source": "local",
+        "type": "local",
+        "importedName": "downloadJsonFile",
+        "localName": "downloadJsonFile"
+      },
+      "URL.createObjectURL": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "URL",
+        "functionName": "URL.createObjectURL",
+        "fullMemberPath": "URL.createObjectURL",
+        "methodChain": [
+          "createObjectURL"
+        ],
+        "isChainedCall": true
+      },
+      "link.click": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "link",
+        "functionName": "link.click",
+        "fullMemberPath": "link.click",
+        "methodChain": [
+          "click"
+        ],
+        "isChainedCall": true
+      },
+      "document.removeChild": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "document",
+        "functionName": "document.removeChild",
+        "fullMemberPath": "document.removeChild",
+        "methodChain": [
+          "removeChild"
+        ],
+        "isChainedCall": true
+      },
+      "URL.revokeObjectURL": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "URL",
+        "functionName": "URL.revokeObjectURL",
+        "fullMemberPath": "URL.revokeObjectURL",
+        "methodChain": [
+          "revokeObjectURL"
+        ],
+        "isChainedCall": true
+      },
+      "setUploadedFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUploadedFile"
+      },
+      "setIsProcessingUpload": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsProcessingUpload"
+      },
+      "file.text": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "file",
+        "functionName": "file.text",
+        "fullMemberPath": "file.text",
+        "methodChain": [
+          "text"
+        ],
+        "isChainedCall": true
+      },
+      "Array.isArray": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Array",
+        "functionName": "Array.isArray",
+        "fullMemberPath": "Array.isArray",
+        "methodChain": [
+          "isArray"
+        ],
+        "isChainedCall": true
+      },
+      "jsonData.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "jsonData",
+        "functionName": "jsonData.map",
+        "fullMemberPath": "jsonData.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "setOriginalUploadedEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setOriginalUploadedEmails"
+      },
+      "transformedEmails.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transformedEmails",
+        "functionName": "transformedEmails.filter",
+        "fullMemberPath": "transformedEmails.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "selectedSenders.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedSenders",
+        "functionName": "selectedSenders.some",
+        "fullMemberPath": "selectedSenders.some",
+        "methodChain": [
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "organization.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "organization",
+        "functionName": "organization.toLowerCase",
+        "fullMemberPath": "organization.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "setSuccess": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSuccess"
+      },
+      "originalUploadedEmails.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "originalUploadedEmails",
+        "functionName": "originalUploadedEmails.filter",
+        "fullMemberPath": "originalUploadedEmails.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "fromHeader.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fromHeader",
+        "functionName": "fromHeader.toLowerCase",
+        "fullMemberPath": "fromHeader.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "senderLower.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "senderLower",
+        "functionName": "senderLower.includes",
+        "fullMemberPath": "senderLower.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "setDataSource": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setDataSource"
+      },
+      "useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useMemo",
+        "localName": "useMemo"
+      },
+      "emails.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emails",
+        "functionName": "emails.forEach",
+        "fullMemberPath": "emails.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.map.sort.slice": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.map.sort.slice",
+        "fullMemberPath": "Object.entries.map.sort.slice",
+        "methodChain": [
+          "entries",
+          "map",
+          "sort",
+          "slice"
+        ],
+        "isChainedCall": true
+      },
+      "getFullYear": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getFullYear",
+        "fullMemberPath": "getFullYear"
+      },
+      "dateA.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dateA",
+        "functionName": "dateA.getTime",
+        "fullMemberPath": "dateA.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "dateB.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dateB",
+        "functionName": "dateB.getTime",
+        "fullMemberPath": "dateB.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "emails.map.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emails",
+        "functionName": "emails.map.filter",
+        "fullMemberPath": "emails.map.filter",
+        "methodChain": [
+          "map",
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "isNaN": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "isNaN",
+        "localName": "isNaN"
+      },
+      "date.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.getTime",
+        "fullMemberPath": "date.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "validDates.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "validDates",
+        "functionName": "validDates.map",
+        "fullMemberPath": "validDates.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "d.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "d",
+        "functionName": "d.getTime",
+        "fullMemberPath": "d.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "Math.max": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.max",
+        "fullMemberPath": "Math.max",
+        "methodChain": [
+          "max"
+        ],
+        "isChainedCall": true
+      },
+      "newest.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newest",
+        "functionName": "newest.getTime",
+        "fullMemberPath": "newest.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "oldest.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "oldest",
+        "functionName": "oldest.getTime",
+        "fullMemberPath": "oldest.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toFixed",
+        "fullMemberPath": "toFixed"
+      },
+      "emails.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emails",
+        "functionName": "emails.filter",
+        "fullMemberPath": "emails.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "date.toISOString.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.toISOString.split",
+        "fullMemberPath": "date.toISOString.split",
+        "methodChain": [
+          "toISOString",
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "Object.values": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.values",
+        "fullMemberPath": "Object.values",
+        "methodChain": [
+          "values"
+        ],
+        "isChainedCall": true
+      },
+      "dailyCounts.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dailyCounts",
+        "functionName": "dailyCounts.reduce",
+        "fullMemberPath": "dailyCounts.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Math.pow": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.pow",
+        "fullMemberPath": "Math.pow",
+        "methodChain": [
+          "pow"
+        ],
+        "isChainedCall": true
+      },
+      "Math.sqrt": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.sqrt",
+        "fullMemberPath": "Math.sqrt",
+        "methodChain": [
+          "sqrt"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.filter",
+        "fullMemberPath": "Object.entries.filter",
+        "methodChain": [
+          "entries",
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "sender.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sender",
+        "functionName": "sender.match",
+        "fullMemberPath": "sender.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "trim.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "trim.replace",
+        "fullMemberPath": "trim.replace",
+        "methodChain": [
+          "trim",
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "senderCountsArray.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "senderCountsArray",
+        "functionName": "senderCountsArray.reduce",
+        "fullMemberPath": "senderCountsArray.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.sort",
+        "fullMemberPath": "Object.entries.sort",
+        "methodChain": [
+          "entries",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "date.getHours": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.getHours",
+        "fullMemberPath": "date.getHours",
+        "methodChain": [
+          "getHours"
+        ],
+        "isChainedCall": true
+      },
+      "unusualHours.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unusualHours",
+        "functionName": "unusualHours.reduce",
+        "fullMemberPath": "unusualHours.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "outlierDays.toString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "outlierDays",
+        "functionName": "outlierDays.toString",
+        "fullMemberPath": "outlierDays.toString",
+        "methodChain": [
+          "toString"
+        ],
+        "isChainedCall": true
+      },
+      "topSender.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "topSender",
+        "functionName": "topSender.substring",
+        "fullMemberPath": "topSender.substring",
+        "methodChain": [
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "unusualHourPercentage.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unusualHourPercentage",
+        "functionName": "unusualHourPercentage.toFixed",
+        "fullMemberPath": "unusualHourPercentage.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "mean.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "mean",
+        "functionName": "mean.toFixed",
+        "fullMemberPath": "mean.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "stdDev.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "stdDev",
+        "functionName": "stdDev.toFixed",
+        "fullMemberPath": "stdDev.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "outlierThreshold.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "outlierThreshold",
+        "functionName": "outlierThreshold.toFixed",
+        "fullMemberPath": "outlierThreshold.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "clearUploadedData": {
+        "source": "local",
+        "type": "local",
+        "importedName": "clearUploadedData",
+        "localName": "clearUploadedData"
+      },
+      "setShowAllUploadSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowAllUploadSenders"
+      },
+      "selectedSenders.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedSenders",
+        "functionName": "selectedSenders.map",
+        "fullMemberPath": "selectedSenders.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "setExportStartDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExportStartDate"
+      },
+      "setExportEndDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExportEndDate"
+      },
+      "toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toLocaleDateString",
+        "fullMemberPath": "toLocaleDateString"
+      },
+      "cacheAge.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "cacheAge",
+        "functionName": "cacheAge.toLocaleString",
+        "fullMemberPath": "cacheAge.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "emails.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emails",
+        "functionName": "emails.map",
+        "fullMemberPath": "emails.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "toDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toDateString",
+        "fullMemberPath": "toDateString"
+      },
+      "getDateRangeInfo": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getDateRangeInfo",
+        "localName": "getDateRangeInfo"
+      },
+      "oldest.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "oldest",
+        "functionName": "oldest.toLocaleDateString",
+        "fullMemberPath": "oldest.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "newest.toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newest",
+        "functionName": "newest.toLocaleDateString",
+        "fullMemberPath": "newest.toLocaleDateString",
+        "methodChain": [
+          "toLocaleDateString"
+        ],
+        "isChainedCall": true
+      },
+      "details.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "details",
+        "functionName": "details.map",
+        "fullMemberPath": "details.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "setShowAllSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowAllSenders"
+      },
+      "Object.entries.sort.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.sort.slice.map",
+        "fullMemberPath": "Object.entries.sort.slice.map",
+        "methodChain": [
+          "entries",
+          "sort",
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "emails.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emails",
+        "functionName": "emails.reduce",
+        "fullMemberPath": "emails.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.forEach",
+        "fullMemberPath": "Object.entries.forEach",
+        "methodChain": [
+          "entries",
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "email.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "email",
+        "functionName": "email.toLowerCase",
+        "fullMemberPath": "email.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "institution.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "institution",
+        "functionName": "institution.toLowerCase",
+        "fullMemberPath": "institution.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "emailLower.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "emailLower",
+        "functionName": "emailLower.includes",
+        "fullMemberPath": "emailLower.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "data.toLowerCase.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.toLowerCase.includes",
+        "fullMemberPath": "data.toLowerCase.includes",
+        "methodChain": [
+          "toLowerCase",
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "institutionGroups.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "institutionGroups",
+        "functionName": "institutionGroups.push",
+        "fullMemberPath": "institutionGroups.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "ungroupedSenders.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "ungroupedSenders",
+        "functionName": "ungroupedSenders.push",
+        "fullMemberPath": "ungroupedSenders.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys.forEach",
+        "fullMemberPath": "Object.keys.forEach",
+        "methodChain": [
+          "keys",
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "institutionGroups.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "institutionGroups",
+        "functionName": "institutionGroups.sort",
+        "fullMemberPath": "institutionGroups.sort",
+        "methodChain": [
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "ungroupedSenders.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "ungroupedSenders",
+        "functionName": "ungroupedSenders.sort",
+        "fullMemberPath": "ungroupedSenders.sort",
+        "methodChain": [
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "institutionSenders.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "institutionSenders",
+        "functionName": "institutionSenders.reduce",
+        "fullMemberPath": "institutionSenders.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "institutionSenders.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "institutionSenders",
+        "functionName": "institutionSenders.map",
+        "fullMemberPath": "institutionSenders.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "ungroupedSenders.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "ungroupedSenders",
+        "functionName": "ungroupedSenders.slice.map",
+        "fullMemberPath": "ungroupedSenders.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "selectedSenders.join": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedSenders",
+        "functionName": "selectedSenders.join",
+        "fullMemberPath": "selectedSenders.join",
+        "methodChain": [
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "sender.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sender",
+        "functionName": "sender.toLowerCase",
+        "fullMemberPath": "sender.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "org.toLowerCase": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "org",
+        "functionName": "org.toLowerCase",
+        "fullMemberPath": "org.toLowerCase",
+        "methodChain": [
+          "toLowerCase"
+        ],
+        "isChainedCall": true
+      },
+      "orgLower.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "orgLower",
+        "functionName": "orgLower.includes",
+        "fullMemberPath": "orgLower.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "organizationEmails.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "organizationEmails",
+        "functionName": "organizationEmails.filter",
+        "fullMemberPath": "organizationEmails.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "subject.toLowerCase.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "subject",
+        "functionName": "subject.toLowerCase.includes",
+        "fullMemberPath": "subject.toLowerCase.includes",
+        "methodChain": [
+          "toLowerCase",
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "getOrganizationIcon": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getOrganizationIcon",
+        "localName": "getOrganizationIcon"
+      },
+      "faturaCartaoEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "faturaCartaoEmails",
+        "functionName": "faturaCartaoEmails.slice.map",
+        "fullMemberPath": "faturaCartaoEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "toggleEmailExpansion": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "toggleEmailExpansion",
+        "localName": "toggleEmailExpansion"
+      },
+      "formatDate": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatDate",
+        "localName": "formatDate"
+      },
+      "expandedEmails.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "expandedEmails",
+        "functionName": "expandedEmails.has",
+        "fullMemberPath": "expandedEmails.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "showMoreEmails": {
+        "source": "local",
+        "type": "local",
+        "importedName": "showMoreEmails",
+        "localName": "showMoreEmails"
+      },
+      "showFewerEmails": {
+        "source": "local",
+        "type": "local",
+        "importedName": "showFewerEmails",
+        "localName": "showFewerEmails"
+      },
+      "otherInterEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "otherInterEmails",
+        "functionName": "otherInterEmails.slice.map",
+        "fullMemberPath": "otherInterEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "from.toLowerCase.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "from",
+        "functionName": "from.toLowerCase.includes",
+        "fullMemberPath": "from.toLowerCase.includes",
+        "methodChain": [
+          "toLowerCase",
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "cartaoRicoFaturaEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "cartaoRicoFaturaEmails",
+        "functionName": "cartaoRicoFaturaEmails.slice.map",
+        "fullMemberPath": "cartaoRicoFaturaEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "otherRicoEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "otherRicoEmails",
+        "functionName": "otherRicoEmails.slice.map",
+        "fullMemberPath": "otherRicoEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "dinFakturaEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dinFakturaEmails",
+        "functionName": "dinFakturaEmails.slice.map",
+        "fullMemberPath": "dinFakturaEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "otherAmexEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "otherAmexEmails",
+        "functionName": "otherAmexEmails.slice.map",
+        "fullMemberPath": "otherAmexEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "organizationEmails.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "organizationEmails",
+        "functionName": "organizationEmails.slice.map",
+        "fullMemberPath": "organizationEmails.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "selectedSenders.every": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedSenders",
+        "functionName": "selectedSenders.every",
+        "fullMemberPath": "selectedSenders.every",
+        "methodChain": [
+          "every"
+        ],
+        "isChainedCall": true
+      },
+      "sender.toLowerCase.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sender",
+        "functionName": "sender.toLowerCase.includes",
+        "fullMemberPath": "sender.toLowerCase.includes",
+        "methodChain": [
+          "toLowerCase",
+          "includes"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "emails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "emails"
+      },
+      "setEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setEmails"
+      },
+      "isSignedIn": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isSignedIn"
+      },
+      "setIsSignedIn": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsSignedIn"
+      },
+      "loading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loading"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "error": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "error"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "success": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "success"
+      },
+      "setSuccess": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSuccess"
+      },
+      "userInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "userInfo"
+      },
+      "setUserInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUserInfo"
+      },
+      "fetchTime": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "fetchTime"
+      },
+      "setFetchTime": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setFetchTime"
+      },
+      "cacheAge": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "cacheAge"
+      },
+      "setCacheAge": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCacheAge"
+      },
+      "isLoadingFromCache": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isLoadingFromCache"
+      },
+      "setIsLoadingFromCache": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsLoadingFromCache"
+      },
+      "isCheckingAuth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isCheckingAuth"
+      },
+      "setIsCheckingAuth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsCheckingAuth"
+      },
+      "storageInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "storageInfo"
+      },
+      "setStorageInfo": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setStorageInfo"
+      },
+      "showAllSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showAllSenders"
+      },
+      "setShowAllSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowAllSenders"
+      },
+      "showAllUploadSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "showAllUploadSenders"
+      },
+      "setShowAllUploadSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setShowAllUploadSenders"
+      },
+      "selectedSenders": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedSenders"
+      },
+      "institutionEmailCounts": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "institutionEmailCounts"
+      },
+      "setInstitutionEmailCounts": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setInstitutionEmailCounts"
+      },
+      "expandedEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "expandedEmails"
+      },
+      "setExpandedEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExpandedEmails"
+      },
+      "exportStartDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "exportStartDate"
+      },
+      "setExportStartDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExportStartDate"
+      },
+      "exportEndDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "exportEndDate"
+      },
+      "setExportEndDate": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExportEndDate"
+      },
+      "isExporting": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isExporting"
+      },
+      "setIsExporting": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsExporting"
+      },
+      "exportProgress": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "exportProgress"
+      },
+      "setExportProgress": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setExportProgress"
+      },
+      "dataSource": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "dataSource"
+      },
+      "setDataSource": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setDataSource"
+      },
+      "uploadedFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "uploadedFile"
+      },
+      "setUploadedFile": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUploadedFile"
+      },
+      "isProcessingUpload": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isProcessingUpload"
+      },
+      "setIsProcessingUpload": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsProcessingUpload"
+      },
+      "originalUploadedEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "originalUploadedEmails"
+      },
+      "setOriginalUploadedEmails": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setOriginalUploadedEmails"
+      }
+    }
+  }
+}

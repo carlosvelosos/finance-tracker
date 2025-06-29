@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "originalFilePath": "types/window.d.ts",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-23-26",
+    "scanDate": "2025-06-29T12:23:26.790Z"
+  },
+  "analysis": {
+    "defined": [],
+    "called": [],
+    "both": [],
+    "exportDefault": [],
+    "imports": {},
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

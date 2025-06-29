@@ -1,0 +1,264 @@
+{
+  "metadata": {
+    "originalFilePath": "AuthContext.tsx",
+    "scannedDirectory": "context",
+    "timestamp": "2025-06-29_14-18-54",
+    "scanDate": "2025-06-29T12:18:54.578Z"
+  },
+  "analysis": {
+    "defined": [
+      "AuthProvider",
+      "getSession",
+      "signOut",
+      "useAuth"
+    ],
+    "called": [
+      "console.error",
+      "createContext",
+      "getSession",
+      "setLoading",
+      "setSession",
+      "setUser",
+      "subscription.unsubscribe",
+      "supabase.getSession",
+      "supabase.onAuthStateChange",
+      "supabase.signOut",
+      "useContext",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "getSession"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "createContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "createContext",
+        "localName": "createContext"
+      },
+      "useContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useContext",
+        "localName": "useContext"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "User": {
+        "source": "@supabase/supabase-js",
+        "type": "npm",
+        "importedName": "User",
+        "localName": "User"
+      },
+      "Session": {
+        "source": "@supabase/supabase-js",
+        "type": "npm",
+        "importedName": "Session",
+        "localName": "Session"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      }
+    },
+    "calledWithImports": {
+      "createContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "createContext",
+        "localName": "createContext"
+      },
+      "useContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useContext",
+        "localName": "useContext"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "supabase.getSession": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.getSession",
+        "fullMemberPath": "supabase.getSession",
+        "methodChain": [
+          "getSession"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setSession": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSession"
+      },
+      "setUser": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUser"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "getSession": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getSession",
+        "localName": "getSession"
+      },
+      "supabase.onAuthStateChange": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.onAuthStateChange",
+        "fullMemberPath": "supabase.onAuthStateChange",
+        "methodChain": [
+          "onAuthStateChange"
+        ],
+        "isChainedCall": true
+      },
+      "subscription.unsubscribe": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "subscription",
+        "functionName": "subscription.unsubscribe",
+        "fullMemberPath": "subscription.unsubscribe",
+        "methodChain": [
+          "unsubscribe"
+        ],
+        "isChainedCall": true
+      },
+      "supabase.signOut": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.signOut",
+        "fullMemberPath": "supabase.signOut",
+        "methodChain": [
+          "signOut"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "user": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "user"
+      },
+      "setUser": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setUser"
+      },
+      "session": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "session"
+      },
+      "setSession": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSession"
+      },
+      "loading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loading"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      }
+    }
+  }
+}

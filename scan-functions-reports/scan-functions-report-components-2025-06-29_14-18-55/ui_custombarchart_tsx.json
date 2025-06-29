@@ -1,0 +1,515 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/custombarchart.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [
+      "CustomBarChart",
+      "formatCurrency"
+    ],
+    "called": [
+      "Math.abs",
+      "Object.entries.map.sort",
+      "Object.entries.sort.map",
+      "Object.values.reduce",
+      "catTransactions.forEach",
+      "chartData.map",
+      "combinedKey.split",
+      "console.error",
+      "console.log",
+      "currentDate.getMonth",
+      "data.filter",
+      "dateFilteredData.filter",
+      "filteredCategories.push",
+      "filteredCategories.sort",
+      "filteredData.map",
+      "filteredData.reduce",
+      "format",
+      "formatCurrency",
+      "includes",
+      "isNaN",
+      "percentage.toFixed",
+      "processedData.filter",
+      "processedData.reduce",
+      "setMinorExpensesThreshold",
+      "setMonthRange",
+      "sortedCategories.filter.reduce",
+      "transactionDate.getMonth",
+      "transactionDate.getTime",
+      "useState"
+    ],
+    "both": [
+      "formatCurrency"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "BarChart": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "BarChart",
+        "localName": "BarChart"
+      },
+      "Bar": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "Bar",
+        "localName": "Bar"
+      },
+      "XAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "XAxis",
+        "localName": "XAxis"
+      },
+      "YAxis": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "YAxis",
+        "localName": "YAxis"
+      },
+      "ResponsiveContainer": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "ResponsiveContainer",
+        "localName": "ResponsiveContainer"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardDescription": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardDescription",
+        "localName": "CardDescription"
+      },
+      "CardFooter": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardFooter",
+        "localName": "CardFooter"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "ChartContainer": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartContainer",
+        "localName": "ChartContainer"
+      },
+      "ChartTooltip": {
+        "source": "@/components/ui/chart",
+        "type": "alias",
+        "importedName": "ChartTooltip",
+        "localName": "ChartTooltip"
+      },
+      "TrendingUp": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "TrendingUp",
+        "localName": "TrendingUp"
+      },
+      "Accordion": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "Accordion",
+        "localName": "Accordion"
+      },
+      "AccordionItem": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionItem",
+        "localName": "AccordionItem"
+      },
+      "AccordionTrigger": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionTrigger",
+        "localName": "AccordionTrigger"
+      },
+      "AccordionContent": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionContent",
+        "localName": "AccordionContent"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "Slider": {
+        "source": "@/components/ui/slider",
+        "type": "alias",
+        "importedName": "Slider",
+        "localName": "Slider"
+      }
+    },
+    "calledWithImports": {
+      "currentDate.getMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "currentDate",
+        "functionName": "currentDate.getMonth",
+        "fullMemberPath": "currentDate.getMonth",
+        "methodChain": [
+          "getMonth"
+        ],
+        "isChainedCall": true
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "data.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.filter",
+        "fullMemberPath": "data.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "isNaN": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "isNaN",
+        "localName": "isNaN"
+      },
+      "transactionDate.getTime": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactionDate",
+        "functionName": "transactionDate.getTime",
+        "fullMemberPath": "transactionDate.getTime",
+        "methodChain": [
+          "getTime"
+        ],
+        "isChainedCall": true
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "transactionDate.getMonth": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactionDate",
+        "functionName": "transactionDate.getMonth",
+        "fullMemberPath": "transactionDate.getMonth",
+        "methodChain": [
+          "getMonth"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "dateFilteredData.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dateFilteredData",
+        "functionName": "dateFilteredData.filter",
+        "fullMemberPath": "dateFilteredData.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "includes",
+        "fullMemberPath": "includes"
+      },
+      "filteredData.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredData",
+        "functionName": "filteredData.map",
+        "fullMemberPath": "filteredData.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "format": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "format",
+        "fullMemberPath": "format"
+      },
+      "processedData.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "processedData",
+        "functionName": "processedData.reduce",
+        "fullMemberPath": "processedData.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Object.values.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.values.reduce",
+        "fullMemberPath": "Object.values.reduce",
+        "methodChain": [
+          "values",
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Math.abs": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.abs",
+        "fullMemberPath": "Math.abs",
+        "methodChain": [
+          "abs"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.map.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.map.sort",
+        "fullMemberPath": "Object.entries.map.sort",
+        "methodChain": [
+          "entries",
+          "map",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "filteredCategories.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredCategories",
+        "functionName": "filteredCategories.push",
+        "fullMemberPath": "filteredCategories.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "filteredCategories.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredCategories",
+        "functionName": "filteredCategories.sort",
+        "fullMemberPath": "filteredCategories.sort",
+        "methodChain": [
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "formatCurrency": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatCurrency",
+        "localName": "formatCurrency"
+      },
+      "percentage.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "percentage",
+        "functionName": "percentage.toFixed",
+        "fullMemberPath": "percentage.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "setMinorExpensesThreshold": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMinorExpensesThreshold"
+      },
+      "setMonthRange": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMonthRange"
+      },
+      "chartData.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "chartData",
+        "functionName": "chartData.map",
+        "fullMemberPath": "chartData.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "processedData.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "processedData",
+        "functionName": "processedData.filter",
+        "fullMemberPath": "processedData.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "filteredData.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "filteredData",
+        "functionName": "filteredData.reduce",
+        "fullMemberPath": "filteredData.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.sort.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.sort.map",
+        "fullMemberPath": "Object.entries.sort.map",
+        "methodChain": [
+          "entries",
+          "sort",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "sortedCategories.filter.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sortedCategories",
+        "functionName": "sortedCategories.filter.reduce",
+        "fullMemberPath": "sortedCategories.filter.reduce",
+        "methodChain": [
+          "filter",
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "catTransactions.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "catTransactions",
+        "functionName": "catTransactions.forEach",
+        "fullMemberPath": "catTransactions.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "combinedKey.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "combinedKey",
+        "functionName": "combinedKey.split",
+        "fullMemberPath": "combinedKey.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "minorExpensesThreshold": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "minorExpensesThreshold"
+      },
+      "setMinorExpensesThreshold": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMinorExpensesThreshold"
+      },
+      "monthRange": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "monthRange"
+      },
+      "setMonthRange": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMonthRange"
+      }
+    }
+  }
+}

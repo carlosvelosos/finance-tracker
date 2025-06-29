@@ -1,0 +1,418 @@
+{
+  "metadata": {
+    "originalFilePath": "UpdateAmexAggregatedButton.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [
+      "UpdateAmexAggregatedButton",
+      "formatMonth",
+      "handleClose",
+      "handleConfirmUpdate",
+      "handleMonthSelect",
+      "handleStartUpdate",
+      "renderDialogContent"
+    ],
+    "called": [
+      "executeAmexUpdate",
+      "formatMonth",
+      "getAmexUpdatePreview",
+      "handleMonthSelect",
+      "monthTable.match",
+      "monthTransactions.reduce.toFixed",
+      "monthTransactions.slice.map",
+      "parseInt",
+      "previewAmexMonthTransactions",
+      "renderDialogContent",
+      "setAmexPreview",
+      "setError",
+      "setIsOpen",
+      "setMonthTransactions",
+      "setResult",
+      "setSelectedMonth",
+      "setState",
+      "useState"
+    ],
+    "both": [
+      "formatMonth",
+      "handleMonthSelect",
+      "renderDialogContent"
+    ],
+    "exportDefault": [
+      "UpdateAmexAggregatedButton"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Dialog": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "Dialog",
+        "localName": "Dialog"
+      },
+      "DialogContent": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogContent",
+        "localName": "DialogContent"
+      },
+      "DialogHeader": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogHeader",
+        "localName": "DialogHeader"
+      },
+      "DialogTitle": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogTitle",
+        "localName": "DialogTitle"
+      },
+      "getAmexUpdatePreview": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "getAmexUpdatePreview",
+        "localName": "getAmexUpdatePreview"
+      },
+      "previewAmexMonthTransactions": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "previewAmexMonthTransactions",
+        "localName": "previewAmexMonthTransactions"
+      },
+      "executeAmexUpdate": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "executeAmexUpdate",
+        "localName": "executeAmexUpdate"
+      },
+      "AmexUpdatePreview": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "AmexUpdatePreview",
+        "localName": "AmexUpdatePreview"
+      },
+      "AmexUpdateResult": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "AmexUpdateResult",
+        "localName": "AmexUpdateResult"
+      },
+      "Transaction": {
+        "source": "@/types/transaction",
+        "type": "alias",
+        "importedName": "Transaction",
+        "localName": "Transaction"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "setState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setState"
+      },
+      "setIsOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsOpen"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "getAmexUpdatePreview": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "getAmexUpdatePreview",
+        "localName": "getAmexUpdatePreview"
+      },
+      "setAmexPreview": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAmexPreview"
+      },
+      "setSelectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedMonth"
+      },
+      "previewAmexMonthTransactions": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "previewAmexMonthTransactions",
+        "localName": "previewAmexMonthTransactions"
+      },
+      "setMonthTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMonthTransactions"
+      },
+      "executeAmexUpdate": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "executeAmexUpdate",
+        "localName": "executeAmexUpdate"
+      },
+      "setResult": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setResult"
+      },
+      "monthTable.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "monthTable",
+        "functionName": "monthTable.match",
+        "fullMemberPath": "monthTable.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "parseInt": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseInt",
+        "localName": "parseInt"
+      },
+      "formatMonth": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatMonth",
+        "localName": "formatMonth"
+      },
+      "handleMonthSelect": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleMonthSelect",
+        "localName": "handleMonthSelect"
+      },
+      "monthTransactions.reduce.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "monthTransactions",
+        "functionName": "monthTransactions.reduce.toFixed",
+        "fullMemberPath": "monthTransactions.reduce.toFixed",
+        "methodChain": [
+          "reduce",
+          "toFixed"
+        ],
+        "isChainedCall": true
+      },
+      "monthTransactions.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "monthTransactions",
+        "functionName": "monthTransactions.slice.map",
+        "fullMemberPath": "monthTransactions.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "renderDialogContent": {
+        "source": "local",
+        "type": "local",
+        "importedName": "renderDialogContent",
+        "localName": "renderDialogContent"
+      }
+    },
+    "destructuredFunctions": {
+      "state": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "state"
+      },
+      "setState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setState"
+      },
+      "isOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isOpen"
+      },
+      "setIsOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsOpen"
+      },
+      "amexPreview": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "amexPreview"
+      },
+      "setAmexPreview": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setAmexPreview"
+      },
+      "selectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedMonth"
+      },
+      "setSelectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedMonth"
+      },
+      "monthTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "monthTransactions"
+      },
+      "setMonthTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMonthTransactions"
+      },
+      "result": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "result"
+      },
+      "setResult": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setResult"
+      },
+      "error": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "error"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      }
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "originalFilePath": "utils/transactionFetchers.ts",
+    "scannedDirectory": "lib",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.450Z"
+  },
+  "analysis": {
+    "defined": [
+      "fetchAmexTransactions",
+      "fetchHandelsbankenTransactions",
+      "fetchInterTransactions",
+      "fetchTransactions"
+    ],
+    "called": [
+      "Object.entries.forEach",
+      "console.error",
+      "fetchTransactions",
+      "query.eq",
+      "query.order",
+      "supabase.from.select.eq"
+    ],
+    "both": [
+      "fetchTransactions"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "supabase": {
+        "source": "../supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "Transaction": {
+        "source": "@/types/transaction",
+        "type": "alias",
+        "importedName": "Transaction",
+        "localName": "Transaction"
+      }
+    },
+    "calledWithImports": {
+      "supabase.from.select.eq": {
+        "source": "../supabaseClient",
+        "type": "relative",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.select.eq",
+        "fullMemberPath": "supabase.from.select.eq",
+        "methodChain": [
+          "from",
+          "select",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "query.eq": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "query",
+        "functionName": "query.eq",
+        "fullMemberPath": "query.eq",
+        "methodChain": [
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.forEach",
+        "fullMemberPath": "Object.entries.forEach",
+        "methodChain": [
+          "entries",
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "query.order": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "query",
+        "functionName": "query.order",
+        "fullMemberPath": "query.order",
+        "methodChain": [
+          "order"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "fetchTransactions": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchTransactions",
+        "localName": "fetchTransactions"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

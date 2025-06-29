@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/collapsible.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [],
+    "called": [],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "CollapsiblePrimitive": {
+        "source": "@radix-ui/react-collapsible",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "CollapsiblePrimitive"
+      }
+    },
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

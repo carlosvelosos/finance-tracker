@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/navigation-menu.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [
+      "NavigationMenu",
+      "NavigationMenuContent",
+      "NavigationMenuIndicator",
+      "NavigationMenuItem",
+      "NavigationMenuLink",
+      "NavigationMenuList",
+      "NavigationMenuTrigger",
+      "NavigationMenuViewport"
+    ],
+    "called": [
+      "cn",
+      "cva",
+      "navigationMenuTriggerStyle"
+    ],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React"
+      },
+      "NavigationMenuPrimitive": {
+        "source": "@radix-ui/react-navigation-menu",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "NavigationMenuPrimitive"
+      },
+      "cva": {
+        "source": "class-variance-authority",
+        "type": "npm",
+        "importedName": "cva",
+        "localName": "cva"
+      },
+      "ChevronDownIcon": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "ChevronDownIcon",
+        "localName": "ChevronDownIcon"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "calledWithImports": {
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "cva": {
+        "source": "class-variance-authority",
+        "type": "npm",
+        "importedName": "cva",
+        "localName": "cva"
+      },
+      "navigationMenuTriggerStyle": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "navigationMenuTriggerStyle",
+        "localName": "navigationMenuTriggerStyle"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

@@ -150,150 +150,199 @@ async function getSubdirectories(targetDir) {
   }
 }
 
-// Function to prompt user for directory selection with exit option
+// Function to prompt user for directory selection with keyboard navigation and multi-select
 function promptDirectorySelection(directories, currentPath = ".") {
   return new Promise((resolve, reject) => {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
-      terminal: false,
+      terminal: true,
     });
 
-    console.log(`\nAvailable directories in ${currentPath}:`);
-    directories.forEach((dir, index) => {
-      console.log(`${index + 1}. ${dir}`);
-    });
-    console.log(
-      `${directories.length + 1}. . (use current directory: ${currentPath})`,
-    );
-    console.log(`${directories.length + 2}. Exit`);
+    let selectedDirectories = new Set();
+    const options = [
+      ...directories,
+      `. (use current directory: ${currentPath})`,
+    ];
 
-    rl.question("\nSelect a directory (enter number): ", (answer) => {
-      rl.close();
-      const selection = parseInt(answer.trim());
-
-      if (selection >= 1 && selection <= directories.length) {
-        console.log(`Selected: ${directories[selection - 1]}`);
-        resolve(directories[selection - 1]);
-      } else if (selection === directories.length + 1) {
-        console.log(`Selected: ${currentPath}`);
-        resolve("USE_CURRENT");
-      } else if (selection === directories.length + 2) {
-        console.log("Exiting script.");
-        reject(new Error("USER_EXIT"));
-      } else {
-        console.log("Invalid selection. Please try again.");
-        resolve("INVALID");
-      }
-    });
-  });
-}
-
-// Function to handle recursive directory selection
-async function selectDirectoryRecursively(basePath = ".") {
-  let currentPath = basePath;
-
-  while (true) {
-    const subdirectories = await getSubdirectories(currentPath);
-
-    if (subdirectories.length === 0) {
-      console.log(`\nNo subdirectories found in ${currentPath}.`);
-      console.log(`Using: ${currentPath}`);
-      return currentPath;
-    }
-
-    try {
-      const selectedDir = await promptDirectorySelection(
-        subdirectories,
-        currentPath,
+    function displayMenu() {
+      console.clear();
+      console.log(`\n🗂️  Available directories in ${currentPath}:`);
+      console.log(
+        "📁 Enter numbers separated by spaces to select multiple directories\n",
       );
 
-      if (selectedDir === "USE_CURRENT") {
-        return currentPath;
-      } else if (selectedDir === "INVALID") {
-        continue; // Loop again for valid input
-      } else {
-        // User selected a subdirectory
-        const newPath = path.join(currentPath, selectedDir);
+      options.forEach((option, index) => {
+        const isSelected = selectedDirectories.has(index);
+        const isDirectory = index < directories.length;
+        const isCurrentDir = index === directories.length;
 
-        // Check if user wants to continue drilling down or use this directory
-        const action = await promptContinueOrUse(newPath);
+        let checkbox = isSelected ? "[✓] " : "[ ] ";
+        let icon = "";
 
-        if (action === "use") {
-          return newPath;
-        } else if (action === "continue") {
-          currentPath = newPath;
-          continue; // Continue the loop with the new path
-        } else {
-          throw new Error("USER_EXIT");
-        }
+        if (isDirectory) icon = "📁 ";
+        else if (isCurrentDir) icon = "📂 ";
+
+        console.log(`${index + 1}. ${checkbox}${icon}${option}`);
+      });
+
+      if (selectedDirectories.size > 0) {
+        const selectedNames = Array.from(selectedDirectories)
+          .map((i) => (i === directories.length ? currentPath : directories[i]))
+          .join(", ");
+        console.log(`\n� Currently selected: ${selectedNames}`);
       }
-    } catch (error) {
-      if (error.message === "USER_EXIT") {
-        throw error;
-      }
-      console.error("Error during directory selection:", error.message);
-      return currentPath;
+
+      console.log(`\n💡 Options:`);
+      console.log(`   • Enter numbers (e.g., "1 3 5") to toggle selection`);
+      console.log(`   • Enter "a" to select all directories`);
+      console.log(`   • Enter "c" to clear all selections`);
+      console.log(`   • Enter "done" or press Enter to confirm selection`);
+      console.log(`   • Enter "exit" to quit`);
     }
-  }
+
+    function processInput(input) {
+      const trimmed = input.trim().toLowerCase();
+
+      if (trimmed === "" || trimmed === "done") {
+        // Confirm selection
+        const selected = Array.from(selectedDirectories).map((index) => {
+          if (index === directories.length) {
+            return "USE_CURRENT";
+          }
+          return directories[index];
+        });
+
+        if (selected.length === 0) {
+          console.log(
+            "\n⚠️  No directories selected. Please select at least one directory.",
+          );
+          setTimeout(() => {
+            displayMenu();
+            rl.question("\nYour choice: ", processInput);
+          }, 1500);
+          return;
+        }
+
+        rl.close();
+        resolve(selected);
+        return;
+      }
+
+      if (trimmed === "exit") {
+        rl.close();
+        reject(new Error("USER_EXIT"));
+        return;
+      }
+
+      if (trimmed === "a" || trimmed === "all") {
+        // Select all directories
+        for (let i = 0; i <= directories.length; i++) {
+          selectedDirectories.add(i);
+        }
+        displayMenu();
+        rl.question("\nYour choice: ", processInput);
+        return;
+      }
+
+      if (trimmed === "c" || trimmed === "clear") {
+        // Clear all selections
+        selectedDirectories.clear();
+        displayMenu();
+        rl.question("\nYour choice: ", processInput);
+        return;
+      }
+
+      // Parse number selections
+      const numbers = trimmed
+        .split(/\s+/)
+        .map((n) => parseInt(n))
+        .filter((n) => !isNaN(n));
+
+      if (numbers.length > 0) {
+        numbers.forEach((num) => {
+          const index = num - 1; // Convert to 0-based index
+          if (index >= 0 && index < options.length) {
+            if (selectedDirectories.has(index)) {
+              selectedDirectories.delete(index);
+            } else {
+              selectedDirectories.add(index);
+            }
+          }
+        });
+        displayMenu();
+        rl.question("\nYour choice: ", processInput);
+        return;
+      }
+
+      console.log("\n❌ Invalid input. Please try again.");
+      setTimeout(() => {
+        displayMenu();
+        rl.question("\nYour choice: ", processInput);
+      }, 1000);
+    }
+
+    // Initial display
+    displayMenu();
+    rl.question("\nYour choice: ", processInput);
+  });
 }
 
-// Function to prompt user whether to continue drilling down or use current directory
-function promptContinueOrUse(currentPath) {
-  return new Promise((resolve, reject) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: false,
-    });
+// Function to handle directory selection (supports multi-select)
+async function selectDirectoriesInteractively(basePath = ".") {
+  const directories = await getAvailableDirectories();
 
-    console.log(`\nCurrent selection: ${currentPath}`);
-    console.log("1. Continue to subdirectories");
-    console.log("2. Use this directory");
-    console.log("3. Exit");
+  if (directories.length === 0) {
+    console.log(`\nNo subdirectories found in ${basePath}.`);
+    console.log(`Using current directory: ${basePath}`);
+    return [basePath];
+  }
 
-    rl.question("\nChoose an option (enter number): ", (answer) => {
-      rl.close();
-      const selection = parseInt(answer.trim());
+  try {
+    const selectedDirectories = await promptDirectorySelection(
+      directories,
+      basePath,
+    );
 
-      if (selection === 1) {
-        resolve("continue");
-      } else if (selection === 2) {
-        resolve("use");
-      } else if (selection === 3) {
-        console.log("Exiting script.");
-        reject(new Error("USER_EXIT"));
-      } else {
-        console.log("Invalid selection. Using this directory.");
-        resolve("use");
+    return selectedDirectories.map((dir) => {
+      if (dir === "USE_CURRENT") {
+        return basePath;
       }
+      return path.resolve(basePath, dir);
     });
-  });
+  } catch (error) {
+    if (error.message === "USER_EXIT") {
+      throw error;
+    }
+    console.error("Error during directory selection:", error.message);
+    console.log("Falling back to current directory.");
+    return [basePath];
+  }
 }
 
 program
   .version("1.0.0")
   .description(
-    "A CLI tool to scan a directory for JS/TS files and report defined and called functions.",
+    "A CLI tool to scan directories for JS/TS files and report defined and called functions. Supports multi-directory selection.",
   )
   .argument(
     "[directory]",
-    "The target directory to scan (e.g., .) - if omitted, will prompt for selection",
+    "The target directory to scan (e.g., .) - if omitted, will prompt for multi-selection",
   )
   .action(main)
   .parse(process.argv);
 
 async function main(directory) {
-  let targetDirectory = directory;
+  let targetDirectories = [];
 
   // If no directory is provided, prompt for selection
-  if (!targetDirectory) {
+  if (!directory) {
     console.log(
       "No directory specified. Starting interactive directory selection...",
     );
 
     try {
-      targetDirectory = await selectDirectoryRecursively(".");
+      targetDirectories = await selectDirectoriesInteractively(".");
     } catch (error) {
       if (error.message === "USER_EXIT") {
         console.log("Operation cancelled by user.");
@@ -301,22 +350,34 @@ async function main(directory) {
       }
       console.error("Error during directory selection:", error.message);
       console.log("Falling back to current directory.");
-      targetDirectory = ".";
+      targetDirectories = ["."];
     }
+  } else {
+    // Single directory provided as argument
+    targetDirectories = [path.resolve(directory)];
   }
 
-  const targetDir = path.resolve(targetDirectory);
+  // Process each selected directory
+  for (const targetDirectory of targetDirectories) {
+    const targetDir = path.resolve(targetDirectory);
 
-  try {
-    await fs.access(targetDir);
-  } catch (error) {
-    console.error(`Error: Directory not found at '${targetDir}'`);
-    process.exit(1);
+    try {
+      await fs.access(targetDir);
+    } catch (error) {
+      console.error(`Error: Directory not found at '${targetDir}'`);
+      continue; // Skip this directory and continue with others
+    }
+
+    console.log(`\n🔍 Scanning files in: ${targetDir}`);
+    const report = await processDirectory(targetDir);
+    await generateReport(report, path.basename(targetDirectory));
   }
 
-  console.log(`Scanning files in: ${targetDir}`);
-  const report = await processDirectory(targetDir);
-  await generateReport(report, targetDirectory);
+  if (targetDirectories.length > 1) {
+    console.log(
+      `\n✅ Completed scanning ${targetDirectories.length} directories.`,
+    );
+  }
 }
 
 /**

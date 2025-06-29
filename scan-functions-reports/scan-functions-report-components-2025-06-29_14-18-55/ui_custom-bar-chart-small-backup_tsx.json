@@ -1,0 +1,215 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/custom-bar-chart-small-backup.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [
+      "ChartContainer",
+      "ChartLegendContent",
+      "ChartStyle",
+      "ChartTooltipContent",
+      "getPayloadConfigFromPayload",
+      "useChart"
+    ],
+    "called": [
+      "Object.entries.filter",
+      "Object.entries.map.join",
+      "React.createContext",
+      "React.useContext",
+      "React.useId",
+      "React.useMemo",
+      "cn",
+      "colorConfig.map.join",
+      "formatter",
+      "getPayloadConfigFromPayload",
+      "item.toLocaleString",
+      "labelFormatter",
+      "payload.map",
+      "uniqueId.replace",
+      "useChart"
+    ],
+    "both": [
+      "getPayloadConfigFromPayload",
+      "useChart"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React"
+      },
+      "RechartsPrimitive": {
+        "source": "recharts",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "RechartsPrimitive"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "calledWithImports": {
+      "React.createContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.createContext",
+        "fullMemberPath": "React.createContext",
+        "methodChain": [
+          "createContext"
+        ],
+        "isChainedCall": true
+      },
+      "React.useContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useContext",
+        "fullMemberPath": "React.useContext",
+        "methodChain": [
+          "useContext"
+        ],
+        "isChainedCall": true
+      },
+      "React.useId": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useId",
+        "fullMemberPath": "React.useId",
+        "methodChain": [
+          "useId"
+        ],
+        "isChainedCall": true
+      },
+      "uniqueId.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "uniqueId",
+        "functionName": "uniqueId.replace",
+        "fullMemberPath": "uniqueId.replace",
+        "methodChain": [
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "Object.entries.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.filter",
+        "fullMemberPath": "Object.entries.filter",
+        "methodChain": [
+          "entries",
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "Object.entries.map.join": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.entries.map.join",
+        "fullMemberPath": "Object.entries.map.join",
+        "methodChain": [
+          "entries",
+          "map",
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "colorConfig.map.join": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "colorConfig",
+        "functionName": "colorConfig.map.join",
+        "fullMemberPath": "colorConfig.map.join",
+        "methodChain": [
+          "map",
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "useChart": {
+        "source": "local",
+        "type": "local",
+        "importedName": "useChart",
+        "localName": "useChart"
+      },
+      "React.useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useMemo",
+        "fullMemberPath": "React.useMemo",
+        "methodChain": [
+          "useMemo"
+        ],
+        "isChainedCall": true
+      },
+      "getPayloadConfigFromPayload": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getPayloadConfigFromPayload",
+        "localName": "getPayloadConfigFromPayload"
+      },
+      "labelFormatter": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "labelFormatter",
+        "localName": "labelFormatter"
+      },
+      "payload.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "payload",
+        "functionName": "payload.map",
+        "fullMemberPath": "payload.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "formatter": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "formatter",
+        "localName": "formatter"
+      },
+      "item.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "item",
+        "functionName": "item.toLocaleString",
+        "fullMemberPath": "item.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

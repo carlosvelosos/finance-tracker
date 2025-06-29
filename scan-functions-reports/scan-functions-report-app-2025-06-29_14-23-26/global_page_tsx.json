@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "originalFilePath": "global/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_14-23-26",
+    "scanDate": "2025-06-29T12:23:26.790Z"
+  },
+  "analysis": {
+    "defined": [
+      "Home"
+    ],
+    "called": [
+      "transactions.filter",
+      "useGlobalTransactionsWithProcessing"
+    ],
+    "both": [],
+    "exportDefault": [
+      "Home"
+    ],
+    "imports": {
+      "useGlobalTransactionsWithProcessing": {
+        "source": "../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useGlobalTransactionsWithProcessing",
+        "localName": "useGlobalTransactionsWithProcessing"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "TransactionTable": {
+        "source": "@/components/ui/transaction/TransactionTable",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "TransactionTable"
+      },
+      "Accordion": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "Accordion",
+        "localName": "Accordion"
+      },
+      "AccordionItem": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionItem",
+        "localName": "AccordionItem"
+      },
+      "AccordionTrigger": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionTrigger",
+        "localName": "AccordionTrigger"
+      },
+      "AccordionContent": {
+        "source": "@/components/ui/accordion",
+        "type": "alias",
+        "importedName": "AccordionContent",
+        "localName": "AccordionContent"
+      }
+    },
+    "calledWithImports": {
+      "useGlobalTransactionsWithProcessing": {
+        "source": "../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useGlobalTransactionsWithProcessing",
+        "localName": "useGlobalTransactionsWithProcessing"
+      },
+      "transactions.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.filter",
+        "fullMemberPath": "transactions.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

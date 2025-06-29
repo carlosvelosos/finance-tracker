@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/label.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [],
+    "called": [
+      "React.forwardRef",
+      "cn"
+    ],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "calledWithImports": {
+      "React.forwardRef": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.forwardRef",
+        "fullMemberPath": "React.forwardRef",
+        "methodChain": [
+          "forwardRef"
+        ],
+        "isChainedCall": true
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

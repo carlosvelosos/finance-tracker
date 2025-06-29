@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "originalFilePath": "CustomButton.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [
+      "CustomButton"
+    ],
+    "called": [],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      }
+    },
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

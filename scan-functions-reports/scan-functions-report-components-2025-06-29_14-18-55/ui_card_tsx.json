@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/card.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [
+      "Card",
+      "CardAction",
+      "CardContent",
+      "CardDescription",
+      "CardFooter",
+      "CardHeader",
+      "CardTitle"
+    ],
+    "called": [
+      "cn"
+    ],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "calledWithImports": {
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

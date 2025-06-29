@@ -1,0 +1,406 @@
+{
+  "metadata": {
+    "originalFilePath": "utils/bankProcessors.ts",
+    "scannedDirectory": "lib",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.450Z"
+  },
+  "analysis": {
+    "defined": [
+      "excelToDate",
+      "processAmex",
+      "processDEV",
+      "processHandelsbanken",
+      "processInterBR",
+      "processInterBRAccount",
+      "processSEB"
+    ],
+    "called": [
+      "Number",
+      "console.log",
+      "data.slice.filter.map",
+      "data.slice.map",
+      "dateParts.padStart",
+      "day.padStart",
+      "excelDate.toISOString.split",
+      "excelToDate",
+      "fileName.match",
+      "fileName.replace",
+      "getDate",
+      "getFullYear",
+      "getFullYear.toString",
+      "isNaN",
+      "month.padStart",
+      "parseFloat",
+      "periodRow.match",
+      "rawAmount.replace.replace.replace",
+      "rawAmount.replace.replace.replace.trim",
+      "rawBalance.replace.replace.replace.trim",
+      "rawDate.split",
+      "rawDate.split.reverse.join",
+      "replace",
+      "replace.trim",
+      "row.includes",
+      "row.split",
+      "row.trim",
+      "setDate",
+      "startDate.getDate",
+      "startDate.setDate",
+      "toISOString.split",
+      "transactions.split",
+      "yearRow.match"
+    ],
+    "both": [
+      "excelToDate"
+    ],
+    "exportDefault": [],
+    "imports": {},
+    "calledWithImports": {
+      "data.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.slice.map",
+        "fullMemberPath": "data.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "parseFloat": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseFloat",
+        "localName": "parseFloat"
+      },
+      "rawDate.split.reverse.join": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "rawDate",
+        "functionName": "rawDate.split.reverse.join",
+        "fullMemberPath": "rawDate.split.reverse.join",
+        "methodChain": [
+          "split",
+          "reverse",
+          "join"
+        ],
+        "isChainedCall": true
+      },
+      "fileName.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileName",
+        "functionName": "fileName.match",
+        "fullMemberPath": "fileName.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "periodRow.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "periodRow",
+        "functionName": "periodRow.match",
+        "fullMemberPath": "periodRow.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "getFullYear": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getFullYear",
+        "fullMemberPath": "getFullYear"
+      },
+      "data.slice.filter.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.slice.filter.map",
+        "fullMemberPath": "data.slice.filter.map",
+        "methodChain": [
+          "slice",
+          "filter",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "replace",
+        "fullMemberPath": "replace"
+      },
+      "fileName.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileName",
+        "functionName": "fileName.replace",
+        "fullMemberPath": "fileName.replace",
+        "methodChain": [
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "rawDate.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "rawDate",
+        "functionName": "rawDate.split",
+        "fullMemberPath": "rawDate.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "dateParts.padStart": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dateParts",
+        "functionName": "dateParts.padStart",
+        "fullMemberPath": "dateParts.padStart",
+        "methodChain": [
+          "padStart"
+        ],
+        "isChainedCall": true
+      },
+      "rawAmount.replace.replace.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "rawAmount",
+        "functionName": "rawAmount.replace.replace.replace",
+        "fullMemberPath": "rawAmount.replace.replace.replace",
+        "methodChain": [
+          "replace",
+          "replace",
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "yearRow.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "yearRow",
+        "functionName": "yearRow.match",
+        "fullMemberPath": "yearRow.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "startDate.setDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "startDate",
+        "functionName": "startDate.setDate",
+        "fullMemberPath": "startDate.setDate",
+        "methodChain": [
+          "setDate"
+        ],
+        "isChainedCall": true
+      },
+      "startDate.getDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "startDate",
+        "functionName": "startDate.getDate",
+        "fullMemberPath": "startDate.getDate",
+        "methodChain": [
+          "getDate"
+        ],
+        "isChainedCall": true
+      },
+      "excelDate.toISOString.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "excelDate",
+        "functionName": "excelDate.toISOString.split",
+        "fullMemberPath": "excelDate.toISOString.split",
+        "methodChain": [
+          "toISOString",
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "isNaN": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "isNaN",
+        "localName": "isNaN"
+      },
+      "Number": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "Number",
+        "localName": "Number"
+      },
+      "excelToDate": {
+        "source": "local",
+        "type": "local",
+        "importedName": "excelToDate",
+        "localName": "excelToDate"
+      },
+      "row.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "row",
+        "functionName": "row.split",
+        "fullMemberPath": "row.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "month.padStart": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "month",
+        "functionName": "month.padStart",
+        "fullMemberPath": "month.padStart",
+        "methodChain": [
+          "padStart"
+        ],
+        "isChainedCall": true
+      },
+      "day.padStart": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "day",
+        "functionName": "day.padStart",
+        "fullMemberPath": "day.padStart",
+        "methodChain": [
+          "padStart"
+        ],
+        "isChainedCall": true
+      },
+      "replace.trim": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "replace.trim",
+        "fullMemberPath": "replace.trim",
+        "methodChain": [
+          "replace",
+          "trim"
+        ],
+        "isChainedCall": true
+      },
+      "toISOString.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toISOString.split",
+        "fullMemberPath": "toISOString.split",
+        "methodChain": [
+          "toISOString",
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "setDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "setDate",
+        "fullMemberPath": "setDate"
+      },
+      "getDate": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getDate",
+        "fullMemberPath": "getDate"
+      },
+      "row.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "row",
+        "functionName": "row.includes",
+        "fullMemberPath": "row.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "row.trim": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "row",
+        "functionName": "row.trim",
+        "fullMemberPath": "row.trim",
+        "methodChain": [
+          "trim"
+        ],
+        "isChainedCall": true
+      },
+      "rawAmount.replace.replace.replace.trim": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "rawAmount",
+        "functionName": "rawAmount.replace.replace.replace.trim",
+        "fullMemberPath": "rawAmount.replace.replace.replace.trim",
+        "methodChain": [
+          "replace",
+          "replace",
+          "replace",
+          "trim"
+        ],
+        "isChainedCall": true
+      },
+      "rawBalance.replace.replace.replace.trim": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "rawBalance",
+        "functionName": "rawBalance.replace.replace.replace.trim",
+        "fullMemberPath": "rawBalance.replace.replace.replace.trim",
+        "methodChain": [
+          "replace",
+          "replace",
+          "replace",
+          "trim"
+        ],
+        "isChainedCall": true
+      },
+      "getFullYear.toString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "getFullYear.toString",
+        "fullMemberPath": "getFullYear.toString",
+        "methodChain": [
+          "getFullYear",
+          "toString"
+        ],
+        "isChainedCall": true
+      },
+      "transactions.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transactions",
+        "functionName": "transactions.split",
+        "fullMemberPath": "transactions.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

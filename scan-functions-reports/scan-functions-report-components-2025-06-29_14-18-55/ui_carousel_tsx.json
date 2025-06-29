@@ -1,0 +1,493 @@
+{
+  "metadata": {
+    "originalFilePath": "ui/carousel.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-18-55",
+    "scanDate": "2025-06-29T12:18:55.676Z"
+  },
+  "analysis": {
+    "defined": [
+      "Carousel",
+      "CarouselContent",
+      "CarouselDots",
+      "CarouselDotsResponsive",
+      "CarouselItem",
+      "CarouselNext",
+      "CarouselPrevious",
+      "onResizeHandler",
+      "onSelect",
+      "onSelectHandler",
+      "updateScreenSize",
+      "updateSelectedIndex",
+      "updateSlideCount",
+      "useCarousel"
+    ],
+    "called": [
+      "Array.from.map",
+      "Math.max",
+      "Math.min",
+      "React.createContext",
+      "React.useCallback",
+      "React.useContext",
+      "React.useEffect",
+      "React.useMemo",
+      "React.useState",
+      "api.canScrollNext",
+      "api.canScrollPrev",
+      "api.off",
+      "api.on",
+      "api.scrollTo",
+      "api.selectedScrollSnap",
+      "api.slideNodes",
+      "cn",
+      "document.querySelectorAll",
+      "event.preventDefault",
+      "handleDotClick",
+      "indicators.map",
+      "onSelect",
+      "scrollNext",
+      "scrollPrev",
+      "setApi",
+      "setCanScrollNext",
+      "setCanScrollPrev",
+      "setIs2XL",
+      "setSelectedIndex",
+      "setSlideCount",
+      "updateScreenSize",
+      "updateSelectedIndex",
+      "updateSlideCount",
+      "useCarousel",
+      "useEmblaCarousel",
+      "window.addEventListener",
+      "window.removeEventListener",
+      "window.requestAnimationFrame"
+    ],
+    "both": [
+      "onSelect",
+      "updateScreenSize",
+      "updateSelectedIndex",
+      "updateSlideCount",
+      "useCarousel"
+    ],
+    "exportDefault": [],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React"
+      },
+      "useEmblaCarousel": {
+        "source": "embla-carousel-react",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "useEmblaCarousel"
+      },
+      "UseEmblaCarouselType": {
+        "source": "embla-carousel-react",
+        "type": "npm",
+        "importedName": "UseEmblaCarouselType",
+        "localName": "UseEmblaCarouselType"
+      },
+      "ArrowLeft": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "ArrowLeft",
+        "localName": "ArrowLeft"
+      },
+      "ArrowRight": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "ArrowRight",
+        "localName": "ArrowRight"
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      }
+    },
+    "calledWithImports": {
+      "React.createContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.createContext",
+        "fullMemberPath": "React.createContext",
+        "methodChain": [
+          "createContext"
+        ],
+        "isChainedCall": true
+      },
+      "React.useContext": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useContext",
+        "fullMemberPath": "React.useContext",
+        "methodChain": [
+          "useContext"
+        ],
+        "isChainedCall": true
+      },
+      "useEmblaCarousel": {
+        "source": "embla-carousel-react",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "useEmblaCarousel"
+      },
+      "React.useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useState",
+        "fullMemberPath": "React.useState",
+        "methodChain": [
+          "useState"
+        ],
+        "isChainedCall": true
+      },
+      "React.useCallback": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useCallback",
+        "fullMemberPath": "React.useCallback",
+        "methodChain": [
+          "useCallback"
+        ],
+        "isChainedCall": true
+      },
+      "setCanScrollPrev": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setCanScrollPrev",
+        "localName": "setCanScrollPrev"
+      },
+      "api.canScrollPrev": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.canScrollPrev",
+        "fullMemberPath": "api.canScrollPrev",
+        "methodChain": [
+          "canScrollPrev"
+        ],
+        "isChainedCall": true
+      },
+      "setCanScrollNext": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setCanScrollNext",
+        "localName": "setCanScrollNext"
+      },
+      "api.canScrollNext": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.canScrollNext",
+        "fullMemberPath": "api.canScrollNext",
+        "methodChain": [
+          "canScrollNext"
+        ],
+        "isChainedCall": true
+      },
+      "event.preventDefault": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "event",
+        "functionName": "event.preventDefault",
+        "fullMemberPath": "event.preventDefault",
+        "methodChain": [
+          "preventDefault"
+        ],
+        "isChainedCall": true
+      },
+      "scrollPrev": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "scrollPrev",
+        "localName": "scrollPrev"
+      },
+      "scrollNext": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "scrollNext",
+        "localName": "scrollNext"
+      },
+      "React.useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useEffect",
+        "fullMemberPath": "React.useEffect",
+        "methodChain": [
+          "useEffect"
+        ],
+        "isChainedCall": true
+      },
+      "setApi": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setApi",
+        "localName": "setApi"
+      },
+      "onSelect": {
+        "source": "local",
+        "type": "local",
+        "importedName": "onSelect",
+        "localName": "onSelect"
+      },
+      "api.on": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.on",
+        "fullMemberPath": "api.on",
+        "methodChain": [
+          "on"
+        ],
+        "isChainedCall": true
+      },
+      "cn": {
+        "source": "@/lib/utils",
+        "type": "alias",
+        "importedName": "cn",
+        "localName": "cn"
+      },
+      "useCarousel": {
+        "source": "local",
+        "type": "local",
+        "importedName": "useCarousel",
+        "localName": "useCarousel"
+      },
+      "document.querySelectorAll": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "document",
+        "functionName": "document.querySelectorAll",
+        "fullMemberPath": "document.querySelectorAll",
+        "methodChain": [
+          "querySelectorAll"
+        ],
+        "isChainedCall": true
+      },
+      "setSlideCount": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setSlideCount",
+        "localName": "setSlideCount"
+      },
+      "api.slideNodes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.slideNodes",
+        "fullMemberPath": "api.slideNodes",
+        "methodChain": [
+          "slideNodes"
+        ],
+        "isChainedCall": true
+      },
+      "setSelectedIndex": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setSelectedIndex",
+        "localName": "setSelectedIndex"
+      },
+      "api.selectedScrollSnap": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.selectedScrollSnap",
+        "fullMemberPath": "api.selectedScrollSnap",
+        "methodChain": [
+          "selectedScrollSnap"
+        ],
+        "isChainedCall": true
+      },
+      "updateSlideCount": {
+        "source": "local",
+        "type": "local",
+        "importedName": "updateSlideCount",
+        "localName": "updateSlideCount"
+      },
+      "api.off": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.off",
+        "fullMemberPath": "api.off",
+        "methodChain": [
+          "off"
+        ],
+        "isChainedCall": true
+      },
+      "Math.max": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.max",
+        "fullMemberPath": "Math.max",
+        "methodChain": [
+          "max"
+        ],
+        "isChainedCall": true
+      },
+      "Array.from.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Array",
+        "functionName": "Array.from.map",
+        "fullMemberPath": "Array.from.map",
+        "methodChain": [
+          "from",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "handleDotClick": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "handleDotClick",
+        "localName": "handleDotClick"
+      },
+      "setIs2XL": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "setIs2XL",
+        "localName": "setIs2XL"
+      },
+      "updateScreenSize": {
+        "source": "local",
+        "type": "local",
+        "importedName": "updateScreenSize",
+        "localName": "updateScreenSize"
+      },
+      "updateSelectedIndex": {
+        "source": "local",
+        "type": "local",
+        "importedName": "updateSelectedIndex",
+        "localName": "updateSelectedIndex"
+      },
+      "window.requestAnimationFrame": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.requestAnimationFrame",
+        "fullMemberPath": "window.requestAnimationFrame",
+        "methodChain": [
+          "requestAnimationFrame"
+        ],
+        "isChainedCall": true
+      },
+      "window.addEventListener": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.addEventListener",
+        "fullMemberPath": "window.addEventListener",
+        "methodChain": [
+          "addEventListener"
+        ],
+        "isChainedCall": true
+      },
+      "window.removeEventListener": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "window",
+        "functionName": "window.removeEventListener",
+        "fullMemberPath": "window.removeEventListener",
+        "methodChain": [
+          "removeEventListener"
+        ],
+        "isChainedCall": true
+      },
+      "api.scrollTo": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "api",
+        "functionName": "api.scrollTo",
+        "fullMemberPath": "api.scrollTo",
+        "methodChain": [
+          "scrollTo"
+        ],
+        "isChainedCall": true
+      },
+      "Math.min": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Math",
+        "functionName": "Math.min",
+        "fullMemberPath": "Math.min",
+        "methodChain": [
+          "min"
+        ],
+        "isChainedCall": true
+      },
+      "React.useMemo": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "*",
+        "localName": "React",
+        "memberOf": "React",
+        "functionName": "React.useMemo",
+        "fullMemberPath": "React.useMemo",
+        "methodChain": [
+          "useMemo"
+        ],
+        "isChainedCall": true
+      },
+      "indicators.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "indicators",
+        "functionName": "indicators.map",
+        "fullMemberPath": "indicators.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "carouselRef": {
+        "source": "embla-carousel-react",
+        "type": "npm",
+        "hookName": "useEmblaCarousel",
+        "destructuredFrom": "useEmblaCarousel",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useEmblaCarousel",
+        "localName": "carouselRef"
+      },
+      "api": {
+        "source": "embla-carousel-react",
+        "type": "npm",
+        "hookName": "useEmblaCarousel",
+        "destructuredFrom": "useEmblaCarousel",
+        "destructuredIndex": 1,
+        "isHookSetter": false,
+        "importedName": "useEmblaCarousel",
+        "localName": "api"
+      }
+    }
+  }
+}

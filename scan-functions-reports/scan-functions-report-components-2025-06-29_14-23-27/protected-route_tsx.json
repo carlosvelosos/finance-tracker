@@ -1,0 +1,209 @@
+{
+  "metadata": {
+    "originalFilePath": "protected-route.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [
+      "ProtectedRoute",
+      "checkAuthorizationSync"
+    ],
+    "called": [
+      "allowedRoles.includes",
+      "allowedUserIds.includes",
+      "checkAuthorizationSync",
+      "console.log",
+      "pathname.includes",
+      "pathname.startsWith",
+      "router.push",
+      "setIsAuthorized",
+      "useAuth",
+      "useEffect",
+      "usePathname",
+      "useRouter",
+      "useState"
+    ],
+    "both": [
+      "checkAuthorizationSync"
+    ],
+    "exportDefault": [
+      "ProtectedRoute"
+    ],
+    "imports": {
+      "useRouter": {
+        "source": "next/navigation",
+        "type": "npm",
+        "importedName": "useRouter",
+        "localName": "useRouter"
+      },
+      "usePathname": {
+        "source": "next/navigation",
+        "type": "npm",
+        "importedName": "usePathname",
+        "localName": "usePathname"
+      },
+      "useAuth": {
+        "source": "@/context/AuthContext",
+        "type": "alias",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "Skeleton": {
+        "source": "@/components/ui/skeleton",
+        "type": "alias",
+        "importedName": "Skeleton",
+        "localName": "Skeleton"
+      }
+    },
+    "calledWithImports": {
+      "useAuth": {
+        "source": "@/context/AuthContext",
+        "type": "alias",
+        "importedName": "useAuth",
+        "localName": "useAuth"
+      },
+      "useRouter": {
+        "source": "next/navigation",
+        "type": "npm",
+        "importedName": "useRouter",
+        "localName": "useRouter"
+      },
+      "usePathname": {
+        "source": "next/navigation",
+        "type": "npm",
+        "importedName": "usePathname",
+        "localName": "usePathname"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "pathname.startsWith": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "pathname",
+        "functionName": "pathname.startsWith",
+        "fullMemberPath": "pathname.startsWith",
+        "methodChain": [
+          "startsWith"
+        ],
+        "isChainedCall": true
+      },
+      "pathname.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "pathname",
+        "functionName": "pathname.includes",
+        "fullMemberPath": "pathname.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "setIsAuthorized": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsAuthorized"
+      },
+      "router.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "router",
+        "functionName": "router.push",
+        "fullMemberPath": "router.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "allowedUserIds.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allowedUserIds",
+        "functionName": "allowedUserIds.includes",
+        "fullMemberPath": "allowedUserIds.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "console.log": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.log",
+        "fullMemberPath": "console.log",
+        "methodChain": [
+          "log"
+        ],
+        "isChainedCall": true
+      },
+      "allowedRoles.includes": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "allowedRoles",
+        "functionName": "allowedRoles.includes",
+        "fullMemberPath": "allowedRoles.includes",
+        "methodChain": [
+          "includes"
+        ],
+        "isChainedCall": true
+      },
+      "checkAuthorizationSync": {
+        "source": "local",
+        "type": "local",
+        "importedName": "checkAuthorizationSync",
+        "localName": "checkAuthorizationSync"
+      }
+    },
+    "destructuredFunctions": {
+      "isAuthorized": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isAuthorized"
+      },
+      "setIsAuthorized": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsAuthorized"
+      }
+    }
+  }
+}

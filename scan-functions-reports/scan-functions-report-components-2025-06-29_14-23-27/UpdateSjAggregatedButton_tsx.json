@@ -1,0 +1,449 @@
+{
+  "metadata": {
+    "originalFilePath": "UpdateSjAggregatedButton.tsx",
+    "scannedDirectory": "components",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.304Z"
+  },
+  "analysis": {
+    "defined": [
+      "UpdateSjAggregatedButton",
+      "formatTableName",
+      "getStateMessage",
+      "handleClose",
+      "handleConfirmUpdate",
+      "handleMonthSelect",
+      "handleStartUpdate"
+    ],
+    "called": [
+      "console.error",
+      "executeSjUpdate",
+      "formatTableName",
+      "getSjUpdatePreview",
+      "getStateMessage",
+      "handleMonthSelect",
+      "monthTransactions.slice.map",
+      "parseInt",
+      "previewSjMonthTransactions",
+      "setError",
+      "setIsOpen",
+      "setMonthTransactions",
+      "setResult",
+      "setSelectedMonth",
+      "setSjPreview",
+      "setState",
+      "sjPreview.map",
+      "tableName.match",
+      "toLocaleDateString",
+      "transaction.toFixed",
+      "useState"
+    ],
+    "both": [
+      "formatTableName",
+      "getStateMessage",
+      "handleMonthSelect"
+    ],
+    "exportDefault": [
+      "UpdateSjAggregatedButton"
+    ],
+    "imports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Dialog": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "Dialog",
+        "localName": "Dialog"
+      },
+      "DialogContent": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogContent",
+        "localName": "DialogContent"
+      },
+      "DialogHeader": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogHeader",
+        "localName": "DialogHeader"
+      },
+      "DialogTitle": {
+        "source": "@/components/ui/dialog",
+        "type": "alias",
+        "importedName": "DialogTitle",
+        "localName": "DialogTitle"
+      },
+      "getSjUpdatePreview": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "getSjUpdatePreview",
+        "localName": "getSjUpdatePreview"
+      },
+      "previewSjMonthTransactions": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "previewSjMonthTransactions",
+        "localName": "previewSjMonthTransactions"
+      },
+      "executeSjUpdate": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "executeSjUpdate",
+        "localName": "executeSjUpdate"
+      },
+      "SjUpdatePreview": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "SjUpdatePreview",
+        "localName": "SjUpdatePreview"
+      },
+      "SjUpdateResult": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "SjUpdateResult",
+        "localName": "SjUpdateResult"
+      },
+      "Transaction": {
+        "source": "@/types/transaction",
+        "type": "alias",
+        "importedName": "Transaction",
+        "localName": "Transaction"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "setState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setState"
+      },
+      "setIsOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsOpen"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "getSjUpdatePreview": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "getSjUpdatePreview",
+        "localName": "getSjUpdatePreview"
+      },
+      "setSjPreview": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSjPreview"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "setSelectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedMonth"
+      },
+      "previewSjMonthTransactions": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "previewSjMonthTransactions",
+        "localName": "previewSjMonthTransactions"
+      },
+      "setMonthTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMonthTransactions"
+      },
+      "executeSjUpdate": {
+        "source": "@/app/actions/updateActions",
+        "type": "alias",
+        "importedName": "executeSjUpdate",
+        "localName": "executeSjUpdate"
+      },
+      "setResult": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setResult"
+      },
+      "tableName.match": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "tableName",
+        "functionName": "tableName.match",
+        "fullMemberPath": "tableName.match",
+        "methodChain": [
+          "match"
+        ],
+        "isChainedCall": true
+      },
+      "parseInt": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseInt",
+        "localName": "parseInt"
+      },
+      "getStateMessage": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getStateMessage",
+        "localName": "getStateMessage"
+      },
+      "sjPreview.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "sjPreview",
+        "functionName": "sjPreview.map",
+        "fullMemberPath": "sjPreview.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "formatTableName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatTableName",
+        "localName": "formatTableName"
+      },
+      "handleMonthSelect": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleMonthSelect",
+        "localName": "handleMonthSelect"
+      },
+      "monthTransactions.slice.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "monthTransactions",
+        "functionName": "monthTransactions.slice.map",
+        "fullMemberPath": "monthTransactions.slice.map",
+        "methodChain": [
+          "slice",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toLocaleDateString",
+        "fullMemberPath": "toLocaleDateString"
+      },
+      "transaction.toFixed": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "transaction",
+        "functionName": "transaction.toFixed",
+        "fullMemberPath": "transaction.toFixed",
+        "methodChain": [
+          "toFixed"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "state": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "state"
+      },
+      "setState": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setState"
+      },
+      "isOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isOpen"
+      },
+      "setIsOpen": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsOpen"
+      },
+      "sjPreview": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "sjPreview"
+      },
+      "setSjPreview": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSjPreview"
+      },
+      "selectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedMonth"
+      },
+      "setSelectedMonth": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedMonth"
+      },
+      "monthTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "monthTransactions"
+      },
+      "setMonthTransactions": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setMonthTransactions"
+      },
+      "result": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "result"
+      },
+      "setResult": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setResult"
+      },
+      "error": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "error"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      }
+    }
+  }
+}

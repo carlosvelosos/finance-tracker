@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "originalFilePath": "supabaseClient.ts",
+    "scannedDirectory": "lib",
+    "timestamp": "2025-06-29_14-23-27",
+    "scanDate": "2025-06-29T12:23:27.450Z"
+  },
+  "analysis": {
+    "defined": [],
+    "called": [
+      "createClient"
+    ],
+    "both": [],
+    "exportDefault": [],
+    "imports": {
+      "createClient": {
+        "source": "@supabase/supabase-js",
+        "type": "npm",
+        "importedName": "createClient",
+        "localName": "createClient"
+      }
+    },
+    "calledWithImports": {
+      "createClient": {
+        "source": "@supabase/supabase-js",
+        "type": "npm",
+        "importedName": "createClient",
+        "localName": "createClient"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

@@ -65,6 +65,13 @@ export default function FunctionAnalysisPage() {
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(
     {},
   );
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [showTable, setShowTable] = useState(false);
+  const [maxRowsToShow, setMaxRowsToShow] = useState(100);
+  const [searchFilter, setSearchFilter] = useState("");
+
+  // Performance tracking
+  const [functionCount, setFunctionCount] = useState(0);
 
   // Load available report files on component mount
   useEffect(() => {
@@ -89,11 +96,22 @@ export default function FunctionAnalysisPage() {
   const loadReportData = async (reportFileName: string) => {
     setLoading(true);
     setError("");
+    setIsDataLoaded(false);
+    setShowTable(false);
     try {
       const response = await fetch(`/api/function-reports/${reportFileName}`);
       if (response.ok) {
         const data = await response.json();
         setReportData(data);
+        setIsDataLoaded(true);
+
+        // Calculate function count for performance info
+        const totalFunctions = new Set<string>();
+        Object.values(data as ReportData).forEach((fileData) => {
+          fileData.defined.forEach((func) => totalFunctions.add(func));
+          fileData.called.forEach((func) => totalFunctions.add(func));
+        });
+        setFunctionCount(totalFunctions.size);
       } else {
         setError("Failed to load report data");
       }
@@ -110,8 +128,8 @@ export default function FunctionAnalysisPage() {
     loadReportData(reportFileName);
   };
 
-  // Get all unique functions across all files with filtering and sorting
-  const getAllFunctions = (): string[] => {
+  // Get all unique functions across all files with filtering and sorting (memoized for performance)
+  const getAllFunctions = useMemo((): string[] => {
     if (!reportData) return [];
 
     const allFunctions = new Set<string>();
@@ -120,8 +138,18 @@ export default function FunctionAnalysisPage() {
       fileData.called.forEach((func) => allFunctions.add(func));
     });
 
-    return Array.from(allFunctions).sort();
-  };
+    let functions = Array.from(allFunctions);
+
+    // Apply search filter
+    if (searchFilter.trim()) {
+      const searchLower = searchFilter.toLowerCase();
+      functions = functions.filter((func) =>
+        func.toLowerCase().includes(searchLower),
+      );
+    }
+
+    return functions.sort();
+  }, [reportData, searchFilter]);
 
   // Get filtered file names (only returns visible files)
   const getFilteredFileNames = (): string[] => {
@@ -141,10 +169,10 @@ export default function FunctionAnalysisPage() {
   const getUniqueValuesInFile = (fileName: string): string[] => {
     if (!reportData || !reportData[fileName]) return [];
 
-    const allFunctions = getAllFunctions();
+    const allFunctions = getAllFunctions;
     const uniqueValues = new Set<string>();
 
-    allFunctions.forEach((functionName) => {
+    allFunctions.forEach((functionName: string) => {
       const cellContent = getCellContent(functionName, fileName);
       uniqueValues.add(cellContent); // Add the content (which could be empty string)
     });
@@ -175,10 +203,10 @@ export default function FunctionAnalysisPage() {
   const getCellValueCounts = (fileName: string): Record<string, number> => {
     if (!reportData || !reportData[fileName]) return {};
 
-    const allFunctions = getAllFunctions();
+    const allFunctions = getAllFunctions;
     const counts: Record<string, number> = {};
 
-    allFunctions.forEach((functionName) => {
+    allFunctions.forEach((functionName: string) => {
       const cellContent = getCellContent(functionName, fileName);
       counts[cellContent] = (counts[cellContent] || 0) + 1;
     });
@@ -315,9 +343,9 @@ export default function FunctionAnalysisPage() {
     if (!reportData) return [];
 
     const types = new Set<string>();
-    const allFunctions = getAllFunctions();
+    const allFunctions = getAllFunctions;
 
-    allFunctions.forEach((functionName) => {
+    allFunctions.forEach((functionName: string) => {
       const type = getFunctionType(functionName);
       types.add(type);
     });
@@ -358,9 +386,9 @@ export default function FunctionAnalysisPage() {
     if (!reportData) return [];
 
     const sources = new Set<string>();
-    const allFunctions = getAllFunctions();
+    const allFunctions = getAllFunctions;
 
-    allFunctions.forEach((functionName) => {
+    allFunctions.forEach((functionName: string) => {
       const source = getFunctionSource(functionName);
       sources.add(source);
     });
@@ -368,14 +396,14 @@ export default function FunctionAnalysisPage() {
     return Array.from(sources).sort();
   };
 
-  // Get filtered and sorted functions
+  // Get filtered and sorted functions with pagination
   const getFilteredFunctions = useMemo((): string[] => {
-    const allFunctions = getAllFunctions();
+    const allFunctions = getAllFunctions;
     let filtered = allFunctions;
 
     // Apply column filters - hide functions that don't match ALL active column filters
     if (Object.keys(columnFilters).length > 0) {
-      filtered = filtered.filter((functionName) => {
+      filtered = filtered.filter((functionName: string) => {
         const filteredFileNames = getFilteredFileNames();
 
         // Check file columns
@@ -424,13 +452,13 @@ export default function FunctionAnalysisPage() {
     // Apply sorting
     if (sortState.column && sortState.direction) {
       if (sortState.column === "function") {
-        filtered = filtered.sort((a, b) => {
+        filtered = filtered.sort((a: string, b: string) => {
           const comparison = a.localeCompare(b);
           return sortState.direction === "asc" ? comparison : -comparison;
         });
       } else if (sortState.column === "type") {
         // Sort by function type
-        filtered = filtered.sort((a, b) => {
+        filtered = filtered.sort((a: string, b: string) => {
           const aType = getFunctionType(a);
           const bType = getFunctionType(b);
 
@@ -509,8 +537,9 @@ export default function FunctionAnalysisPage() {
       }
     }
 
-    return filtered;
-  }, [reportData, sortState, columnFilters]);
+    // Apply pagination - only return visible rows for performance
+    return filtered.slice(0, maxRowsToShow);
+  }, [reportData, sortState, columnFilters, searchFilter, maxRowsToShow]);
 
   // Handle column header click for sorting
   const handleSort = (column: string) => {
@@ -553,7 +582,7 @@ export default function FunctionAnalysisPage() {
     }
   };
 
-  const allFunctions = getAllFunctions();
+  const allFunctions = getAllFunctions;
   const filteredFunctions = getFilteredFunctions;
   const filteredFileNames = getFilteredFileNames();
 
@@ -606,8 +635,163 @@ export default function FunctionAnalysisPage() {
                 <span className="ml-2">Loading report data...</span>
               </div>
             )}
+
+            {/* Data Summary and Controls */}
+            {isDataLoaded && !loading && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-blue-800">
+                    📊 Report Loaded Successfully
+                  </h4>
+                  <Badge
+                    variant="outline"
+                    className="text-blue-700 bg-blue-100"
+                  >
+                    {functionCount} total functions
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
+                  <div>
+                    <strong>Files:</strong>{" "}
+                    {Object.keys(reportData || {}).length}
+                  </div>
+                  <div>
+                    <strong>Functions:</strong> {functionCount}
+                  </div>
+                </div>
+
+                {!showTable && (
+                  <div className="mt-4 pt-4 border-t border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-blue-700 mb-2">
+                          📈 <strong>Performance Mode:</strong> Table hidden for
+                          faster interaction with large datasets
+                        </p>
+                        <p className="text-xs text-blue-600">
+                          Use the controls below to configure your view, then
+                          show the table when ready.
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => setShowTable(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Show Analysis Table
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Performance Controls */}
+        {isDataLoaded && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <span>⚡ Performance & Search Controls</span>
+                {showTable && (
+                  <Badge variant="outline" className="text-xs">
+                    Showing {Math.min(maxRowsToShow, filteredFunctions.length)}{" "}
+                    of {allFunctions.length} functions
+                  </Badge>
+                )}
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Optimize performance and find specific functions in large
+                datasets
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  🔍 Search Functions:
+                </label>
+                <Input
+                  placeholder="Type to filter functions by name..."
+                  value={searchFilter}
+                  onChange={(e) => setSearchFilter(e.target.value)}
+                  className="w-full"
+                />
+                {searchFilter && (
+                  <p className="text-xs text-gray-500">
+                    Found {allFunctions.length} functions matching "
+                    {searchFilter}"
+                  </p>
+                )}
+              </div>
+
+              {/* Row Limit Controls */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  📊 Max Rows to Display:
+                </label>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={maxRowsToShow.toString()}
+                    onValueChange={(value) => setMaxRowsToShow(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="50">50 rows (fastest)</SelectItem>
+                      <SelectItem value="100">100 rows (fast)</SelectItem>
+                      <SelectItem value="250">250 rows (balanced)</SelectItem>
+                      <SelectItem value="500">500 rows (slower)</SelectItem>
+                      <SelectItem value="1000">1000 rows (slowest)</SelectItem>
+                      <SelectItem value="99999">
+                        All rows (may be very slow)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-xs text-gray-500">
+                    Limit rows for better performance with large datasets
+                  </span>
+                </div>
+              </div>
+
+              {/* Table Visibility Controls */}
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="text-sm text-gray-600">
+                  {showTable ? (
+                    <span className="text-green-600">
+                      ✅ Table is visible below
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">
+                      👁️ Table is hidden for performance
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {showTable && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowTable(false)}
+                    >
+                      Hide Table
+                    </Button>
+                  )}
+                  {!showTable && (
+                    <Button
+                      size="sm"
+                      onClick={() => setShowTable(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Show Table
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Column Visibility Controls */}
         {reportData && (
@@ -866,6 +1050,7 @@ export default function FunctionAnalysisPage() {
 
         {/* Function Analysis Table */}
         {reportData &&
+          showTable &&
           filteredFunctions.length > 0 &&
           getVisibleColumnCount() > 0 && (
             <Card className="h-[80vh] flex flex-col">
@@ -874,8 +1059,8 @@ export default function FunctionAnalysisPage() {
                   <CardTitle className="text-lg">
                     Function Analysis Matrix
                     <span className="text-sm font-normal ml-2 text-gray-600">
-                      ({filteredFunctions.length} functions across{" "}
-                      {filteredFileNames.length} files)
+                      ({filteredFunctions.length} of {allFunctions.length}{" "}
+                      functions across {filteredFileNames.length} files)
                     </span>
                   </CardTitle>
 
@@ -1069,8 +1254,9 @@ export default function FunctionAnalysisPage() {
                                     const isChecked =
                                       columnFilters["type"]?.has(typeValue) ??
                                       true;
-                                    const typeCount = getAllFunctions().filter(
-                                      (fn) => getFunctionType(fn) === typeValue,
+                                    const typeCount = getAllFunctions.filter(
+                                      (fn: string) =>
+                                        getFunctionType(fn) === typeValue,
                                     ).length;
 
                                     return (
@@ -1225,11 +1411,10 @@ export default function FunctionAnalysisPage() {
                                       columnFilters["source"]?.has(
                                         sourceValue,
                                       ) ?? true;
-                                    const sourceCount =
-                                      getAllFunctions().filter(
-                                        (fn) =>
-                                          getFunctionSource(fn) === sourceValue,
-                                      ).length;
+                                    const sourceCount = getAllFunctions.filter(
+                                      (fn: string) =>
+                                        getFunctionSource(fn) === sourceValue,
+                                    ).length;
 
                                     return (
                                       <DropdownMenuCheckboxItem
@@ -1527,6 +1712,38 @@ export default function FunctionAnalysisPage() {
             </Card>
           )}
 
+        {/* Table Hidden Message */}
+        {reportData && !showTable && getVisibleColumnCount() > 0 && (
+          <Card>
+            <CardContent className="text-center py-8">
+              <div className="text-gray-500">
+                <div className="h-12 w-12 mx-auto mb-4 text-gray-300 flex items-center justify-center">
+                  ⚡
+                </div>
+                <h3 className="text-lg font-medium mb-2">
+                  Table Hidden for Performance
+                </h3>
+                <p className="text-sm mb-4">
+                  Configure your search, filters, and column visibility above,
+                  then show the table for analysis.
+                </p>
+                <div className="space-y-2 text-sm text-gray-600 mb-4">
+                  <p>📊 {allFunctions.length} total functions found</p>
+                  <p>👁️ {getVisibleColumnCount()} columns visible</p>
+                  {searchFilter && <p>🔍 Search: "{searchFilter}"</p>}
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => setShowTable(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Show Analysis Table
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* No columns visible message */}
         {reportData && getVisibleColumnCount() === 0 && (
           <Card>
@@ -1556,6 +1773,7 @@ export default function FunctionAnalysisPage() {
 
         {/* No results message */}
         {reportData &&
+          showTable &&
           filteredFunctions.length === 0 &&
           getVisibleColumnCount() > 0 && (
             <Card>
@@ -1566,8 +1784,14 @@ export default function FunctionAnalysisPage() {
                     No functions match the current filters
                   </h3>
                   <p className="text-sm mb-4">
-                    Try adjusting your column filters to see more results.
+                    Try adjusting your search, column filters, or increase the
+                    row limit.
                   </p>
+                  <div className="space-y-1 text-xs text-gray-600 mb-4">
+                    <p>📊 {allFunctions.length} total functions in dataset</p>
+                    <p>📋 Showing max {maxRowsToShow} rows</p>
+                    {searchFilter && <p>🔍 Search filter: "{searchFilter}"</p>}
+                  </div>
                   {Object.entries(columnFilters).some(
                     ([fileName, filterSet]) => {
                       const uniqueValues = getUniqueValuesInFile(fileName);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useHandelsbankenOverviewChartTransactions } from "../../../../lib/hooks/useTransactions";
+import { usePageState } from "../../../../lib/hooks/usePageState";
 import { CustomBarChart } from "@/components/ui/custombarchart";
 import { TransactionLineChart } from "@/components/ui/bank-line-chart";
 import ProtectedRoute from "@/components/protected-route";
@@ -8,24 +9,15 @@ import ProtectedRoute from "@/components/protected-route";
 export default function CategoryChartPage() {
   const { transactions, loading, error, user } =
     useHandelsbankenOverviewChartTransactions();
+  const { renderContent } = usePageState({
+    loading,
+    error: error as unknown,
+    user,
+  });
 
-  if (!user) {
-    return (
-      <div className="text-center mt-10">Please log in to view the chart.</div>
-    );
-  }
-
-  if (loading) {
-    return <div className="text-center mt-10">Loading chart...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-center mt-10 text-red-500">
-        Error loading chart: {(error as Error)?.message || "Unknown error"}
-      </div>
-    );
-  }
+  // Return early if not ready
+  const earlyReturn = renderContent();
+  if (earlyReturn) return earlyReturn;
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>

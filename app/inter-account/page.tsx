@@ -1,6 +1,7 @@
 "use client";
 
 import { useInterAccountTransactionsWithBankInfo } from "../../lib/hooks/useTransactions";
+import { usePageState } from "../../lib/hooks/usePageState";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
@@ -12,27 +13,16 @@ import { Info } from "lucide-react";
 export default function Home() {
   const { transactions, bankInfo, loading, error, user } =
     useInterAccountTransactionsWithBankInfo();
+  const { renderContent } = usePageState({
+    loading,
+    error: error as unknown,
+    user,
+  });
 
-  if (!user) {
-    return (
-      <div className="text-center mt-10">
-        Please log in to view your transactions.
-      </div>
-    );
-  }
+  // Return early if not ready
+  const earlyReturn = renderContent();
+  if (earlyReturn) return earlyReturn;
 
-  if (loading) {
-    return <div className="text-center mt-10">Loading transactions...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-center mt-10 text-red-500">
-        Error loading transactions:{" "}
-        {(error as Error)?.message || "Unknown error"}
-      </div>
-    );
-  }
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4">

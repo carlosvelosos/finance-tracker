@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "originalFilePath": "inter-account/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_17-42-51",
+    "scanDate": "2025-06-29T15:42:51.120Z"
+  },
+  "analysis": {
+    "defined": [
+      "Home"
+    ],
+    "called": [
+      "useInterAccountTransactionsWithBankInfo"
+    ],
+    "both": [],
+    "exportDefault": [
+      "Home"
+    ],
+    "imports": {
+      "useInterAccountTransactionsWithBankInfo": {
+        "source": "../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useInterAccountTransactionsWithBankInfo",
+        "localName": "useInterAccountTransactionsWithBankInfo"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "ProtectedRoute": {
+        "source": "@/components/protected-route",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "ProtectedRoute"
+      },
+      "TransactionTable": {
+        "source": "@/components/ui/transaction/TransactionTable",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "TransactionTable"
+      },
+      "UpdateAggregatedButton": {
+        "source": "@/components/UpdateAggregatedButton",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "UpdateAggregatedButton"
+      },
+      "UpdateInterAggregatedButton": {
+        "source": "@/components/UpdateInterAggregatedButton",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "UpdateInterAggregatedButton"
+      },
+      "DataSourceInfo": {
+        "source": "@/components/ui/data-source-info",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "DataSourceInfo"
+      },
+      "Info": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Info",
+        "localName": "Info"
+      }
+    },
+    "calledWithImports": {
+      "useInterAccountTransactionsWithBankInfo": {
+        "source": "../../lib/hooks/useTransactions",
+        "type": "relative",
+        "importedName": "useInterAccountTransactionsWithBankInfo",
+        "localName": "useInterAccountTransactionsWithBankInfo"
+      }
+    },
+    "destructuredFunctions": {}
+  }
+}

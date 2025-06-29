@@ -1,0 +1,1394 @@
+{
+  "metadata": {
+    "originalFilePath": "documentation/functions2/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_17-42-51",
+    "scanDate": "2025-06-29T15:42:51.120Z"
+  },
+  "analysis": {
+    "defined": [
+      "FunctionReportsPage",
+      "addDirectory",
+      "fetchDirectories",
+      "formatJsonFileName",
+      "formatTimestamp",
+      "getDirectoryFileCount",
+      "getPathGroupFileCount",
+      "groupFilesByDirectory",
+      "groupFilesByPath",
+      "handleFileSelection",
+      "isDirectoryCollapsed",
+      "isGroupCollapsed",
+      "loadTableData",
+      "removeDirectory",
+      "toggleDirectory",
+      "toggleDirectorySelection",
+      "toggleGroup",
+      "toggleJsonFilesCollapse",
+      "togglePathGroupSelection",
+      "toggleSelectAll"
+    ],
+    "called": [
+      "Array.from.sort",
+      "Object.keys",
+      "Object.keys.sort",
+      "Promise.all",
+      "a.localeCompare",
+      "addDirectory",
+      "collapsedDirectories.has",
+      "collapsedGroups.has",
+      "console.error",
+      "data.analysis.forEach",
+      "data.filter",
+      "date.split",
+      "dateObj.toLocaleString",
+      "dir.data.map",
+      "directories.filter.map",
+      "directory.data.map",
+      "directoryData.data.map",
+      "directoryFiles.every",
+      "directoryFiles.forEach",
+      "directoryNames.map",
+      "fetch",
+      "fetchDirectories",
+      "fileName.replace.replace.replace.replace.replace",
+      "fileResults.forEach",
+      "fileWithDir.replace",
+      "files.filter",
+      "files.forEach",
+      "formatJsonFileName",
+      "formatTimestamp",
+      "functionMap.get",
+      "functionMap.has",
+      "functionMap.set",
+      "functionMap.values",
+      "getDirectoryFileCount",
+      "getPathGroupFileCount",
+      "groupFiles.every",
+      "groupFiles.forEach",
+      "groupFiles.some",
+      "groupFilesByDirectory",
+      "groupFilesByPath",
+      "handleFileSelection",
+      "isDirectoryCollapsed",
+      "isGroupCollapsed",
+      "newSelected.push",
+      "newSelected.some",
+      "newSet.add",
+      "newSet.delete",
+      "newSet.has",
+      "parseInt",
+      "pathGroupFiles.map",
+      "pathGroupNames.map",
+      "pathGroups.push",
+      "prev.filter",
+      "prev.some",
+      "readableName.split",
+      "removeDirectory",
+      "response.json",
+      "selectedDirectories.find",
+      "selectedDirectories.flatMap",
+      "selectedDirectories.map",
+      "selectedDirectories.reduce",
+      "selectedDirectories.some",
+      "selectedDirs.forEach",
+      "selectedJsonFiles.filter",
+      "selectedJsonFiles.map",
+      "selectedJsonFiles.some",
+      "setCollapsedDirectories",
+      "setCollapsedGroups",
+      "setCurrentDirectorySelection",
+      "setDirectories",
+      "setError",
+      "setIsJsonFilesCollapsed",
+      "setLoading",
+      "setLoadingTable",
+      "setSelectedDirectories",
+      "setSelectedJsonFiles",
+      "setTableData",
+      "split.pop",
+      "time.split",
+      "timestamp.split",
+      "toggleDirectory",
+      "toggleDirectorySelection",
+      "toggleGroup",
+      "togglePathGroupSelection",
+      "useEffect",
+      "useState"
+    ],
+    "both": [
+      "addDirectory",
+      "fetchDirectories",
+      "formatJsonFileName",
+      "formatTimestamp",
+      "getDirectoryFileCount",
+      "getPathGroupFileCount",
+      "groupFilesByDirectory",
+      "groupFilesByPath",
+      "handleFileSelection",
+      "isDirectoryCollapsed",
+      "isGroupCollapsed",
+      "removeDirectory",
+      "toggleDirectory",
+      "toggleDirectorySelection",
+      "toggleGroup",
+      "togglePathGroupSelection"
+    ],
+    "exportDefault": [
+      "FunctionReportsPage"
+    ],
+    "imports": {
+      "React": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "React"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "Select": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "Select",
+        "localName": "Select"
+      },
+      "SelectContent": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectContent",
+        "localName": "SelectContent"
+      },
+      "SelectItem": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectItem",
+        "localName": "SelectItem"
+      },
+      "SelectTrigger": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectTrigger",
+        "localName": "SelectTrigger"
+      },
+      "SelectValue": {
+        "source": "@/components/ui/select",
+        "type": "alias",
+        "importedName": "SelectValue",
+        "localName": "SelectValue"
+      },
+      "Card": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "Card",
+        "localName": "Card"
+      },
+      "CardContent": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardContent",
+        "localName": "CardContent"
+      },
+      "CardDescription": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardDescription",
+        "localName": "CardDescription"
+      },
+      "CardHeader": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardHeader",
+        "localName": "CardHeader"
+      },
+      "CardTitle": {
+        "source": "@/components/ui/card",
+        "type": "alias",
+        "importedName": "CardTitle",
+        "localName": "CardTitle"
+      },
+      "Badge": {
+        "source": "@/components/ui/badge",
+        "type": "alias",
+        "importedName": "Badge",
+        "localName": "Badge"
+      },
+      "Checkbox": {
+        "source": "@/components/ui/checkbox",
+        "type": "alias",
+        "importedName": "Checkbox",
+        "localName": "Checkbox"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "FileText": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "FileText",
+        "localName": "FileText"
+      },
+      "Folder": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Folder",
+        "localName": "Folder"
+      },
+      "Calendar": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Calendar",
+        "localName": "Calendar"
+      },
+      "Hash": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Hash",
+        "localName": "Hash"
+      },
+      "Eye": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Eye",
+        "localName": "Eye"
+      },
+      "ChevronDown": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "ChevronDown",
+        "localName": "ChevronDown"
+      },
+      "ChevronRight": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "ChevronRight",
+        "localName": "ChevronRight"
+      },
+      "X": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "X",
+        "localName": "X"
+      },
+      "Plus": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "Plus",
+        "localName": "Plus"
+      },
+      "FunctionAnalysisTable": {
+        "source": "@/components/ui/function-analysis-table",
+        "type": "alias",
+        "importedName": "default",
+        "localName": "FunctionAnalysisTable"
+      },
+      "FunctionData": {
+        "source": "@/types/function-reports",
+        "type": "alias",
+        "importedName": "FunctionData",
+        "localName": "FunctionData"
+      },
+      "JsonFileData": {
+        "source": "@/types/function-reports",
+        "type": "alias",
+        "importedName": "JsonFileData",
+        "localName": "JsonFileData"
+      },
+      "ReportDirectory": {
+        "source": "@/types/function-reports",
+        "type": "alias",
+        "importedName": "ReportDirectory",
+        "localName": "ReportDirectory"
+      },
+      "DirectoryData": {
+        "source": "@/types/function-reports",
+        "type": "alias",
+        "importedName": "DirectoryData",
+        "localName": "DirectoryData"
+      }
+    },
+    "calledWithImports": {
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "useEffect": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useEffect",
+        "localName": "useEffect"
+      },
+      "fetch": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "fetch",
+        "localName": "fetch"
+      },
+      "response.json": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "response",
+        "functionName": "response.json",
+        "fullMemberPath": "response.json",
+        "methodChain": [
+          "json"
+        ],
+        "isChainedCall": true
+      },
+      "data.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.filter",
+        "fullMemberPath": "data.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "setDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setDirectories"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "fetchDirectories": {
+        "source": "local",
+        "type": "local",
+        "importedName": "fetchDirectories",
+        "localName": "fetchDirectories"
+      },
+      "selectedDirectories.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedDirectories",
+        "functionName": "selectedDirectories.some",
+        "fullMemberPath": "selectedDirectories.some",
+        "methodChain": [
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "setSelectedDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedDirectories"
+      },
+      "setCurrentDirectorySelection": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentDirectorySelection"
+      },
+      "prev.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "prev",
+        "functionName": "prev.filter",
+        "fullMemberPath": "prev.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "setSelectedJsonFiles": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedJsonFiles"
+      },
+      "timestamp.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "timestamp",
+        "functionName": "timestamp.split",
+        "fullMemberPath": "timestamp.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "date.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "date",
+        "functionName": "date.split",
+        "fullMemberPath": "date.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "time.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "time",
+        "functionName": "time.split",
+        "fullMemberPath": "time.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "parseInt": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseInt",
+        "localName": "parseInt"
+      },
+      "dateObj.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dateObj",
+        "functionName": "dateObj.toLocaleString",
+        "fullMemberPath": "dateObj.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "fileName.replace.replace.replace.replace.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileName",
+        "functionName": "fileName.replace.replace.replace.replace.replace",
+        "fullMemberPath": "fileName.replace.replace.replace.replace.replace",
+        "methodChain": [
+          "replace",
+          "replace",
+          "replace",
+          "replace",
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "selectedDirs.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedDirs",
+        "functionName": "selectedDirs.forEach",
+        "fullMemberPath": "selectedDirs.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "directory.data.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "directory",
+        "functionName": "directory.data.map",
+        "fullMemberPath": "directory.data.map",
+        "methodChain": [
+          "data",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "formatJsonFileName": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatJsonFileName",
+        "localName": "formatJsonFileName"
+      },
+      "files.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "files",
+        "functionName": "files.forEach",
+        "fullMemberPath": "files.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "readableName.split": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "readableName",
+        "functionName": "readableName.split",
+        "fullMemberPath": "readableName.split",
+        "methodChain": [
+          "split"
+        ],
+        "isChainedCall": true
+      },
+      "pathGroups.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "pathGroups",
+        "functionName": "pathGroups.push",
+        "fullMemberPath": "pathGroups.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "setCollapsedGroups": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCollapsedGroups"
+      },
+      "newSet.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSet",
+        "functionName": "newSet.has",
+        "fullMemberPath": "newSet.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "newSet.delete": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSet",
+        "functionName": "newSet.delete",
+        "fullMemberPath": "newSet.delete",
+        "methodChain": [
+          "delete"
+        ],
+        "isChainedCall": true
+      },
+      "newSet.add": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSet",
+        "functionName": "newSet.add",
+        "fullMemberPath": "newSet.add",
+        "methodChain": [
+          "add"
+        ],
+        "isChainedCall": true
+      },
+      "setCollapsedDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCollapsedDirectories"
+      },
+      "collapsedGroups.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "collapsedGroups",
+        "functionName": "collapsedGroups.has",
+        "fullMemberPath": "collapsedGroups.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "collapsedDirectories.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "collapsedDirectories",
+        "functionName": "collapsedDirectories.has",
+        "fullMemberPath": "collapsedDirectories.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "setIsJsonFilesCollapsed": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsJsonFilesCollapsed"
+      },
+      "files.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "files",
+        "functionName": "files.filter",
+        "fullMemberPath": "files.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "selectedJsonFiles.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedJsonFiles",
+        "functionName": "selectedJsonFiles.some",
+        "fullMemberPath": "selectedJsonFiles.some",
+        "methodChain": [
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "groupFiles.every": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "groupFiles",
+        "functionName": "groupFiles.every",
+        "fullMemberPath": "groupFiles.every",
+        "methodChain": [
+          "every"
+        ],
+        "isChainedCall": true
+      },
+      "groupFiles.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "groupFiles",
+        "functionName": "groupFiles.some",
+        "fullMemberPath": "groupFiles.some",
+        "methodChain": [
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "groupFiles.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "groupFiles",
+        "functionName": "groupFiles.forEach",
+        "fullMemberPath": "groupFiles.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "newSelected.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSelected",
+        "functionName": "newSelected.some",
+        "fullMemberPath": "newSelected.some",
+        "methodChain": [
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "newSelected.push": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "newSelected",
+        "functionName": "newSelected.push",
+        "fullMemberPath": "newSelected.push",
+        "methodChain": [
+          "push"
+        ],
+        "isChainedCall": true
+      },
+      "selectedDirectories.find": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedDirectories",
+        "functionName": "selectedDirectories.find",
+        "fullMemberPath": "selectedDirectories.find",
+        "methodChain": [
+          "find"
+        ],
+        "isChainedCall": true
+      },
+      "selectedJsonFiles.filter": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedJsonFiles",
+        "functionName": "selectedJsonFiles.filter",
+        "fullMemberPath": "selectedJsonFiles.filter",
+        "methodChain": [
+          "filter"
+        ],
+        "isChainedCall": true
+      },
+      "directoryData.data.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "directoryData",
+        "functionName": "directoryData.data.map",
+        "fullMemberPath": "directoryData.data.map",
+        "methodChain": [
+          "data",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "directoryFiles.every": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "directoryFiles",
+        "functionName": "directoryFiles.every",
+        "fullMemberPath": "directoryFiles.every",
+        "methodChain": [
+          "every"
+        ],
+        "isChainedCall": true
+      },
+      "directoryFiles.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "directoryFiles",
+        "functionName": "directoryFiles.forEach",
+        "fullMemberPath": "directoryFiles.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "prev.some": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "prev",
+        "functionName": "prev.some",
+        "fullMemberPath": "prev.some",
+        "methodChain": [
+          "some"
+        ],
+        "isChainedCall": true
+      },
+      "setLoadingTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoadingTable"
+      },
+      "selectedJsonFiles.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedJsonFiles",
+        "functionName": "selectedJsonFiles.map",
+        "fullMemberPath": "selectedJsonFiles.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "fileWithDir.replace": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileWithDir",
+        "functionName": "fileWithDir.replace",
+        "fullMemberPath": "fileWithDir.replace",
+        "methodChain": [
+          "replace"
+        ],
+        "isChainedCall": true
+      },
+      "Promise.all": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Promise",
+        "functionName": "Promise.all",
+        "fullMemberPath": "Promise.all",
+        "methodChain": [
+          "all"
+        ],
+        "isChainedCall": true
+      },
+      "fileResults.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "fileResults",
+        "functionName": "fileResults.forEach",
+        "fullMemberPath": "fileResults.forEach",
+        "methodChain": [
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "data.analysis.forEach": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "data",
+        "functionName": "data.analysis.forEach",
+        "fullMemberPath": "data.analysis.forEach",
+        "methodChain": [
+          "analysis",
+          "forEach"
+        ],
+        "isChainedCall": true
+      },
+      "functionMap.has": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "functionMap",
+        "functionName": "functionMap.has",
+        "fullMemberPath": "functionMap.has",
+        "methodChain": [
+          "has"
+        ],
+        "isChainedCall": true
+      },
+      "functionMap.set": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "functionMap",
+        "functionName": "functionMap.set",
+        "fullMemberPath": "functionMap.set",
+        "methodChain": [
+          "set"
+        ],
+        "isChainedCall": true
+      },
+      "functionMap.get": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "functionMap",
+        "functionName": "functionMap.get",
+        "fullMemberPath": "functionMap.get",
+        "methodChain": [
+          "get"
+        ],
+        "isChainedCall": true
+      },
+      "Array.from.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Array",
+        "functionName": "Array.from.sort",
+        "fullMemberPath": "Array.from.sort",
+        "methodChain": [
+          "from",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "functionMap.values": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "functionMap",
+        "functionName": "functionMap.values",
+        "fullMemberPath": "functionMap.values",
+        "methodChain": [
+          "values"
+        ],
+        "isChainedCall": true
+      },
+      "a.localeCompare": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "a",
+        "functionName": "a.localeCompare",
+        "fullMemberPath": "a.localeCompare",
+        "methodChain": [
+          "localeCompare"
+        ],
+        "isChainedCall": true
+      },
+      "setTableData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTableData"
+      },
+      "selectedDirectories.flatMap": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedDirectories",
+        "functionName": "selectedDirectories.flatMap",
+        "fullMemberPath": "selectedDirectories.flatMap",
+        "methodChain": [
+          "flatMap"
+        ],
+        "isChainedCall": true
+      },
+      "dir.data.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "dir",
+        "functionName": "dir.data.map",
+        "fullMemberPath": "dir.data.map",
+        "methodChain": [
+          "data",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "groupFilesByDirectory": {
+        "source": "local",
+        "type": "local",
+        "importedName": "groupFilesByDirectory",
+        "localName": "groupFilesByDirectory"
+      },
+      "Object.keys": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys",
+        "fullMemberPath": "Object.keys",
+        "methodChain": [
+          "keys"
+        ],
+        "isChainedCall": true
+      },
+      "directories.filter.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "directories",
+        "functionName": "directories.filter.map",
+        "fullMemberPath": "directories.filter.map",
+        "methodChain": [
+          "filter",
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "addDirectory": {
+        "source": "local",
+        "type": "local",
+        "importedName": "addDirectory",
+        "localName": "addDirectory"
+      },
+      "selectedDirectories.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedDirectories",
+        "functionName": "selectedDirectories.map",
+        "fullMemberPath": "selectedDirectories.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "removeDirectory": {
+        "source": "local",
+        "type": "local",
+        "importedName": "removeDirectory",
+        "localName": "removeDirectory"
+      },
+      "formatTimestamp": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatTimestamp",
+        "localName": "formatTimestamp"
+      },
+      "selectedDirectories.reduce": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "selectedDirectories",
+        "functionName": "selectedDirectories.reduce",
+        "fullMemberPath": "selectedDirectories.reduce",
+        "methodChain": [
+          "reduce"
+        ],
+        "isChainedCall": true
+      },
+      "Object.keys.sort": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "Object",
+        "functionName": "Object.keys.sort",
+        "fullMemberPath": "Object.keys.sort",
+        "methodChain": [
+          "keys",
+          "sort"
+        ],
+        "isChainedCall": true
+      },
+      "directoryNames.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "directoryNames",
+        "functionName": "directoryNames.map",
+        "fullMemberPath": "directoryNames.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "isDirectoryCollapsed": {
+        "source": "local",
+        "type": "local",
+        "importedName": "isDirectoryCollapsed",
+        "localName": "isDirectoryCollapsed"
+      },
+      "getDirectoryFileCount": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getDirectoryFileCount",
+        "localName": "getDirectoryFileCount"
+      },
+      "groupFilesByPath": {
+        "source": "local",
+        "type": "local",
+        "importedName": "groupFilesByPath",
+        "localName": "groupFilesByPath"
+      },
+      "toggleDirectory": {
+        "source": "local",
+        "type": "local",
+        "importedName": "toggleDirectory",
+        "localName": "toggleDirectory"
+      },
+      "toggleDirectorySelection": {
+        "source": "local",
+        "type": "local",
+        "importedName": "toggleDirectorySelection",
+        "localName": "toggleDirectorySelection"
+      },
+      "pathGroupNames.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "pathGroupNames",
+        "functionName": "pathGroupNames.map",
+        "fullMemberPath": "pathGroupNames.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "isGroupCollapsed": {
+        "source": "local",
+        "type": "local",
+        "importedName": "isGroupCollapsed",
+        "localName": "isGroupCollapsed"
+      },
+      "getPathGroupFileCount": {
+        "source": "local",
+        "type": "local",
+        "importedName": "getPathGroupFileCount",
+        "localName": "getPathGroupFileCount"
+      },
+      "toggleGroup": {
+        "source": "local",
+        "type": "local",
+        "importedName": "toggleGroup",
+        "localName": "toggleGroup"
+      },
+      "togglePathGroupSelection": {
+        "source": "local",
+        "type": "local",
+        "importedName": "togglePathGroupSelection",
+        "localName": "togglePathGroupSelection"
+      },
+      "pathGroupFiles.map": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "pathGroupFiles",
+        "functionName": "pathGroupFiles.map",
+        "fullMemberPath": "pathGroupFiles.map",
+        "methodChain": [
+          "map"
+        ],
+        "isChainedCall": true
+      },
+      "handleFileSelection": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleFileSelection",
+        "localName": "handleFileSelection"
+      },
+      "split.pop": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "split.pop",
+        "fullMemberPath": "split.pop",
+        "methodChain": [
+          "split",
+          "pop"
+        ],
+        "isChainedCall": true
+      }
+    },
+    "destructuredFunctions": {
+      "directories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "directories"
+      },
+      "setDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setDirectories"
+      },
+      "selectedDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedDirectories"
+      },
+      "setSelectedDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedDirectories"
+      },
+      "currentDirectorySelection": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "currentDirectorySelection"
+      },
+      "setCurrentDirectorySelection": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCurrentDirectorySelection"
+      },
+      "selectedJsonFiles": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "selectedJsonFiles"
+      },
+      "setSelectedJsonFiles": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setSelectedJsonFiles"
+      },
+      "tableData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "tableData"
+      },
+      "setTableData": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setTableData"
+      },
+      "loadingTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loadingTable"
+      },
+      "setLoadingTable": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoadingTable"
+      },
+      "loading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "loading"
+      },
+      "setLoading": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setLoading"
+      },
+      "error": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "error"
+      },
+      "setError": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setError"
+      },
+      "collapsedGroups": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "collapsedGroups"
+      },
+      "setCollapsedGroups": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCollapsedGroups"
+      },
+      "collapsedDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "collapsedDirectories"
+      },
+      "setCollapsedDirectories": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setCollapsedDirectories"
+      },
+      "isJsonFilesCollapsed": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isJsonFilesCollapsed"
+      },
+      "setIsJsonFilesCollapsed": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsJsonFilesCollapsed"
+      }
+    }
+  }
+}

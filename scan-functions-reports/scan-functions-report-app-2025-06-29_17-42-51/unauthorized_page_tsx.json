@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "originalFilePath": "unauthorized/page.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_17-42-51",
+    "scanDate": "2025-06-29T15:42:51.120Z"
+  },
+  "analysis": {
+    "defined": [
+      "UnauthorizedPage"
+    ],
+    "called": [],
+    "both": [],
+    "exportDefault": [
+      "UnauthorizedPage"
+    ],
+    "imports": {
+      "Link": {
+        "source": "next/link",
+        "type": "npm",
+        "importedName": "default",
+        "localName": "Link"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      }
+    },
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

@@ -1,0 +1,374 @@
+{
+  "metadata": {
+    "originalFilePath": "components/bill-item.tsx",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_17-42-51",
+    "scanDate": "2025-06-29T15:42:51.120Z"
+  },
+  "analysis": {
+    "defined": [
+      "BillItem",
+      "formatCurrency",
+      "formatDate",
+      "handleInputChange",
+      "handleSave"
+    ],
+    "called": [
+      "JSON.stringify",
+      "console.error",
+      "formatCurrency",
+      "formatDate",
+      "handleInputChange",
+      "month.toLowerCase.substring",
+      "onBillUpdate",
+      "onTogglePaid",
+      "parseFloat",
+      "parseInt",
+      "setEditBill",
+      "setIsSaving",
+      "supabase.from.update.eq",
+      "toISOString",
+      "toLocaleDateString",
+      "toast.error",
+      "toast.success",
+      "useState",
+      "value.toLocaleString"
+    ],
+    "both": [
+      "formatCurrency",
+      "formatDate",
+      "handleInputChange"
+    ],
+    "exportDefault": [
+      "BillItem"
+    ],
+    "imports": {
+      "Bill": {
+        "source": "../types/bill",
+        "type": "relative",
+        "importedName": "Bill",
+        "localName": "Bill"
+      },
+      "HoverCard": {
+        "source": "@/components/ui/hover-card",
+        "type": "alias",
+        "importedName": "HoverCard",
+        "localName": "HoverCard"
+      },
+      "HoverCardContent": {
+        "source": "@/components/ui/hover-card",
+        "type": "alias",
+        "importedName": "HoverCardContent",
+        "localName": "HoverCardContent"
+      },
+      "HoverCardTrigger": {
+        "source": "@/components/ui/hover-card",
+        "type": "alias",
+        "importedName": "HoverCardTrigger",
+        "localName": "HoverCardTrigger"
+      },
+      "PencilIcon": {
+        "source": "lucide-react",
+        "type": "npm",
+        "importedName": "PencilIcon",
+        "localName": "PencilIcon"
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "Button": {
+        "source": "@/components/ui/button",
+        "type": "alias",
+        "importedName": "Button",
+        "localName": "Button"
+      },
+      "Input": {
+        "source": "@/components/ui/input",
+        "type": "alias",
+        "importedName": "Input",
+        "localName": "Input"
+      },
+      "Label": {
+        "source": "@/components/ui/label",
+        "type": "alias",
+        "importedName": "Label",
+        "localName": "Label"
+      },
+      "Sheet": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "Sheet",
+        "localName": "Sheet"
+      },
+      "SheetClose": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetClose",
+        "localName": "SheetClose"
+      },
+      "SheetContent": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetContent",
+        "localName": "SheetContent"
+      },
+      "SheetDescription": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetDescription",
+        "localName": "SheetDescription"
+      },
+      "SheetFooter": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetFooter",
+        "localName": "SheetFooter"
+      },
+      "SheetHeader": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetHeader",
+        "localName": "SheetHeader"
+      },
+      "SheetTitle": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetTitle",
+        "localName": "SheetTitle"
+      },
+      "SheetTrigger": {
+        "source": "@/components/ui/sheet",
+        "type": "alias",
+        "importedName": "SheetTrigger",
+        "localName": "SheetTrigger"
+      },
+      "supabase": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase"
+      },
+      "toast": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast"
+      }
+    },
+    "calledWithImports": {
+      "month.toLowerCase.substring": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "month",
+        "functionName": "month.toLowerCase.substring",
+        "fullMemberPath": "month.toLowerCase.substring",
+        "methodChain": [
+          "toLowerCase",
+          "substring"
+        ],
+        "isChainedCall": true
+      },
+      "useState": {
+        "source": "react",
+        "type": "npm",
+        "importedName": "useState",
+        "localName": "useState"
+      },
+      "value.toLocaleString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "value",
+        "functionName": "value.toLocaleString",
+        "fullMemberPath": "value.toLocaleString",
+        "methodChain": [
+          "toLocaleString"
+        ],
+        "isChainedCall": true
+      },
+      "toLocaleDateString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toLocaleDateString",
+        "fullMemberPath": "toLocaleDateString"
+      },
+      "setEditBill": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setEditBill"
+      },
+      "setIsSaving": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsSaving"
+      },
+      "supabase.from.update.eq": {
+        "source": "@/lib/supabaseClient",
+        "type": "alias",
+        "importedName": "supabase",
+        "localName": "supabase",
+        "memberOf": "supabase",
+        "functionName": "supabase.from.update.eq",
+        "fullMemberPath": "supabase.from.update.eq",
+        "methodChain": [
+          "from",
+          "update",
+          "eq"
+        ],
+        "isChainedCall": true
+      },
+      "toISOString": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "unknown",
+        "functionName": "toISOString",
+        "fullMemberPath": "toISOString"
+      },
+      "onBillUpdate": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "onBillUpdate",
+        "localName": "onBillUpdate"
+      },
+      "toast.success": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.success",
+        "fullMemberPath": "toast.success",
+        "methodChain": [
+          "success"
+        ],
+        "isChainedCall": true
+      },
+      "console.error": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "console",
+        "functionName": "console.error",
+        "fullMemberPath": "console.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "JSON.stringify": {
+        "source": "unknown",
+        "type": "unknown",
+        "memberOf": "JSON",
+        "functionName": "JSON.stringify",
+        "fullMemberPath": "JSON.stringify",
+        "methodChain": [
+          "stringify"
+        ],
+        "isChainedCall": true
+      },
+      "toast.error": {
+        "source": "sonner",
+        "type": "npm",
+        "importedName": "toast",
+        "localName": "toast",
+        "memberOf": "toast",
+        "functionName": "toast.error",
+        "fullMemberPath": "toast.error",
+        "methodChain": [
+          "error"
+        ],
+        "isChainedCall": true
+      },
+      "onTogglePaid": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "onTogglePaid",
+        "localName": "onTogglePaid"
+      },
+      "handleInputChange": {
+        "source": "local",
+        "type": "local",
+        "importedName": "handleInputChange",
+        "localName": "handleInputChange"
+      },
+      "parseInt": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseInt",
+        "localName": "parseInt"
+      },
+      "parseFloat": {
+        "source": "unknown",
+        "type": "unknown",
+        "importedName": "parseFloat",
+        "localName": "parseFloat"
+      },
+      "formatCurrency": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatCurrency",
+        "localName": "formatCurrency"
+      },
+      "formatDate": {
+        "source": "local",
+        "type": "local",
+        "importedName": "formatDate",
+        "localName": "formatDate"
+      }
+    },
+    "destructuredFunctions": {
+      "editBill": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "editBill"
+      },
+      "setEditBill": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setEditBill"
+      },
+      "isSaving": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 0,
+        "isHookSetter": false,
+        "importedName": "useState",
+        "localName": "isSaving"
+      },
+      "setIsSaving": {
+        "source": "react",
+        "type": "npm",
+        "hookName": "useState",
+        "destructuredFrom": "useState",
+        "destructuredIndex": 1,
+        "isHookSetter": true,
+        "importedName": "useState",
+        "localName": "setIsSaving"
+      }
+    }
+  }
+}

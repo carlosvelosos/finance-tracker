@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "originalFilePath": "types/bill.ts",
+    "scannedDirectory": "app",
+    "timestamp": "2025-06-29_17-42-51",
+    "scanDate": "2025-06-29T15:42:51.120Z"
+  },
+  "analysis": {
+    "defined": [],
+    "called": [],
+    "both": [],
+    "exportDefault": [],
+    "imports": {},
+    "calledWithImports": {},
+    "destructuredFunctions": {}
+  }
+}

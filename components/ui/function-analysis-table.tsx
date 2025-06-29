@@ -181,7 +181,17 @@ export default function FunctionAnalysisTable({
       }
 
       const columnFilters = new Set(newFilters[column]);
-      if (checked) {
+      const allColumnValues = Array.from(uniqueValues[column] || []);
+
+      // If no filters are currently active and user unchecks something
+      if (columnFilters.size === 0 && !checked) {
+        // Start with all values selected, then remove the unchecked one
+        allColumnValues.forEach((val) => {
+          if (val !== value) {
+            columnFilters.add(val);
+          }
+        });
+      } else if (checked) {
         columnFilters.add(value);
       } else {
         columnFilters.delete(value);
@@ -250,6 +260,16 @@ export default function FunctionAnalysisTable({
     const activeFilters = filters[column] || new Set();
     const hasColumnFilter = activeFilters.size > 0;
 
+    // When no filters are active, treat all values as "selected" (visible)
+    const isValueChecked = (value: string) => {
+      if (hasColumnFilter) {
+        return activeFilters.has(value);
+      } else {
+        // No filters active = all values visible, so show all as checked
+        return true;
+      }
+    };
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -282,7 +302,7 @@ export default function FunctionAnalysisTable({
                 <DropdownMenuItem key={value} className="p-0" asChild>
                   <label className="flex items-center space-x-2 p-2 cursor-pointer hover:bg-muted">
                     <Checkbox
-                      checked={activeFilters.has(value)}
+                      checked={isValueChecked(value)}
                       onCheckedChange={(checked) =>
                         handleFilterChange(column, value, checked as boolean)
                       }

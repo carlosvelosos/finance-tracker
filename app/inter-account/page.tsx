@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
 import UpdateInterAggregatedButton from "@/components/UpdateInterAggregatedButton";
+import DataSourceInfo from "@/components/ui/data-source-info";
 import { Info } from "lucide-react";
 
 export default function Home() {
@@ -49,57 +50,12 @@ export default function Home() {
           </Button>
         </div>
         {/* Data Source Information */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-          <h2 className="text-lg font-semibold mb-2 text-gray-800">
-            Data Sources
-          </h2>
-          <p className="text-sm text-gray-700">
-            This page displays transaction data from the following Supabase
-            table:
-          </p>
-          <ul className="list-disc list-inside mt-2 text-sm text-gray-600">
-            <li>
-              <strong>Brasil_transactions_agregated_2025</strong> - Aggregated
-              transactions for Brasil accounts in 2025
-            </li>
-          </ul>{" "}
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-gray-500">
-                Total transactions loaded: {transactions.length}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Unique banks: {bankInfo.uniqueBanks.length} (
-                {bankInfo.uniqueBanks.join(", ")})
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">
-                Transaction count per bank:
-              </p>
-              {Object.entries(bankInfo.transactionCountsByBank).map(
-                ([bank, count]) => (
-                  <p key={bank} className="text-xs text-gray-500">
-                    <strong>{bank}:</strong> {count} transactions
-                  </p>
-                ),
-              )}
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">
-                Newest transaction per bank:
-              </p>
-              {Object.entries(bankInfo.newestDatesByBank).map(
-                ([bank, date]) => (
-                  <p key={bank} className="text-xs text-gray-500">
-                    <strong>{bank}:</strong>{" "}
-                    {new Date(date).toLocaleDateString()}
-                  </p>
-                ),
-              )}
-            </div>
-          </div>
-        </div>{" "}
+        <DataSourceInfo
+          transactions={transactions}
+          bankInfo={bankInfo}
+          tableName="Brasil_transactions_agregated_2025"
+          tableDescription="Aggregated transactions for Brasil accounts in 2025"
+        />
         {/* Chart Buttons */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex space-x-3">

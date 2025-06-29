@@ -86,6 +86,7 @@ const { glob } = require("glob");
 const parser = require("@babel/parser");
 const traverse = require("@babel/traverse").default;
 const { program } = require("commander");
+const readline = require("readline");
 
 /**
  * =================================================================
@@ -93,17 +94,204 @@ const { program } = require("commander");
  * =================================================================
  * Using 'commander' to create a robust CLI interface.
  */
+
+// Function to get available directories
+async function getAvailableDirectories() {
+  try {
+    const items = await fs.readdir(".", { withFileTypes: true });
+    return items
+      .filter(
+        (item) =>
+          item.isDirectory() &&
+          !item.name.startsWith(".") &&
+          item.name !== "node_modules",
+      )
+      .map((item) => item.name)
+      .sort();
+  } catch (error) {
+    console.error("Error reading directories:", error.message);
+    return [];
+  }
+}
+
+// Function to get subdirectories of a given directory
+async function getSubdirectories(targetDir) {
+  try {
+    const items = await fs.readdir(targetDir, { withFileTypes: true });
+    return items
+      .filter(
+        (item) =>
+          item.isDirectory() &&
+          !item.name.startsWith(".") &&
+          item.name !== "node_modules",
+      )
+      .map((item) => item.name)
+      .sort();
+  } catch (error) {
+    console.error(
+      `Error reading subdirectories of ${targetDir}:`,
+      error.message,
+    );
+    return [];
+  }
+}
+
+// Function to prompt user for directory selection with exit option
+function promptDirectorySelection(directories, currentPath = ".") {
+  return new Promise((resolve, reject) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false,
+    });
+
+    console.log(`\nAvailable directories in ${currentPath}:`);
+    directories.forEach((dir, index) => {
+      console.log(`${index + 1}. ${dir}`);
+    });
+    console.log(
+      `${directories.length + 1}. . (use current directory: ${currentPath})`,
+    );
+    console.log(`${directories.length + 2}. Exit`);
+
+    rl.question("\nSelect a directory (enter number): ", (answer) => {
+      rl.close();
+      const selection = parseInt(answer.trim());
+
+      if (selection >= 1 && selection <= directories.length) {
+        console.log(`Selected: ${directories[selection - 1]}`);
+        resolve(directories[selection - 1]);
+      } else if (selection === directories.length + 1) {
+        console.log(`Selected: ${currentPath}`);
+        resolve("USE_CURRENT");
+      } else if (selection === directories.length + 2) {
+        console.log("Exiting script.");
+        reject(new Error("USER_EXIT"));
+      } else {
+        console.log("Invalid selection. Please try again.");
+        resolve("INVALID");
+      }
+    });
+  });
+}
+
+// Function to handle recursive directory selection
+async function selectDirectoryRecursively(basePath = ".") {
+  let currentPath = basePath;
+
+  while (true) {
+    const subdirectories = await getSubdirectories(currentPath);
+
+    if (subdirectories.length === 0) {
+      console.log(`\nNo subdirectories found in ${currentPath}.`);
+      console.log(`Using: ${currentPath}`);
+      return currentPath;
+    }
+
+    try {
+      const selectedDir = await promptDirectorySelection(
+        subdirectories,
+        currentPath,
+      );
+
+      if (selectedDir === "USE_CURRENT") {
+        return currentPath;
+      } else if (selectedDir === "INVALID") {
+        continue; // Loop again for valid input
+      } else {
+        // User selected a subdirectory
+        const newPath = path.join(currentPath, selectedDir);
+
+        // Check if user wants to continue drilling down or use this directory
+        const action = await promptContinueOrUse(newPath);
+
+        if (action === "use") {
+          return newPath;
+        } else if (action === "continue") {
+          currentPath = newPath;
+          continue; // Continue the loop with the new path
+        } else {
+          throw new Error("USER_EXIT");
+        }
+      }
+    } catch (error) {
+      if (error.message === "USER_EXIT") {
+        throw error;
+      }
+      console.error("Error during directory selection:", error.message);
+      return currentPath;
+    }
+  }
+}
+
+// Function to prompt user whether to continue drilling down or use current directory
+function promptContinueOrUse(currentPath) {
+  return new Promise((resolve, reject) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false,
+    });
+
+    console.log(`\nCurrent selection: ${currentPath}`);
+    console.log("1. Continue to subdirectories");
+    console.log("2. Use this directory");
+    console.log("3. Exit");
+
+    rl.question("\nChoose an option (enter number): ", (answer) => {
+      rl.close();
+      const selection = parseInt(answer.trim());
+
+      if (selection === 1) {
+        resolve("continue");
+      } else if (selection === 2) {
+        resolve("use");
+      } else if (selection === 3) {
+        console.log("Exiting script.");
+        reject(new Error("USER_EXIT"));
+      } else {
+        console.log("Invalid selection. Using this directory.");
+        resolve("use");
+      }
+    });
+  });
+}
+
 program
   .version("1.0.0")
   .description(
     "A CLI tool to scan a directory for JS/TS files and report defined and called functions.",
   )
-  .argument("<directory>", "The target directory to scan (e.g., .)")
+  .argument(
+    "[directory]",
+    "The target directory to scan (e.g., .) - if omitted, will prompt for selection",
+  )
   .action(main)
   .parse(process.argv);
 
 async function main(directory) {
-  const targetDir = path.resolve(directory);
+  let targetDirectory = directory;
+
+  // If no directory is provided, prompt for selection
+  if (!targetDirectory) {
+    console.log(
+      "No directory specified. Starting interactive directory selection...",
+    );
+
+    try {
+      targetDirectory = await selectDirectoryRecursively(".");
+    } catch (error) {
+      if (error.message === "USER_EXIT") {
+        console.log("Operation cancelled by user.");
+        process.exit(0);
+      }
+      console.error("Error during directory selection:", error.message);
+      console.log("Falling back to current directory.");
+      targetDirectory = ".";
+    }
+  }
+
+  const targetDir = path.resolve(targetDirectory);
 
   try {
     await fs.access(targetDir);
@@ -114,7 +302,7 @@ async function main(directory) {
 
   console.log(`Scanning files in: ${targetDir}`);
   const report = await processDirectory(targetDir);
-  await generateReport(report, directory);
+  await generateReport(report, targetDirectory);
 }
 
 /**

@@ -868,8 +868,8 @@ export default function FunctionAnalysisPage() {
         {reportData &&
           filteredFunctions.length > 0 &&
           getVisibleColumnCount() > 0 && (
-            <Card>
-              <CardHeader>
+            <Card className="h-[80vh] flex flex-col">
+              <CardHeader className="flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">
                     Function Analysis Matrix
@@ -947,576 +947,581 @@ export default function FunctionAnalysisPage() {
                   </div>
                 )}
               </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-gray-200">
-                    <thead>
-                      <tr className="bg-white border-b-2 border-gray-200">
-                        <th
-                          className="border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-900 sticky left-0 bg-white z-10 min-w-[200px] cursor-pointer hover:bg-gray-50"
-                          onClick={() => handleSort("function")}
-                          title="Click to sort by function name"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>Function Name</span>
-                            <span className="text-xs">
-                              {getSortIndicator("function")}
-                            </span>
-                          </div>
-                        </th>
-
-                        {/* Type Column */}
-                        <th
-                          className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative cursor-pointer hover:bg-gray-50"
-                          onClick={() => handleSort("type")}
-                          title="Click to sort by function type"
-                        >
-                          <div className="flex flex-col items-center space-y-2">
-                            <div className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full">
-                              <div className="flex-1">
-                                <div className="text-sm truncate">
-                                  Type
-                                  {(() => {
-                                    const uniqueTypes = getUniqueTypes();
-                                    const selectedCount =
-                                      columnFilters["type"]?.size ||
-                                      uniqueTypes.length;
-                                    const hasActiveFilter =
-                                      selectedCount < uniqueTypes.length;
-                                    return hasActiveFilter ? (
-                                      <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
-                                        {selectedCount}/{uniqueTypes.length}
-                                      </span>
-                                    ) : null;
-                                  })()}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  Import Source
-                                </div>
-                              </div>
-                              <div className="text-xs ml-1">
-                                {getSortIndicator("type")}
-                              </div>
+              <CardContent className="flex-1 overflow-hidden p-0">
+                <div className="h-full overflow-auto">
+                  <div className="p-6">
+                    <table className="w-full border-collapse border border-gray-200">
+                      <thead className="sticky top-0 z-20">
+                        <tr className="bg-white border-b-2 border-gray-200">
+                          <th
+                            className="border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-900 sticky left-0 bg-white z-30 min-w-[200px] cursor-pointer hover:bg-gray-50"
+                            onClick={() => handleSort("function")}
+                            title="Click to sort by function name"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span>Function Name</span>
+                              <span className="text-xs">
+                                {getSortIndicator("function")}
+                              </span>
                             </div>
+                          </th>
 
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-6 w-6 p-0 transition-colors ${(() => {
-                                    const uniqueTypes = getUniqueTypes();
-                                    const selectedCount =
-                                      columnFilters["type"]?.size ||
-                                      uniqueTypes.length;
-                                    const hasActiveFilter =
-                                      selectedCount < uniqueTypes.length;
-                                    return hasActiveFilter
-                                      ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                                      : "text-gray-400 hover:text-gray-600";
-                                  })()}`}
-                                  title="Filter by type"
-                                >
-                                  <Filter className="h-3 w-3" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-96 max-h-96 overflow-y-auto">
-                                <div className="p-2 border-b">
-                                  <div className="text-sm font-medium mb-2">
-                                    Filter by Type
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleColumnFilterSelectAll(
-                                          "type",
-                                          true,
-                                        )
-                                      }
-                                      className="text-xs h-7"
-                                    >
-                                      Select All
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleColumnFilterSelectAll(
-                                          "type",
-                                          false,
-                                        )
-                                      }
-                                      className="text-xs h-7"
-                                    >
-                                      Select None
-                                    </Button>
-                                  </div>
-                                  <div className="text-xs text-gray-500 mt-1">
+                          {/* Type Column */}
+                          <th
+                            className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative cursor-pointer hover:bg-gray-50"
+                            onClick={() => handleSort("type")}
+                            title="Click to sort by function type"
+                          >
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full">
+                                <div className="flex-1">
+                                  <div className="text-sm truncate">
+                                    Type
                                     {(() => {
                                       const uniqueTypes = getUniqueTypes();
                                       const selectedCount =
                                         columnFilters["type"]?.size ||
                                         uniqueTypes.length;
-                                      return `${selectedCount} of ${uniqueTypes.length} selected`;
+                                      const hasActiveFilter =
+                                        selectedCount < uniqueTypes.length;
+                                      return hasActiveFilter ? (
+                                        <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                          {selectedCount}/{uniqueTypes.length}
+                                        </span>
+                                      ) : null;
                                     })()}
                                   </div>
-                                </div>
-
-                                {getUniqueTypes().map((typeValue) => {
-                                  const isChecked =
-                                    columnFilters["type"]?.has(typeValue) ??
-                                    true;
-                                  const typeCount = getAllFunctions().filter(
-                                    (fn) => getFunctionType(fn) === typeValue,
-                                  ).length;
-
-                                  return (
-                                    <DropdownMenuCheckboxItem
-                                      key={typeValue}
-                                      checked={isChecked}
-                                      onCheckedChange={(checked) =>
-                                        handleColumnFilterChange(
-                                          "type",
-                                          typeValue,
-                                          checked,
-                                        )
-                                      }
-                                      className="text-sm"
-                                    >
-                                      <div className="flex items-center justify-between w-full">
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-medium capitalize">
-                                            {typeValue}
-                                          </span>
-                                          <span className="text-xs text-gray-500">
-                                            ({typeCount})
-                                          </span>
-                                        </div>
-                                        <Badge
-                                          variant="outline"
-                                          className={`ml-2 text-xs h-5 ${
-                                            typeValue === "npm"
-                                              ? "bg-green-100 text-green-800"
-                                              : typeValue === "local"
-                                                ? "bg-blue-100 text-blue-800"
-                                                : typeValue === "alias"
-                                                  ? "bg-purple-100 text-purple-800"
-                                                  : typeValue === "relative"
-                                                    ? "bg-yellow-100 text-yellow-800"
-                                                    : "bg-gray-100 text-gray-600"
-                                          }`}
-                                        >
-                                          {typeValue}
-                                        </Badge>
-                                      </div>
-                                    </DropdownMenuCheckboxItem>
-                                  );
-                                })}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </th>
-
-                        {/* Source Column */}
-                        <th
-                          className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative cursor-pointer hover:bg-gray-50"
-                          onClick={() => handleSort("source")}
-                          title="Click to sort by function source"
-                        >
-                          <div className="flex flex-col items-center space-y-2">
-                            <div className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full">
-                              <div className="flex-1">
-                                <div className="text-sm truncate">
-                                  Source
-                                  {(() => {
-                                    const uniqueSources = getUniqueSources();
-                                    const selectedCount =
-                                      columnFilters["source"]?.size ||
-                                      uniqueSources.length;
-                                    const hasActiveFilter =
-                                      selectedCount < uniqueSources.length;
-                                    return hasActiveFilter ? (
-                                      <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
-                                        {selectedCount}/{uniqueSources.length}
-                                      </span>
-                                    ) : null;
-                                  })()}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  Import Package
-                                </div>
-                              </div>
-                              <div className="text-xs ml-1">
-                                {getSortIndicator("source")}
-                              </div>
-                            </div>
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-6 w-6 p-0 transition-colors ${(() => {
-                                    const uniqueSources = getUniqueSources();
-                                    const selectedCount =
-                                      columnFilters["source"]?.size ||
-                                      uniqueSources.length;
-                                    const hasActiveFilter =
-                                      selectedCount < uniqueSources.length;
-                                    return hasActiveFilter
-                                      ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                                      : "text-gray-400 hover:text-gray-600";
-                                  })()}`}
-                                  title="Filter by source"
-                                >
-                                  <Filter className="h-3 w-3" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-96 max-h-96 overflow-y-auto">
-                                <div className="p-2 border-b">
-                                  <div className="text-sm font-medium mb-2">
-                                    Filter by Source
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleColumnFilterSelectAll(
-                                          "source",
-                                          true,
-                                        )
-                                      }
-                                      className="text-xs h-7"
-                                    >
-                                      Select All
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleColumnFilterSelectAll(
-                                          "source",
-                                          false,
-                                        )
-                                      }
-                                      className="text-xs h-7"
-                                    >
-                                      Select None
-                                    </Button>
-                                  </div>
                                   <div className="text-xs text-gray-500 mt-1">
+                                    Import Source
+                                  </div>
+                                </div>
+                                <div className="text-xs ml-1">
+                                  {getSortIndicator("type")}
+                                </div>
+                              </div>
+
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-6 w-6 p-0 transition-colors ${(() => {
+                                      const uniqueTypes = getUniqueTypes();
+                                      const selectedCount =
+                                        columnFilters["type"]?.size ||
+                                        uniqueTypes.length;
+                                      const hasActiveFilter =
+                                        selectedCount < uniqueTypes.length;
+                                      return hasActiveFilter
+                                        ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                                        : "text-gray-400 hover:text-gray-600";
+                                    })()}`}
+                                    title="Filter by type"
+                                  >
+                                    <Filter className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-96 max-h-96 overflow-y-auto">
+                                  <div className="p-2 border-b">
+                                    <div className="text-sm font-medium mb-2">
+                                      Filter by Type
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleColumnFilterSelectAll(
+                                            "type",
+                                            true,
+                                          )
+                                        }
+                                        className="text-xs h-7"
+                                      >
+                                        Select All
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleColumnFilterSelectAll(
+                                            "type",
+                                            false,
+                                          )
+                                        }
+                                        className="text-xs h-7"
+                                      >
+                                        Select None
+                                      </Button>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {(() => {
+                                        const uniqueTypes = getUniqueTypes();
+                                        const selectedCount =
+                                          columnFilters["type"]?.size ||
+                                          uniqueTypes.length;
+                                        return `${selectedCount} of ${uniqueTypes.length} selected`;
+                                      })()}
+                                    </div>
+                                  </div>
+
+                                  {getUniqueTypes().map((typeValue) => {
+                                    const isChecked =
+                                      columnFilters["type"]?.has(typeValue) ??
+                                      true;
+                                    const typeCount = getAllFunctions().filter(
+                                      (fn) => getFunctionType(fn) === typeValue,
+                                    ).length;
+
+                                    return (
+                                      <DropdownMenuCheckboxItem
+                                        key={typeValue}
+                                        checked={isChecked}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            "type",
+                                            typeValue,
+                                            checked,
+                                          )
+                                        }
+                                        className="text-sm"
+                                      >
+                                        <div className="flex items-center justify-between w-full">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium capitalize">
+                                              {typeValue}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                              ({typeCount})
+                                            </span>
+                                          </div>
+                                          <Badge
+                                            variant="outline"
+                                            className={`ml-2 text-xs h-5 ${
+                                              typeValue === "npm"
+                                                ? "bg-green-100 text-green-800"
+                                                : typeValue === "local"
+                                                  ? "bg-blue-100 text-blue-800"
+                                                  : typeValue === "alias"
+                                                    ? "bg-purple-100 text-purple-800"
+                                                    : typeValue === "relative"
+                                                      ? "bg-yellow-100 text-yellow-800"
+                                                      : "bg-gray-100 text-gray-600"
+                                            }`}
+                                          >
+                                            {typeValue}
+                                          </Badge>
+                                        </div>
+                                      </DropdownMenuCheckboxItem>
+                                    );
+                                  })}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </th>
+
+                          {/* Source Column */}
+                          <th
+                            className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative cursor-pointer hover:bg-gray-50"
+                            onClick={() => handleSort("source")}
+                            title="Click to sort by function source"
+                          >
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full">
+                                <div className="flex-1">
+                                  <div className="text-sm truncate">
+                                    Source
                                     {(() => {
                                       const uniqueSources = getUniqueSources();
                                       const selectedCount =
                                         columnFilters["source"]?.size ||
                                         uniqueSources.length;
-                                      return `${selectedCount} of ${uniqueSources.length} selected`;
+                                      const hasActiveFilter =
+                                        selectedCount < uniqueSources.length;
+                                      return hasActiveFilter ? (
+                                        <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                          {selectedCount}/{uniqueSources.length}
+                                        </span>
+                                      ) : null;
                                     })()}
                                   </div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    Import Package
+                                  </div>
                                 </div>
+                                <div className="text-xs ml-1">
+                                  {getSortIndicator("source")}
+                                </div>
+                              </div>
 
-                                {getUniqueSources().map((sourceValue) => {
-                                  const isChecked =
-                                    columnFilters["source"]?.has(sourceValue) ??
-                                    true;
-                                  const sourceCount = getAllFunctions().filter(
-                                    (fn) =>
-                                      getFunctionSource(fn) === sourceValue,
-                                  ).length;
-
-                                  return (
-                                    <DropdownMenuCheckboxItem
-                                      key={sourceValue}
-                                      checked={isChecked}
-                                      onCheckedChange={(checked) =>
-                                        handleColumnFilterChange(
-                                          "source",
-                                          sourceValue,
-                                          checked,
-                                        )
-                                      }
-                                      className="text-sm"
-                                    >
-                                      <div className="flex items-center justify-between w-full">
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-medium">
-                                            {sourceValue}
-                                          </span>
-                                          <span className="text-xs text-gray-500">
-                                            ({sourceCount})
-                                          </span>
-                                        </div>
-                                        <Badge
-                                          variant="outline"
-                                          className={`ml-2 text-xs h-5 ${
-                                            sourceValue === "local"
-                                              ? "bg-blue-100 text-blue-800"
-                                              : sourceValue === "unknown"
-                                                ? "bg-gray-100 text-gray-600"
-                                                : "bg-orange-100 text-orange-800"
-                                          }`}
-                                        >
-                                          {sourceValue}
-                                        </Badge>
-                                      </div>
-                                    </DropdownMenuCheckboxItem>
-                                  );
-                                })}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </th>
-                        {filteredFileNames.map(
-                          (fileName: string, index: number) => {
-                            const uniqueValues =
-                              getUniqueValuesInFile(fileName);
-                            const selectedCount =
-                              columnFilters[fileName]?.size ||
-                              uniqueValues.length;
-                            const hasActiveFilter =
-                              selectedCount < uniqueValues.length;
-
-                            return (
-                              <th
-                                key={fileName}
-                                className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative"
-                                title={`${fileName} (Column ${index + 1})`}
-                              >
-                                <div className="flex flex-col items-center space-y-2">
-                                  <div
-                                    className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full"
-                                    onClick={() => handleSort(fileName)}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-6 w-6 p-0 transition-colors ${(() => {
+                                      const uniqueSources = getUniqueSources();
+                                      const selectedCount =
+                                        columnFilters["source"]?.size ||
+                                        uniqueSources.length;
+                                      const hasActiveFilter =
+                                        selectedCount < uniqueSources.length;
+                                      return hasActiveFilter
+                                        ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                                        : "text-gray-400 hover:text-gray-600";
+                                    })()}`}
+                                    title="Filter by source"
                                   >
-                                    <div className="flex-1">
-                                      <div className="text-sm truncate">
-                                        {fileName.replace(/\.(tsx?|js)$/, "")}
-                                        {hasActiveFilter && (
-                                          <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
-                                            {selectedCount}/
-                                            {uniqueValues.length}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className="text-xs text-gray-500 mt-1 font-mono">
-                                        .{fileName.split(".").pop()}
-                                      </div>
+                                    <Filter className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-96 max-h-96 overflow-y-auto">
+                                  <div className="p-2 border-b">
+                                    <div className="text-sm font-medium mb-2">
+                                      Filter by Source
                                     </div>
-                                    <div className="text-xs ml-1">
-                                      {getSortIndicator(fileName)}
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleColumnFilterSelectAll(
+                                            "source",
+                                            true,
+                                          )
+                                        }
+                                        className="text-xs h-7"
+                                      >
+                                        Select All
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleColumnFilterSelectAll(
+                                            "source",
+                                            false,
+                                          )
+                                        }
+                                        className="text-xs h-7"
+                                      >
+                                        Select None
+                                      </Button>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {(() => {
+                                        const uniqueSources =
+                                          getUniqueSources();
+                                        const selectedCount =
+                                          columnFilters["source"]?.size ||
+                                          uniqueSources.length;
+                                        return `${selectedCount} of ${uniqueSources.length} selected`;
+                                      })()}
                                     </div>
                                   </div>
 
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className={`h-6 w-6 p-0 transition-colors ${
-                                          hasActiveFilter
-                                            ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                                            : "text-gray-400 hover:text-gray-600"
-                                        }`}
-                                        title={`Filter column${hasActiveFilter ? " (filtered)" : ""}`}
+                                  {getUniqueSources().map((sourceValue) => {
+                                    const isChecked =
+                                      columnFilters["source"]?.has(
+                                        sourceValue,
+                                      ) ?? true;
+                                    const sourceCount =
+                                      getAllFunctions().filter(
+                                        (fn) =>
+                                          getFunctionSource(fn) === sourceValue,
+                                      ).length;
+
+                                    return (
+                                      <DropdownMenuCheckboxItem
+                                        key={sourceValue}
+                                        checked={isChecked}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            "source",
+                                            sourceValue,
+                                            checked,
+                                          )
+                                        }
+                                        className="text-sm"
                                       >
-                                        <Filter className="h-3 w-3" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto">
-                                      <div className="p-2 border-b">
-                                        <div className="text-sm font-medium mb-2">
-                                          Filter {fileName}
-                                        </div>
-                                        <div className="flex gap-2">
-                                          <Button
+                                        <div className="flex items-center justify-between w-full">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">
+                                              {sourceValue}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                              ({sourceCount})
+                                            </span>
+                                          </div>
+                                          <Badge
                                             variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                              handleColumnFilterSelectAll(
-                                                fileName,
-                                                true,
-                                              )
-                                            }
-                                            className="text-xs h-7"
+                                            className={`ml-2 text-xs h-5 ${
+                                              sourceValue === "local"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : sourceValue === "unknown"
+                                                  ? "bg-gray-100 text-gray-600"
+                                                  : "bg-orange-100 text-orange-800"
+                                            }`}
                                           >
-                                            Select All
-                                          </Button>
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                              handleColumnFilterSelectAll(
-                                                fileName,
-                                                false,
-                                              )
-                                            }
-                                            className="text-xs h-7"
-                                          >
-                                            Select None
-                                          </Button>
+                                            {sourceValue}
+                                          </Badge>
                                         </div>
-                                        <div className="text-xs text-gray-500 mt-1">
-                                          {selectedCount} of{" "}
-                                          {uniqueValues.length} selected
-                                        </div>
-                                      </div>
-
-                                      {uniqueValues.map((cellValue) => {
-                                        const isChecked =
-                                          columnFilters[fileName]?.has(
-                                            cellValue,
-                                          ) ?? true;
-                                        const cellCounts =
-                                          getCellValueCounts(fileName);
-                                        const count =
-                                          cellCounts[cellValue] || 0;
-
-                                        return (
-                                          <DropdownMenuCheckboxItem
-                                            key={cellValue || "empty"}
-                                            checked={isChecked}
-                                            onCheckedChange={(checked) =>
-                                              handleColumnFilterChange(
-                                                fileName,
-                                                cellValue,
-                                                checked,
-                                              )
-                                            }
-                                            className="text-sm"
-                                          >
-                                            <div className="flex items-center justify-between w-full">
-                                              <div className="flex items-center gap-2">
-                                                <span className="font-medium">
-                                                  {cellValue === "D" &&
-                                                    "Defined (D)"}
-                                                  {cellValue === "C" &&
-                                                    "Called (C)"}
-                                                  {cellValue === "D/C" &&
-                                                    "Defined & Called (D/C)"}
-                                                  {cellValue === "" &&
-                                                    "No Relationship (Empty)"}
-                                                </span>
-                                                <span className="text-xs text-gray-500">
-                                                  ({count})
-                                                </span>
-                                              </div>
-                                              <Badge
-                                                variant="outline"
-                                                className={`ml-2 text-xs h-5 ${
-                                                  cellValue === "D"
-                                                    ? "bg-blue-100 text-blue-800"
-                                                    : cellValue === "C"
-                                                      ? "bg-green-100 text-green-800"
-                                                      : cellValue === "D/C"
-                                                        ? "bg-purple-100 text-purple-800"
-                                                        : "bg-gray-100 text-gray-600"
-                                                }`}
-                                              >
-                                                {cellValue || "—"}
-                                              </Badge>
-                                            </div>
-                                          </DropdownMenuCheckboxItem>
-                                        );
-                                      })}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
-                              </th>
-                            );
-                          },
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredFunctions.map(
-                        (functionName: string, index: number) => (
-                          <tr
-                            key={functionName}
-                            className={
-                              index % 2 === 0
-                                ? "bg-white hover:bg-gray-50"
-                                : "bg-gray-50/50 hover:bg-gray-100"
-                            }
-                          >
-                            <td className="border-r border-gray-200 px-4 py-3 font-medium sticky left-0 bg-inherit z-10 border-b border-gray-200">
-                              <code className="text-sm text-gray-800">
-                                {functionName}
-                              </code>
-                            </td>
-
-                            {/* Type Column Data */}
-                            <td className="border-r border-b border-gray-200 px-3 py-3 text-center text-sm">
-                              {(() => {
-                                const functionType =
-                                  getFunctionType(functionName);
-                                return (
-                                  <Badge
-                                    variant="outline"
-                                    className={`text-xs ${
-                                      functionType === "npm"
-                                        ? "bg-green-100 text-green-800 border-green-300"
-                                        : functionType === "local"
-                                          ? "bg-blue-100 text-blue-800 border-blue-300"
-                                          : functionType === "alias"
-                                            ? "bg-purple-100 text-purple-800 border-purple-300"
-                                            : functionType === "relative"
-                                              ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                                              : "bg-gray-100 text-gray-600 border-gray-300"
-                                    }`}
-                                  >
-                                    {functionType}
-                                  </Badge>
-                                );
-                              })()}
-                            </td>
-
-                            {/* Source Column Data */}
-                            <td className="border-r border-b border-gray-200 px-3 py-3 text-center text-sm">
-                              {(() => {
-                                const functionSource =
-                                  getFunctionSource(functionName);
-                                return (
-                                  <Badge
-                                    variant="outline"
-                                    className={`text-xs ${
-                                      functionSource === "local"
-                                        ? "bg-blue-100 text-blue-800 border-blue-300"
-                                        : functionSource === "unknown"
-                                          ? "bg-gray-100 text-gray-600 border-gray-300"
-                                          : "bg-orange-100 text-orange-800 border-orange-300"
-                                    }`}
-                                  >
-                                    {functionSource}
-                                  </Badge>
-                                );
-                              })()}
-                            </td>
-                            {filteredFileNames.map((fileName: string) => {
-                              const content = getCellContent(
-                                functionName,
-                                fileName,
-                              );
+                                      </DropdownMenuCheckboxItem>
+                                    );
+                                  })}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </th>
+                          {filteredFileNames.map(
+                            (fileName: string, index: number) => {
+                              const uniqueValues =
+                                getUniqueValuesInFile(fileName);
+                              const selectedCount =
+                                columnFilters[fileName]?.size ||
+                                uniqueValues.length;
+                              const hasActiveFilter =
+                                selectedCount < uniqueValues.length;
 
                               return (
-                                <td
-                                  key={`${functionName}-${fileName}`}
-                                  className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${
-                                    content
-                                      ? getCellStyle(content)
-                                      : "bg-gray-50 text-gray-400"
-                                  }`}
+                                <th
+                                  key={fileName}
+                                  className="border-r border-gray-200 px-3 py-3 text-center font-medium text-gray-700 min-w-[120px] bg-white relative"
+                                  title={`${fileName} (Column ${index + 1})`}
                                 >
-                                  {content || "—"}
-                                </td>
+                                  <div className="flex flex-col items-center space-y-2">
+                                    <div
+                                      className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 p-1 rounded flex items-center justify-between w-full"
+                                      onClick={() => handleSort(fileName)}
+                                    >
+                                      <div className="flex-1">
+                                        <div className="text-sm truncate">
+                                          {fileName.replace(/\.(tsx?|js)$/, "")}
+                                          {hasActiveFilter && (
+                                            <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                              {selectedCount}/
+                                              {uniqueValues.length}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1 font-mono">
+                                          .{fileName.split(".").pop()}
+                                        </div>
+                                      </div>
+                                      <div className="text-xs ml-1">
+                                        {getSortIndicator(fileName)}
+                                      </div>
+                                    </div>
+
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className={`h-6 w-6 p-0 transition-colors ${
+                                            hasActiveFilter
+                                              ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                                              : "text-gray-400 hover:text-gray-600"
+                                          }`}
+                                          title={`Filter column${hasActiveFilter ? " (filtered)" : ""}`}
+                                        >
+                                          <Filter className="h-3 w-3" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto">
+                                        <div className="p-2 border-b">
+                                          <div className="text-sm font-medium mb-2">
+                                            Filter {fileName}
+                                          </div>
+                                          <div className="flex gap-2">
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() =>
+                                                handleColumnFilterSelectAll(
+                                                  fileName,
+                                                  true,
+                                                )
+                                              }
+                                              className="text-xs h-7"
+                                            >
+                                              Select All
+                                            </Button>
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() =>
+                                                handleColumnFilterSelectAll(
+                                                  fileName,
+                                                  false,
+                                                )
+                                              }
+                                              className="text-xs h-7"
+                                            >
+                                              Select None
+                                            </Button>
+                                          </div>
+                                          <div className="text-xs text-gray-500 mt-1">
+                                            {selectedCount} of{" "}
+                                            {uniqueValues.length} selected
+                                          </div>
+                                        </div>
+
+                                        {uniqueValues.map((cellValue) => {
+                                          const isChecked =
+                                            columnFilters[fileName]?.has(
+                                              cellValue,
+                                            ) ?? true;
+                                          const cellCounts =
+                                            getCellValueCounts(fileName);
+                                          const count =
+                                            cellCounts[cellValue] || 0;
+
+                                          return (
+                                            <DropdownMenuCheckboxItem
+                                              key={cellValue || "empty"}
+                                              checked={isChecked}
+                                              onCheckedChange={(checked) =>
+                                                handleColumnFilterChange(
+                                                  fileName,
+                                                  cellValue,
+                                                  checked,
+                                                )
+                                              }
+                                              className="text-sm"
+                                            >
+                                              <div className="flex items-center justify-between w-full">
+                                                <div className="flex items-center gap-2">
+                                                  <span className="font-medium">
+                                                    {cellValue === "D" &&
+                                                      "Defined (D)"}
+                                                    {cellValue === "C" &&
+                                                      "Called (C)"}
+                                                    {cellValue === "D/C" &&
+                                                      "Defined & Called (D/C)"}
+                                                    {cellValue === "" &&
+                                                      "No Relationship (Empty)"}
+                                                  </span>
+                                                  <span className="text-xs text-gray-500">
+                                                    ({count})
+                                                  </span>
+                                                </div>
+                                                <Badge
+                                                  variant="outline"
+                                                  className={`ml-2 text-xs h-5 ${
+                                                    cellValue === "D"
+                                                      ? "bg-blue-100 text-blue-800"
+                                                      : cellValue === "C"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : cellValue === "D/C"
+                                                          ? "bg-purple-100 text-purple-800"
+                                                          : "bg-gray-100 text-gray-600"
+                                                  }`}
+                                                >
+                                                  {cellValue || "—"}
+                                                </Badge>
+                                              </div>
+                                            </DropdownMenuCheckboxItem>
+                                          );
+                                        })}
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
+                                </th>
                               );
-                            })}
-                          </tr>
-                        ),
-                      )}
-                    </tbody>
-                  </table>
+                            },
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredFunctions.map(
+                          (functionName: string, index: number) => (
+                            <tr
+                              key={functionName}
+                              className={
+                                index % 2 === 0
+                                  ? "bg-white hover:bg-gray-50"
+                                  : "bg-gray-50/50 hover:bg-gray-100"
+                              }
+                            >
+                              <td className="border-r border-gray-200 px-4 py-3 font-medium sticky left-0 bg-inherit z-20 border-b border-gray-200">
+                                <code className="text-sm text-gray-800">
+                                  {functionName}
+                                </code>
+                              </td>
+
+                              {/* Type Column Data */}
+                              <td className="border-r border-b border-gray-200 px-3 py-3 text-center text-sm">
+                                {(() => {
+                                  const functionType =
+                                    getFunctionType(functionName);
+                                  return (
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-xs ${
+                                        functionType === "npm"
+                                          ? "bg-green-100 text-green-800 border-green-300"
+                                          : functionType === "local"
+                                            ? "bg-blue-100 text-blue-800 border-blue-300"
+                                            : functionType === "alias"
+                                              ? "bg-purple-100 text-purple-800 border-purple-300"
+                                              : functionType === "relative"
+                                                ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                                : "bg-gray-100 text-gray-600 border-gray-300"
+                                      }`}
+                                    >
+                                      {functionType}
+                                    </Badge>
+                                  );
+                                })()}
+                              </td>
+
+                              {/* Source Column Data */}
+                              <td className="border-r border-b border-gray-200 px-3 py-3 text-center text-sm">
+                                {(() => {
+                                  const functionSource =
+                                    getFunctionSource(functionName);
+                                  return (
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-xs ${
+                                        functionSource === "local"
+                                          ? "bg-blue-100 text-blue-800 border-blue-300"
+                                          : functionSource === "unknown"
+                                            ? "bg-gray-100 text-gray-600 border-gray-300"
+                                            : "bg-orange-100 text-orange-800 border-orange-300"
+                                      }`}
+                                    >
+                                      {functionSource}
+                                    </Badge>
+                                  );
+                                })()}
+                              </td>
+                              {filteredFileNames.map((fileName: string) => {
+                                const content = getCellContent(
+                                  functionName,
+                                  fileName,
+                                );
+
+                                return (
+                                  <td
+                                    key={`${functionName}-${fileName}`}
+                                    className={`border-r border-b border-gray-200 px-3 py-3 text-center text-sm ${
+                                      content
+                                        ? getCellStyle(content)
+                                        : "bg-gray-50 text-gray-400"
+                                    }`}
+                                  >
+                                    {content || "—"}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -60,6 +60,7 @@ export default function FunctionReportsPage() {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     new Set(),
   );
+  const [isJsonFilesCollapsed, setIsJsonFilesCollapsed] = useState(false);
 
   // Fetch available directories on component mount
   useEffect(() => {
@@ -188,6 +189,10 @@ export default function FunctionReportsPage() {
 
   const isGroupCollapsed = (groupName: string) =>
     collapsedGroups.has(groupName);
+
+  const toggleJsonFilesCollapse = () => {
+    setIsJsonFilesCollapsed((prev) => !prev);
+  };
 
   const getGroupFileCount = (
     groupName: string,
@@ -486,6 +491,18 @@ export default function FunctionReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 mr-1"
+                  onClick={toggleJsonFilesCollapse}
+                >
+                  {isJsonFilesCollapsed ? (
+                    <ChevronRight className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
                 <FileText className="h-5 w-5" />
                 <span>Available JSON Files</span>
                 <Badge variant="outline">
@@ -502,157 +519,162 @@ export default function FunctionReportsPage() {
                 files
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="select-all"
-                  checked={
-                    selectedJsonFiles.length ===
-                      directoryData.jsonFiles.length &&
-                    directoryData.jsonFiles.length > 0
-                  }
-                  onCheckedChange={toggleSelectAll}
-                />
-                <label
-                  htmlFor="select-all"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Select All
-                </label>
-                <Button
-                  onClick={loadTableData}
-                  disabled={selectedJsonFiles.length === 0 || loadingTable}
-                  size="sm"
-                  className="ml-auto"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  {loadingTable ? "Loading..." : "Generate Table"}
-                </Button>
-              </div>
-
-              {directoryData.jsonFiles.length > 0 ? (
-                <div className="space-y-3">
-                  {(() => {
-                    const groupedFiles = groupFilesByPath(
-                      directoryData.jsonFiles,
-                    );
-                    const groupNames = Object.keys(groupedFiles).sort();
-
-                    return groupNames.map((groupName) => {
-                      const groupFiles = groupedFiles[groupName];
-                      const isCollapsed = isGroupCollapsed(groupName);
-                      const { total, selected } = getGroupFileCount(
-                        groupName,
-                        groupedFiles,
-                      );
-                      const allSelected = selected === total && total > 0;
-                      const someSelected = selected > 0 && selected < total;
-
-                      return (
-                        <div key={groupName} className="border rounded-lg">
-                          {/* Group Header */}
-                          <div className="flex items-center space-x-2 p-3 border-b bg-muted/30">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0"
-                              onClick={() => toggleGroup(groupName)}
-                            >
-                              {isCollapsed ? (
-                                <ChevronRight className="h-4 w-4" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4" />
-                              )}
-                            </Button>
-
-                            <Checkbox
-                              id={`group-${groupName}`}
-                              checked={allSelected}
-                              className={
-                                someSelected
-                                  ? "data-[state=checked]:bg-orange-500"
-                                  : ""
-                              }
-                              onCheckedChange={() =>
-                                toggleGroupSelection(groupName, groupedFiles)
-                              }
-                            />
-
-                            <div className="flex-1 flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <Folder className="h-4 w-4 text-muted-foreground" />
-                                <label
-                                  htmlFor={`group-${groupName}`}
-                                  className="text-sm font-medium cursor-pointer"
-                                >
-                                  {groupName === "Root"
-                                    ? "Root Level"
-                                    : groupName}
-                                </label>
-                              </div>
-
-                              <div className="flex items-center space-x-2">
-                                <Badge variant="outline" className="text-xs">
-                                  {selected}/{total}
-                                </Badge>
-                                <Badge variant="secondary" className="text-xs">
-                                  {total} files
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Group Content */}
-                          {!isCollapsed && (
-                            <div className="p-2">
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                {groupFiles.map((fileName) => (
-                                  <div
-                                    key={fileName}
-                                    className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
-                                  >
-                                    <Checkbox
-                                      id={fileName}
-                                      checked={selectedJsonFiles.includes(
-                                        fileName,
-                                      )}
-                                      onCheckedChange={(checked) =>
-                                        handleFileSelection(
-                                          fileName,
-                                          checked as boolean,
-                                        )
-                                      }
-                                    />
-                                    <FileText className="h-4 w-4 text-muted-foreground" />
-                                    <div className="flex-1 min-w-0">
-                                      <label
-                                        htmlFor={fileName}
-                                        className="text-sm font-medium truncate block cursor-pointer"
-                                      >
-                                        {formatJsonFileName(fileName)
-                                          .split("/")
-                                          .pop()}
-                                      </label>
-                                      <p className="text-xs text-muted-foreground truncate">
-                                        {fileName}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    });
-                  })()}
+            {!isJsonFilesCollapsed && (
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="select-all"
+                    checked={
+                      selectedJsonFiles.length ===
+                        directoryData.jsonFiles.length &&
+                      directoryData.jsonFiles.length > 0
+                    }
+                    onCheckedChange={toggleSelectAll}
+                  />
+                  <label
+                    htmlFor="select-all"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Select All
+                  </label>
+                  <Button
+                    onClick={loadTableData}
+                    disabled={selectedJsonFiles.length === 0 || loadingTable}
+                    size="sm"
+                    className="ml-auto"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    {loadingTable ? "Loading..." : "Generate Table"}
+                  </Button>
                 </div>
-              ) : (
-                <p className="text-muted-foreground">
-                  No JSON files found in this directory.
-                </p>
-              )}
-            </CardContent>
+
+                {directoryData.jsonFiles.length > 0 ? (
+                  <div className="space-y-3">
+                    {(() => {
+                      const groupedFiles = groupFilesByPath(
+                        directoryData.jsonFiles,
+                      );
+                      const groupNames = Object.keys(groupedFiles).sort();
+
+                      return groupNames.map((groupName) => {
+                        const groupFiles = groupedFiles[groupName];
+                        const isCollapsed = isGroupCollapsed(groupName);
+                        const { total, selected } = getGroupFileCount(
+                          groupName,
+                          groupedFiles,
+                        );
+                        const allSelected = selected === total && total > 0;
+                        const someSelected = selected > 0 && selected < total;
+
+                        return (
+                          <div key={groupName} className="border rounded-lg">
+                            {/* Group Header */}
+                            <div className="flex items-center space-x-2 p-3 border-b bg-muted/30">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => toggleGroup(groupName)}
+                              >
+                                {isCollapsed ? (
+                                  <ChevronRight className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </Button>
+
+                              <Checkbox
+                                id={`group-${groupName}`}
+                                checked={allSelected}
+                                className={
+                                  someSelected
+                                    ? "data-[state=checked]:bg-orange-500"
+                                    : ""
+                                }
+                                onCheckedChange={() =>
+                                  toggleGroupSelection(groupName, groupedFiles)
+                                }
+                              />
+
+                              <div className="flex-1 flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <Folder className="h-4 w-4 text-muted-foreground" />
+                                  <label
+                                    htmlFor={`group-${groupName}`}
+                                    className="text-sm font-medium cursor-pointer"
+                                  >
+                                    {groupName === "Root"
+                                      ? "Root Level"
+                                      : groupName}
+                                  </label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="outline" className="text-xs">
+                                    {selected}/{total}
+                                  </Badge>
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {total} files
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Group Content */}
+                            {!isCollapsed && (
+                              <div className="p-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                  {groupFiles.map((fileName) => (
+                                    <div
+                                      key={fileName}
+                                      className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
+                                    >
+                                      <Checkbox
+                                        id={fileName}
+                                        checked={selectedJsonFiles.includes(
+                                          fileName,
+                                        )}
+                                        onCheckedChange={(checked) =>
+                                          handleFileSelection(
+                                            fileName,
+                                            checked as boolean,
+                                          )
+                                        }
+                                      />
+                                      <FileText className="h-4 w-4 text-muted-foreground" />
+                                      <div className="flex-1 min-w-0">
+                                        <label
+                                          htmlFor={fileName}
+                                          className="text-sm font-medium truncate block cursor-pointer"
+                                        >
+                                          {formatJsonFileName(fileName)
+                                            .split("/")
+                                            .pop()}
+                                        </label>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                          {fileName}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">
+                    No JSON files found in this directory.
+                  </p>
+                )}
+              </CardContent>
+            )}
           </Card>
 
           {/* Function Analysis Table */}

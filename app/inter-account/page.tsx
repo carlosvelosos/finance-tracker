@@ -1,92 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import { useAuth } from "../../context/AuthContext";
+import { useInterAccountTransactionsWithBankInfo } from "../../lib/hooks/useTransactions";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
 import UpdateInterAggregatedButton from "@/components/UpdateInterAggregatedButton";
-import { Transaction } from "@/types/transaction";
 import { Info } from "lucide-react";
 
 export default function Home() {
-  const { user } = useAuth();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [bankInfo, setBankInfo] = useState<{
-    uniqueBanks: string[];
-    newestDatesByBank: Record<string, string>;
-    transactionCountsByBank: Record<string, number>;
-  }>({
-    uniqueBanks: [],
-    newestDatesByBank: {},
-    transactionCountsByBank: {},
-  });
-
-  useEffect(() => {
-    if (user) {
-      const fetchTransactions = async () => {
-        const { data, error } = await supabase
-          .from("Brasil_transactions_agregated_2025")
-          .select(
-            `
-            id,
-            created_at,
-            "Date",
-            "Description",
-            "Amount",
-            "Balance",
-            "Category",
-            "Responsible",
-            "Bank",
-            "Comment",
-            user_id,
-            source_table
-          `,
-          )
-          .eq("user_id", user.id);
-        if (error) {
-          console.error("Error fetching transactions:", error);
-        } else {
-          setTransactions(data as Transaction[]); // Calculate bank information
-          if (data && data.length > 0) {
-            const uniqueBanks = [
-              ...new Set(data.map((t) => t.Bank).filter(Boolean)),
-            ];
-            const newestDatesByBank: Record<string, string> = {};
-            const transactionCountsByBank: Record<string, number> = {};
-
-            uniqueBanks.forEach((bank) => {
-              const bankTransactions = data.filter((t) => t.Bank === bank);
-              transactionCountsByBank[bank] = bankTransactions.length;
-              const newestTransaction = bankTransactions.reduce(
-                (newest, current) => {
-                  return new Date(current.Date) > new Date(newest.Date)
-                    ? current
-                    : newest;
-                },
-              );
-              newestDatesByBank[bank] = newestTransaction.Date;
-            });
-
-            setBankInfo({
-              uniqueBanks,
-              newestDatesByBank,
-              transactionCountsByBank,
-            });
-          }
-        }
-      };
-
-      fetchTransactions();
-    }
-  }, [user]);
+  const { transactions, bankInfo, loading, error, user } =
+    useInterAccountTransactionsWithBankInfo();
 
   if (!user) {
     return (
       <div className="text-center mt-10">
         Please log in to view your transactions.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading transactions...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Error loading transactions:{" "}
+        {(error as Error)?.message || "Unknown error"}
       </div>
     );
   }

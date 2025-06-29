@@ -1,56 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import { useAuth } from "../../context/AuthContext";
+import { useHandelsbankenTransactions } from "../../lib/hooks/useTransactions";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
 import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
-import { Transaction } from "@/types/transaction";
 
 export default function Home() {
-  const { user } = useAuth();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      const fetchTransactions = async () => {
-        const { data, error } = await supabase
-          .from("Sweden_transactions_agregated_2025")
-          .select(
-            `
-            id,
-            created_at,
-            "Date",
-            "Description",
-            "Amount",
-            "Balance",
-            "Category",
-            "Responsible",
-            "Bank",
-            "Comment",
-            user_id,
-            source_table
-          `,
-          )
-          .eq("user_id", user.id);
-
-        if (error) {
-          console.error("Error fetching transactions:", error);
-        } else {
-          setTransactions(data as Transaction[]);
-        }
-      };
-
-      fetchTransactions();
-    }
-  }, [user]);
+  const { transactions, loading, error, user } = useHandelsbankenTransactions();
 
   if (!user) {
     return (
       <div className="text-center mt-10">
         Please log in to view your transactions.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading transactions...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Error loading transactions:{" "}
+        {(error as Error)?.message || "Unknown error"}
       </div>
     );
   }

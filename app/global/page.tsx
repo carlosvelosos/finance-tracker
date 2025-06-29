@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import { useAuth } from "../../context/AuthContext";
+import { useGlobalTransactionsWithProcessing } from "../../lib/hooks/useTransactions";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/protected-route";
 import TransactionTable from "@/components/ui/transaction/TransactionTable";
-import { Transaction } from "@/types/transaction";
 import {
   Accordion,
   AccordionItem,
@@ -15,65 +12,26 @@ import {
 } from "@/components/ui/accordion";
 
 export default function Home() {
-  const { user } = useAuth();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      const fetchTransactions = async () => {
-        const { data, error } = await supabase
-          .from("Sweden_transactions_agregated_2025")
-          .select(
-            `
-            id,
-            created_at,
-            "Date",
-            "Description",
-            "Amount",
-            "Balance",
-            "Category",
-            "Responsible",
-            "Bank",
-            "Comment",
-            user_id,
-            source_table
-          `
-          )
-          .eq("user_id", user.id);
-
-        if (error) {
-          console.error("Error fetching transactions:", error);
-        } else {
-          // Process the data to invert the sign for specific banks
-          const processedData = data.map((transaction: Transaction) => {
-            // Check if the bank is "SEB SJ Prio" or "American Express"
-            if (
-              transaction.Bank === "SEB SJ Prio" ||
-              transaction.Bank === "American Express"
-            ) {
-              // Invert the sign of the Amount by multiplying by -1
-              return {
-                ...transaction,
-                Amount: transaction.Amount
-                  ? -transaction.Amount
-                  : transaction.Amount,
-              };
-            }
-            return transaction;
-          });
-
-          setTransactions(processedData as Transaction[]);
-        }
-      };
-
-      fetchTransactions();
-    }
-  }, [user]);
+  const { transactions, loading, error, user } =
+    useGlobalTransactionsWithProcessing();
 
   if (!user) {
     return (
       <div className="text-center mt-10">
         Please log in to view your transactions.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading transactions...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Error loading transactions:{" "}
+        {(error as Error)?.message || "Unknown error"}
       </div>
     );
   }
@@ -113,7 +71,7 @@ export default function Home() {
                       t.Category === "SJ PRIO MASTER Invoice" ||
                       t.Category === "Income - Salary" ||
                       t.Category === "Income - Skat"
-                    )
+                    ),
                 )}
                 initialSortColumn="ChronologicalDate"
                 initialSortDirection="desc"
@@ -136,7 +94,7 @@ export default function Home() {
                   (t) =>
                     t.Category === "Amex Invoice" ||
                     t.Category === "SEB SJ Prio Invoice" ||
-                    t.Category === "SJ PRIO MASTER Invoice"
+                    t.Category === "SJ PRIO MASTER Invoice",
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"
@@ -157,7 +115,7 @@ export default function Home() {
               {/* Use the TransactionTable component for Amex invoice transactions */}
               <TransactionTable
                 transactions={transactions.filter(
-                  (t) => t.Category === "Investment"
+                  (t) => t.Category === "Investment",
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"
@@ -178,7 +136,7 @@ export default function Home() {
               {/* Use the TransactionTable component for Amex invoice transactions */}
               <TransactionTable
                 transactions={transactions.filter(
-                  (t) => t.Category === "Sek to Reais"
+                  (t) => t.Category === "Sek to Reais",
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"
@@ -201,7 +159,7 @@ export default function Home() {
                 transactions={transactions.filter(
                   (t) =>
                     t.Category === "Income - Salary" ||
-                    t.Category === "Income - Skat"
+                    t.Category === "Income - Skat",
                 )}
                 initialSortColumn="Date"
                 initialSortDirection="desc"

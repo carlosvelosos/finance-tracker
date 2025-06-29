@@ -24,7 +24,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Filter, ChevronDown } from "lucide-react";
+import {
+  FileText,
+  Filter,
+  ChevronDown,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { FunctionData } from "@/types/function-reports";
 
 interface FunctionAnalysisTableProps {
@@ -39,6 +46,11 @@ type FilterState = {
   source: Set<string>;
   [key: string]: Set<string>; // For file columns
 };
+
+type SortConfig = {
+  column: string;
+  direction: "asc" | "desc";
+} | null;
 
 export default function FunctionAnalysisTable({
   tableData,
@@ -60,6 +72,8 @@ export default function FunctionAnalysisTable({
 
     return initialFilters;
   });
+
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   // Get unique values for each column
   const uniqueValues = useMemo(() => {
@@ -92,9 +106,10 @@ export default function FunctionAnalysisTable({
     return values;
   }, [tableData, selectedJsonFiles, formatJsonFileName]);
 
-  // Filter the table data based on active filters
-  const filteredData = useMemo(() => {
-    return tableData.filter((funcData) => {
+  // Filter and sort the table data
+  const filteredAndSortedData = useMemo(() => {
+    // First filter the data
+    const filtered = tableData.filter((funcData) => {
       // Check function name filter
       if (
         filters.functionName.size > 0 &&
@@ -125,7 +140,34 @@ export default function FunctionAnalysisTable({
 
       return true;
     });
-  }, [tableData, filters, selectedJsonFiles, formatJsonFileName]);
+
+    // Then sort the filtered data
+    if (!sortConfig) {
+      return filtered;
+    }
+
+    return [...filtered].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      if (sortConfig.column === "functionName") {
+        aValue = a.functionName;
+        bValue = b.functionName;
+      } else if (sortConfig.column === "source") {
+        aValue = a.source;
+        bValue = b.source;
+      } else {
+        // File column sorting
+        const aFileData = a.files[sortConfig.column];
+        const bFileData = b.files[sortConfig.column];
+        aValue = aFileData ? aFileData.type : "not-present";
+        bValue = bFileData ? bFileData.type : "not-present";
+      }
+
+      const comparison = aValue.localeCompare(bValue);
+      return sortConfig.direction === "asc" ? comparison : -comparison;
+    });
+  }, [tableData, filters, selectedJsonFiles, formatJsonFileName, sortConfig]);
 
   const handleFilterChange = (
     column: string,
@@ -173,6 +215,34 @@ export default function FunctionAnalysisTable({
     });
 
     setFilters(clearedFilters);
+  };
+
+  const handleSort = (column: string) => {
+    setSortConfig((prevSort) => {
+      if (prevSort?.column === column) {
+        // If clicking the same column, toggle direction
+        if (prevSort.direction === "asc") {
+          return { column, direction: "desc" };
+        } else {
+          return null; // Remove sorting
+        }
+      } else {
+        // If clicking a different column, start with ascending
+        return { column, direction: "asc" };
+      }
+    });
+  };
+
+  const getSortIcon = (column: string) => {
+    if (!sortConfig || sortConfig.column !== column) {
+      return <ArrowUpDown className="h-3 w-3 text-muted-foreground" />;
+    }
+
+    if (sortConfig.direction === "asc") {
+      return <ArrowUp className="h-3 w-3 text-blue-600" />;
+    } else {
+      return <ArrowDown className="h-3 w-3 text-blue-600" />;
+    }
   };
 
   const renderFilterDropdown = (column: string, displayName: string) => {
@@ -259,7 +329,7 @@ export default function FunctionAnalysisTable({
             <FileText className="h-5 w-5" />
             <CardTitle>Function Analysis Table</CardTitle>
             <Badge variant="outline">
-              {filteredData.length} of {tableData.length} functions
+              {filteredAndSortedData.length} of {tableData.length} functions
             </Badge>
           </div>
           {hasActiveFilters && (
@@ -286,13 +356,33 @@ export default function FunctionAnalysisTable({
               <TableRow>
                 <TableHead className="w-[200px] sticky left-0 bg-background border-r">
                   <div className="flex items-center justify-between">
-                    <span>Function Name</span>
+                    <div className="flex items-center space-x-2">
+                      <span>Function Name</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => handleSort("functionName")}
+                      >
+                        {getSortIcon("functionName")}
+                      </Button>
+                    </div>
                     {renderFilterDropdown("functionName", "Function Name")}
                   </div>
                 </TableHead>
                 <TableHead className="w-[150px] sticky left-[200px] bg-background border-r">
                   <div className="flex items-center justify-between">
-                    <span>Source</span>
+                    <div className="flex items-center space-x-2">
+                      <span>Source</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => handleSort("source")}
+                      >
+                        {getSortIcon("source")}
+                      </Button>
+                    </div>
                     {renderFilterDropdown("source", "Source")}
                   </div>
                 </TableHead>
@@ -304,8 +394,18 @@ export default function FunctionAnalysisTable({
                       className="min-w-[120px] text-center"
                     >
                       <div className="flex flex-col items-center space-y-1">
-                        <div className="truncate" title={readableFileName}>
-                          {readableFileName}
+                        <div className="flex items-center space-x-2">
+                          <div className="truncate" title={readableFileName}>
+                            {readableFileName}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => handleSort(readableFileName)}
+                          >
+                            {getSortIcon(readableFileName)}
+                          </Button>
                         </div>
                         {renderFilterDropdown(
                           readableFileName,
@@ -318,7 +418,7 @@ export default function FunctionAnalysisTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.length === 0 ? (
+              {filteredAndSortedData.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={2 + selectedJsonFiles.length}
@@ -330,7 +430,7 @@ export default function FunctionAnalysisTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredData.map((funcData, index) => (
+                filteredAndSortedData.map((funcData, index) => (
                   <TableRow key={`${funcData.functionName}-${index}`}>
                     <TableCell className="font-medium sticky left-0 bg-background border-r">
                       <div className="truncate" title={funcData.functionName}>

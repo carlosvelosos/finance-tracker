@@ -76,6 +76,14 @@ const usTransactionsAmanda: Transaction[] = [
 ];
 
 export default function FamilyFinancePage() {
+  return (
+    <ProtectedRoute>
+      <FamilyFinanceContent />
+    </ProtectedRoute>
+  );
+}
+
+function FamilyFinanceContent() {
   const {
     amandaTransactions,
     usTransactions,
@@ -107,15 +115,7 @@ export default function FamilyFinancePage() {
     direction: "asc" | "desc";
   } | null>(null);
 
-  // Handle authentication and loading states
-  if (!user) {
-    return (
-      <div className="text-center mt-10">
-        Please log in to view family finances.
-      </div>
-    );
-  }
-
+  // Handle loading and error states (ProtectedRoute handles authentication)
   if (loading) {
     return (
       <div className="text-center mt-10">Loading family transactions...</div>
@@ -176,261 +176,259 @@ export default function FamilyFinancePage() {
   };
 
   return (
-    <ProtectedRoute>
-      <div className="p-6 min-h-screen bg-gray-100">
-        {/* Main Summary Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {/* Left Column: Summary Card (25% width) */}
-          <div className="md:col-span-1">
-            <FinanceSummaryCard
+    <div className="p-6 min-h-screen bg-gray-100">
+      {/* Main Summary Section */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {/* Left Column: Summary Card (25% width) */}
+        <div className="md:col-span-1">
+          <FinanceSummaryCard
+            amandaTransactions={amandaTransactions}
+            usTransactions={usTransactions}
+            usTransactionsAmanda={usTransactionsAmanda}
+          />
+        </div>
+
+        {/* Right Column: Detail Cards (75% width) */}
+        <div className="md:col-span-3">
+          {/* Carousel on all screens except mobile */}
+          <div className="hidden md:block px-4">
+            <Carousel
+              opts={{
+                align: "center",
+                loop: false,
+                containScroll: "trimSnaps",
+                slidesToScroll: 1,
+              }}
+              className="w-full relative"
+            >
+              {/* Carousel content with responsive behavior */}
+              <CarouselContent>
+                {/* Amanda Personal Card */}
+                <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                  <FinanceDetailCard
+                    title="Amanda - Personal"
+                    amandaTransactions={amandaTransactions}
+                    usTransactions={usTransactions}
+                    usTransactionsAmanda={usTransactionsAmanda}
+                    cardType="personal"
+                  />
+                </CarouselItem>
+
+                {/* Sweden Card */}
+                <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                  <FinanceDetailCard
+                    title="Sweden Dec 24 - Jan 25"
+                    amandaTransactions={amandaTransactions}
+                    usTransactions={usTransactions}
+                    usTransactionsAmanda={usTransactionsAmanda}
+                    cardType="sweden"
+                  />
+                </CarouselItem>
+
+                {/* Brasil Card */}
+                <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                  <FinanceDetailCard
+                    title="Brasil Fev - Mar 25"
+                    amandaTransactions={amandaTransactions}
+                    usTransactions={usTransactions}
+                    usTransactionsAmanda={usTransactionsAmanda}
+                    cardType="brasil"
+                  />
+                </CarouselItem>
+
+                {/* PIX Card */}
+                <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                  <FinanceDetailCard
+                    title="Amanda - PIX"
+                    amandaTransactions={amandaTransactions}
+                    usTransactions={usTransactions}
+                    usTransactionsAmanda={usTransactionsAmanda}
+                    cardType="pix"
+                  />
+                </CarouselItem>
+
+                {/* Wedding Card - Add this new card */}
+                <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
+                  <FinanceDetailCard
+                    title="Casamento Karlinha e Perna"
+                    amandaTransactions={amandaTransactions}
+                    usTransactions={usTransactions}
+                    usTransactionsAmanda={usTransactionsAmanda}
+                    cardType="Casamento Karlinha e Perna"
+                  />
+                </CarouselItem>
+              </CarouselContent>{" "}
+              {/* Navigation row with aligned elements */}{" "}
+              <div className="flex items-center justify-between mt-4 px-2">
+                <CarouselPrevious
+                  className="static translate-y-0 transition-all pointer-events-auto 
+                      disabled:text-[#898989] text-green-600 
+                      hover:text-white hover:bg-green-600
+                      focus:text-white focus:bg-green-600
+                      disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#898989]"
+                  variant="ghost"
+                  size="sm"
+                />
+
+                {/* Replace standard dots with responsive dots */}
+                <CarouselDotsResponsive className="flex-1" />
+
+                <CarouselNext
+                  className="static translate-y-0 transition-all pointer-events-auto 
+                      disabled:text-[#898989] text-green-600 
+                      hover:text-white hover:bg-green-600
+                      focus:text-white focus:bg-green-600
+                      disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#898989]"
+                  variant="ghost"
+                  size="sm"
+                />
+              </div>
+            </Carousel>
+          </div>
+
+          {/* Mobile view - stack the cards vertically (unchanged) */}
+          <div className="md:hidden space-y-4">
+            {/* Personal Card */}
+            <FinanceDetailCard
+              title="Amanda - Personal"
               amandaTransactions={amandaTransactions}
               usTransactions={usTransactions}
               usTransactionsAmanda={usTransactionsAmanda}
+              cardType="personal"
+            />
+
+            {/* Sweden Card */}
+            <FinanceDetailCard
+              title="Sweden Dec 24 - Jan 25"
+              amandaTransactions={amandaTransactions}
+              usTransactions={usTransactions}
+              usTransactionsAmanda={usTransactionsAmanda}
+              cardType="sweden"
+            />
+
+            {/* Brazil Card */}
+            <FinanceDetailCard
+              title="Brasil Fev - Mar 25"
+              amandaTransactions={amandaTransactions}
+              usTransactions={usTransactions}
+              usTransactionsAmanda={usTransactionsAmanda}
+              cardType="brasil"
+            />
+
+            {/* PIX Card */}
+            <FinanceDetailCard
+              title="Amanda - PIX"
+              amandaTransactions={amandaTransactions}
+              usTransactions={usTransactions}
+              usTransactionsAmanda={usTransactionsAmanda}
+              cardType="pix"
+            />
+
+            {/* Wedding Card - Add this new card */}
+            <FinanceDetailCard
+              title="Casamento Karlinha e Perna"
+              amandaTransactions={amandaTransactions}
+              usTransactions={usTransactions}
+              usTransactionsAmanda={usTransactionsAmanda}
+              cardType="Casamento Karlinha e Perna"
             />
           </div>
-
-          {/* Right Column: Detail Cards (75% width) */}
-          <div className="md:col-span-3">
-            {/* Carousel on all screens except mobile */}
-            <div className="hidden md:block px-4">
-              <Carousel
-                opts={{
-                  align: "center",
-                  loop: false,
-                  containScroll: "trimSnaps",
-                  slidesToScroll: 1,
-                }}
-                className="w-full relative"
-              >
-                {/* Carousel content with responsive behavior */}
-                <CarouselContent>
-                  {/* Amanda Personal Card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
-                    <FinanceDetailCard
-                      title="Amanda - Personal"
-                      amandaTransactions={amandaTransactions}
-                      usTransactions={usTransactions}
-                      usTransactionsAmanda={usTransactionsAmanda}
-                      cardType="personal"
-                    />
-                  </CarouselItem>
-
-                  {/* Sweden Card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
-                    <FinanceDetailCard
-                      title="Sweden Dec 24 - Jan 25"
-                      amandaTransactions={amandaTransactions}
-                      usTransactions={usTransactions}
-                      usTransactionsAmanda={usTransactionsAmanda}
-                      cardType="sweden"
-                    />
-                  </CarouselItem>
-
-                  {/* Brasil Card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
-                    <FinanceDetailCard
-                      title="Brasil Fev - Mar 25"
-                      amandaTransactions={amandaTransactions}
-                      usTransactions={usTransactions}
-                      usTransactionsAmanda={usTransactionsAmanda}
-                      cardType="brasil"
-                    />
-                  </CarouselItem>
-
-                  {/* PIX Card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
-                    <FinanceDetailCard
-                      title="Amanda - PIX"
-                      amandaTransactions={amandaTransactions}
-                      usTransactions={usTransactions}
-                      usTransactionsAmanda={usTransactionsAmanda}
-                      cardType="pix"
-                    />
-                  </CarouselItem>
-
-                  {/* Wedding Card - Add this new card */}
-                  <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
-                    <FinanceDetailCard
-                      title="Casamento Karlinha e Perna"
-                      amandaTransactions={amandaTransactions}
-                      usTransactions={usTransactions}
-                      usTransactionsAmanda={usTransactionsAmanda}
-                      cardType="Casamento Karlinha e Perna"
-                    />
-                  </CarouselItem>
-                </CarouselContent>{" "}
-                {/* Navigation row with aligned elements */}{" "}
-                <div className="flex items-center justify-between mt-4 px-2">
-                  <CarouselPrevious
-                    className="static translate-y-0 transition-all pointer-events-auto 
-                      disabled:text-[#898989] text-green-600 
-                      hover:text-white hover:bg-green-600
-                      focus:text-white focus:bg-green-600
-                      disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#898989]"
-                    variant="ghost"
-                    size="sm"
-                  />
-
-                  {/* Replace standard dots with responsive dots */}
-                  <CarouselDotsResponsive className="flex-1" />
-
-                  <CarouselNext
-                    className="static translate-y-0 transition-all pointer-events-auto 
-                      disabled:text-[#898989] text-green-600 
-                      hover:text-white hover:bg-green-600
-                      focus:text-white focus:bg-green-600
-                      disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#898989]"
-                    variant="ghost"
-                    size="sm"
-                  />
-                </div>
-              </Carousel>
-            </div>
-
-            {/* Mobile view - stack the cards vertically (unchanged) */}
-            <div className="md:hidden space-y-4">
-              {/* Personal Card */}
-              <FinanceDetailCard
-                title="Amanda - Personal"
-                amandaTransactions={amandaTransactions}
-                usTransactions={usTransactions}
-                usTransactionsAmanda={usTransactionsAmanda}
-                cardType="personal"
-              />
-
-              {/* Sweden Card */}
-              <FinanceDetailCard
-                title="Sweden Dec 24 - Jan 25"
-                amandaTransactions={amandaTransactions}
-                usTransactions={usTransactions}
-                usTransactionsAmanda={usTransactionsAmanda}
-                cardType="sweden"
-              />
-
-              {/* Brazil Card */}
-              <FinanceDetailCard
-                title="Brasil Fev - Mar 25"
-                amandaTransactions={amandaTransactions}
-                usTransactions={usTransactions}
-                usTransactionsAmanda={usTransactionsAmanda}
-                cardType="brasil"
-              />
-
-              {/* PIX Card */}
-              <FinanceDetailCard
-                title="Amanda - PIX"
-                amandaTransactions={amandaTransactions}
-                usTransactions={usTransactions}
-                usTransactionsAmanda={usTransactionsAmanda}
-                cardType="pix"
-              />
-
-              {/* Wedding Card - Add this new card */}
-              <FinanceDetailCard
-                title="Casamento Karlinha e Perna"
-                amandaTransactions={amandaTransactions}
-                usTransactions={usTransactions}
-                usTransactionsAmanda={usTransactionsAmanda}
-                cardType="Casamento Karlinha e Perna"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Separator between sections */}
-        <Separator className="my-12" />
-
-        {/* Switches to toggle columns */}
-        <div className="flex items-center mb-4 space-x-4 text-black">
-          <div className="flex items-center">
-            <Switch
-              checked={showComments}
-              onCheckedChange={setShowComments}
-              className="mr-2"
-            />
-            <span className="text-sm">Show Comments</span>
-          </div>
-          <div className="flex items-center">
-            <Switch
-              checked={showDate}
-              onCheckedChange={setShowDate}
-              className="mr-2"
-            />
-            <span className="text-sm">Show Date</span>
-          </div>
-          <div className="flex items-center">
-            <Switch
-              checked={showId}
-              onCheckedChange={setShowId}
-              className="mr-2"
-            />
-            <span className="text-sm">Show Id</span>
-          </div>
-        </div>
-
-        {/* Transactions Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Carlos' Transactions */}
-          <TableCardFamily
-            title="Carlos' Transactions"
-            sections={[
-              {
-                name: "Amanda",
-                transactions: amandaTransactions,
-                sortConfig: amandaSortConfig,
-                setSortConfig: setAmandaSortConfig,
-              },
-              {
-                name: "US",
-                transactions: usTransactions,
-                sortConfig: usSortConfig,
-                setSortConfig: setUsSortConfig,
-              },
-              {
-                name: "Carlos",
-                transactions: meTransactions,
-                sortConfig: meSortConfig,
-                setSortConfig: setMeSortConfig,
-              },
-            ]}
-            showComments={showComments}
-            showDate={showDate}
-            showId={showId}
-            handleSort={handleSort}
-            sortTransactions={sortTransactions}
-          />
-
-          {/* Amanda's Transactions */}
-          <TableCardFamily
-            title="Amanda's Transactions"
-            sections={[
-              {
-                name: "Amanda",
-                transactions: [], // No data for this section
-                sortConfig: null,
-                setSortConfig: () => {}, // No sorting needed for an empty section
-              },
-              {
-                name: "US",
-                transactions: usTransactionsAmanda,
-                sortConfig: usAmandaSortConfig,
-                setSortConfig: setUsAmandaSortConfig,
-              },
-              {
-                name: "Carlos",
-                transactions: [], // No data for this section
-                sortConfig: null,
-                setSortConfig: () => {}, // No sorting needed for an empty section
-              },
-            ]}
-            showComments={showComments}
-            handleSort={handleSort}
-            showDate={showDate}
-            showId={showId}
-            sortTransactions={sortTransactions}
-          />
         </div>
       </div>
-    </ProtectedRoute>
+
+      {/* Separator between sections */}
+      <Separator className="my-12" />
+
+      {/* Switches to toggle columns */}
+      <div className="flex items-center mb-4 space-x-4 text-black">
+        <div className="flex items-center">
+          <Switch
+            checked={showComments}
+            onCheckedChange={setShowComments}
+            className="mr-2"
+          />
+          <span className="text-sm">Show Comments</span>
+        </div>
+        <div className="flex items-center">
+          <Switch
+            checked={showDate}
+            onCheckedChange={setShowDate}
+            className="mr-2"
+          />
+          <span className="text-sm">Show Date</span>
+        </div>
+        <div className="flex items-center">
+          <Switch
+            checked={showId}
+            onCheckedChange={setShowId}
+            className="mr-2"
+          />
+          <span className="text-sm">Show Id</span>
+        </div>
+      </div>
+
+      {/* Transactions Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Carlos' Transactions */}
+        <TableCardFamily
+          title="Carlos' Transactions"
+          sections={[
+            {
+              name: "Amanda",
+              transactions: amandaTransactions,
+              sortConfig: amandaSortConfig,
+              setSortConfig: setAmandaSortConfig,
+            },
+            {
+              name: "US",
+              transactions: usTransactions,
+              sortConfig: usSortConfig,
+              setSortConfig: setUsSortConfig,
+            },
+            {
+              name: "Carlos",
+              transactions: meTransactions,
+              sortConfig: meSortConfig,
+              setSortConfig: setMeSortConfig,
+            },
+          ]}
+          showComments={showComments}
+          showDate={showDate}
+          showId={showId}
+          handleSort={handleSort}
+          sortTransactions={sortTransactions}
+        />
+
+        {/* Amanda's Transactions */}
+        <TableCardFamily
+          title="Amanda's Transactions"
+          sections={[
+            {
+              name: "Amanda",
+              transactions: [], // No data for this section
+              sortConfig: null,
+              setSortConfig: () => {}, // No sorting needed for an empty section
+            },
+            {
+              name: "US",
+              transactions: usTransactionsAmanda,
+              sortConfig: usAmandaSortConfig,
+              setSortConfig: setUsAmandaSortConfig,
+            },
+            {
+              name: "Carlos",
+              transactions: [], // No data for this section
+              sortConfig: null,
+              setSortConfig: () => {}, // No sorting needed for an empty section
+            },
+          ]}
+          showComments={showComments}
+          handleSort={handleSort}
+          showDate={showDate}
+          showId={showId}
+          sortTransactions={sortTransactions}
+        />
+      </div>
+    </div>
   );
 }

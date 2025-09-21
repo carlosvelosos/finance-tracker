@@ -306,6 +306,7 @@ export function useInterAccountTransactionsWithBankInfo() {
 
 // Hook for family page that fetches from both Brazilian tables and applies custom logic
 export function useFamilyTransactions() {
+  const { user, loading: authLoading } = useAuth(); // Use existing auth context
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [amandaTransactions, setAmandaTransactions] = useState<Transaction[]>(
     [],
@@ -314,7 +315,6 @@ export function useFamilyTransactions() {
   const [meTransactions, setMeTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [user, setUser] = useState<User | null>(null);
 
   const supabase = createClientComponentClient();
 
@@ -341,27 +341,16 @@ export function useFamilyTransactions() {
   };
 
   const fetchAndProcessTransactions = useCallback(async () => {
+    // Don't fetch if auth is still loading or user is not authenticated
+    if (authLoading || !user) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      // Get current user
-      const {
-        data: { user: currentUser },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw userError;
-      }
-
-      setUser(currentUser);
-
-      if (!currentUser) {
-        setLoading(false);
-        return;
-      }
-
       console.log("Fetching transactions from Supabase..."); // Debug log
 
       // Fetch data from both tables
@@ -412,7 +401,7 @@ export function useFamilyTransactions() {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, [authLoading, user, supabase]);
 
   useEffect(() => {
     fetchAndProcessTransactions();
@@ -427,7 +416,7 @@ export function useFamilyTransactions() {
     amandaTransactions,
     usTransactions,
     meTransactions,
-    loading,
+    loading: authLoading || loading, // Combine auth loading and data loading
     error,
     user,
     refetch,

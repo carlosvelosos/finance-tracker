@@ -1,8 +1,12 @@
 "use client";
 
+// React imports for state management and lifecycle hooks
 import { useState, useEffect } from "react";
+// Supabase client for database operations
 import { supabase } from "@/lib/supabaseClient";
+// Toast notifications for user feedback
 import { toast } from "sonner";
+// UI component imports for table structure
 import {
   Table,
   TableBody,
@@ -11,29 +15,71 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+// Button component for interactive elements
 import { Button } from "@/components/ui/button";
+// Tab components for filter navigation
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Transaction type definition
 import { Transaction } from "@/types/transaction";
 
+/**
+ * Props interface for TransactionTable component
+ *
+ * Defines all possible configuration options for the transaction table,
+ * including data source, display options, filtering capabilities, and interaction handlers.
+ */
 interface TransactionTableProps {
+  /** Array of transaction objects to display in the table */
   transactions: Transaction[];
+  /** Initial column to sort by when table first loads */
   initialSortColumn?: keyof Transaction | string | null;
+  /** Initial sort direction (ascending or descending) */
   initialSortDirection?: "asc" | "desc";
+  /** Array of column names to hide from display */
   hiddenColumns?: string[];
+  /** Filter transactions by specific bank name */
   bankFilter?: string;
+  /** Whether to show year selection tabs */
   showYearFilter?: boolean;
+  /** Whether to show month selection tabs */
   showMonthFilter?: boolean;
+  /** Whether to show category text filter input */
   showCategoryFilter?: boolean;
+  /** Whether to show description text filter input */
   showDescriptionFilter?: boolean;
+  /** Whether to show responsible person text filter input */
   showResponsibleFilter?: boolean;
+  /** Whether to show comment text filter input */
   showCommentFilter?: boolean;
+  /** Whether to display total amount calculation */
   showTotalAmount?: boolean;
+  /** Whether to show all filter inputs */
   showFilters?: boolean;
+  /** Categories to exclude from the table display */
   excludeCategories?: string[];
+  /** Callback function when a table row is clicked */
   onRowClick?: (transaction: Transaction) => void;
-  TransactionTableName?: string; // Added new prop
+  /** Database table name for update operations */
+  TransactionTableName?: string;
 }
 
+/**
+ * TransactionTable Component
+ *
+ * A comprehensive, feature-rich table component for displaying and managing financial transactions.
+ * This component provides advanced functionality including:
+ * - Multi-column sorting with special date handling
+ * - Real-time text filtering across multiple fields
+ * - Year and month-based filtering via tab interfaces
+ * - Inline editing of categories and comments with database persistence
+ * - Automatic total amount calculations
+ * - Responsive design with customizable column visibility
+ * - Bank-specific filtering and category exclusion
+ * - Row click handlers for additional interactions
+ *
+ * @param props - TransactionTableProps configuration object
+ * @returns {JSX.Element} Rendered transaction table with all features
+ */
 export default function TransactionTable({
   transactions,
   initialSortColumn = null,
@@ -52,38 +98,88 @@ export default function TransactionTable({
   onRowClick,
   TransactionTableName = "Sweden_transactions_agregated_2025", // Destructured with default
 }: TransactionTableProps) {
+  // ========== STATE MANAGEMENT ==========
+
+  /** Current column being used for sorting */
   const [sortColumn, setSortColumn] = useState<
     keyof Transaction | string | null
   >(initialSortColumn);
+
+  /** Current sort direction (ascending or descending) */
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
     initialSortDirection,
   );
+
+  /** Text filter for transaction categories */
   const [categoryFilter, setCategoryFilter] = useState("");
+
+  /** Text filter for transaction descriptions */
   const [descriptionFilter, setDescriptionFilter] = useState("");
+
+  /** Text filter for responsible person field */
   const [responsibleFilter, setResponsibleFilter] = useState("");
+
+  /** Text filter for transaction comments */
   const [commentFilter, setCommentFilter] = useState("");
+
+  /** Currently selected year for filtering ("All" for no filter) */
   const [selectedYear, setSelectedYear] = useState("All");
+
+  /** Currently selected month for filtering ("All" for no filter) */
   const [selectedMonth, setSelectedMonth] = useState("All");
+
+  /** Track which category cell is currently being edited */
   const [editingCategory, setEditingCategory] = useState<{
     id: string | number;
     value: string;
   } | null>(null);
+
+  /** Track which comment cell is currently being edited */
   const [editingComment, setEditingComment] = useState<{
     id: string | number;
     value: string;
   } | null>(null);
+
+  /** Track which transaction is currently being updated in the database */
   const [updatingId, setUpdatingId] = useState<string | number | null>(null);
 
-  // Need to manage local transactions state since props are read-only
+  /**
+   * Local Transactions State Management
+   *
+   * Since props are read-only, we maintain a local copy of transactions
+   * that can be updated when inline edits are made. This allows for
+   * immediate UI feedback while database operations are in progress.
+   */
   const [localTransactions, setLocalTransactions] =
     useState<Transaction[]>(transactions);
 
-  // Update local transactions when props change
+  // ========== LIFECYCLE EFFECTS ==========
+
+  /**
+   * Synchronize Local Transactions with Props
+   *
+   * Updates the local transaction state whenever the parent component
+   * passes new transaction data. This ensures the table stays in sync
+   * with external data changes while preserving local edits.
+   */
   useEffect(() => {
     setLocalTransactions(transactions);
   }, [transactions]);
 
-  // Handle sorting
+  // ========== SORTING FUNCTIONALITY ==========
+
+  /**
+   * Handle Table Column Sorting
+   *
+   * Manages sorting logic for all table columns with special handling for date-related columns.
+   * Features:
+   * - Standard column sorting with direction toggling
+   * - Special chronological date sorting for Year/Month/Day columns
+   * - Maintains sort direction state across column changes
+   * - Provides visual feedback through sort indicators
+   *
+   * @param {keyof Transaction | string} column - The column name to sort by
+   */
   const handleSort = (column: keyof Transaction | string) => {
     // For date-related columns, always sort by full date chronologically
     if (column === "Year" || column === "Month" || column === "Day") {
@@ -105,7 +201,21 @@ export default function TransactionTable({
     }
   };
 
-  // Handle category update
+  // ========== DATABASE UPDATE FUNCTIONS ==========
+
+  /**
+   * Update Transaction Category
+   *
+   * Handles inline editing of transaction categories with database persistence.
+   * Features:
+   * - Optimistic UI updates for immediate feedback
+   * - Error handling with user notifications
+   * - Support for both string and numeric transaction IDs
+   * - Loading state management during database operations
+   *
+   * @param {string | number} id - Transaction ID to update
+   * @param {string} newCategory - New category value to set
+   */
   const handleUpdateCategory = async (
     id: string | number,
     newCategory: string,
@@ -155,7 +265,20 @@ export default function TransactionTable({
     }
   };
 
-  // Handle comment update
+  /**
+   * Update Transaction Comment
+   *
+   * Handles inline editing of transaction comments with database persistence.
+   * Similar to category updates but specifically for the comment field.
+   * Features:
+   * - Optimistic UI updates for immediate feedback
+   * - Error handling with user notifications
+   * - Support for both string and numeric transaction IDs
+   * - Loading state management during database operations
+   *
+   * @param {string | number} id - Transaction ID to update
+   * @param {string} newComment - New comment value to set
+   */
   const handleUpdateComment = async (
     id: string | number,
     newComment: string,
@@ -205,7 +328,27 @@ export default function TransactionTable({
     }
   };
 
-  // Apply filters to transactions
+  // ========== DATA FILTERING AND PROCESSING ==========
+
+  /**
+   * Apply Multiple Filters to Transaction Data
+   *
+   * Processes the transaction array through a series of filter chains to provide
+   * a comprehensive filtering system. Each filter is applied sequentially and
+   * only executes if the corresponding feature is enabled.
+   *
+   * Filters applied in order:
+   * 1. Bank filtering - Show only transactions from specified bank
+   * 2. Category exclusion - Remove specified categories from display
+   * 3. Category text search - Filter by category name containing search term
+   * 4. Description text search - Filter by description containing search term
+   * 5. Responsible person text search - Filter by responsible person name
+   * 6. Comment text search - Filter by comment containing search term
+   * 7. Year filtering - Show only transactions from selected year
+   * 8. Month filtering - Show only transactions from selected month
+   *
+   * @returns {Transaction[]} Filtered array of transactions
+   */
   const filteredTransactions = localTransactions
     .filter((transaction) =>
       bankFilter ? transaction.Bank === bankFilter : true,
@@ -274,12 +417,32 @@ export default function TransactionTable({
       return false;
     });
 
-  // Calculate the sum of the Amount column
+  /**
+   * Calculate Total Amount of Filtered Transactions
+   *
+   * Computes the sum of all transaction amounts in the currently filtered dataset.
+   * Handles null/undefined amounts gracefully by treating them as 0.
+   * Used for displaying financial summaries and totals.
+   *
+   * @returns {number} Sum of all filtered transaction amounts
+   */
   const totalAmount = filteredTransactions.reduce((sum, transaction) => {
     return sum + (transaction.Amount || 0);
   }, 0);
 
-  // Sort the filtered transactions
+  /**
+   * Sort Filtered Transactions
+   *
+   * Applies sorting logic to the filtered transaction data based on current sort settings.
+   * Features comprehensive sorting capabilities including:
+   * - Chronological date sorting (special handling for date-related columns)
+   * - Individual Year, Month, Day sorting
+   * - String-based alphabetical sorting with locale support
+   * - Numeric sorting for amounts and IDs
+   * - Null/undefined value handling
+   *
+   * @returns {Transaction[]} Sorted array of filtered transactions
+   */
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
     if (!sortColumn) return 0;
 
@@ -331,22 +494,69 @@ export default function TransactionTable({
 
     return 0;
   });
-  // Determine if we're showing the date as separate Year/Month/Day columns or as a single Date column
+
+  // ========== DISPLAY LOGIC AND CALCULATIONS ==========
+
+  /**
+   * Determine Date Column Display Mode
+   *
+   * Analyzes the hiddenColumns configuration to determine whether to show
+   * date information as a single "Date" column or split into separate
+   * "Year", "Month", and "Day" columns. This allows for flexible date
+   * display based on user preferences or screen space constraints.
+   *
+   * @returns {boolean} True if date should be split into separate columns
+   */
   const showSplitDateColumns =
     hiddenColumns.includes("Date") &&
     !hiddenColumns.includes("Year") &&
     !hiddenColumns.includes("Month") &&
     !hiddenColumns.includes("Day");
 
-  // Generate year options (current year ± 2 years)
+  /**
+   * Generate Year Filter Options
+   *
+   * Creates an array of year strings for the year filter tabs.
+   * Generates options for current year ± 2 years to provide reasonable
+   * filtering range without overwhelming the interface.
+   *
+   * @returns {string[]} Array of year strings for filter options
+   */
   const currentYear = new Date().getFullYear();
   const yearOptions = [];
   for (let i = currentYear - 2; i <= currentYear + 2; i++) {
     yearOptions.push(i.toString());
   }
 
+  // ========== COMPONENT RENDER ==========
+
+  /**
+   * Main Component Render Method
+   *
+   * Renders the complete transaction table interface with all features:
+   * - Total amount display (conditional)
+   * - Year and month filter tabs (conditional)
+   * - Text-based filter inputs (conditional)
+   * - Sortable table with all transaction data
+   * - Inline editing capabilities for categories and comments
+   * - Responsive design with proper styling
+   *
+   * The render is organized into distinct sections:
+   * 1. Total amount display (top)
+   * 2. Filter controls (year tabs, month tabs, text inputs)
+   * 3. Main data table with sortable headers
+   * 4. Table body with formatted data and inline editing
+   * 5. Total amount display (bottom)
+   *
+   * @returns {JSX.Element} Complete transaction table interface
+   */
   return (
     <div>
+      {/* 
+        Top Total Amount Display
+        Shows the calculated sum of filtered transactions at the top of the component
+        Only displays when showTotalAmount prop is true
+      */}
       {showTotalAmount && (
         <div className="mt-4 text-right font-bold">
           Total Amount:{" "}
@@ -357,6 +567,11 @@ export default function TransactionTable({
         </div>
       )}
 
+      {/* 
+        Year Filter Tabs
+        Provides tab-based navigation for filtering transactions by year
+        Shows current year ± 2 years plus "All Years" option
+      */}
       {showYearFilter && (
         <Tabs
           defaultValue="All"
@@ -374,6 +589,11 @@ export default function TransactionTable({
         </Tabs>
       )}
 
+      {/* 
+        Month Filter Tabs
+        Provides tab-based navigation for filtering transactions by month
+        Shows all 12 months plus "All" option for comprehensive filtering
+      */}
       {showMonthFilter && (
         <Tabs
           defaultValue="All"
@@ -398,6 +618,12 @@ export default function TransactionTable({
         </Tabs>
       )}
 
+      {/* 
+        Text-Based Filter Controls
+        Grid of input fields for filtering transactions by different text criteria
+        Each filter searches within its respective field using case-insensitive matching
+        Responsive design: 1 column on mobile, 2 on tablet, 4 on desktop
+      */}
       {showFilters && (
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {showCategoryFilter && (
@@ -439,7 +665,24 @@ export default function TransactionTable({
         </div>
       )}
 
+      {/* 
+        Main Transaction Table
+        
+        The core table component displaying all transaction data with:
+        - Sortable headers with visual sort indicators (↑↓)
+        - Conditional column display based on hiddenColumns prop
+        - Special handling for date columns (split or combined display)
+        - Custom styling with green accent border
+      */}
       <Table>
+        {/* 
+          Table Header Section
+          
+          Renders column headers with sorting functionality and visual indicators.
+          Conditionally displays columns based on hiddenColumns configuration.
+          Special handling for date columns (can be shown as single Date column
+          or split into Year/Month/Day columns).
+        */}
         <TableHeader className="[&_tr]:border-[#00fd42]">
           <TableRow>
             {!hiddenColumns.includes("id") && (
@@ -573,6 +816,17 @@ export default function TransactionTable({
           </TableRow>
         </TableHeader>
 
+        {/* 
+          Table Body Section
+          
+          Renders all transaction rows with:
+          - Formatted data display (dates, currencies, etc.)
+          - Conditional styling (Unknown categories highlighted in yellow)
+          - Inline editing for Category and Comment fields
+          - Click handlers for row interactions
+          - Special styling for the last row (green border)
+          - Responsive design considerations
+        */}
         <TableBody>
           {sortedTransactions.map((transaction, index, array) => (
             <TableRow
@@ -782,6 +1036,13 @@ export default function TransactionTable({
         </TableBody>
       </Table>
 
+      {/* 
+        Bottom Total Amount Display
+        
+        Duplicate of the top total amount display, shown at the bottom
+        for easy reference after scrolling through large datasets.
+        Uses Swedish locale formatting for currency display.
+      */}
       {showTotalAmount && (
         <div className="mt-4 text-right font-bold">
           Total Amount:{" "}

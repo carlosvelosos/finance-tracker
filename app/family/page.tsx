@@ -714,30 +714,56 @@ function FamilyFinanceContent() {
         Toggle switches that control which columns are visible in the transaction tables below.
         Users can show/hide: Comments, Date, and ID columns across all tables.
       */}
-      <div className="flex items-center mb-4 space-x-4 text-black">
-        <div className="flex items-center">
-          <Switch
-            checked={showComments}
-            onCheckedChange={setShowComments}
-            className="mr-2"
-          />
-          <span className="text-sm">Show Comments</span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-4 text-black">
+          <div className="flex items-center">
+            <Switch
+              checked={showComments}
+              onCheckedChange={setShowComments}
+              className="mr-2"
+            />
+            <span className="text-sm">Show Comments</span>
+          </div>
+          <div className="flex items-center">
+            <Switch
+              checked={showDate}
+              onCheckedChange={setShowDate}
+              className="mr-2"
+            />
+            <span className="text-sm">Show Date</span>
+          </div>
+          <div className="flex items-center">
+            <Switch
+              checked={showId}
+              onCheckedChange={setShowId}
+              className="mr-2"
+            />
+            <span className="text-sm">Show Id</span>
+          </div>
         </div>
+
+        {/* Link to detailed table view */}
         <div className="flex items-center">
-          <Switch
-            checked={showDate}
-            onCheckedChange={setShowDate}
-            className="mr-2"
-          />
-          <span className="text-sm">Show Date</span>
-        </div>
-        <div className="flex items-center">
-          <Switch
-            checked={showId}
-            onCheckedChange={setShowId}
-            className="mr-2"
-          />
-          <span className="text-sm">Show Id</span>
+          <a
+            href="/family/table"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h18M3 6h18m-9 8h9"
+              />
+            </svg>
+            View All Data Table
+          </a>
         </div>
       </div>
 

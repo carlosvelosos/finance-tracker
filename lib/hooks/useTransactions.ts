@@ -421,3 +421,103 @@ export function useFamilyTransactions() {
     refetch,
   };
 }
+
+// Hook for family table page that fetches and aggregates all family transaction data
+export function useFamilyTableTransactions() {
+  const { user, loading: authLoading } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Helper function to adjust the amount based on the Comment field
+  const adjustTransactionAmounts = (
+    transactions: Transaction[],
+  ): Transaction[] => {
+    return transactions.map((transaction) => {
+      if (
+        transaction.Comment?.includes("Outcome") &&
+        transaction.Amount &&
+        transaction.Amount > 0
+      ) {
+        return { ...transaction, Amount: -Math.abs(transaction.Amount) };
+      } else if (
+        transaction.Comment?.includes("Income") &&
+        transaction.Amount &&
+        transaction.Amount < 0
+      ) {
+        return { ...transaction, Amount: Math.abs(transaction.Amount) };
+      }
+      return transaction;
+    });
+  };
+
+  const fetchAndProcessTransactions = useCallback(async () => {
+    // Don't fetch if auth is still loading or user is not authenticated
+    if (authLoading || !user) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Fetching all family transactions from Supabase..."); // Debug log
+
+      // Fetch data from both Brazilian tables
+      const { data: data2024, error: error2024 } = await supabase
+        .from("Brasil_transactions_agregated_2024")
+        .select("*");
+
+      const { data: data2025, error: error2025 } = await supabase
+        .from("Brasil_transactions_agregated_2025")
+        .select("*");
+
+      if (error2024 || error2025) {
+        throw new Error(
+          `Error fetching transactions: ${error2024?.message || error2025?.message}`,
+        );
+      }
+
+      console.log("Fetched transactions from 2024:", data2024?.length || 0);
+      console.log("Fetched transactions from 2025:", data2025?.length || 0);
+
+      // Combine data from both years and sort by date
+      const combinedData = [...(data2024 || []), ...(data2025 || [])];
+
+      const adjustedTransactions = adjustTransactionAmounts(
+        combinedData as Transaction[],
+      );
+
+      // Sort by date (newest first) - same as other table pages
+      const sortedTransactions = adjustedTransactions.sort((a, b) => {
+        const dateA = a.Date ? new Date(a.Date) : new Date(0);
+        const dateB = b.Date ? new Date(b.Date) : new Date(0);
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      setTransactions(sortedTransactions);
+    } catch (err) {
+      console.error("Error fetching family table transactions:", err);
+      setError(err instanceof Error ? err : new Error("Unknown error"));
+    } finally {
+      setLoading(false);
+    }
+  }, [authLoading, user]);
+
+  useEffect(() => {
+    fetchAndProcessTransactions();
+  }, [fetchAndProcessTransactions]);
+
+  const refetch = useCallback(async () => {
+    await fetchAndProcessTransactions();
+  }, [fetchAndProcessTransactions]);
+
+  return {
+    transactions,
+    loading: authLoading || loading,
+    error,
+    user,
+    refetch,
+  };
+}

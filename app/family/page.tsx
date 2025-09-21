@@ -84,14 +84,8 @@ export default function FamilyFinancePage() {
 }
 
 function FamilyFinanceContent() {
-  const {
-    amandaTransactions,
-    usTransactions,
-    meTransactions,
-    loading,
-    error,
-    user,
-  } = useFamilyTransactions();
+  const { amandaTransactions, usTransactions, meTransactions, loading, error } =
+    useFamilyTransactions();
 
   const [showComments, setShowComments] = useState(false); // State to toggle "Comment" column visibility
   const [showDate, setShowDate] = useState(false); // State to toggle "Date" column visibility

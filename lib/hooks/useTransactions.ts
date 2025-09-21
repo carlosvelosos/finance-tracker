@@ -6,7 +6,6 @@ import {
 } from "../utils/transactionFetchers";
 import { Transaction } from "@/types/transaction";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { User } from "@supabase/auth-helpers-nextjs";
 
 interface UseTransactionsOptions
   extends Omit<FetchTransactionsOptions, "userId"> {

@@ -25,6 +25,8 @@ interface TransactionTableProps {
   showMonthFilter?: boolean;
   showCategoryFilter?: boolean;
   showDescriptionFilter?: boolean;
+  showResponsibleFilter?: boolean;
+  showCommentFilter?: boolean;
   showTotalAmount?: boolean;
   showFilters?: boolean;
   excludeCategories?: string[];
@@ -42,6 +44,8 @@ export default function TransactionTable({
   showMonthFilter = true,
   showCategoryFilter = true,
   showDescriptionFilter = true,
+  showResponsibleFilter = true,
+  showCommentFilter = true,
   showTotalAmount = true,
   showFilters = true,
   excludeCategories = [],
@@ -56,17 +60,19 @@ export default function TransactionTable({
   );
   const [categoryFilter, setCategoryFilter] = useState("");
   const [descriptionFilter, setDescriptionFilter] = useState("");
+  const [responsibleFilter, setResponsibleFilter] = useState("");
+  const [commentFilter, setCommentFilter] = useState("");
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [editingCategory, setEditingCategory] = useState<{
-    id: number;
+    id: string | number;
     value: string;
   } | null>(null);
   const [editingComment, setEditingComment] = useState<{
-    id: number;
+    id: string | number;
     value: string;
   } | null>(null);
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | number | null>(null);
 
   // Need to manage local transactions state since props are read-only
   const [localTransactions, setLocalTransactions] =
@@ -100,13 +106,24 @@ export default function TransactionTable({
   };
 
   // Handle category update
-  const handleUpdateCategory = async (id: number, newCategory: string) => {
+  const handleUpdateCategory = async (
+    id: string | number,
+    newCategory: string,
+  ) => {
     setUpdatingId(id);
     try {
+      // Convert string IDs back to numbers for database operations
+      // For combined data, we need to use the original ID from the metadata
+      const dbId =
+        typeof id === "string"
+          ? localTransactions.find((t) => t.id === id)?.originalId ||
+            parseInt(id.split("_")[1])
+          : id;
+
       const { error } = await supabase
         .from(TransactionTableName) // Use the prop here
         .update({ Category: newCategory })
-        .eq("id", id);
+        .eq("id", dbId);
 
       if (error) {
         console.error("Error updating category:", error);
@@ -139,13 +156,24 @@ export default function TransactionTable({
   };
 
   // Handle comment update
-  const handleUpdateComment = async (id: number, newComment: string) => {
+  const handleUpdateComment = async (
+    id: string | number,
+    newComment: string,
+  ) => {
     setUpdatingId(id);
     try {
+      // Convert string IDs back to numbers for database operations
+      // For combined data, we need to use the original ID from the metadata
+      const dbId =
+        typeof id === "string"
+          ? localTransactions.find((t) => t.id === id)?.originalId ||
+            parseInt(id.split("_")[1])
+          : id;
+
       const { error } = await supabase
         .from(TransactionTableName) // Use the prop here
         .update({ Comment: newComment })
-        .eq("id", id);
+        .eq("id", dbId);
 
       if (error) {
         console.error("Error updating comment:", error);
@@ -201,6 +229,19 @@ export default function TransactionTable({
         transaction.Description?.toLowerCase().includes(descriptionQuery) ||
         false
       );
+    })
+    .filter((transaction) => {
+      if (!showResponsibleFilter || !responsibleFilter) return true;
+      const responsibleQuery = responsibleFilter.toLowerCase();
+      return (
+        transaction.Responsible?.toLowerCase().includes(responsibleQuery) ||
+        false
+      );
+    })
+    .filter((transaction) => {
+      if (!showCommentFilter || !commentFilter) return true;
+      const commentQuery = commentFilter.toLowerCase();
+      return transaction.Comment?.toLowerCase().includes(commentQuery) || false;
     })
     .filter((transaction) => {
       if (!showYearFilter || selectedYear === "All") return true;
@@ -358,7 +399,7 @@ export default function TransactionTable({
       )}
 
       {showFilters && (
-        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {showCategoryFilter && (
             <input
               type="text"
@@ -374,6 +415,24 @@ export default function TransactionTable({
               placeholder="Filter by Description"
               value={descriptionFilter}
               onChange={(e) => setDescriptionFilter(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          )}
+          {showResponsibleFilter && (
+            <input
+              type="text"
+              placeholder="Filter by Responsible"
+              value={responsibleFilter}
+              onChange={(e) => setResponsibleFilter(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          )}
+          {showCommentFilter && (
+            <input
+              type="text"
+              placeholder="Filter by Comment"
+              value={commentFilter}
+              onChange={(e) => setCommentFilter(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"
             />
           )}

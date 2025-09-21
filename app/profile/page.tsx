@@ -21,22 +21,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge"; // Make sure you have this component, e.g., from Shadcn UI
-
-// Define a Transaction type based on your table structure
-interface Transaction {
-  id?: number | string; // Assuming 'id' is a primary key, adjust type as needed
-  created_at?: string;
-  Date: string; // This seems to be a key field
-  Description?: string;
-  Amount?: number;
-  Balance?: number;
-  Category?: string;
-  Responsible?: string;
-  Bank?: string;
-  Comment?: string;
-  user_id?: string;
-  // Add any other fields that are consistently present in your transaction tables
-}
+import { Transaction } from "@/types/transaction";
 
 // Bank structure from prompt
 const countriesData: Record<string, string[]> = {

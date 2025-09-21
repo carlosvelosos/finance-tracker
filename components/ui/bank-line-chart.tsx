@@ -24,16 +24,7 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart";
-
-// Define our transaction type
-interface Transaction {
-  id: number;
-  Category?: string | null;
-  Amount?: number | null;
-  Bank?: string | null;
-  Description?: string | null;
-  Date?: string | null;
-}
+import { Transaction } from "@/types/transaction";
 
 // Define chart data point type
 interface DataPoint {

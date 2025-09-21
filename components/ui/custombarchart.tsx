@@ -21,30 +21,7 @@ import {
 } from "@/components/ui/accordion";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
-
-// type Transaction = {
-//   id: number;
-//   created_at: string;
-//   Date: string | null;
-//   Description: string | null;
-//   Amount: number | null;
-//   Balance: number | null;
-//   Category: string | null;
-//   Responsable: string | null;
-//   Bank: string | null;
-//   Comment: string | null;
-//   user_id: string;
-//   source_table: string | null;
-// };
-
-type Transaction = {
-  id: number;
-  Category: string | null;
-  Amount: number | null;
-  Bank: string | null;
-  Description: string | null;
-  Date: string | null; // Add Date field to ensure it's in the type
-};
+import { Transaction } from "@/types/transaction";
 
 type CustomBarChartProps = {
   data: Transaction[]; // Expect raw transaction data as input
@@ -120,7 +97,7 @@ export function CustomBarChart({
           }, Month: ${transactionMonth}, In Range: ${
             transactionMonth >= monthRange[0] &&
             transactionMonth <= monthRange[1]
-          }`
+          }`,
         );
       }
 
@@ -137,7 +114,9 @@ export function CustomBarChart({
   // Remove unwanted categories before any processing
   const filteredData = dateFilteredData.filter(
     (transaction) =>
-      !["Invoice", "Salary", "Crédit card"].includes(transaction.Category || "")
+      !["Invoice", "Salary", "Crédit card"].includes(
+        transaction.Category || "",
+      ),
   );
 
   // Preprocess data: Invert the sign of Amount for Handelsbanken
@@ -157,24 +136,31 @@ export function CustomBarChart({
     }).format(value);
 
   // Process the raw transaction data
-  const totals = processedData.reduce((acc, transaction) => {
-    if (transaction.Category && transaction.Amount) {
-      acc[transaction.Category] =
-        (acc[transaction.Category] || 0) + transaction.Amount;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const totals = processedData.reduce(
+    (acc, transaction) => {
+      if (transaction.Category && transaction.Amount) {
+        acc[transaction.Category] =
+          (acc[transaction.Category] || 0) + transaction.Amount;
+      }
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Log totals by category
   console.log("Totals by Category:", totals);
 
   // Calculate totals per bank
-  const totalsPerBank = processedData.reduce((acc, transaction) => {
-    if (transaction.Bank && transaction.Amount) {
-      acc[transaction.Bank] = (acc[transaction.Bank] || 0) + transaction.Amount;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const totalsPerBank = processedData.reduce(
+    (acc, transaction) => {
+      if (transaction.Bank && transaction.Amount) {
+        acc[transaction.Bank] =
+          (acc[transaction.Bank] || 0) + transaction.Amount;
+      }
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Log totals per bank
   console.log("Totals by Bank:", totalsPerBank);
@@ -182,7 +168,7 @@ export function CustomBarChart({
   // Calculate totalSum after filtering
   const totalSum = Object.values(totals).reduce(
     (sum, value) => sum + Math.abs(value),
-    0
+    0,
   );
 
   // Debugging the totalSum variable
@@ -337,16 +323,19 @@ export function CustomBarChart({
           <Accordion type="single" collapsible>
             {chartData.map((item, index) => {
               const filteredData = processedData.filter(
-                (entry) => entry.Category === item.category
+                (entry) => entry.Category === item.category,
               );
 
-              const descriptions = filteredData.reduce((acc, entry) => {
-                if (entry.Description && entry.Amount) {
-                  acc[entry.Description] =
-                    (acc[entry.Description] || 0) + entry.Amount;
-                }
-                return acc;
-              }, {} as Record<string, number>);
+              const descriptions = filteredData.reduce(
+                (acc, entry) => {
+                  if (entry.Description && entry.Amount) {
+                    acc[entry.Description] =
+                      (acc[entry.Description] || 0) + entry.Amount;
+                  }
+                  return acc;
+                },
+                {} as Record<string, number>,
+              );
 
               return (
                 <AccordionItem key={item.category} value={item.category}>
@@ -364,30 +353,34 @@ export function CustomBarChart({
                               .filter(
                                 (cat) =>
                                   cat.total / totalSum <=
-                                  minorExpensesThreshold / 100
+                                  minorExpensesThreshold / 100,
                               )
-                              .reduce((categoryGroups, cat) => {
-                                // Get transactions for this category
-                                const catTransactions = processedData.filter(
-                                  (entry) => entry.Category === cat.category
-                                );
+                              .reduce(
+                                (categoryGroups, cat) => {
+                                  // Get transactions for this category
+                                  const catTransactions = processedData.filter(
+                                    (entry) => entry.Category === cat.category,
+                                  );
 
-                                // Group transactions by description within each category
-                                catTransactions.forEach((entry) => {
-                                  if (
-                                    entry.Description &&
-                                    entry.Amount &&
-                                    entry.Category
-                                  ) {
-                                    // Use a composite key that can be parsed later
-                                    const key = `${entry.Category}|||${entry.Description}`;
-                                    categoryGroups[key] =
-                                      (categoryGroups[key] || 0) + entry.Amount;
-                                  }
-                                });
+                                  // Group transactions by description within each category
+                                  catTransactions.forEach((entry) => {
+                                    if (
+                                      entry.Description &&
+                                      entry.Amount &&
+                                      entry.Category
+                                    ) {
+                                      // Use a composite key that can be parsed later
+                                      const key = `${entry.Category}|||${entry.Description}`;
+                                      categoryGroups[key] =
+                                        (categoryGroups[key] || 0) +
+                                        entry.Amount;
+                                    }
+                                  });
 
-                                return categoryGroups;
-                              }, {} as Record<string, number>)
+                                  return categoryGroups;
+                                },
+                                {} as Record<string, number>,
+                              ),
                           )
                             .sort(([, sumA], [, sumB]) => sumB - sumA) // Sort by amount in descending order
                             .map(([combinedKey, sum]) => {

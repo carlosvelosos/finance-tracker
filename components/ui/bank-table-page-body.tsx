@@ -20,6 +20,8 @@ interface TableSection {
   showMonthFilter?: boolean;
   showCategoryFilter?: boolean;
   showDescriptionFilter?: boolean;
+  showResponsibleFilter?: boolean;
+  showCommentFilter?: boolean;
   showFilters?: boolean;
   showTotalAmount?: boolean;
   excludeCategories?: string[];
@@ -87,6 +89,8 @@ export default function BankTablePageBody({
                   showMonthFilter={section.showMonthFilter ?? true}
                   showCategoryFilter={section.showCategoryFilter ?? true}
                   showDescriptionFilter={section.showDescriptionFilter ?? true}
+                  showResponsibleFilter={section.showResponsibleFilter ?? true}
+                  showCommentFilter={section.showCommentFilter ?? true}
                   showFilters={section.showFilters ?? true}
                   showTotalAmount={section.showTotalAmount ?? true}
                   excludeCategories={section.excludeCategories}

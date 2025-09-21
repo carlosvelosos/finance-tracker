@@ -8,7 +8,11 @@
  * Features:
  * - Unified view of all family transactions across both years
  * - Sortable columns with date sorting (newest first by default)
- * - Filtering capabilities (month, category, description)
+ * - Comprehensive filtering capabilities:
+ *   - Month and year filters
+ *   - Category and description filters
+ *   - Responsible person filter
+ *   - Comment filter
  * - Amount adjustments based on Income/Outcome comments
  * - Follows the same design pattern as other bank table pages
  */
@@ -90,6 +94,8 @@ export default function FamilyTablePage() {
       showMonthFilter: true,
       showCategoryFilter: true,
       showDescriptionFilter: true,
+      showResponsibleFilter: true,
+      showCommentFilter: true,
       showTotalAmount: true,
     },
   ];

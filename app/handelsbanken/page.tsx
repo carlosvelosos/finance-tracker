@@ -66,6 +66,7 @@ export default function Home() {
               bankInfo={bankInfo}
               tableName="Sweden_transactions_agregated_2025"
               tableDescription="Aggregated transactions for Handelsbanken accounts in 2025"
+              activeBankFilter="Handelsbanken"
             />
           }
           updateButtonComponent={<UpdateAggregatedButton />}

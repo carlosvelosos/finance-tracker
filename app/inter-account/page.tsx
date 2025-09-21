@@ -180,6 +180,7 @@ export default function Home() {
               bankInfo={bankInfo}
               tableName="Brasil_transactions_agregated_2025"
               tableDescription="Aggregated transactions for Brasil accounts in 2025"
+              activeBankFilter="Inter-BR"
             />
           }
           /**

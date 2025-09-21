@@ -82,6 +82,7 @@ export default function Home() {
               bankInfo={bankInfo}
               tableName="Sweden_transactions_agregated_2025"
               tableDescription="Aggregated transactions for American Express accounts in 2025"
+              activeBankFilter="American Express"
             />
           }
           updateButtonComponent={<UpdateAmexAggregatedButton />}

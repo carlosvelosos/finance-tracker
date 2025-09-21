@@ -1,3 +1,13 @@
+/**
+ * Family Finance Page Component
+ *
+ * This page provides a comprehensive view of family financial transactions including:
+ * - Summary cards showing financial overviews
+ * - Detail cards for different spending categories (Personal, Sweden, Brasil, PIX, Wedding)
+ * - Interactive transaction tables with sorting and filtering capabilities
+ * - Responsive design with carousel for desktop and stacked cards for mobile
+ */
+
 "use client";
 
 import { useState } from "react";
@@ -17,6 +27,11 @@ import {
   CarouselDotsResponsive,
 } from "@/components/ui/carousel";
 
+/**
+ * Transaction Type Definition
+ * Represents a single financial transaction with all possible fields
+ * Maps directly to the Supabase database table structure
+ */
 type Transaction = {
   id: number; // Corresponds to the `id` column (bigint, primary key)
   created_at: string | null; // Corresponds to the `created_at` column (timestamp with time zone)
@@ -31,7 +46,13 @@ type Transaction = {
   user_id: string | null; // Corresponds to the `user_id` column (uuid, nullable)
 };
 
-// Static Amanda's transactions data
+/**
+ * Static Amanda's Transactions Data
+ *
+ * Hardcoded transaction data for Amanda's US spending during March 2025.
+ * This includes expenses for groceries, food delivery, and other personal spending.
+ * Used as supplementary data alongside dynamically fetched transactions.
+ */
 const usTransactionsAmanda: Transaction[] = [
   {
     id: 1,
@@ -59,7 +80,305 @@ const usTransactionsAmanda: Transaction[] = [
     Comment: "Nubank",
     user_id: null,
   },
-  // ... truncating the rest for brevity but keeping the structure
+  {
+    id: 3,
+    created_at: null,
+    Date: "2025-03-04",
+    Description: "Verde Mar",
+    Amount: -281.7,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Alelo",
+    user_id: null,
+  },
+  {
+    id: 4,
+    created_at: null,
+    Date: "2025-03-04",
+    Description: "Verde Mar",
+    Amount: -5.69,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Alelo",
+    user_id: null,
+  },
+  {
+    id: 5,
+    created_at: null,
+    Date: "2025-03-04",
+    Description: "Uber",
+    Amount: -9.52,
+    Balance: null,
+    Category: "Transport",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 6,
+    created_at: null,
+    Date: "2025-03-05",
+    Description: "Verde Mar",
+    Amount: -57.47,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Alelo",
+    user_id: null,
+  },
+  {
+    id: 7,
+    created_at: null,
+    Date: "2025-03-05",
+    Description: "Uber",
+    Amount: -8.91,
+    Balance: null,
+    Category: "Transport",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 8,
+    created_at: null,
+    Date: "2025-03-06",
+    Description: "Grupo Kflit",
+    Amount: -89.9,
+    Balance: null,
+    Category: "Shopping",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 9,
+    created_at: null,
+    Date: "2025-03-06",
+    Description: "Pousada",
+    Amount: -598.0,
+    Balance: null,
+    Category: "Lodging",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 10,
+    created_at: null,
+    Date: "2025-03-07",
+    Description: "Tuna Pagamentos",
+    Amount: -18.0,
+    Balance: null,
+    Category: "Other",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 11,
+    created_at: null,
+    Date: "2025-03-07",
+    Description: "Café Geraes (Jantar)",
+    Amount: -244.2,
+    Balance: null,
+    Category: "Dining Out",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 12,
+    created_at: null,
+    Date: "2025-03-08",
+    Description: "Araujo OP",
+    Amount: -21.08,
+    Balance: null,
+    Category: "Pharmacy",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 13,
+    created_at: null,
+    Date: "2025-03-11",
+    Description: "Daki",
+    Amount: -87.38,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 14,
+    created_at: null,
+    Date: "2025-03-12",
+    Description: "Uber",
+    Amount: -10.88,
+    Balance: null,
+    Category: "Transport",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 15,
+    created_at: null,
+    Date: "2025-03-14",
+    Description: "Verde Mar",
+    Amount: -98.35,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Alelo",
+    user_id: null,
+  },
+  {
+    id: 16,
+    created_at: null,
+    Date: "2025-03-14",
+    Description: "Uber",
+    Amount: -34.79,
+    Balance: null,
+    Category: "Transport",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 17,
+    created_at: null,
+    Date: "2025-03-15",
+    Description: "Restaurante 65",
+    Amount: -56.39,
+    Balance: null,
+    Category: "Dining Out",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 18,
+    created_at: null,
+    Date: "2025-03-15",
+    Description: "Três Irmãos",
+    Amount: -195.09,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 19,
+    created_at: null,
+    Date: "2025-03-16",
+    Description: "Três Irmãos",
+    Amount: -77.42,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 20,
+    created_at: null,
+    Date: "2025-03-16",
+    Description: "Picolito",
+    Amount: -19.25,
+    Balance: null,
+    Category: "Snacks",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 21,
+    created_at: null,
+    Date: "2025-03-16",
+    Description: "Três Irmãos",
+    Amount: -21.99,
+    Balance: null,
+    Category: "Groceries",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Nubank",
+    user_id: null,
+  },
+  {
+    id: 22,
+    created_at: null,
+    Date: "2025-03-17",
+    Description: "iFood",
+    Amount: -27.8,
+    Balance: null,
+    Category: "Food Delivery",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 23,
+    created_at: null,
+    Date: "2025-03-17",
+    Description: "iFood",
+    Amount: -78.26,
+    Balance: null,
+    Category: "Food Delivery",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 24,
+    created_at: null,
+    Date: "2025-03-19",
+    Description: "iFood",
+    Amount: -49.89,
+    Balance: null,
+    Category: "Food Delivery",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
+  {
+    id: 25,
+    created_at: null,
+    Date: "2025-03-19",
+    Description: "iFood",
+    Amount: -27.17,
+    Balance: null,
+    Category: "Food Delivery",
+    Responsible: "us",
+    Bank: null,
+    Comment: "Itaú",
+    user_id: null,
+  },
   {
     id: 26,
     created_at: null,
@@ -75,6 +394,14 @@ const usTransactionsAmanda: Transaction[] = [
   },
 ];
 
+/**
+ * Main Family Finance Page Component
+ *
+ * Entry point for the family finance page that wraps the main content
+ * with authentication protection. Only authenticated users can access this page.
+ *
+ * @returns JSX.Element - Protected route wrapper with family finance content
+ */
 export default function FamilyFinancePage() {
   return (
     <ProtectedRoute>
@@ -83,15 +410,30 @@ export default function FamilyFinancePage() {
   );
 }
 
+/**
+ * Family Finance Content Component
+ *
+ * Main content component that renders the family finance dashboard.
+ * Handles data fetching, loading states, error states, and renders all UI components.
+ *
+ * Features:
+ * - Fetches family transaction data from multiple sources
+ * - Manages sorting state for multiple transaction tables
+ * - Controls column visibility (comments, date, ID)
+ * - Renders responsive layout with summary cards, detail cards, and transaction tables
+ */
 function FamilyFinanceContent() {
+  // Fetch family transaction data from the custom hook
   const { amandaTransactions, usTransactions, meTransactions, loading, error } =
     useFamilyTransactions();
 
+  // UI State Management - Controls which columns are visible in transaction tables
   const [showComments, setShowComments] = useState(false); // State to toggle "Comment" column visibility
   const [showDate, setShowDate] = useState(false); // State to toggle "Date" column visibility
   const [showId, setShowId] = useState(false); // State to toggle "Id" column visibility
 
-  // All the sorting state hooks
+  // Sorting State Management - Each transaction table has its own sort configuration
+  // These states store the current sort column and direction (asc/desc) for each table section
   const [amandaSortConfig, setAmandaSortConfig] = useState<{
     key: keyof Transaction;
     direction: "asc" | "desc";
@@ -109,13 +451,15 @@ function FamilyFinanceContent() {
     direction: "asc" | "desc";
   } | null>(null);
 
-  // Handle loading and error states (ProtectedRoute handles authentication)
+  // Loading State - Show loading message while data is being fetched
+  // ProtectedRoute handles authentication, so we only need to handle data loading here
   if (loading) {
     return (
       <div className="text-center mt-10">Loading family transactions...</div>
     );
   }
 
+  // Error State - Display error message if data fetching fails
   if (error) {
     return (
       <div className="text-center mt-10 text-red-500">
@@ -125,6 +469,15 @@ function FamilyFinanceContent() {
     );
   }
 
+  /**
+   * Handle Sort Function
+   *
+   * Manages sorting logic for transaction tables. When called, it toggles
+   * between ascending, descending, and no sort states for a given column.
+   *
+   * @param key - The transaction property to sort by
+   * @param setSortConfig - State setter function for the specific table's sort config
+   */
   const handleSort = (
     key: keyof Transaction,
     setSortConfig: React.Dispatch<
@@ -142,6 +495,16 @@ function FamilyFinanceContent() {
     });
   };
 
+  /**
+   * Sort Transactions Function
+   *
+   * Applies sorting to a transaction array based on the provided sort configuration.
+   * Handles both string and numeric sorting with proper null/undefined value handling.
+   *
+   * @param transactions - Array of transactions to sort
+   * @param sortConfig - Sort configuration object with key and direction
+   * @returns Sorted array of transactions
+   */
   const sortTransactions = (
     transactions: Transaction[],
     sortConfig: { key: keyof Transaction; direction: "asc" | "desc" } | null,
@@ -171,9 +534,14 @@ function FamilyFinanceContent() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-100">
-      {/* Main Summary Section */}
+      {/* ===== MAIN SUMMARY SECTION ===== */}
+      {/* 
+        Two-column layout for desktop:
+        - Left column (25%): Financial summary card showing totals and overviews
+        - Right column (75%): Carousel of detailed finance cards for different categories
+      */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        {/* Left Column: Summary Card (25% width) */}
+        {/* Left Column: Summary Card (25% width on desktop) */}
         <div className="md:col-span-1">
           <FinanceSummaryCard
             amandaTransactions={amandaTransactions}
@@ -182,9 +550,15 @@ function FamilyFinanceContent() {
           />
         </div>
 
-        {/* Right Column: Detail Cards (75% width) */}
+        {/* Right Column: Detail Cards (75% width on desktop) */}
         <div className="md:col-span-3">
-          {/* Carousel on all screens except mobile */}
+          {/* ===== DESKTOP CAROUSEL VIEW ===== */}
+          {/* 
+            Responsive carousel that shows finance detail cards:
+            - Hidden on mobile (md:hidden)
+            - Shows 1 card at a time on medium/large screens
+            - Shows up to 3 cards at once on 2xl screens
+          */}
           <div className="hidden md:block px-4">
             <Carousel
               opts={{
@@ -195,9 +569,8 @@ function FamilyFinanceContent() {
               }}
               className="w-full relative"
             >
-              {/* Carousel content with responsive behavior */}
               <CarouselContent>
-                {/* Amanda Personal Card */}
+                {/* Amanda Personal Card - Shows Amanda's personal expenses and statistics */}
                 <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
                   <FinanceDetailCard
                     title="Amanda - Personal"
@@ -208,7 +581,7 @@ function FamilyFinanceContent() {
                   />
                 </CarouselItem>
 
-                {/* Sweden Card */}
+                {/* Sweden Card - Shows expenses during Sweden trip (Dec 24 - Jan 25) */}
                 <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
                   <FinanceDetailCard
                     title="Sweden Dec 24 - Jan 25"
@@ -219,7 +592,7 @@ function FamilyFinanceContent() {
                   />
                 </CarouselItem>
 
-                {/* Brasil Card */}
+                {/* Brasil Card - Shows expenses during Brasil trip (Feb - Mar 25) */}
                 <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
                   <FinanceDetailCard
                     title="Brasil Fev - Mar 25"
@@ -230,7 +603,7 @@ function FamilyFinanceContent() {
                   />
                 </CarouselItem>
 
-                {/* PIX Card */}
+                {/* PIX Card - Shows Amanda's PIX transactions (Brazilian instant payment system) */}
                 <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
                   <FinanceDetailCard
                     title="Amanda - PIX"
@@ -241,7 +614,7 @@ function FamilyFinanceContent() {
                   />
                 </CarouselItem>
 
-                {/* Wedding Card - Add this new card */}
+                {/* Wedding Card - Shows expenses related to Karlinha and Perna's wedding */}
                 <CarouselItem className="basis-full md:basis-full lg:basis-full xl:basis-full 2xl:basis-1/3 pl-4">
                   <FinanceDetailCard
                     title="Casamento Karlinha e Perna"
@@ -251,9 +624,11 @@ function FamilyFinanceContent() {
                     cardType="Casamento Karlinha e Perna"
                   />
                 </CarouselItem>
-              </CarouselContent>{" "}
-              {/* Navigation row with aligned elements */}{" "}
+              </CarouselContent>
+
+              {/* Carousel Navigation Controls */}
               <div className="flex items-center justify-between mt-4 px-2">
+                {/* Previous Button - Custom styled with green theme */}
                 <CarouselPrevious
                   className="static translate-y-0 transition-all pointer-events-auto 
                       disabled:text-[#898989] text-green-600 
@@ -264,9 +639,10 @@ function FamilyFinanceContent() {
                   size="sm"
                 />
 
-                {/* Replace standard dots with responsive dots */}
+                {/* Carousel Dots - Responsive pagination indicators */}
                 <CarouselDotsResponsive className="flex-1" />
 
+                {/* Next Button - Custom styled with green theme */}
                 <CarouselNext
                   className="static translate-y-0 transition-all pointer-events-auto 
                       disabled:text-[#898989] text-green-600 
@@ -280,9 +656,13 @@ function FamilyFinanceContent() {
             </Carousel>
           </div>
 
-          {/* Mobile view - stack the cards vertically (unchanged) */}
+          {/* ===== MOBILE STACK VIEW ===== */}
+          {/* 
+            Mobile layout that stacks all finance detail cards vertically
+            - Only visible on mobile screens (md:hidden)
+            - Same cards as carousel but in a simple vertical stack
+          */}
           <div className="md:hidden space-y-4">
-            {/* Personal Card */}
             <FinanceDetailCard
               title="Amanda - Personal"
               amandaTransactions={amandaTransactions}
@@ -291,7 +671,6 @@ function FamilyFinanceContent() {
               cardType="personal"
             />
 
-            {/* Sweden Card */}
             <FinanceDetailCard
               title="Sweden Dec 24 - Jan 25"
               amandaTransactions={amandaTransactions}
@@ -300,7 +679,6 @@ function FamilyFinanceContent() {
               cardType="sweden"
             />
 
-            {/* Brazil Card */}
             <FinanceDetailCard
               title="Brasil Fev - Mar 25"
               amandaTransactions={amandaTransactions}
@@ -309,7 +687,6 @@ function FamilyFinanceContent() {
               cardType="brasil"
             />
 
-            {/* PIX Card */}
             <FinanceDetailCard
               title="Amanda - PIX"
               amandaTransactions={amandaTransactions}
@@ -318,7 +695,6 @@ function FamilyFinanceContent() {
               cardType="pix"
             />
 
-            {/* Wedding Card - Add this new card */}
             <FinanceDetailCard
               title="Casamento Karlinha e Perna"
               amandaTransactions={amandaTransactions}
@@ -330,10 +706,14 @@ function FamilyFinanceContent() {
         </div>
       </div>
 
-      {/* Separator between sections */}
+      {/* Visual separator between summary section and transaction tables */}
       <Separator className="my-12" />
 
-      {/* Switches to toggle columns */}
+      {/* ===== COLUMN VISIBILITY CONTROLS ===== */}
+      {/* 
+        Toggle switches that control which columns are visible in the transaction tables below.
+        Users can show/hide: Comments, Date, and ID columns across all tables.
+      */}
       <div className="flex items-center mb-4 space-x-4 text-black">
         <div className="flex items-center">
           <Switch
@@ -361,9 +741,20 @@ function FamilyFinanceContent() {
         </div>
       </div>
 
-      {/* Transactions Section */}
+      {/* ===== TRANSACTION TABLES SECTION ===== */}
+      {/* 
+        Two-column layout showing detailed transaction tables:
+        - Left: Carlos' Transactions (with Amanda, US, and Carlos sections)
+        - Right: Amanda's Transactions (with US section and empty Amanda/Carlos sections)
+      */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Carlos' Transactions */}
+        {/* Carlos' Transactions Table */}
+        {/* 
+          Displays transactions where Carlos is responsible, organized into three sections:
+          1. Amanda section - transactions Carlos made for Amanda
+          2. US section - transactions Carlos made in the US
+          3. Carlos section - Carlos' personal transactions
+        */}
         <TableCardFamily
           title="Carlos' Transactions"
           sections={[
@@ -393,7 +784,12 @@ function FamilyFinanceContent() {
           sortTransactions={sortTransactions}
         />
 
-        {/* Amanda's Transactions */}
+        {/* Amanda's Transactions Table */}
+        {/* 
+          Displays transactions where Amanda is responsible.
+          Currently only has data in the US section (static data from usTransactionsAmanda).
+          Amanda and Carlos sections are empty but kept for consistent UI structure.
+        */}
         <TableCardFamily
           title="Amanda's Transactions"
           sections={[
@@ -405,7 +801,7 @@ function FamilyFinanceContent() {
             },
             {
               name: "US",
-              transactions: usTransactionsAmanda,
+              transactions: usTransactionsAmanda, // Static transaction data for Amanda's US expenses
               sortConfig: usAmandaSortConfig,
               setSortConfig: setUsAmandaSortConfig,
             },

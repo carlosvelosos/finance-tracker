@@ -370,8 +370,23 @@ export function useFamilyTransactions() {
       console.log("Fetched transactions from 2024:", data2024); // Log 2024 data
       console.log("Fetched transactions from 2025:", data2025); // Log 2025 data
 
-      // Combine data from both years
-      const combinedData = [...(data2024 || []), ...(data2025 || [])];
+      // Add unique identifiers to prevent key conflicts between tables
+      const data2024WithUniqueIds = (data2024 || []).map((transaction) => ({
+        ...transaction,
+        id: `2024_${transaction.id}`, // Prefix with year to make unique
+        originalId: transaction.id, // Keep original ID for reference
+        sourceTable: "Brasil_transactions_agregated_2024",
+      }));
+
+      const data2025WithUniqueIds = (data2025 || []).map((transaction) => ({
+        ...transaction,
+        id: `2025_${transaction.id}`, // Prefix with year to make unique
+        originalId: transaction.id, // Keep original ID for reference
+        sourceTable: "Brasil_transactions_agregated_2025",
+      }));
+
+      // Combine data from both years with unique IDs
+      const combinedData = [...data2024WithUniqueIds, ...data2025WithUniqueIds];
 
       const adjustedTransactions = adjustTransactionAmounts(
         combinedData as Transaction[],
@@ -482,8 +497,27 @@ export function useFamilyTableTransactions() {
       console.log("Fetched transactions from 2024:", data2024?.length || 0);
       console.log("Fetched transactions from 2025:", data2025?.length || 0);
 
-      // Combine data from both years and sort by date
-      const combinedData = [...(data2024 || []), ...(data2025 || [])];
+      // Add unique identifiers to prevent key conflicts between tables
+      const data2024WithUniqueIds = (data2024 || []).map(
+        (transaction, index) => ({
+          ...transaction,
+          id: `2024_${transaction.id}`, // Prefix with year to make unique
+          originalId: transaction.id, // Keep original ID for reference
+          sourceTable: "Brasil_transactions_agregated_2024",
+        }),
+      );
+
+      const data2025WithUniqueIds = (data2025 || []).map(
+        (transaction, index) => ({
+          ...transaction,
+          id: `2025_${transaction.id}`, // Prefix with year to make unique
+          originalId: transaction.id, // Keep original ID for reference
+          sourceTable: "Brasil_transactions_agregated_2025",
+        }),
+      );
+
+      // Combine data from both years with unique IDs
+      const combinedData = [...data2024WithUniqueIds, ...data2025WithUniqueIds];
 
       const adjustedTransactions = adjustTransactionAmounts(
         combinedData as Transaction[],

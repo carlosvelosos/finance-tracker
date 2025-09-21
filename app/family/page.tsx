@@ -12,6 +12,7 @@
 
 import { useState } from "react";
 import { useFamilyTransactions } from "../../lib/hooks/useTransactions";
+import { Transaction } from "../../types/transaction"; // Import centralized Transaction type
 import { Switch } from "@/components/ui/switch";
 import TableCardFamily from "@/components/ui/table-card-family";
 import ProtectedRoute from "@/components/protected-route";
@@ -26,25 +27,6 @@ import {
   CarouselNext,
   CarouselDotsResponsive,
 } from "@/components/ui/carousel";
-
-/**
- * Transaction Type Definition
- * Represents a single financial transaction with all possible fields
- * Maps directly to the Supabase database table structure
- */
-type Transaction = {
-  id: number; // Corresponds to the `id` column (bigint, primary key)
-  created_at: string | null; // Corresponds to the `created_at` column (timestamp with time zone)
-  Date: string | null; // Corresponds to the `Date` column (date, nullable)
-  Description: string | null; // Corresponds to the `Description` column (text, nullable)
-  Amount: number | null; // Corresponds to the `Amount` column (numeric, nullable)
-  Balance: number | null; // Corresponds to the `Balance` column (numeric, nullable)
-  Category: string | null; // Corresponds to the `Category` column (text, default 'Unknown')
-  Responsible: string | null; // Corresponds to the `Responsible` column (text, default 'Carlos')
-  Bank: string | null; // Corresponds to the `Bank` column (text, default 'Inter Black')
-  Comment: string | null; // Corresponds to the `Comment` column (text, nullable)
-  user_id: string | null; // Corresponds to the `user_id` column (uuid, nullable)
-};
 
 /**
  * Static Amanda's Transactions Data

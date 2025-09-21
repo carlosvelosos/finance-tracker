@@ -5,7 +5,7 @@ import {
   FetchTransactionsOptions,
 } from "../utils/transactionFetchers";
 import { Transaction } from "@/types/transaction";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "../supabaseClient"; // Use direct supabase client like the working version
 
 interface UseTransactionsOptions
   extends Omit<FetchTransactionsOptions, "userId"> {
@@ -315,7 +315,7 @@ export function useFamilyTransactions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const supabase = createClientComponentClient();
+  // Use the same direct supabase client as the working version
 
   // Helper function to adjust the amount based on the Balance
   const adjustTransactionAmounts = (
@@ -400,7 +400,7 @@ export function useFamilyTransactions() {
     } finally {
       setLoading(false);
     }
-  }, [authLoading, user, supabase]);
+  }, [authLoading, user]); // Remove supabase from dependencies since it's now imported directly
 
   useEffect(() => {
     fetchAndProcessTransactions();

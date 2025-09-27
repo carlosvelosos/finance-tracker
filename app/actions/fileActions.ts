@@ -412,15 +412,24 @@ async function uploadToSupabase(
 
     console.log("Sample transaction data:", transactionsWithCorrectIds[0]);
 
+    console.log("Proceeding with insert...");
     const { error } = await supabase
       .from(tableName)
       .insert(transactionsWithCorrectIds);
 
     if (error) {
+      console.error("Insert error details:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        fullError: error,
+      });
       return {
         success: false,
         error: "INSERT_ERROR",
-        message: error.message,
+        message:
+          error.message || `Insert failed: ${error.code || "Unknown error"}`,
       };
     }
 

@@ -2,7 +2,7 @@
  * UPLOAD PAGE - Bank Statement File Upload Component
  *
  * This page provides a comprehensive file upload interface for bank statements
- * with intelligent table management, error handling, and user-friendly workflows.
+ * with automatic table creation and intelligent error handling.
  *
  * =============================================================================
  * FUNCTION DOCUMENTATION
@@ -12,23 +12,14 @@
  * ---------------
  * • UploadPage() - Main React component for bank statement file upload functionality
  *
- * STATE MANAGEMENT:
- * ----------------
- * • useEffect(() => {...}) - Debug effect to monitor and log dialog state changes
- *
  * EVENT HANDLERS:
  * --------------
  * • handleFileChange(e: React.ChangeEvent<HTMLInputElement>)
- *   - Validates and sets the selected file, ensures file type is Excel or CSV
+ *   - Validates and sets the selected files, ensures file types are Excel or CSV
  *
  * • handleUpload()
- *   - Main upload function that processes file upload, handles table creation
- *     errors, and manages upload workflow
- *
- * • handleCopyInstructions()
- *   - Copies SQL table creation instructions to clipboard and shows success toast
- *
- * • handleCreateTable()
+ *   - Main upload function that processes multiple files sequentially,
+ *     handles automatic table creation, and manages upload workflow
  *   - Automatically creates database table and retries upload after successful
  *     table creation
  *
@@ -58,27 +49,26 @@
  *
  * KEY FEATURES:
  * ------------
- * FILE UPLOAD PROCESS:
- * • File validation - Checks file type (Excel/CSV)
- * • Bank selection - Ensures bank is selected
- * • Upload execution - Processes file with selected bank and clear data options
- * • Error handling - Manages table creation errors gracefully
+ * MULTIPLE FILE UPLOAD:
+ * • Sequential processing - Processes files one by one to avoid conflicts
+ * • Progress tracking - Real-time upload progress with success/error status per file
+ * • Automatic table creation - Creates tables automatically when needed
+ * • File validation - Checks file type (Excel/CSV) for all selected files
  *
  * TABLE MANAGEMENT:
  * • Table name generation - Smart table naming based on bank and filename
- * • Table creation - Automatic table creation with SQL instructions
+ * • Automatic table creation - Seamless table creation without manual intervention
  * • Clear data functionality - Safe data clearing with confirmation dialogs
  *
  * USER EXPERIENCE:
- * • Toast notifications - Success/error feedback
- * • Loading states - Upload and table creation progress indicators
- * • Dialog management - Multiple dialog states for different workflows
+ * • Toast notifications - Success/error feedback for each file
+ * • Progress indicators - Visual progress bar and file-by-file status
+ * • Error recovery - Automatic table creation and retry on upload failure
  * • Debug information - Development-only state monitoring
  *
  * ERROR RECOVERY:
  * • Graceful error handling - Structured error responses
- * • Automatic retry - Upload retry after successful table creation
- * • User guidance - SQL instructions for manual table creation
+ * • Automatic table creation - Creates missing tables and retries upload
  *
  * SUPPORTED BANKS:
  * • DEV - Development/testing environment
@@ -130,94 +120,280 @@ const BANK_OPTIONS = [
 ];
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [clearData, setClearData] = useState(false);
   const [showClearDataWarning, setShowClearDataWarning] = useState(false);
-  const [showCreateTableDialog, setShowCreateTableDialog] = useState(false);
-  const [pendingTableName, setPendingTableName] = useState<string>("");
-  const [tableInstructions, setTableInstructions] = useState<string>("");
-  const [creatingTable, setCreatingTable] = useState(false);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [pendingBank, setPendingBank] = useState<string | null>(null);
 
-  // Debug effect to monitor dialog state
-  useEffect(() => {
-    console.log("Dialog state changed:", {
-      showCreateTableDialog,
-      pendingTableName,
-      tableInstructions: tableInstructions.substring(0, 50) + "...",
-    });
-  }, [showCreateTableDialog, pendingTableName, tableInstructions]);
+  // Progress tracking for multiple files
+  const [uploadProgress, setUploadProgress] = useState<{
+    currentFile: number;
+    totalFiles: number;
+    currentFileName: string;
+    status: string;
+    results: Array<{
+      fileName: string;
+      status: "success" | "error" | "pending";
+      message: string;
+    }>;
+  }>({
+    currentFile: 0,
+    totalFiles: 0,
+    currentFileName: "",
+    status: "",
+    results: [],
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
-      const uploadedFile = e.target.files[0];
+      const selectedFiles = Array.from(e.target.files);
 
-      // Ensure the file type is correct
-      if (!uploadedFile.name.match(/\.(xlsx|xls|csv)$/i)) {
-        toast.error("Invalid File", {
-          description: "Please upload an Excel or CSV file.",
+      // Validate all files
+      const invalidFiles = selectedFiles.filter(
+        (file) => !file.name.match(/\.(xlsx|xls|csv)$/i),
+      );
+
+      if (invalidFiles.length > 0) {
+        toast.error("Invalid Files", {
+          description: `Please upload only Excel or CSV files. Invalid files: ${invalidFiles.map((f) => f.name).join(", ")}`,
         });
         return;
       }
 
-      setFile(uploadedFile);
+      setFiles(selectedFiles);
+      // Reset progress when new files are selected
+      setUploadProgress({
+        currentFile: 0,
+        totalFiles: selectedFiles.length,
+        currentFileName: "",
+        status: "",
+        results: selectedFiles.map((file) => ({
+          fileName: file.name,
+          status: "pending",
+          message: "Waiting to process...",
+        })),
+      });
     }
   };
   const handleUpload = async () => {
-    if (!file || !selectedBank) {
+    if (!files.length || !selectedBank) {
       toast.error("Error", {
-        description: "Please select a bank and upload a valid file.",
+        description: "Please select a bank and upload at least one valid file.",
       });
       return;
     }
 
     setUploading(true);
+
+    // Initialize progress
+    setUploadProgress((prev) => ({
+      ...prev,
+      currentFile: 0,
+      status: "Starting upload process...",
+      results: files.map((file) => ({
+        fileName: file.name,
+        status: "pending",
+        message: "Waiting to process...",
+      })),
+    }));
+
     try {
-      console.log(
-        "Starting upload for bank:",
-        selectedBank,
-        "with file:",
-        file.name,
-        "clearData:",
-        clearData,
-      );
-      const result = await uploadExcel(file, selectedBank, clearData);
-      console.log("Upload result:", result);
+      // Process files sequentially
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
 
-      if (result.success) {
-        console.log("Upload successful:", result.message);
-        toast.success("Upload Status", {
-          description: result.message,
-        });
-      } else {
-        // Handle different error types gracefully
-        if (result.error === "TABLE_NOT_EXISTS") {
-          console.log("Detected TABLE_NOT_EXISTS error");
-          // Use the tableName from the result if available, otherwise extract from message
-          const tableName =
-            (result as { tableName?: string }).tableName || "unknown_table";
-          console.log("Extracted table name:", tableName);
-          setPendingTableName(tableName);
-          setPendingFile(file);
-          setPendingBank(selectedBank);
+        // Update progress
+        setUploadProgress((prev) => ({
+          ...prev,
+          currentFile: i + 1,
+          currentFileName: file.name,
+          status: `Processing file ${i + 1} of ${files.length}: ${file.name}`,
+          results: prev.results.map((result, idx) =>
+            idx === i
+              ? { ...result, status: "pending", message: "Processing..." }
+              : result,
+          ),
+        }));
 
-          // Get table creation instructions
-          console.log("Getting table creation instructions...");
-          const instructions = await createTableInSupabase(tableName);
-          console.log("Got instructions:", instructions);
-          setTableInstructions(instructions);
-          setShowCreateTableDialog(true);
-          console.log("Dialog should be showing now");
-        } else {
-          // Handle other error types
-          console.log("Showing error toast for:", result.error);
-          toast.error("Upload Failed", {
-            description: result.message,
+        console.log(
+          `Processing file ${i + 1}/${files.length}:`,
+          selectedBank,
+          "with file:",
+          file.name,
+          "clearData:",
+          clearData,
+        );
+
+        try {
+          const result = await uploadExcel(file, selectedBank, clearData);
+          console.log(`Upload result for ${file.name}:`, result);
+
+          if (result.success) {
+            console.log(`Upload successful for ${file.name}:`, result.message);
+
+            // Update progress - success
+            setUploadProgress((prev) => ({
+              ...prev,
+              results: prev.results.map((res, idx) =>
+                idx === i
+                  ? { ...res, status: "success", message: result.message }
+                  : res,
+              ),
+            }));
+
+            toast.success(`File ${i + 1}/${files.length} Uploaded`, {
+              description: `${file.name}: ${result.message}`,
+            });
+          } else {
+            // Handle different error types gracefully
+            if (result.error === "TABLE_NOT_EXISTS") {
+              console.log(`Detected TABLE_NOT_EXISTS error for ${file.name}`);
+              // Use the tableName from the result if available, otherwise extract from message
+              const tableName =
+                (result as { tableName?: string }).tableName || "unknown_table";
+              console.log(
+                "Attempting automatic table creation for:",
+                tableName,
+              );
+
+              // Try automatic table creation without showing manual instructions
+              const createResult = await executeTableCreation(tableName);
+
+              if (createResult.success) {
+                console.log("Table created automatically, retrying upload...");
+
+                // Retry the upload immediately after successful creation
+                const retryResult = await uploadExcel(
+                  file,
+                  selectedBank,
+                  clearData,
+                );
+
+                if (retryResult.success) {
+                  // Update progress - success after auto-creation
+                  setUploadProgress((prev) => ({
+                    ...prev,
+                    currentFile: prev.currentFile + 1,
+                    status: `File ${i + 1}/${files.length} uploaded (table auto-created)`,
+                    results: prev.results.map((res, idx) =>
+                      idx === i
+                        ? {
+                            ...res,
+                            status: "success",
+                            message: `Uploaded successfully (table created automatically)`,
+                          }
+                        : res,
+                    ),
+                  }));
+
+                  toast.success(`File ${i + 1}/${files.length} Uploaded`, {
+                    description: `${file.name}: Table created and data uploaded successfully`,
+                  });
+                } else {
+                  // Update progress - still failed after table creation
+                  setUploadProgress((prev) => ({
+                    ...prev,
+                    results: prev.results.map((res, idx) =>
+                      idx === i
+                        ? {
+                            ...res,
+                            status: "error",
+                            message: `Upload failed after table creation: ${retryResult.message}`,
+                          }
+                        : res,
+                    ),
+                  }));
+
+                  toast.error(`File ${i + 1}/${files.length} Failed`, {
+                    description: `${file.name}: Upload failed after table creation`,
+                  });
+                }
+              } else {
+                // Table creation failed - just show error without manual instructions
+                console.log(
+                  "Automatic table creation failed:",
+                  createResult.message,
+                );
+
+                setUploadProgress((prev) => ({
+                  ...prev,
+                  results: prev.results.map((res, idx) =>
+                    idx === i
+                      ? {
+                          ...res,
+                          status: "error",
+                          message: `Table creation failed: ${createResult.message}`,
+                        }
+                      : res,
+                  ),
+                }));
+
+                toast.error(`File ${i + 1}/${files.length} Failed`, {
+                  description: `${file.name}: Could not create required table automatically`,
+                });
+              }
+            } else {
+              // Handle other error types
+              console.log(
+                `Showing error toast for ${file.name}:`,
+                result.error,
+              );
+
+              // Update progress - error
+              setUploadProgress((prev) => ({
+                ...prev,
+                results: prev.results.map((res, idx) =>
+                  idx === i
+                    ? { ...res, status: "error", message: result.message }
+                    : res,
+                ),
+              }));
+
+              toast.error(`File ${i + 1}/${files.length} Failed`, {
+                description: `${file.name}: ${result.message}`,
+              });
+            }
+          }
+        } catch (fileError) {
+          console.error(`Error processing file ${file.name}:`, fileError);
+
+          // Update progress - error
+          setUploadProgress((prev) => ({
+            ...prev,
+            results: prev.results.map((res, idx) =>
+              idx === i
+                ? { ...res, status: "error", message: "Processing failed" }
+                : res,
+            ),
+          }));
+
+          toast.error(`File ${i + 1}/${files.length} Failed`, {
+            description: `${file.name}: Processing error`,
           });
         }
+      }
+
+      // Final summary
+      const successCount = uploadProgress.results.filter(
+        (r) => r.status === "success",
+      ).length;
+      const errorCount = uploadProgress.results.filter(
+        (r) => r.status === "error",
+      ).length;
+
+      if (successCount === files.length) {
+        toast.success("All Files Uploaded Successfully!", {
+          description: `${successCount} files processed successfully.`,
+        });
+      } else if (successCount > 0) {
+        toast.info("Upload Complete with Mixed Results", {
+          description: `${successCount} successful, ${errorCount} failed.`,
+        });
+      } else {
+        toast.error("All Uploads Failed", {
+          description: "Please check the errors and try again.",
+        });
       }
     } catch (error) {
       // This should rarely happen now since we're returning structured results
@@ -227,93 +403,12 @@ export default function UploadPage() {
       });
     } finally {
       setUploading(false);
+      setUploadProgress((prev) => ({
+        ...prev,
+        status: "Complete",
+        currentFileName: "",
+      }));
     }
-  };
-  const handleCopyInstructions = () => {
-    navigator.clipboard.writeText(tableInstructions);
-    toast.success("Copied!", {
-      description: "SQL instructions copied to clipboard",
-    });
-  };
-
-  const handleCreateTable = async () => {
-    if (!pendingTableName) return;
-
-    setCreatingTable(true);
-    try {
-      console.log("Creating table automatically:", pendingTableName);
-      const result = await executeTableCreation(pendingTableName);
-
-      if (result.success) {
-        toast.success("Table Created!", {
-          description: result.message,
-        });
-
-        // Close the dialog only on success
-        setShowCreateTableDialog(false);
-
-        // Retry the upload automatically after successful table creation
-        if (pendingFile && pendingBank) {
-          console.log("Retrying upload after table creation...");
-          try {
-            const uploadResult = await uploadExcel(
-              pendingFile,
-              pendingBank,
-              clearData,
-            );
-            if (uploadResult.success) {
-              toast.success("Upload Status", {
-                description: uploadResult.message,
-              });
-            } else {
-              toast.error("Upload Failed", {
-                description: uploadResult.message,
-              });
-            }
-          } catch (retryError) {
-            console.error("Retry upload failed:", retryError);
-            toast.error("Upload Failed", {
-              description: "Failed to retry upload after table creation",
-            });
-          }
-        }
-      } else {
-        // Table creation failed - show error but keep dialog open
-        console.log("Table creation failed:", result.message);
-        toast.error("Automatic Table Creation Failed", {
-          description: result.message,
-          duration: 5000,
-        });
-
-        // Add additional guidance
-        if (result.requiresManualCreation) {
-          toast.info("Manual Creation Required", {
-            description:
-              "Please copy the SQL commands below and run them in your Supabase SQL editor.",
-            duration: 8000,
-          });
-        }
-
-        // Keep dialog open so user can copy SQL instructions
-        // Don't close setShowCreateTableDialog(false);
-      }
-    } catch (error) {
-      console.error("Error creating table:", error);
-      toast.error("Table Creation Failed", {
-        description:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      });
-    } finally {
-      setCreatingTable(false);
-    }
-  };
-
-  const handleCloseDialog = () => {
-    setShowCreateTableDialog(false);
-    setPendingTableName("");
-    setTableInstructions("");
-    setPendingFile(null);
-    setPendingBank(null);
   };
 
   const handleClearDataChange = (checked: boolean) => {
@@ -371,8 +466,10 @@ export default function UploadPage() {
     }
   };
 
-  // Get the current table name that would be affected
-  const targetTableName = getTableName(selectedBank, file);
+  // Get the current table names that would be affected
+  const targetTableNames = files
+    .map((file) => getTableName(selectedBank, file))
+    .filter(Boolean);
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
@@ -397,12 +494,39 @@ export default function UploadPage() {
                 ))}
               </SelectContent>
             </Select>
-            {/* File input field */}
-            <Input
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              onChange={handleFileChange}
-            />
+            {/* File input field - now supports multiple files */}
+            <div className="space-y-2">
+              <Input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={handleFileChange}
+                multiple
+                className="cursor-pointer"
+              />
+              {files.length > 0 && (
+                <div className="text-sm text-gray-600">
+                  <strong>
+                    {files.length} file{files.length > 1 ? "s" : ""} selected:
+                  </strong>
+                  <ul className="mt-1 space-y-1">
+                    {files.slice(0, 3).map((file, index) => (
+                      <li
+                        key={index}
+                        className="text-xs text-gray-500 truncate"
+                      >
+                        • {file.name}
+                      </li>
+                    ))}
+                    {files.length > 3 && (
+                      <li className="text-xs text-gray-500">
+                        • ... and {files.length - 3} more file
+                        {files.length - 3 > 1 ? "s" : ""}
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
             {/* Clear data option */}
             <div
               className={`flex flex-col space-y-2 p-3 rounded-md border ${
@@ -424,12 +548,24 @@ export default function UploadPage() {
                   Clear existing data before upload
                 </label>
               </div>
-              {targetTableName && (
+              {targetTableNames.length > 0 && (
                 <div className="ml-6 text-xs text-gray-600">
-                  Target table:{" "}
-                  <code className="bg-gray-100 px-1 rounded">
-                    {targetTableName}
-                  </code>
+                  Target table{targetTableNames.length > 1 ? "s" : ""}:{" "}
+                  <div className="mt-1">
+                    {targetTableNames.slice(0, 3).map((tableName, index) => (
+                      <code
+                        key={index}
+                        className="bg-gray-100 px-1 rounded mr-2 mb-1 inline-block"
+                      >
+                        {tableName}
+                      </code>
+                    ))}
+                    {targetTableNames.length > 3 && (
+                      <span className="text-xs text-gray-500">
+                        ... and {targetTableNames.length - 3} more
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -439,115 +575,95 @@ export default function UploadPage() {
               }`}
             >
               {clearData
-                ? targetTableName
-                  ? `🚨 ALL existing data in table "${targetTableName}" will be deleted before upload!`
+                ? targetTableNames.length > 0
+                  ? `🚨 ALL existing data in ${targetTableNames.length} table${targetTableNames.length > 1 ? "s" : ""} will be deleted before upload!`
                   : "🚨 ALL existing data will be deleted before upload!"
-                : "⚠️ Check this option when uploading an updated version of the same bank statement to avoid duplicates"}
+                : "⚠️ Check this option when uploading updated versions of the same bank statements to avoid duplicates"}
             </div>
+            {/* Upload Progress Display */}
+            {uploading && uploadProgress.totalFiles > 0 && (
+              <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-blue-800">
+                    Upload Progress
+                  </span>
+                  <span className="text-sm text-blue-600">
+                    {uploadProgress.currentFile} / {uploadProgress.totalFiles}
+                  </span>
+                </div>
+
+                {uploadProgress.status && (
+                  <div className="text-sm text-blue-700">
+                    {uploadProgress.status}
+                  </div>
+                )}
+
+                {/* Progress bar */}
+                <div className="w-full bg-blue-100 rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${(uploadProgress.currentFile / uploadProgress.totalFiles) * 100}%`,
+                    }}
+                  ></div>
+                </div>
+
+                {/* Results list */}
+                <div className="max-h-32 overflow-y-auto space-y-1">
+                  {uploadProgress.results.map((result, index) => (
+                    <div
+                      key={index}
+                      className={`text-xs p-2 rounded flex items-center ${
+                        result.status === "success"
+                          ? "bg-green-100 text-green-800"
+                          : result.status === "error"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      <span className="mr-2">
+                        {result.status === "success"
+                          ? "✅"
+                          : result.status === "error"
+                            ? "❌"
+                            : "⏳"}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate font-medium">
+                          {result.fileName}
+                        </div>
+                        <div className="truncate text-xs opacity-75">
+                          {result.message}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Upload button */}
             <Button
               onClick={handleUpload}
-              disabled={uploading}
+              disabled={uploading || files.length === 0}
               className="w-full"
             >
-              {uploading ? "Uploading..." : "Upload"}
+              {uploading
+                ? `Uploading ${uploadProgress.currentFile}/${uploadProgress.totalFiles}...`
+                : files.length === 0
+                  ? "Select files to upload"
+                  : files.length === 1
+                    ? "Upload File"
+                    : `Upload ${files.length} Files`}
             </Button>{" "}
             {/* Debug info */}
             {process.env.NODE_ENV === "development" && (
               <div className="text-xs text-gray-500 mt-2">
-                Dialog: {showCreateTableDialog ? "OPEN" : "CLOSED"} | Table:{" "}
-                {pendingTableName || "None"} | Clear Data:{" "}
-                {clearData ? "YES" : "NO"} | Target Table:{" "}
-                {targetTableName || "None"}
+                Clear Data: {clearData ? "YES" : "NO"} | Target Table:{" "}
+                {targetTableNames?.join(", ") || "None"}
               </div>
             )}
           </CardContent>
         </Card>{" "}
-        {/* Debug: Simple Test Dialog */}
-        {showCreateTableDialog && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            onClick={() => setShowCreateTableDialog(false)}
-          >
-            <div
-              className="bg-white p-6 rounded-lg max-w-md w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-lg font-bold mb-2">
-                TEST: Table Creation Required
-              </h2>{" "}
-              <p className="mb-4">
-                Table &ldquo;{pendingTableName}&rdquo; needs to be created.
-              </p>
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                onClick={handleCreateTable}
-                disabled={creatingTable}
-              >
-                {creatingTable ? "Creating..." : "Create Table"}
-              </button>
-              <button
-                className="bg-gray-500 text-white px-4 py-2 rounded"
-                onClick={handleCloseDialog}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-        {/* Table Creation Dialog */}
-        <Dialog
-          open={showCreateTableDialog}
-          onOpenChange={setShowCreateTableDialog}
-        >
-          {" "}
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-            <DialogHeader>
-              <DialogTitle>Table Creation Required</DialogTitle>
-              <DialogDescription>
-                The table &ldquo;{pendingTableName}&rdquo; does not exist in the
-                database and needs to be created before uploading your file.
-              </DialogDescription>
-              <div className="space-y-2 mt-3">
-                <div className="text-sm bg-yellow-50 border border-yellow-200 rounded p-2">
-                  <strong>Note:</strong> Automatic table creation requires
-                  special database permissions that are not available in most
-                  Supabase configurations. If the automatic creation fails,
-                  please copy the SQL commands below and run them in your
-                  Supabase SQL editor.
-                </div>
-              </div>
-            </DialogHeader>
-            <div className="mt-4 flex-1 overflow-hidden">
-              <div className="bg-gray-800 text-green-400 p-4 rounded-md font-mono text-xs overflow-auto max-h-[60vh] whitespace-pre-wrap break-words">
-                {tableInstructions}
-              </div>
-            </div>{" "}
-            <div className="flex flex-col sm:flex-row justify-between gap-2 mt-4">
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleCopyInstructions}
-                  disabled={!tableInstructions}
-                >
-                  Copy SQL
-                </Button>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCreateTable}
-                  disabled={creatingTable || !pendingTableName}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {creatingTable ? "Creating..." : "Create Table Automatically"}
-                </Button>
-                <Button variant="outline" onClick={handleCloseDialog}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
         {/* Clear Data Warning Dialog */}
         <Dialog
           open={showClearDataWarning}
@@ -566,7 +682,7 @@ export default function UploadPage() {
 
             <div className="space-y-4">
               <div className="p-2 bg-gray-100 rounded text-center font-mono text-sm">
-                {targetTableName || "Unknown table"}
+                {targetTableNames?.join(", ") || "Unknown tables"}
               </div>
 
               <div className="text-sm text-gray-600">

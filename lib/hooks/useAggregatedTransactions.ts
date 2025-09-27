@@ -14,6 +14,13 @@ interface BankInfo {
   newestDatesByBank: Record<string, string>;
 }
 
+interface TableNetValueData {
+  tableName: string;
+  displayName: string;
+  netValue: number;
+  transactionCount: number;
+}
+
 export function useAggregatedTransactions({
   selectedTables,
   enabled = true,
@@ -25,6 +32,7 @@ export function useAggregatedTransactions({
     transactionCountsByBank: {},
     newestDatesByBank: {},
   });
+  const [tableNetValues, setTableNetValues] = useState<TableNetValueData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -77,6 +85,7 @@ export function useAggregatedTransactions({
   const fetchAggregatedTransactions = useCallback(async () => {
     if (!user || !enabled || selectedTables.length === 0) {
       setTransactions([]);
+      setTableNetValues([]);
       setBankInfo({
         uniqueBanks: [],
         transactionCountsByBank: {},
@@ -252,7 +261,43 @@ export function useAggregatedTransactions({
         }
       });
 
+      // Calculate net values per table (excluding automatic debit transactions)
+      const tableNetValuesData: TableNetValueData[] = tableResults
+        .filter((result) => result.data && result.data.length > 0)
+        .map((result) => {
+          const tableTransactions = sortedTransactions.filter(
+            (t) => (t as any).sourceTable === result.tableName,
+          );
+
+          // Filter out automatic debit transactions for net value calculation
+          const nonAutomaticDebitTransactions = tableTransactions.filter(
+            (t) => t.Description !== "PAGTO DEBITO AUTOMATICO",
+          );
+
+          const netValue = nonAutomaticDebitTransactions.reduce(
+            (sum, transaction) => {
+              return sum + (transaction.Amount || 0);
+            },
+            0,
+          );
+
+          // Create a simple display name from table name
+          const displayName = result.tableName
+            .replace(/^INMC_/, "INMC ")
+            .replace(/(\d{4})(\d{2})$/, "$1-$2")
+            .replace(/_/g, " ");
+
+          return {
+            tableName: result.tableName,
+            displayName: displayName,
+            netValue: netValue,
+            transactionCount: nonAutomaticDebitTransactions.length,
+          };
+        })
+        .sort((a, b) => b.netValue - a.netValue); // Sort by net value descending
+
       setTransactions(sortedTransactions);
+      setTableNetValues(tableNetValuesData);
       setBankInfo({
         uniqueBanks,
         transactionCountsByBank,
@@ -264,6 +309,7 @@ export function useAggregatedTransactions({
         err instanceof Error ? err : new Error("Unknown error occurred"),
       );
       setTransactions([]);
+      setTableNetValues([]);
       setBankInfo({
         uniqueBanks: [],
         transactionCountsByBank: {},
@@ -294,6 +340,7 @@ export function useAggregatedTransactions({
   return {
     transactions,
     bankInfo: memoizedBankInfo,
+    tableNetValues,
     loading,
     error,
     refetch,

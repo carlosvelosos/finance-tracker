@@ -10,6 +10,7 @@ import BankTablePageHeader from "@/components/ui/bank-table-page-header";
 import BankTablePageBody from "@/components/ui/bank-table-page-body";
 import TableSelectionPanel from "@/components/ui/table-selection-panel";
 import AggregatedDataSourceInfo from "@/components/ui/aggregated-data-source-info";
+import TableNetValueChart from "../../components/ui/table-net-value-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronUp, ChevronDown, Settings } from "lucide-react";
@@ -34,6 +35,7 @@ export default function AggregatedTransactionsPage() {
   const {
     transactions,
     bankInfo,
+    tableNetValues,
     loading: transactionsLoading,
     error: transactionsError,
     refetch: refetchTransactions,
@@ -61,8 +63,10 @@ export default function AggregatedTransactionsPage() {
       ? [
           {
             id: "aggregated-table",
-            title: `Aggregated Transactions (${selectedTablesCount} table${selectedTablesCount === 1 ? "" : "s"})`,
-            transactions: transactions,
+            title: `Aggregated Transactions (${transactions.filter((t) => t.Description !== "PAGTO DEBITO AUTOMATICO").length} transactions)`,
+            transactions: transactions.filter(
+              (t) => t.Description !== "PAGTO DEBITO AUTOMATICO",
+            ),
             bankFilter: undefined, // No bank filter for aggregated view
             initialSortColumn: "Date",
             initialSortDirection: "desc" as const,
@@ -70,6 +74,21 @@ export default function AggregatedTransactionsPage() {
             showMonthFilter: true,
             showCategoryFilter: true,
             showDescriptionFilter: true,
+            showTotalAmount: true,
+          },
+          {
+            id: "automatic-debit-table",
+            title: `Automatic Debit Transactions (${transactions.filter((t) => t.Description === "PAGTO DEBITO AUTOMATICO").length} transactions)`,
+            transactions: transactions.filter(
+              (t) => t.Description === "PAGTO DEBITO AUTOMATICO",
+            ),
+            bankFilter: undefined,
+            initialSortColumn: "Date",
+            initialSortDirection: "desc" as const,
+            hiddenColumns: ["Description"], // Hide description since they're all the same
+            showMonthFilter: true,
+            showCategoryFilter: true,
+            showDescriptionFilter: false, // No need for description filter since all are the same
             showTotalAmount: true,
           },
         ]
@@ -184,6 +203,21 @@ export default function AggregatedTransactionsPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Net Value Chart - Show when data is available */}
+          {!transactionsLoading &&
+            !transactionsError &&
+            selectedTables.length > 0 &&
+            tableNetValues.length > 0 && (
+              <TableNetValueChart
+                data={tableNetValues}
+                loading={transactionsLoading}
+                height="300px"
+                width="full"
+                responsive={true}
+                className="mb-6"
+              />
+            )}
 
           {/* Transaction Table */}
           {!transactionsLoading &&

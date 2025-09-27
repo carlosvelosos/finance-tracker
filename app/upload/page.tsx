@@ -92,10 +92,8 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  uploadExcel,
-  createTableInSupabase,
   executeTableCreation,
   processFileData,
   uploadToSupabase,
@@ -278,7 +276,7 @@ export default function UploadPage() {
           console.log("File processed successfully, attempting upload...");
 
           // Attempt upload
-          let result = await uploadToSupabase(
+          const result = await uploadToSupabase(
             processedData.tableName,
             processedData.transactions,
             clearData,

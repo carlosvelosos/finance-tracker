@@ -251,12 +251,9 @@ export async function executeTableCreation(tableName: string) {
 
       console.log("Creating policy...");
       // First drop any existing policy
-      const { data: dropResult, error: dropError } = await supabase.rpc(
-        "exec_sql",
-        {
-          sql: dropPolicySQL,
-        },
-      );
+      const { error: dropError } = await supabase.rpc("exec_sql", {
+        sql: dropPolicySQL,
+      });
 
       if (dropError) {
         console.warn(
@@ -291,8 +288,8 @@ export async function executeTableCreation(tableName: string) {
         error instanceof Error &&
         (error.message.includes("function") ||
           error.message.includes("exec_sql") ||
-          (error as any).code === "42883" ||
-          (error as any).code === "PGRST202") // Function not found
+          (error as { code?: string }).code === "42883" ||
+          (error as { code?: string }).code === "PGRST202") // Function not found
       ) {
         console.log(
           "exec_sql function not available. This is normal for most Supabase configurations.",
@@ -381,7 +378,7 @@ export async function uploadToSupabase(
 
     // Get the current highest ID from the table
     console.log("Checking if table exists...");
-    const { data: maxIdData, error: maxIdError } = await supabase
+    const { error: maxIdError } = await supabase
       .from(tableName)
       .select("id")
       .order("id", { ascending: false })

@@ -219,7 +219,7 @@ export default function AggregatedTransactionsPage() {
         </div>
 
         {/* Right Sidebar - Table Selection & Configuration */}
-        <div className="fixed right-0 top-0 h-full w-80 bg-gray-50 border-l border-gray-200 p-3 overflow-y-auto text-sm">
+        <div className="fixed right-0 top-0 h-full w-80 bg-transparent border-l border-gray-800 p-3 overflow-y-auto text-sm">
           <Card className="h-full">
             <CardHeader className="pb-2 px-3 pt-3">
               <div className="flex items-center justify-between">

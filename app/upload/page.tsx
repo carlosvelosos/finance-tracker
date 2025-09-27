@@ -2,7 +2,16 @@
  * UPLOAD PAGE - Bank Statement File Upload Component
  *
  * This page provides a comprehensive file upload interface for bank statements
- * with automatic table creation and intelligent error handling.
+ * with automatic ta      if (invalidFiles.length > 0) {
+        // Show error in upload summary instead of toast
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "Invalid Files Selected",
+          details: `Please select only Excel (.xlsx, .xls) or CSV files. Invalid files: ${invalidFiles.map((f) => f.name).join(", ")}`,
+        });
+        return;
+      }eation and intelligent error handling.
  *
  * =============================================================================
  * FUNCTION DOCUMENTATION
@@ -88,11 +97,12 @@ import {
   uploadExcel,
   createTableInSupabase,
   executeTableCreation,
+  processFileData,
+  uploadToSupabase,
 } from "@/app/actions/fileActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -126,6 +136,14 @@ export default function UploadPage() {
   const [clearData, setClearData] = useState(false);
   const [showClearDataWarning, setShowClearDataWarning] = useState(false);
 
+  // Final upload summary
+  const [uploadSummary, setUploadSummary] = useState<{
+    show: boolean;
+    success: boolean;
+    message: string;
+    details?: string;
+  }>({ show: false, success: false, message: "" });
+
   // Progress tracking for multiple files
   const [uploadProgress, setUploadProgress] = useState<{
     currentFile: number;
@@ -155,8 +173,11 @@ export default function UploadPage() {
       );
 
       if (invalidFiles.length > 0) {
-        toast.error("Invalid Files", {
-          description: `Please upload only Excel or CSV files. Invalid files: ${invalidFiles.map((f) => f.name).join(", ")}`,
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "Invalid Files Selected",
+          details: `Please upload only Excel or CSV files. Invalid files: ${invalidFiles.map((f) => f.name).join(", ")}`,
         });
         return;
       }
@@ -178,8 +199,11 @@ export default function UploadPage() {
   };
   const handleUpload = async () => {
     if (!files.length || !selectedBank) {
-      toast.error("Error", {
-        description: "Please select a bank and upload at least one valid file.",
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Upload Requirements Missing",
+        details: "Please select a bank and upload at least one valid file.",
       });
       return;
     }
@@ -226,7 +250,39 @@ export default function UploadPage() {
         );
 
         try {
-          const result = await uploadExcel(file, selectedBank, clearData);
+          // Process file data once
+          console.log("Processing file data...");
+          const processResult = await processFileData(file, selectedBank);
+
+          if (!processResult.success) {
+            // File processing failed
+            setUploadProgress((prev) => ({
+              ...prev,
+              results: prev.results.map((res, idx) =>
+                idx === i
+                  ? {
+                      ...res,
+                      status: "error",
+                      message:
+                        processResult.message || "File processing failed",
+                    }
+                  : res,
+              ),
+            }));
+
+            continue;
+          }
+
+          const processedData = processResult.data!;
+          console.log("File processed successfully, attempting upload...");
+
+          // Attempt upload
+          let result = await uploadToSupabase(
+            processedData.tableName,
+            processedData.transactions,
+            clearData,
+          );
+
           console.log(`Upload result for ${file.name}:`, result);
 
           if (result.success) {
@@ -242,16 +298,15 @@ export default function UploadPage() {
               ),
             }));
 
-            toast.success(`File ${i + 1}/${files.length} Uploaded`, {
-              description: `${file.name}: ${result.message}`,
-            });
+            // Success is already displayed in the progress, no toast needed
           } else {
             // Handle different error types gracefully
-            if (result.error === "TABLE_NOT_EXISTS") {
+            if ("error" in result && result.error === "TABLE_NOT_EXISTS") {
               console.log(`Detected TABLE_NOT_EXISTS error for ${file.name}`);
-              // Use the tableName from the result if available, otherwise extract from message
+              // Use the tableName from the result if available, otherwise from processed data
               const tableName =
-                (result as { tableName?: string }).tableName || "unknown_table";
+                (result as { tableName?: string }).tableName ||
+                processedData.tableName;
               console.log(
                 "Attempting automatic table creation for:",
                 tableName,
@@ -263,11 +318,16 @@ export default function UploadPage() {
               if (createResult.success) {
                 console.log("Table created automatically, retrying upload...");
 
-                // Retry the upload immediately after successful creation
-                const retryResult = await uploadExcel(
-                  file,
-                  selectedBank,
+                // Retry ONLY the upload part (no file reprocessing!)
+                const retryResult = await uploadToSupabase(
+                  processedData.tableName,
+                  processedData.transactions,
                   clearData,
+                );
+
+                console.log(
+                  `Retry upload result for ${file.name}:`,
+                  retryResult,
                 );
 
                 if (retryResult.success) {
@@ -287,9 +347,7 @@ export default function UploadPage() {
                     ),
                   }));
 
-                  toast.success(`File ${i + 1}/${files.length} Uploaded`, {
-                    description: `${file.name}: Table created and data uploaded successfully`,
-                  });
+                  // Success is already shown in progress, no toast needed
                 } else {
                   // Update progress - still failed after table creation
                   setUploadProgress((prev) => ({
@@ -305,9 +363,7 @@ export default function UploadPage() {
                     ),
                   }));
 
-                  toast.error(`File ${i + 1}/${files.length} Failed`, {
-                    description: `${file.name}: Upload failed after table creation`,
-                  });
+                  // Error is already shown in progress, no toast needed
                 }
               } else {
                 // Table creation failed - just show error without manual instructions
@@ -329,15 +385,13 @@ export default function UploadPage() {
                   ),
                 }));
 
-                toast.error(`File ${i + 1}/${files.length} Failed`, {
-                  description: `${file.name}: Could not create required table automatically`,
-                });
+                // Error is already shown in progress, no toast needed
               }
             } else {
               // Handle other error types
               console.log(
-                `Showing error toast for ${file.name}:`,
-                result.error,
+                `Showing error for ${file.name}:`,
+                "error" in result ? result.error : "No error field",
               );
 
               // Update progress - error
@@ -350,9 +404,7 @@ export default function UploadPage() {
                 ),
               }));
 
-              toast.error(`File ${i + 1}/${files.length} Failed`, {
-                description: `${file.name}: ${result.message}`,
-              });
+              // Error is already shown in progress, no toast needed
             }
           }
         } catch (fileError) {
@@ -368,38 +420,52 @@ export default function UploadPage() {
             ),
           }));
 
-          toast.error(`File ${i + 1}/${files.length} Failed`, {
-            description: `${file.name}: Processing error`,
-          });
+          // Error is already shown in progress, no toast needed
         }
       }
 
       // Final summary
+      console.log("Final upload progress results:", uploadProgress.results);
       const successCount = uploadProgress.results.filter(
         (r) => r.status === "success",
       ).length;
       const errorCount = uploadProgress.results.filter(
         (r) => r.status === "error",
       ).length;
+      console.log(
+        `Success count: ${successCount}, Error count: ${errorCount}, Total files: ${files.length}`,
+      );
 
       if (successCount === files.length) {
-        toast.success("All Files Uploaded Successfully!", {
-          description: `${successCount} files processed successfully.`,
+        setUploadSummary({
+          show: true,
+          success: true,
+          message: "All Files Uploaded Successfully!",
+          details: `${successCount} files processed successfully.`,
         });
       } else if (successCount > 0) {
-        toast.info("Upload Complete with Mixed Results", {
-          description: `${successCount} successful, ${errorCount} failed.`,
+        setUploadSummary({
+          show: true,
+          success: true,
+          message: "Upload Complete with Mixed Results",
+          details: `${successCount} successful, ${errorCount} failed.`,
         });
       } else {
-        toast.error("All Uploads Failed", {
-          description: "Please check the errors and try again.",
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "All Uploads Failed",
+          details: "Please check the errors and try again.",
         });
       }
     } catch (error) {
       // This should rarely happen now since we're returning structured results
       console.error("Unexpected error in handleUpload:", error);
-      toast.error("Upload Failed", {
-        description: "An unexpected error occurred. Please try again.",
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Upload Failed",
+        details: "An unexpected error occurred. Please try again.",
       });
     } finally {
       setUploading(false);
@@ -581,11 +647,11 @@ export default function UploadPage() {
                 : "⚠️ Check this option when uploading updated versions of the same bank statements to avoid duplicates"}
             </div>
             {/* Upload Progress Display */}
-            {uploading && uploadProgress.totalFiles > 0 && (
+            {uploadProgress.totalFiles > 0 && (
               <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-md">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-blue-800">
-                    Upload Progress
+                    {uploading ? "Upload Progress" : "Upload Results"}
                   </span>
                   <span className="text-sm text-blue-600">
                     {uploadProgress.currentFile} / {uploadProgress.totalFiles}
@@ -639,6 +705,55 @@ export default function UploadPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+            {/* Upload Summary */}
+            {uploadSummary.show && (
+              <div
+                className={`p-4 border rounded-md ${
+                  uploadSummary.success
+                    ? "bg-green-50 border-green-200"
+                    : "bg-red-50 border-red-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">
+                    {uploadSummary.success ? "✅" : "❌"}
+                  </span>
+                  <div>
+                    <div
+                      className={`font-medium ${
+                        uploadSummary.success
+                          ? "text-green-800"
+                          : "text-red-800"
+                      }`}
+                    >
+                      {uploadSummary.message}
+                    </div>
+                    <div
+                      className={`text-sm ${
+                        uploadSummary.success
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {uploadSummary.details}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() =>
+                    setUploadSummary({
+                      show: false,
+                      success: false,
+                      message: "",
+                      details: "",
+                    })
+                  }
+                  className="mt-2 text-xs text-gray-500 hover:text-gray-700 underline"
+                >
+                  Dismiss
+                </button>
               </div>
             )}
             {/* Upload button */}

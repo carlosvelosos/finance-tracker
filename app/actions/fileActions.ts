@@ -10,20 +10,10 @@ import {
   processSEB,
 } from "@/lib/utils/bankProcessors";
 
-export async function uploadExcel(
-  file: File,
-  bank: string,
-  clearData: boolean = false,
-) {
+// Separate function to process file data without uploading
+export async function processFileData(file: File, bank: string) {
   try {
-    console.log(
-      "uploadExcel called with bank:",
-      bank,
-      "file:",
-      file.name,
-      "clearData:",
-      clearData,
-    );
+    console.log("Processing file data for bank:", bank, "file:", file.name);
     const arrayBuffer = await file.arrayBuffer();
     let data: string[][]; // Explicitly type data as string[][]
 
@@ -77,6 +67,44 @@ export async function uploadExcel(
         };
     }
     console.log("Final processed data:", processedData);
+    return {
+      success: true,
+      data: processedData,
+    };
+  } catch (error) {
+    console.error("Error in processFileData:", error);
+    return {
+      success: false,
+      error: "PROCESSING_ERROR",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    };
+  }
+}
+
+export async function uploadExcel(
+  file: File,
+  bank: string,
+  clearData: boolean = false,
+) {
+  try {
+    console.log(
+      "uploadExcel called with bank:",
+      bank,
+      "file:",
+      file.name,
+      "clearData:",
+      clearData,
+    );
+
+    // Process file data once
+    const processResult = await processFileData(file, bank);
+    if (!processResult.success) {
+      return processResult;
+    }
+
+    const processedData = processResult.data!; // We know data exists since success is true
+
     // Upload to Supabase
     console.log("Uploading to Supabase table:", processedData.tableName);
     const result = await uploadToSupabase(
@@ -324,7 +352,7 @@ export async function executeTableCreation(tableName: string) {
   }
 }
 
-async function uploadToSupabase(
+export async function uploadToSupabase(
   tableName: string,
   transactions: Record<string, unknown>[],
   clearData: boolean = false,
@@ -395,9 +423,42 @@ async function uploadToSupabase(
       currentMaxId = 0;
       console.log("Starting from ID 1 due to cleared data");
     } else {
-      // Otherwise, get the current max ID and continue from there
+      // Get the current max ID and continue from there
+      // Use a more robust query to check for any existing records
+      const { data: maxIdData, error: maxIdCheckError } = await supabase
+        .from(tableName)
+        .select("id")
+        .order("id", { ascending: false })
+        .limit(1);
+
+      console.log("Max ID check - data:", maxIdData);
+      console.log("Max ID check - error:", maxIdCheckError);
+
+      if (maxIdCheckError) {
+        console.error("Error checking max ID:", maxIdCheckError);
+        return {
+          success: false,
+          error: "DATABASE_ERROR",
+          message: maxIdCheckError.message,
+        };
+      }
+
+      // Also check total record count to see if table has any data
+      const { count: totalRecords } = await supabase
+        .from(tableName)
+        .select("*", { count: "exact", head: true });
+
+      console.log("Total records in table:", totalRecords);
+
       currentMaxId = maxIdData && maxIdData.length > 0 ? maxIdData[0].id : 0;
       console.log("Current max ID:", currentMaxId);
+
+      // If there are records but maxId is 0, there might be an issue
+      if ((totalRecords || 0) > 0 && currentMaxId === 0) {
+        console.warn(
+          `Table has ${totalRecords} records but max ID is 0. This might cause conflicts.`,
+        );
+      }
     }
 
     // Update transaction IDs to continue from the current max
@@ -412,33 +473,176 @@ async function uploadToSupabase(
 
     console.log("Sample transaction data:", transactionsWithCorrectIds[0]);
 
+    // Test table access before insert
+    console.log("Testing table access...");
+    const { data: testData, error: testError } = await supabase
+      .from(tableName)
+      .select("id")
+      .limit(1);
+
+    console.log("Table access test - data:", testData);
+    console.log("Table access test - error:", testError);
+
+    // Check current user authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    console.log("Current authenticated user:", user?.id);
+    console.log(
+      "Expected user_id in data:",
+      transactionsWithCorrectIds[0]?.user_id,
+    );
+
+    if (testError) {
+      console.error("Cannot access table for insert:", testError);
+      return {
+        success: false,
+        error: "TABLE_ACCESS_ERROR",
+        message: `Cannot access table "${tableName}": ${testError.message}`,
+      };
+    }
+
     console.log("Proceeding with insert...");
-    const { error } = await supabase
+
+    // Try insert without .select() first to see if that's the issue
+    console.log("Attempting insert without select...");
+    const { data: insertData, error: insertError } = await supabase
       .from(tableName)
       .insert(transactionsWithCorrectIds);
 
-    if (error) {
+    console.log("Insert without select - data:", insertData);
+    console.log("Insert without select - error:", insertError);
+
+    // For insert without .select(), data will be null but that's OK if no error
+    let finalData, finalError;
+    if (insertError) {
+      // First insert had an error, try with .select()
+      console.log("First insert had error, trying with .select()...");
+      const { data, error } = await supabase
+        .from(tableName)
+        .insert(transactionsWithCorrectIds)
+        .select();
+
+      console.log("Insert with select - data:", data);
+      console.log("Insert with select - error:", error);
+
+      finalData = data;
+      finalError = error;
+    } else {
+      // First insert succeeded (no error, even if data is null)
+      console.log("First insert succeeded without error");
+      finalData = insertData; // Will be null, but that's OK
+      finalError = insertError; // Will be null
+    }
+    console.log("Final insert - data:", finalData);
+    console.log("Final insert - error:", finalError);
+
+    // Check for meaningful errors (not empty objects)
+    const hasRealError =
+      finalError &&
+      (finalError.message || finalError.code || finalError.details);
+
+    if (hasRealError) {
+      // Special handling for duplicate key constraint
+      if (finalError?.code === "23505") {
+        console.log(
+          "Duplicate key error detected. This might be due to existing data in the table.",
+        );
+        console.log(
+          "Consider using 'Clear existing data' option if you want to replace existing records.",
+        );
+
+        return {
+          success: false,
+          error: "DUPLICATE_KEY_ERROR",
+          message:
+            "Records with these IDs already exist in the table. Enable 'Clear existing data' option to replace existing records, or use different data.",
+        };
+      }
+
       console.error("Insert error details:", {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        fullError: error,
+        code: finalError?.code,
+        message: finalError?.message,
+        details: finalError?.details,
+        hint: finalError?.hint,
+        fullError: finalError,
       });
       return {
         success: false,
         error: "INSERT_ERROR",
         message:
-          error.message || `Insert failed: ${error.code || "Unknown error"}`,
+          finalError?.message ||
+          `Insert failed: ${finalError?.code || "Unknown error"}`,
       };
     }
 
-    return {
+    // Even if no error, check if data was actually inserted when we expected data back
+    // Note: If we used insert without .select(), finalData will be null but that's OK
+    if (finalError === null && finalData === null) {
+      // This is the normal case for insert without .select() - verify via row count
+      console.log(
+        "Insert completed without error, but no data returned (normal for insert without select)",
+      );
+      console.log("Will verify success via row count validation...");
+    } else if (
+      !finalData ||
+      (Array.isArray(finalData) && finalData.length === 0)
+    ) {
+      console.error("Insert failed: No data returned from insert operation");
+      return {
+        success: false,
+        error: "INSERT_ERROR",
+        message: "Insert failed: No data was inserted",
+      };
+    }
+
+    // Additional validation: Count actual rows in table after insert
+    console.log("Validating insert by counting table rows...");
+    const expectedRowCount = clearData
+      ? transactionsWithCorrectIds.length
+      : currentMaxId + transactionsWithCorrectIds.length;
+    console.log(`Expected total rows in table: ${expectedRowCount}`);
+
+    const { count: actualRowCount, error: countError } = await supabase
+      .from(tableName)
+      .select("*", { count: "exact", head: true });
+
+    if (countError) {
+      console.error("Error counting table rows:", countError);
+      return {
+        success: false,
+        error: "VALIDATION_ERROR",
+        message: `Insert may have succeeded but validation failed: ${countError.message}`,
+      };
+    }
+
+    console.log(`Actual rows in table after insert: ${actualRowCount}`);
+
+    if (actualRowCount !== expectedRowCount) {
+      console.error(
+        `Row count mismatch! Expected: ${expectedRowCount}, Actual: ${actualRowCount}`,
+      );
+      return {
+        success: false,
+        error: "VALIDATION_ERROR",
+        message: `Insert validation failed: Expected ${expectedRowCount} rows, but table has ${actualRowCount} rows`,
+      };
+    }
+
+    console.log(
+      `✅ Insert validation successful: ${Array.isArray(finalData) ? finalData.length : transactionsWithCorrectIds.length} records inserted, ${actualRowCount} total rows in table`,
+    );
+    const insertedCount = Array.isArray(finalData)
+      ? finalData.length
+      : transactionsWithCorrectIds.length;
+    const successResult = {
       success: true,
       message: clearData
-        ? `Upload successful! Table "${tableName}" cleared and ${transactionsWithCorrectIds.length} new records inserted`
-        : `Upload successful! ${transactionsWithCorrectIds.length} records inserted into "${tableName}" starting from ID ${currentMaxId + 1}`,
+        ? `Upload successful! Table "${tableName}" cleared and ${insertedCount} new records inserted (verified: ${actualRowCount} total rows)`
+        : `Upload successful! ${insertedCount} records inserted into "${tableName}" (verified: ${actualRowCount} total rows)`,
     };
+    console.log("Returning success result:", successResult);
+    return successResult;
   } catch (error) {
     console.error("Error in uploadToSupabase:", error);
     return {

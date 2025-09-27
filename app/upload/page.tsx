@@ -1,3 +1,95 @@
+/**
+ * UPLOAD PAGE - Bank Statement File Upload Component
+ *
+ * This page provides a comprehensive file upload interface for bank statements
+ * with intelligent table management, error handling, and user-friendly workflows.
+ *
+ * =============================================================================
+ * FUNCTION DOCUMENTATION
+ * =============================================================================
+ *
+ * MAIN COMPONENT:
+ * ---------------
+ * • UploadPage() - Main React component for bank statement file upload functionality
+ *
+ * STATE MANAGEMENT:
+ * ----------------
+ * • useEffect(() => {...}) - Debug effect to monitor and log dialog state changes
+ *
+ * EVENT HANDLERS:
+ * --------------
+ * • handleFileChange(e: React.ChangeEvent<HTMLInputElement>)
+ *   - Validates and sets the selected file, ensures file type is Excel or CSV
+ *
+ * • handleUpload()
+ *   - Main upload function that processes file upload, handles table creation
+ *     errors, and manages upload workflow
+ *
+ * • handleCopyInstructions()
+ *   - Copies SQL table creation instructions to clipboard and shows success toast
+ *
+ * • handleCreateTable()
+ *   - Automatically creates database table and retries upload after successful
+ *     table creation
+ *
+ * • handleCloseDialog()
+ *   - Closes table creation dialog and resets all pending state variables
+ *
+ * • handleClearDataChange(checked: boolean)
+ *   - Manages clear data checkbox state and shows warning dialog when enabled
+ *
+ * • confirmClearData()
+ *   - Confirms the clear data action and closes warning dialog
+ *
+ * • cancelClearData()
+ *   - Cancels the clear data action and resets checkbox state
+ *
+ * UTILITY FUNCTIONS:
+ * -----------------
+ * • getTableName(bank: string | null, file: File | null): string | null
+ *   - Determines target database table name based on selected bank and filename
+ *     patterns. Handles different bank-specific naming conventions:
+ *     * DEV: test_transactions
+ *     * Inter-BR/Inter-BR-Account: IN_YYYY (extracts year from filename)
+ *     * Handelsbanken-SE: handelsbanken_transactions
+ *     * AmericanExpress-SE: amex_YYYY
+ *     * SEB_SJ_Prio-SE: seb_sj_prio_YYYY
+ *
+ * KEY FEATURES:
+ * ------------
+ * FILE UPLOAD PROCESS:
+ * • File validation - Checks file type (Excel/CSV)
+ * • Bank selection - Ensures bank is selected
+ * • Upload execution - Processes file with selected bank and clear data options
+ * • Error handling - Manages table creation errors gracefully
+ *
+ * TABLE MANAGEMENT:
+ * • Table name generation - Smart table naming based on bank and filename
+ * • Table creation - Automatic table creation with SQL instructions
+ * • Clear data functionality - Safe data clearing with confirmation dialogs
+ *
+ * USER EXPERIENCE:
+ * • Toast notifications - Success/error feedback
+ * • Loading states - Upload and table creation progress indicators
+ * • Dialog management - Multiple dialog states for different workflows
+ * • Debug information - Development-only state monitoring
+ *
+ * ERROR RECOVERY:
+ * • Graceful error handling - Structured error responses
+ * • Automatic retry - Upload retry after successful table creation
+ * • User guidance - SQL instructions for manual table creation
+ *
+ * SUPPORTED BANKS:
+ * • DEV - Development/testing environment
+ * • Inter-BR - Inter Brazil bank accounts
+ * • Inter-BR-Account - Inter Brazil account statements
+ * • Handelsbanken-SE - Handelsbanken Sweden
+ * • AmericanExpress-SE - American Express Sweden
+ * • SEB_SJ_Prio-SE - SEB SJ Prio card Sweden
+ *
+ * =============================================================================
+ */
+
 "use client";
 
 import { useState, useEffect } from "react";

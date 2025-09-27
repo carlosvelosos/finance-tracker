@@ -328,7 +328,7 @@ export function useAggregatedTransactions({
 
   useEffect(() => {
     fetchAggregatedTransactions();
-  }, [fetchAggregatedTransactions]);
+  }, [user, enabled, selectedTables]); // Remove function dependency to prevent re-runs
 
   const refetch = useCallback(async () => {
     await fetchAggregatedTransactions();

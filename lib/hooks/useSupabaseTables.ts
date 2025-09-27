@@ -297,7 +297,7 @@ export function useSupabaseTables() {
 
   useEffect(() => {
     fetchAvailableTables();
-  }, [fetchAvailableTables]);
+  }, [user, knownTables]); // Remove function dependency to prevent re-runs
 
   const toggleTableSelection = useCallback((tableName: string) => {
     setSelectedTables((prev) =>

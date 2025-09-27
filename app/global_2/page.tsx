@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSupabaseTables } from "../../lib/hooks/useSupabaseTables";
 import { useAggregatedTransactions } from "../../lib/hooks/useAggregatedTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";
@@ -17,6 +17,7 @@ import { ChevronUp, ChevronDown, Settings } from "lucide-react";
 
 export default function AggregatedTransactionsPage() {
   const [showTableSelection, setShowTableSelection] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Table discovery and selection
   const {
@@ -53,52 +54,65 @@ export default function AggregatedTransactionsPage() {
     user,
   });
 
-  // Return early if not ready
-  const earlyReturn = renderContent();
-  if (earlyReturn) return earlyReturn;
+  // Create table sections for BankTablePageBody (memoized to prevent re-renders)
+  const tableSections = useMemo(() => {
+    if (selectedTables.length === 0 || transactions.length === 0) {
+      return [];
+    }
 
-  // Create table sections for BankTablePageBody
-  const tableSections =
-    selectedTables.length > 0 && transactions.length > 0
-      ? [
-          {
-            id: "aggregated-table",
-            title: `Aggregated Transactions (${transactions.filter((t) => t.Description !== "PAGTO DEBITO AUTOMATICO").length} transactions)`,
-            transactions: transactions.filter(
-              (t) => t.Description !== "PAGTO DEBITO AUTOMATICO",
-            ),
-            bankFilter: undefined, // No bank filter for aggregated view
-            initialSortColumn: "Date",
-            initialSortDirection: "desc" as const,
-            hiddenColumns: [], // Show all columns for comprehensive view
-            showMonthFilter: true,
-            showCategoryFilter: true,
-            showDescriptionFilter: true,
-            showTotalAmount: true,
-          },
-          {
-            id: "automatic-debit-table",
-            title: `Automatic Debit Transactions (${transactions.filter((t) => t.Description === "PAGTO DEBITO AUTOMATICO").length} transactions)`,
-            transactions: transactions.filter(
-              (t) => t.Description === "PAGTO DEBITO AUTOMATICO",
-            ),
-            bankFilter: undefined,
-            initialSortColumn: "Date",
-            initialSortDirection: "desc" as const,
-            hiddenColumns: ["Description"], // Hide description since they're all the same
-            showMonthFilter: true,
-            showCategoryFilter: true,
-            showDescriptionFilter: false, // No need for description filter since all are the same
-            showTotalAmount: true,
-          },
-        ]
-      : [];
+    const nonAutomaticDebitTransactions = transactions.filter(
+      (t) => t.Description !== "PAGTO DEBITO AUTOMATICO",
+    );
+    const automaticDebitTransactions = transactions.filter(
+      (t) => t.Description === "PAGTO DEBITO AUTOMATICO",
+    );
 
-  // Handle refresh of all data
-  const handleRefreshAll = async () => {
+    return [
+      {
+        id: "aggregated-table",
+        title: `Aggregated Transactions (${nonAutomaticDebitTransactions.length} transactions)`,
+        transactions: nonAutomaticDebitTransactions,
+        bankFilter: undefined, // No bank filter for aggregated view
+        initialSortColumn: "Date",
+        initialSortDirection: "desc" as const,
+        hiddenColumns: [], // Show all columns for comprehensive view
+        showMonthFilter: true,
+        showCategoryFilter: true,
+        showDescriptionFilter: true,
+        showTotalAmount: true,
+      },
+      {
+        id: "automatic-debit-table",
+        title: `Automatic Debit Transactions (${automaticDebitTransactions.length} transactions)`,
+        transactions: automaticDebitTransactions,
+        bankFilter: undefined,
+        initialSortColumn: "Date",
+        initialSortDirection: "desc" as const,
+        hiddenColumns: ["Description"], // Hide description since they're all the same
+        showMonthFilter: true,
+        showCategoryFilter: true,
+        showDescriptionFilter: false, // No need for description filter since all are the same
+        showTotalAmount: true,
+      },
+    ];
+  }, [selectedTables, transactions]);
+
+  // Handle refresh of all data (memoized to prevent re-renders)
+  const handleRefreshAll = useCallback(async () => {
     await refetchTables();
     await refetchTransactions();
-  };
+  }, [refetchTables, refetchTransactions]);
+
+  // Initialize only once to prevent constant reloading
+  useEffect(() => {
+    if (!hasInitialized && user) {
+      setHasInitialized(true);
+    }
+  }, [hasInitialized, user]);
+
+  // Return early if not ready (AFTER all hooks have been declared)
+  const earlyReturn = renderContent();
+  if (earlyReturn) return earlyReturn;
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
@@ -217,6 +231,122 @@ export default function AggregatedTransactionsPage() {
                 responsive={true}
                 className="mb-6"
               />
+            )}
+
+          {/* Table Net Values Summary - Show when data is available */}
+          {!transactionsLoading &&
+            !transactionsError &&
+            selectedTables.length > 0 &&
+            tableNetValues.length > 0 && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">
+                    Table Net Values Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[...tableNetValues]
+                      .sort((a, b) => a.tableName.localeCompare(b.tableName))
+                      .map((table) => {
+                        const isPositive = table.netValue >= 0;
+                        const formattedValue = new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                          minimumFractionDigits: 2,
+                        }).format(Math.abs(table.netValue));
+
+                        return (
+                          <div
+                            key={table.tableName}
+                            className="flex items-center justify-between py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg border"
+                          >
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                                {table.displayName || table.tableName}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {table.transactionCount.toLocaleString()}{" "}
+                                transactions (excl. automatic debits)
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div
+                                className={`text-lg font-semibold ${
+                                  isPositive
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400"
+                                }`}
+                              >
+                                {isPositive ? "+" : "-"}
+                                {formattedValue}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {table.tableName}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {/* Summary Totals */}
+                  <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div className="text-lg font-semibold text-green-700 dark:text-green-300">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          }).format(
+                            tableNetValues.reduce(
+                              (sum, t) => sum + Math.max(0, t.netValue),
+                              0,
+                            ),
+                          )}
+                        </div>
+                        <div className="text-sm text-green-600 dark:text-green-400">
+                          Total Positive
+                        </div>
+                      </div>
+                      <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        <div className="text-lg font-semibold text-red-700 dark:text-red-300">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          }).format(
+                            Math.abs(
+                              tableNetValues.reduce(
+                                (sum, t) => sum + Math.min(0, t.netValue),
+                                0,
+                              ),
+                            ),
+                          )}
+                        </div>
+                        <div className="text-sm text-red-600 dark:text-red-400">
+                          Total Negative
+                        </div>
+                      </div>
+                      <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          }).format(
+                            tableNetValues.reduce(
+                              (sum, t) => sum + t.netValue,
+                              0,
+                            ),
+                          )}
+                        </div>
+                        <div className="text-sm text-blue-600 dark:text-blue-400">
+                          Net Total
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
           {/* Transaction Table */}

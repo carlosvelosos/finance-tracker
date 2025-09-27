@@ -97,7 +97,8 @@ export function useAggregatedTransactions({
       // Fetch data from all selected tables in parallel
       const tableDataPromises = selectedTables.map(async (tableName) => {
         try {
-          const { data, error } = await supabase
+          // First, try with source_table column (for aggregated tables)
+          let result: any = await supabase
             .from(tableName)
             .select(
               `
@@ -118,13 +119,42 @@ export function useAggregatedTransactions({
             .eq("user_id", user.id)
             .order('"Date"', { ascending: false });
 
+          // If source_table column doesn't exist, try without it
+          if (result.error && result.error.code === "42703") {
+            console.log(
+              `Table ${tableName} doesn't have source_table column, trying without it`,
+            );
+
+            result = await supabase
+              .from(tableName)
+              .select(
+                `
+                id,
+                created_at,
+                "Date",
+                "Description", 
+                "Amount",
+                "Balance",
+                "Category",
+                "Responsible",
+                "Bank",
+                "Comment",
+                user_id
+              `,
+              )
+              .eq("user_id", user.id)
+              .order('"Date"', { ascending: false });
+          }
+
+          const { data, error } = result;
+
           if (error) {
             console.error(`Error fetching from ${tableName}:`, error);
             return { tableName, data: [], error };
           }
 
           // Add unique identifiers and source table info to prevent key conflicts
-          const dataWithUniqueIds = (data || []).map((transaction) => ({
+          const dataWithUniqueIds = (data || []).map((transaction: any) => ({
             ...transaction,
             id: `${tableName}_${transaction.id}`, // Prefix with table name to make unique
             originalId: transaction.id, // Keep original ID for reference

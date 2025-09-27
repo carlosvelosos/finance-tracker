@@ -191,7 +191,7 @@ export default function TableNetValueChart({
               content={
                 <ChartTooltipContent
                   labelFormatter={(label) => `Table: ${label}`}
-                  formatter={(value, name, props) => [
+                  formatter={(value) => [
                     formatCurrency(value as number),
                     "Net Value",
                   ]}

@@ -266,7 +266,7 @@ export function useAggregatedTransactions({
         .filter((result) => result.data && result.data.length > 0)
         .map((result) => {
           const tableTransactions = sortedTransactions.filter(
-            (t) => (t as any).sourceTable === result.tableName,
+            (t) => (t as Transaction).sourceTable === result.tableName,
           );
 
           // Filter out automatic debit transactions for net value calculation
@@ -328,7 +328,7 @@ export function useAggregatedTransactions({
 
   useEffect(() => {
     fetchAggregatedTransactions();
-  }, [user, enabled, selectedTables]); // Remove function dependency to prevent re-runs
+  }, [user, enabled, selectedTables, fetchAggregatedTransactions]);
 
   const refetch = useCallback(async () => {
     await fetchAggregatedTransactions();

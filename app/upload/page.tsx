@@ -214,6 +214,7 @@ export default function UploadPage() {
     setUploadProgress((prev) => ({
       ...prev,
       currentFile: 0,
+      totalFiles: files.length,
       status: "Starting upload process...",
       results: files.map((file) => ({
         fileName: file.name,
@@ -331,10 +332,9 @@ export default function UploadPage() {
                 );
 
                 if (retryResult.success) {
-                  // Update progress - success after auto-creation
+                  // Update progress - success after auto-creation (don't increment currentFile, we're still on the same file)
                   setUploadProgress((prev) => ({
                     ...prev,
-                    currentFile: prev.currentFile + 1,
                     status: `File ${i + 1}/${files.length} uploaded (table auto-created)`,
                     results: prev.results.map((res, idx) =>
                       idx === i
@@ -424,40 +424,50 @@ export default function UploadPage() {
         }
       }
 
-      // Final summary
-      console.log("Final upload progress results:", uploadProgress.results);
-      const successCount = uploadProgress.results.filter(
-        (r) => r.status === "success",
-      ).length;
-      const errorCount = uploadProgress.results.filter(
-        (r) => r.status === "error",
-      ).length;
-      console.log(
-        `Success count: ${successCount}, Error count: ${errorCount}, Total files: ${files.length}`,
-      );
+      // Final summary - use setTimeout to ensure all state updates are complete
+      setTimeout(() => {
+        setUploadProgress((currentProgress) => {
+          console.log(
+            "Final upload progress results:",
+            currentProgress.results,
+          );
+          const successCount = currentProgress.results.filter(
+            (r) => r.status === "success",
+          ).length;
+          const errorCount = currentProgress.results.filter(
+            (r) => r.status === "error",
+          ).length;
+          console.log(
+            `Success count: ${successCount}, Error count: ${errorCount}, Total files: ${files.length}`,
+          );
 
-      if (successCount === files.length) {
-        setUploadSummary({
-          show: true,
-          success: true,
-          message: "All Files Uploaded Successfully!",
-          details: `${successCount} files processed successfully.`,
+          // Set the final summary based on current results
+          if (successCount === files.length) {
+            setUploadSummary({
+              show: true,
+              success: true,
+              message: "All Files Uploaded Successfully!",
+              details: `${successCount} files processed successfully.`,
+            });
+          } else if (successCount > 0) {
+            setUploadSummary({
+              show: true,
+              success: true,
+              message: "Upload Complete with Mixed Results",
+              details: `${successCount} successful, ${errorCount} failed.`,
+            });
+          } else {
+            setUploadSummary({
+              show: true,
+              success: false,
+              message: "All Uploads Failed",
+              details: "Please check the errors and try again.",
+            });
+          }
+
+          return currentProgress; // Return unchanged state
         });
-      } else if (successCount > 0) {
-        setUploadSummary({
-          show: true,
-          success: true,
-          message: "Upload Complete with Mixed Results",
-          details: `${successCount} successful, ${errorCount} failed.`,
-        });
-      } else {
-        setUploadSummary({
-          show: true,
-          success: false,
-          message: "All Uploads Failed",
-          details: "Please check the errors and try again.",
-        });
-      }
+      }, 100); // Small delay to ensure all state updates are complete
     } catch (error) {
       // This should rarely happen now since we're returning structured results
       console.error("Unexpected error in handleUpload:", error);
@@ -508,34 +518,49 @@ export default function UploadPage() {
       case "DEV":
         return "test_transactions";
       case "Inter-BR-Mastercard":
-        // Extract year from filename for Inter-BR-Mastercard tables (format: INMC_YYYY)
-        const yearMatch = fileName.match(/(\d{4})/);
-        return yearMatch ? `INMC_${yearMatch[1]}` : "INMC_2025";
+        // Extract year and month from filename for Inter-BR-Mastercard tables (format: INMC_YYYYMM)
+        // Expected filename pattern: fatura-inter-YYYY-MM.csv
+        const interMatch = fileName.match(/fatura-inter-(\d{4})-(\d{2})\.csv/i);
+        if (interMatch) {
+          const year = interMatch[1];
+          const month = interMatch[2];
+          return `INMC_${year}${month}`;
+        }
+        // Fallback to current year/month if pattern doesn't match
+        const currentDate = new Date();
+        const fallbackYear = currentDate.getFullYear();
+        const fallbackMonth = String(currentDate.getMonth() + 1).padStart(
+          2,
+          "0",
+        );
+        return `INMC_${fallbackYear}${fallbackMonth}`;
       case "Inter-BR-Account":
         // Extract year from filename for Inter-BR-Account tables (format: IN_YYYY)
         const accountYearMatch = fileName.match(/(\d{4})/);
         return accountYearMatch ? `IN_${accountYearMatch[1]}` : "IN_2025";
       case "Handelsbanken-SE":
-        return "handelsbanken_transactions";
+        // Extract year from filename for Handelsbanken tables (format: HB_YYYY)
+        const hbYearMatch = fileName.match(/(\d{4})/);
+        return hbYearMatch
+          ? `HB_${hbYearMatch[1]}`
+          : `HB_${new Date().getFullYear()}`;
       case "AmericanExpress-SE":
-        // Extract year from filename for Amex tables
-        const amexYearMatch = fileName.match(/(\d{4})/);
-        return amexYearMatch ? `amex_${amexYearMatch[1]}` : "amex_2025";
+        // Extract table name from filename (e.g., "AM_202503.csv" -> "AM_202503")
+        return fileName.replace(/\.(csv|xlsx|xls)$/i, "");
       case "SEB_SJ_Prio-SE":
-        // Extract year from filename for SEB tables
-        const sebYearMatch = fileName.match(/(\d{4})/);
-        return sebYearMatch
-          ? `seb_sj_prio_${sebYearMatch[1]}`
-          : "seb_sj_prio_2025";
+        // Extract table name from filename (e.g., "SEB_202503.xls" -> "SEB_202503")
+        return fileName.replace(/\.(csv|xlsx|xls)$/i, "");
       default:
         return null;
     }
   };
 
-  // Get the current table names that would be affected
-  const targetTableNames = files
-    .map((file) => getTableName(selectedBank, file))
-    .filter(Boolean);
+  // Get the current table names that would be affected (deduplicated)
+  const targetTableNames = Array.from(
+    new Set(
+      files.map((file) => getTableName(selectedBank, file)).filter(Boolean),
+    ),
+  );
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>

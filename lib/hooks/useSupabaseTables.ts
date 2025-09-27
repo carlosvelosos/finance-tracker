@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../supabaseClient";
 
@@ -26,116 +26,117 @@ export function useSupabaseTables() {
   const [error, setError] = useState<Error | null>(null);
 
   // Predefined tables with descriptions (add more as needed)
-  const knownTables: Record<
-    string,
-    { displayName: string; description: string }
-  > = {
-    Sweden_transactions_agregated_2025: {
-      displayName: "Sweden 2025",
-      description:
-        "Swedish bank transactions aggregated for 2025 (Handelsbanken, American Express, SEB SJ Prio)",
-    },
-    Brasil_transactions_agregated_2025: {
-      displayName: "Brasil 2025",
-      description:
-        "Brazilian bank transactions aggregated for 2025 (Inter Black)",
-    },
-    Brasil_transactions_agregated_2024: {
-      displayName: "Brasil 2024",
-      description:
-        "Brazilian bank transactions aggregated for 2024 (Inter Black)",
-    },
-    IN_ALL: {
-      displayName: "Inter All",
-      description: "All Inter bank transaction data consolidated",
-    },
-    // INMC Monthly Tables - 2024
-    INMC_202401: {
-      displayName: "INMC Jan 2024",
-      description: "Inter MasterCard transactions for January 2024",
-    },
-    INMC_202402: {
-      displayName: "INMC Feb 2024",
-      description: "Inter MasterCard transactions for February 2024",
-    },
-    INMC_202403: {
-      displayName: "INMC Mar 2024",
-      description: "Inter MasterCard transactions for March 2024",
-    },
-    INMC_202404: {
-      displayName: "INMC Apr 2024",
-      description: "Inter MasterCard transactions for April 2024",
-    },
-    INMC_202405: {
-      displayName: "INMC May 2024",
-      description: "Inter MasterCard transactions for May 2024",
-    },
-    INMC_202406: {
-      displayName: "INMC Jun 2024",
-      description: "Inter MasterCard transactions for June 2024",
-    },
-    INMC_202407: {
-      displayName: "INMC Jul 2024",
-      description: "Inter MasterCard transactions for July 2024",
-    },
-    INMC_202408: {
-      displayName: "INMC Aug 2024",
-      description: "Inter MasterCard transactions for August 2024",
-    },
-    INMC_202409: {
-      displayName: "INMC Sep 2024",
-      description: "Inter MasterCard transactions for September 2024",
-    },
-    INMC_202410: {
-      displayName: "INMC Oct 2024",
-      description: "Inter MasterCard transactions for October 2024",
-    },
-    INMC_202411: {
-      displayName: "INMC Nov 2024",
-      description: "Inter MasterCard transactions for November 2024",
-    },
-    INMC_202412: {
-      displayName: "INMC Dec 2024",
-      description: "Inter MasterCard transactions for December 2024",
-    },
-    // INMC Monthly Tables - 2025
-    INMC_202501: {
-      displayName: "INMC Jan 2025",
-      description: "Inter MasterCard transactions for January 2025",
-    },
-    INMC_202502: {
-      displayName: "INMC Feb 2025",
-      description: "Inter MasterCard transactions for February 2025",
-    },
-    INMC_202503: {
-      displayName: "INMC Mar 2025",
-      description: "Inter MasterCard transactions for March 2025",
-    },
-    INMC_202504: {
-      displayName: "INMC Apr 2025",
-      description: "Inter MasterCard transactions for April 2025",
-    },
-    INMC_202505: {
-      displayName: "INMC May 2025",
-      description: "Inter MasterCard transactions for May 2025",
-    },
-    INMC_202506: {
-      displayName: "INMC Jun 2025",
-      description: "Inter MasterCard transactions for June 2025",
-    },
-    INMC_202507: {
-      displayName: "INMC Jul 2025",
-      description: "Inter MasterCard transactions for July 2025",
-    },
-    INMC_202508: {
-      displayName: "INMC Aug 2025",
-      description: "Inter MasterCard transactions for August 2025",
-    },
-    INMC_202509: {
-      displayName: "INMC Sep 2025",
-      description: "Inter MasterCard transactions for September 2025",
-    },
-  };
+  const knownTables = useMemo(
+    () =>
+      ({
+        Sweden_transactions_agregated_2025: {
+          displayName: "Sweden 2025",
+          description:
+            "Swedish bank transactions aggregated for 2025 (Handelsbanken, American Express, SEB SJ Prio)",
+        },
+        Brasil_transactions_agregated_2025: {
+          displayName: "Brasil 2025",
+          description:
+            "Brazilian bank transactions aggregated for 2025 (Inter Black)",
+        },
+        Brasil_transactions_agregated_2024: {
+          displayName: "Brasil 2024",
+          description:
+            "Brazilian bank transactions aggregated for 2024 (Inter Black)",
+        },
+        IN_ALL: {
+          displayName: "Inter All",
+          description: "All Inter bank transaction data consolidated",
+        },
+        // INMC Monthly Tables - 2024
+        INMC_202401: {
+          displayName: "INMC Jan 2024",
+          description: "Inter MasterCard transactions for January 2024",
+        },
+        INMC_202402: {
+          displayName: "INMC Feb 2024",
+          description: "Inter MasterCard transactions for February 2024",
+        },
+        INMC_202403: {
+          displayName: "INMC Mar 2024",
+          description: "Inter MasterCard transactions for March 2024",
+        },
+        INMC_202404: {
+          displayName: "INMC Apr 2024",
+          description: "Inter MasterCard transactions for April 2024",
+        },
+        INMC_202405: {
+          displayName: "INMC May 2024",
+          description: "Inter MasterCard transactions for May 2024",
+        },
+        INMC_202406: {
+          displayName: "INMC Jun 2024",
+          description: "Inter MasterCard transactions for June 2024",
+        },
+        INMC_202407: {
+          displayName: "INMC Jul 2024",
+          description: "Inter MasterCard transactions for July 2024",
+        },
+        INMC_202408: {
+          displayName: "INMC Aug 2024",
+          description: "Inter MasterCard transactions for August 2024",
+        },
+        INMC_202409: {
+          displayName: "INMC Sep 2024",
+          description: "Inter MasterCard transactions for September 2024",
+        },
+        INMC_202410: {
+          displayName: "INMC Oct 2024",
+          description: "Inter MasterCard transactions for October 2024",
+        },
+        INMC_202411: {
+          displayName: "INMC Nov 2024",
+          description: "Inter MasterCard transactions for November 2024",
+        },
+        INMC_202412: {
+          displayName: "INMC Dec 2024",
+          description: "Inter MasterCard transactions for December 2024",
+        },
+        // INMC Monthly Tables - 2025
+        INMC_202501: {
+          displayName: "INMC Jan 2025",
+          description: "Inter MasterCard transactions for January 2025",
+        },
+        INMC_202502: {
+          displayName: "INMC Feb 2025",
+          description: "Inter MasterCard transactions for February 2025",
+        },
+        INMC_202503: {
+          displayName: "INMC Mar 2025",
+          description: "Inter MasterCard transactions for March 2025",
+        },
+        INMC_202504: {
+          displayName: "INMC Apr 2025",
+          description: "Inter MasterCard transactions for April 2025",
+        },
+        INMC_202505: {
+          displayName: "INMC May 2025",
+          description: "Inter MasterCard transactions for May 2025",
+        },
+        INMC_202506: {
+          displayName: "INMC Jun 2025",
+          description: "Inter MasterCard transactions for June 2025",
+        },
+        INMC_202507: {
+          displayName: "INMC Jul 2025",
+          description: "Inter MasterCard transactions for July 2025",
+        },
+        INMC_202508: {
+          displayName: "INMC Aug 2025",
+          description: "Inter MasterCard transactions for August 2025",
+        },
+        INMC_202509: {
+          displayName: "INMC Sep 2025",
+          description: "Inter MasterCard transactions for September 2025",
+        },
+      }) as Record<string, { displayName: string; description: string }>,
+    [],
+  );
 
   const fetchAvailableTables = useCallback(async () => {
     if (!user) return;
@@ -172,18 +173,20 @@ export function useSupabaseTables() {
 
         if (!rpcError && rpcTables) {
           console.log("Successfully fetched tables via RPC:", rpcTables);
-          transactionTables = rpcTables.map((table: any) => ({
-            name: table.table_name,
-            displayName:
-              knownTables[table.table_name]?.displayName || table.table_name,
-            description:
-              knownTables[table.table_name]?.description ||
-              `Transaction data from ${table.table_name}`,
-            isSelected: false,
-            transactionCount: undefined,
-            newestDate: undefined,
-            uniqueBanks: undefined,
-          }));
+          transactionTables = rpcTables.map(
+            (table: { table_name: string }) => ({
+              name: table.table_name,
+              displayName:
+                knownTables[table.table_name]?.displayName || table.table_name,
+              description:
+                knownTables[table.table_name]?.description ||
+                `Transaction data from ${table.table_name}`,
+              isSelected: false,
+              transactionCount: undefined,
+              newestDate: undefined,
+              uniqueBanks: undefined,
+            }),
+          );
         } else {
           console.warn("RPC function not available:", rpcError?.message);
           throw new Error("RPC function not available");
@@ -290,7 +293,7 @@ export function useSupabaseTables() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, knownTables]);
 
   useEffect(() => {
     fetchAvailableTables();

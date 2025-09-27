@@ -242,8 +242,8 @@ export default function AggregatedTransactionsPage() {
                     No Transaction Data Found
                   </h3>
                   <p className="text-sm">
-                    The selected tables don't contain any transaction data, or
-                    the data may not be accessible with your current
+                    The selected tables don&apos;t contain any transaction data,
+                    or the data may not be accessible with your current
                     permissions.
                   </p>
                   <div className="mt-4 text-xs text-gray-400">

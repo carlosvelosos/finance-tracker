@@ -98,7 +98,10 @@ export function useAggregatedTransactions({
       const tableDataPromises = selectedTables.map(async (tableName) => {
         try {
           // First, try with source_table column (for aggregated tables)
-          let result: any = await supabase
+          let result: {
+            data: Record<string, unknown>[] | null;
+            error: { code?: string; message?: string } | null;
+          } = await supabase
             .from(tableName)
             .select(
               `
@@ -154,12 +157,14 @@ export function useAggregatedTransactions({
           }
 
           // Add unique identifiers and source table info to prevent key conflicts
-          const dataWithUniqueIds = (data || []).map((transaction: any) => ({
-            ...transaction,
-            id: `${tableName}_${transaction.id}`, // Prefix with table name to make unique
-            originalId: transaction.id, // Keep original ID for reference
-            sourceTable: tableName, // Table source identifier
-          }));
+          const dataWithUniqueIds = (data || []).map(
+            (transaction: Record<string, unknown>) => ({
+              ...transaction,
+              id: `${tableName}_${transaction.id}`, // Prefix with table name to make unique
+              originalId: transaction.id, // Keep original ID for reference
+              sourceTable: tableName, // Table source identifier
+            }),
+          );
 
           return { tableName, data: dataWithUniqueIds, error: null };
         } catch (err) {

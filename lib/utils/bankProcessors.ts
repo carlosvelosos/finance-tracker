@@ -39,7 +39,7 @@ export function processDEV(data: string[][]) {
   return { tableName, transactions };
 }
 
-export function processInterBR(data: string[][], fileName: string) {
+export function processInterBRMastercard(data: string[][], fileName: string) {
   const transactions = data.slice(1).map((row, index) => {
     // Extract and clean the amount (Valor column)
     const rawAmount = row[4];
@@ -87,8 +87,8 @@ export function processInterBR(data: string[][], fileName: string) {
   const year = match[1]; // Extracted year (e.g., "2025")
   const month = match[2]; // Extracted month (e.g., "01")
 
-  // Construct the table name in the format IN_YYYYMM
-  const tableName = `IN_${year}${month}`;
+  // Construct the table name in the format INMC_YYYYMM
+  const tableName = `INMC_${year}${month}`;
 
   return { tableName, transactions };
 }

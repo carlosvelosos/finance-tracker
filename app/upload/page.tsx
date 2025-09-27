@@ -50,7 +50,8 @@
  *   - Determines target database table name based on selected bank and filename
  *     patterns. Handles different bank-specific naming conventions:
  *     * DEV: test_transactions
- *     * Inter-BR/Inter-BR-Account: IN_YYYY (extracts year from filename)
+ *     * Inter-BR-Mastercard: INMC_YYYY (extracts year from filename)
+ *     * Inter-BR-Account: IN_YYYY (extracts year from filename)
  *     * Handelsbanken-SE: handelsbanken_transactions
  *     * AmericanExpress-SE: amex_YYYY
  *     * SEB_SJ_Prio-SE: seb_sj_prio_YYYY
@@ -81,7 +82,7 @@
  *
  * SUPPORTED BANKS:
  * • DEV - Development/testing environment
- * • Inter-BR - Inter Brazil bank accounts
+ * • Inter-BR-Mastercard - Inter Brazil Mastercard accounts
  * • Inter-BR-Account - Inter Brazil account statements
  * • Handelsbanken-SE - Handelsbanken Sweden
  * • AmericanExpress-SE - American Express Sweden
@@ -121,7 +122,7 @@ import ProtectedRoute from "@/components/protected-route";
 
 const BANK_OPTIONS = [
   "DEV",
-  "Inter-BR",
+  "Inter-BR-Mastercard",
   "Inter-BR-Account",
   "Handelsbanken-SE",
   "AmericanExpress-SE",
@@ -248,8 +249,10 @@ export default function UploadPage() {
           description: result.message,
         });
 
-        // Close the dialog
-        setShowCreateTableDialog(false); // Retry the upload automatically
+        // Close the dialog only on success
+        setShowCreateTableDialog(false);
+
+        // Retry the upload automatically after successful table creation
         if (pendingFile && pendingBank) {
           console.log("Retrying upload after table creation...");
           try {
@@ -275,9 +278,24 @@ export default function UploadPage() {
           }
         }
       } else {
-        toast.error("Table Creation Failed", {
+        // Table creation failed - show error but keep dialog open
+        console.log("Table creation failed:", result.message);
+        toast.error("Automatic Table Creation Failed", {
           description: result.message,
+          duration: 5000,
         });
+
+        // Add additional guidance
+        if (result.requiresManualCreation) {
+          toast.info("Manual Creation Required", {
+            description:
+              "Please copy the SQL commands below and run them in your Supabase SQL editor.",
+            duration: 8000,
+          });
+        }
+
+        // Keep dialog open so user can copy SQL instructions
+        // Don't close setShowCreateTableDialog(false);
       }
     } catch (error) {
       console.error("Error creating table:", error);
@@ -328,10 +346,10 @@ export default function UploadPage() {
     switch (bank) {
       case "DEV":
         return "test_transactions";
-      case "Inter-BR":
-        // Extract year from filename for Inter-BR tables (format: IN_YYYY)
+      case "Inter-BR-Mastercard":
+        // Extract year from filename for Inter-BR-Mastercard tables (format: INMC_YYYY)
         const yearMatch = fileName.match(/(\d{4})/);
-        return yearMatch ? `IN_${yearMatch[1]}` : "IN_2025";
+        return yearMatch ? `INMC_${yearMatch[1]}` : "INMC_2025";
       case "Inter-BR-Account":
         // Extract year from filename for Inter-BR-Account tables (format: IN_YYYY)
         const accountYearMatch = fileName.match(/(\d{4})/);
@@ -485,13 +503,20 @@ export default function UploadPage() {
           {" "}
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
             <DialogHeader>
-              <DialogTitle>Table Not Found</DialogTitle>
+              <DialogTitle>Table Creation Required</DialogTitle>
               <DialogDescription>
-                {" "}
                 The table &ldquo;{pendingTableName}&rdquo; does not exist in the
-                database. You can either create it automatically or manually
-                using the SQL commands below:
+                database and needs to be created before uploading your file.
               </DialogDescription>
+              <div className="space-y-2 mt-3">
+                <div className="text-sm bg-yellow-50 border border-yellow-200 rounded p-2">
+                  <strong>Note:</strong> Automatic table creation requires
+                  special database permissions that are not available in most
+                  Supabase configurations. If the automatic creation fails,
+                  please copy the SQL commands below and run them in your
+                  Supabase SQL editor.
+                </div>
+              </div>
             </DialogHeader>
             <div className="mt-4 flex-1 overflow-hidden">
               <div className="bg-gray-800 text-green-400 p-4 rounded-md font-mono text-xs overflow-auto max-h-[60vh] whitespace-pre-wrap break-words">

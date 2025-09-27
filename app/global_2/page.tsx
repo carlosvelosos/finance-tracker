@@ -219,31 +219,31 @@ export default function AggregatedTransactionsPage() {
         </div>
 
         {/* Right Sidebar - Table Selection & Configuration */}
-        <div className="fixed right-0 top-0 h-full w-80 bg-gray-50 border-l border-gray-200 p-4 overflow-y-auto">
+        <div className="fixed right-0 top-0 h-full w-80 bg-gray-50 border-l border-gray-200 p-3 overflow-y-auto text-sm">
           <Card className="h-full">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2 px-3 pt-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <Settings size={20} />
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Settings size={16} />
                   Table Selection
                 </CardTitle>
                 <Button
                   onClick={() => setShowTableSelection(!showTableSelection)}
                   variant="ghost"
                   size="sm"
-                  className="p-2"
+                  className="p-1 h-6 w-6"
                 >
                   {showTableSelection ? (
-                    <ChevronUp size={20} />
+                    <ChevronUp size={14} />
                   ) : (
-                    <ChevronDown size={20} />
+                    <ChevronDown size={14} />
                   )}
                 </Button>
               </div>
             </CardHeader>
 
             {showTableSelection && (
-              <CardContent className="flex-1 overflow-y-auto">
+              <CardContent className="flex-1 overflow-y-auto px-3 pb-3 text-xs">
                 <TableSelectionPanel
                   tables={tables}
                   selectedTables={selectedTables}

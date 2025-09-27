@@ -106,127 +106,127 @@ export default function TableSelectionPanel({
   }
 
   return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Database size={20} />
-            Select Tables to Aggregate
-          </CardTitle>
-          <div className="flex gap-2">
-            <Button
-              onClick={onSelectAll}
-              variant="outline"
-              size="sm"
-              disabled={tables.length === selectedTables.length}
-            >
-              Select All
-            </Button>
-            <Button
-              onClick={onDeselectAll}
-              variant="outline"
-              size="sm"
-              disabled={selectedTables.length === 0}
-            >
-              Clear All
-            </Button>
-            <Button onClick={onRefresh} variant="outline" size="sm">
-              Refresh
-            </Button>
-          </div>
+    <div className={className}>
+      {/* Control Buttons */}
+      <div className="flex flex-wrap gap-1 mb-3">
+        <Button
+          onClick={onSelectAll}
+          variant="outline"
+          size="sm"
+          disabled={tables.length === selectedTables.length}
+          className="flex-1 text-xs px-2 py-1 h-7"
+        >
+          Select All
+        </Button>
+        <Button
+          onClick={onDeselectAll}
+          variant="outline"
+          size="sm"
+          disabled={selectedTables.length === 0}
+          className="flex-1 text-xs px-2 py-1 h-7"
+        >
+          Clear
+        </Button>
+        <Button
+          onClick={onRefresh}
+          variant="outline"
+          size="sm"
+          className="flex-1 text-xs px-2 py-1 h-7"
+        >
+          Refresh
+        </Button>
+      </div>
+
+      {/* Selection Status */}
+      {selectedTables.length > 0 && (
+        <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+          <p className="text-xs text-blue-800">
+            <span className="font-medium">{selectedTables.length}</span> table
+            {selectedTables.length === 1 ? "" : "s"} selected for aggregation
+          </p>
         </div>
+      )}
 
-        {selectedTables.length > 0 && (
-          <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-200">
-            <p className="text-sm text-blue-800">
-              <span className="font-medium">{selectedTables.length}</span> table
-              {selectedTables.length === 1 ? "" : "s"} selected for aggregation
-            </p>
-          </div>
-        )}
-      </CardHeader>
-
-      <CardContent className="space-y-3">
+      {/* Tables List */}
+      <div className="space-y-2">
         {tables.map((table) => (
           <div
             key={table.name}
-            className={`p-4 rounded-lg border transition-colors cursor-pointer hover:bg-gray-50 ${
+            className={`p-2 rounded border transition-colors cursor-pointer hover:bg-gray-50 ${
               table.isSelected
                 ? "bg-blue-50 border-blue-200 shadow-sm"
                 : "bg-white border-gray-200"
             }`}
             onClick={() => onToggleTable(table.name)}
           >
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-2">
               <Checkbox
                 checked={table.isSelected}
                 onChange={() => onToggleTable(table.name)}
-                className="mt-1"
+                className="mt-0.5 scale-75"
               />
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 truncate">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-medium text-gray-900 truncate text-xs">
                     {table.displayName}
                   </h4>
                   {table.isSelected && (
                     <Badge
                       variant="secondary"
-                      className="ml-2 bg-blue-100 text-blue-800"
+                      className="ml-1 bg-blue-100 text-blue-800 text-xs px-1 py-0 h-4"
                     >
-                      Selected
+                      ✓
                     </Badge>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-xs text-gray-600 mb-2 leading-tight">
                   {table.description}
                 </p>
 
-                {/* Table Statistics */}
-                <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                {/* Table Statistics - More Compact */}
+                <div className="space-y-1">
                   {typeof table.transactionCount === "number" && (
-                    <div className="flex items-center gap-1">
-                      <Database size={12} />
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Database size={10} />
                       <span>
-                        {table.transactionCount.toLocaleString()} transactions
+                        {table.transactionCount.toLocaleString()} txns
                       </span>
                     </div>
                   )}
 
                   {table.newestDate && (
-                    <div className="flex items-center gap-1">
-                      <Calendar size={12} />
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Calendar size={10} />
                       <span>
-                        Latest:{" "}
                         {new Date(table.newestDate).toLocaleDateString()}
                       </span>
                     </div>
                   )}
 
                   {table.uniqueBanks && table.uniqueBanks.length > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Building2 size={12} />
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Building2 size={10} />
                       <span>
                         {table.uniqueBanks.length} bank
-                        {table.uniqueBanks.length === 1 ? "" : "s"}:{" "}
-                        {table.uniqueBanks.join(", ")}
+                        {table.uniqueBanks.length === 1 ? "" : "s"}
                       </span>
                     </div>
                   )}
                 </div>
 
-                {/* Technical Details */}
-                <div className="mt-2 pt-2 border-t border-gray-100">
-                  <p className="text-xs text-gray-400 font-mono">
-                    Table: {table.name}
+                {/* Technical Details - More Compact */}
+                <div className="mt-1 pt-1 border-t border-gray-100">
+                  <p className="text-xs text-gray-400 font-mono truncate">
+                    {table.name}
                   </p>
                 </div>
               </div>
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

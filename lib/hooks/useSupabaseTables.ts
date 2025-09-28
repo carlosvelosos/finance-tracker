@@ -134,6 +134,113 @@ export function useSupabaseTables() {
           displayName: "INMC Sep 2025",
           description: "Inter MasterCard transactions for September 2025",
         },
+        // INMCPDF Monthly Tables - 2024 (PDF-converted statements)
+        INMCPDF_202401: {
+          displayName: "INMCPDF Jan 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for January 2024",
+        },
+        INMCPDF_202402: {
+          displayName: "INMCPDF Feb 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for February 2024",
+        },
+        INMCPDF_202403: {
+          displayName: "INMCPDF Mar 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for March 2024",
+        },
+        INMCPDF_202404: {
+          displayName: "INMCPDF Apr 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for April 2024",
+        },
+        INMCPDF_202405: {
+          displayName: "INMCPDF May 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for May 2024",
+        },
+        INMCPDF_202406: {
+          displayName: "INMCPDF Jun 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for June 2024",
+        },
+        INMCPDF_202407: {
+          displayName: "INMCPDF Jul 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for July 2024",
+        },
+        INMCPDF_202408: {
+          displayName: "INMCPDF Aug 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for August 2024",
+        },
+        INMCPDF_202409: {
+          displayName: "INMCPDF Sep 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for September 2024",
+        },
+        INMCPDF_202410: {
+          displayName: "INMCPDF Oct 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for October 2024",
+        },
+        INMCPDF_202411: {
+          displayName: "INMCPDF Nov 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for November 2024",
+        },
+        INMCPDF_202412: {
+          displayName: "INMCPDF Dec 2024",
+          description:
+            "Inter MasterCard PDF-converted transactions for December 2024",
+        },
+        // INMCPDF Monthly Tables - 2025 (PDF-converted statements)
+        INMCPDF_202501: {
+          displayName: "INMCPDF Jan 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for January 2025",
+        },
+        INMCPDF_202502: {
+          displayName: "INMCPDF Feb 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for February 2025",
+        },
+        INMCPDF_202503: {
+          displayName: "INMCPDF Mar 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for March 2025",
+        },
+        INMCPDF_202504: {
+          displayName: "INMCPDF Apr 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for April 2025",
+        },
+        INMCPDF_202505: {
+          displayName: "INMCPDF May 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for May 2025",
+        },
+        INMCPDF_202506: {
+          displayName: "INMCPDF Jun 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for June 2025",
+        },
+        INMCPDF_202507: {
+          displayName: "INMCPDF Jul 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for July 2025",
+        },
+        INMCPDF_202508: {
+          displayName: "INMCPDF Aug 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for August 2025",
+        },
+        INMCPDF_202509: {
+          displayName: "INMCPDF Sep 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for September 2025",
+        },
       }) as Record<string, { displayName: string; description: string }>,
     [],
   );

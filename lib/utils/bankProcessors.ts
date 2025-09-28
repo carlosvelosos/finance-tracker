@@ -93,6 +93,145 @@ export function processInterBRMastercard(data: string[][], fileName: string) {
   return { tableName, transactions };
 }
 
+export function processInterBRMastercardPDF(
+  data: string[][],
+  fileName: string,
+) {
+  // Helper function to parse Portuguese dates
+  const parsePortugueseDate = (dateStr: string): string | null => {
+    if (!dateStr || dateStr.trim() === "") return null;
+
+    // Mapping Portuguese months to numbers
+    const monthMap: { [key: string]: string } = {
+      jan: "01",
+      janeiro: "01",
+      fev: "02",
+      fevereiro: "02",
+      mar: "03",
+      março: "03",
+      abr: "04",
+      abril: "04",
+      mai: "05",
+      maio: "05",
+      jun: "06",
+      junho: "06",
+      jul: "07",
+      julho: "07",
+      ago: "08",
+      agosto: "08",
+      set: "09",
+      setembro: "09",
+      out: "10",
+      outubro: "10",
+      nov: "11",
+      novembro: "11",
+      dez: "12",
+      dezembro: "12",
+    };
+
+    // Parse format like "11 de dez. 2024"
+    const match = dateStr.match(/(\d{1,2})\s+de\s+(\w+)\.?\s+(\d{4})/);
+    if (match) {
+      const day = match[1].padStart(2, "0");
+      const monthStr = match[2].toLowerCase();
+      const year = match[3];
+      const month = monthMap[monthStr];
+
+      if (month) {
+        return `${year}-${month}-${day}`;
+      }
+    }
+
+    return null;
+  };
+
+  const transactions: Array<{
+    id: number;
+    Date: string | null;
+    Description: string;
+    Comment: string;
+    Amount: number;
+    Balance: number | null;
+  }> = [];
+
+  let transactionId = 1;
+
+  // Process each row, skipping headers and total rows
+  data.slice(1).forEach((row) => {
+    // Skip empty rows
+    if (!row || row.length === 0 || !row[0]) return;
+
+    const rawDate = row[0]?.trim().replace(/"/g, "") || "";
+    const movimentacao = row[1]?.trim().replace(/"/g, "") || "";
+    const beneficiario = row[2]?.trim().replace(/"/g, "") || "";
+    const rawAmount = row[3]?.trim().replace(/"/g, "") || "";
+
+    // Skip rows that are totals (like "Total CARTÃO 53614414")
+    if (
+      rawDate.toLowerCase().includes("total") ||
+      movimentacao.toLowerCase().includes("total")
+    ) {
+      return;
+    }
+
+    // Skip rows without valid dates
+    const formattedDate = parsePortugueseDate(rawDate);
+    if (!formattedDate) return;
+
+    // Parse amount
+    let cleanedAmount = rawAmount;
+    let amount = 0;
+
+    if (cleanedAmount) {
+      // Remove + or - signs and R$ prefix
+      const isPositive = cleanedAmount.includes("+");
+      cleanedAmount = cleanedAmount
+        .replace(/[+\-]/g, "") // Remove + and - signs
+        .replace("R$", "") // Remove R$ prefix
+        .replace(/\s/g, "") // Remove spaces
+        .replace(/\./g, "") // Remove dots (thousands separators)
+        .replace(",", "."); // Replace comma with dot for decimals
+
+      amount = parseFloat(cleanedAmount) || 0;
+
+      // Apply sign - in the PDF, credits are shown with +, but they should be positive
+      // debits are shown without sign and should be negative
+      if (!isPositive && amount > 0) {
+        amount = -amount; // Make it negative if it's a debit
+      }
+    }
+
+    // Create transaction record
+    transactions.push({
+      id: transactionId++,
+      Date: formattedDate,
+      Description: movimentacao || "Unknown Transaction",
+      Comment: beneficiario ? `Beneficiary: ${beneficiario}` : "",
+      Amount: amount,
+      Balance: null, // PDF statements don't include balance information
+    });
+  });
+
+  // Extract the year and month from the file name
+  const match = fileName.match(/fatura-inter-(\d{4})-(\d{2})_fromPDF\.csv/i);
+  if (!match) {
+    throw new Error(
+      "Invalid file name format. Expected format: fatura-inter-YYYY-MM_fromPDF.csv",
+    );
+  }
+
+  const year = match[1]; // Extracted year (e.g., "2025")
+  const month = match[2]; // Extracted month (e.g., "01")
+
+  // Construct the table name in the format INMCPDF_YYYYMM
+  const tableName = `INMCPDF_${year}${month}`;
+
+  console.log(
+    `Processed ${transactions.length} transactions from PDF for table ${tableName}`,
+  );
+  return { tableName, transactions };
+}
+
 export function processHandelsbanken(data: string[][]) {
   // Extract the year from row 6: "Period: 2025-01-01 - 2025-03-24"
   const periodRow = data[6]?.[0] || "";

@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import {
   processDEV,
   processInterBRMastercard,
+  processInterBRMastercardPDF,
   processInterBRAccount,
   processHandelsbanken,
   processAmex,
@@ -44,6 +45,9 @@ export async function processFileData(file: File, bank: string) {
         break;
       case "Inter-BR-Mastercard":
         processedData = processInterBRMastercard(data, file.name);
+        break;
+      case "Inter-BR-Mastercard-from-PDF":
+        processedData = processInterBRMastercardPDF(data, file.name);
         break;
       case "Inter-BR-Account":
         console.log("Processing Inter-BR-Account");

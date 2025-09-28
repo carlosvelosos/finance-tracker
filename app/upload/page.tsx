@@ -51,6 +51,7 @@
  *     patterns. Handles different bank-specific naming conventions:
  *     * DEV: test_transactions
  *     * Inter-BR-Mastercard: INMC_YYYY (extracts year from filename)
+ *     * Inter-BR-Mastercard-from-PDF: INMCPDF_YYYYMM (extracts year/month from PDF filename)
  *     * Inter-BR-Account: IN_YYYY (extracts year from filename)
  *     * Handelsbanken-SE: handelsbanken_transactions
  *     * AmericanExpress-SE: amex_YYYY
@@ -82,6 +83,7 @@
  * SUPPORTED BANKS:
  * • DEV - Development/testing environment
  * • Inter-BR-Mastercard - Inter Brazil Mastercard accounts
+ * • Inter-BR-Mastercard-from-PDF - Inter Brazil Mastercard PDF-converted statements
  * • Inter-BR-Account - Inter Brazil account statements
  * • Handelsbanken-SE - Handelsbanken Sweden
  * • AmericanExpress-SE - American Express Sweden
@@ -121,6 +123,7 @@ import ProtectedRoute from "@/components/protected-route";
 const BANK_OPTIONS = [
   "DEV",
   "Inter-BR-Mastercard",
+  "Inter-BR-Mastercard-from-PDF",
   "Inter-BR-Account",
   "Handelsbanken-SE",
   "AmericanExpress-SE",
@@ -532,6 +535,25 @@ export default function UploadPage() {
           "0",
         );
         return `INMC_${fallbackYear}${fallbackMonth}`;
+      case "Inter-BR-Mastercard-from-PDF":
+        // Extract year and month from filename for Inter-BR-Mastercard-from-PDF tables (format: INMCPDF_YYYYMM)
+        // Expected filename pattern: fatura-inter-YYYY-MM_fromPDF.csv
+        const interPDFMatch = fileName.match(
+          /fatura-inter-(\d{4})-(\d{2})_fromPDF\.csv/i,
+        );
+        if (interPDFMatch) {
+          const year = interPDFMatch[1];
+          const month = interPDFMatch[2];
+          return `INMCPDF_${year}${month}`;
+        }
+        // Fallback to current year/month if pattern doesn't match
+        const currentDatePDF = new Date();
+        const fallbackYearPDF = currentDatePDF.getFullYear();
+        const fallbackMonthPDF = String(currentDatePDF.getMonth() + 1).padStart(
+          2,
+          "0",
+        );
+        return `INMCPDF_${fallbackYearPDF}${fallbackMonthPDF}`;
       case "Inter-BR-Account":
         // Extract year from filename for Inter-BR-Account tables (format: IN_YYYY)
         const accountYearMatch = fileName.match(/(\d{4})/);

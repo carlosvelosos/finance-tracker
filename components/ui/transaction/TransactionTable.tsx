@@ -222,16 +222,24 @@ export default function TransactionTable({
   ) => {
     setUpdatingId(id);
     try {
-      // Convert string IDs back to numbers for database operations
-      // For combined data, we need to use the original ID from the metadata
+      // Find the transaction to get its source table and database ID
+      const transaction = localTransactions.find((t) => t.id === id);
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      // Determine the table name and database ID
+      const tableName = transaction.sourceTable || TransactionTableName;
       const dbId =
-        typeof id === "string"
-          ? localTransactions.find((t) => t.id === id)?.originalId ||
-            parseInt(id.split("_")[1])
-          : id;
+        transaction.originalId ||
+        (typeof id === "number" ? id : parseInt(id.toString()));
+
+      if (!tableName) {
+        throw new Error("Cannot determine table name for update");
+      }
 
       const { error } = await supabase
-        .from(TransactionTableName) // Use the prop here
+        .from(tableName)
         .update({ Category: newCategory })
         .eq("id", dbId);
 
@@ -285,16 +293,24 @@ export default function TransactionTable({
   ) => {
     setUpdatingId(id);
     try {
-      // Convert string IDs back to numbers for database operations
-      // For combined data, we need to use the original ID from the metadata
+      // Find the transaction to get its source table and database ID
+      const transaction = localTransactions.find((t) => t.id === id);
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      // Determine the table name and database ID
+      const tableName = transaction.sourceTable || TransactionTableName;
       const dbId =
-        typeof id === "string"
-          ? localTransactions.find((t) => t.id === id)?.originalId ||
-            parseInt(id.split("_")[1])
-          : id;
+        transaction.originalId ||
+        (typeof id === "number" ? id : parseInt(id.toString()));
+
+      if (!tableName) {
+        throw new Error("Cannot determine table name for update");
+      }
 
       const { error } = await supabase
-        .from(TransactionTableName) // Use the prop here
+        .from(tableName)
         .update({ Comment: newComment })
         .eq("id", dbId);
 

@@ -61,10 +61,14 @@ export default function AggregatedTransactionsPage() {
     }
 
     const nonAutomaticDebitTransactions = transactions.filter(
-      (t) => t.Description !== "PAGTO DEBITO AUTOMATICO",
+      (t) =>
+        t.Description !== "PAGTO DEBITO AUTOMATICO" &&
+        t.Category !== "Pagamento fatura anterior",
     );
     const automaticDebitTransactions = transactions.filter(
-      (t) => t.Description === "PAGTO DEBITO AUTOMATICO",
+      (t) =>
+        t.Description === "PAGTO DEBITO AUTOMATICO" ||
+        t.Category === "Pagamento fatura anterior",
     );
 
     return [
@@ -83,15 +87,15 @@ export default function AggregatedTransactionsPage() {
       },
       {
         id: "automatic-debit-table",
-        title: `Automatic Debit Transactions (${automaticDebitTransactions.length} transactions)`,
+        title: `Automatic Debit & Invoice Payment Transactions (${automaticDebitTransactions.length} transactions)`,
         transactions: automaticDebitTransactions,
         bankFilter: undefined,
         initialSortColumn: "Date",
         initialSortDirection: "desc" as const,
-        hiddenColumns: ["Description"], // Hide description since they're all the same
+        hiddenColumns: [], // Show all columns to distinguish between different types
         showMonthFilter: true,
         showCategoryFilter: true,
-        showDescriptionFilter: false, // No need for description filter since all are the same
+        showDescriptionFilter: true, // Show description filter to distinguish between types
         showTotalAmount: true,
       },
     ];

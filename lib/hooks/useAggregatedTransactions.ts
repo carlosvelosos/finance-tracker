@@ -269,9 +269,11 @@ export function useAggregatedTransactions({
             (t) => (t as Transaction).sourceTable === result.tableName,
           );
 
-          // Filter out automatic debit transactions for net value calculation
+          // Filter out automatic debit transactions and invoice payments for net value calculation
           const nonAutomaticDebitTransactions = tableTransactions.filter(
-            (t) => t.Description !== "PAGTO DEBITO AUTOMATICO",
+            (t) =>
+              t.Description !== "PAGTO DEBITO AUTOMATICO" &&
+              t.Category !== "Pagamento fatura anterior",
           );
 
           const netValue = nonAutomaticDebitTransactions.reduce(

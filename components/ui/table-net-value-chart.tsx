@@ -43,7 +43,14 @@ interface TableNetValueChartProps {
 
 // Transform data for recharts format
 const transformChartData = (data: TableNetValueData[]) => {
-  return data.map((item) => ({
+  // Sort by table name alphabetically before transforming
+  const sortedData = [...data].sort((a, b) => {
+    const nameA = a.tableName || "";
+    const nameB = b.tableName || "";
+    return nameA.localeCompare(nameB);
+  });
+
+  return sortedData.map((item) => ({
     table: item.displayName || item.tableName,
     netValue: item.netValue,
     transactionCount: item.transactionCount,
@@ -175,11 +182,11 @@ export default function TableNetValueChart({
               axisLine={false}
               tickFormatter={(value) => {
                 // Truncate long table names
-                return value.length > 12 ? value.slice(0, 12) + "..." : value;
+                return value.length > 15 ? value.slice(0, 15) + "..." : value;
               }}
-              angle={-45}
-              textAnchor="end"
-              height={80}
+              angle={0}
+              textAnchor="middle"
+              height={60}
             />
             <YAxis
               tickLine={false}

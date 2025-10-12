@@ -375,6 +375,160 @@ export default function AggregatedTransactionsPage() {
               <BankTablePageBody sections={tableSections} />
             )}
 
+          {/* Transactions by Responsible - Three Tables Side by Side */}
+          {!transactionsLoading &&
+            !transactionsError &&
+            selectedTables.length > 0 &&
+            transactions.length > 0 && (
+              <Card className="mb-6">
+                <Accordion
+                  type="single"
+                  collapsible
+                  defaultValue="by-responsible"
+                >
+                  <AccordionItem value="by-responsible" className="border-none">
+                    <CardHeader className="pb-3">
+                      <AccordionTrigger className="hover:no-underline py-0">
+                        <CardTitle className="text-lg font-semibold">
+                          Transactions by Responsible Person
+                        </CardTitle>
+                      </AccordionTrigger>
+                    </CardHeader>
+                    <AccordionContent>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {(() => {
+                            // Get unique responsible persons
+                            const responsiblePersons = [
+                              ...new Set(
+                                transactions
+                                  .map((t) => t.Responsible)
+                                  .filter((r): r is string => Boolean(r)),
+                              ),
+                            ].sort();
+
+                            // Take up to 3 responsible persons
+                            const topThree = responsiblePersons.slice(0, 3);
+
+                            return topThree.map((person) => {
+                              const personTransactions = transactions
+                                .filter((t) => t.Responsible === person)
+                                .sort(
+                                  (a, b) =>
+                                    new Date(b.Date || "").getTime() -
+                                    new Date(a.Date || "").getTime(),
+                                );
+
+                              const totalAmount = personTransactions.reduce(
+                                (sum, t) => sum + (t.Amount || 0),
+                                0,
+                              );
+
+                              return (
+                                <div
+                                  key={person}
+                                  className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+                                >
+                                  <div className="mb-3 pb-2 border-b">
+                                    <h3 className="font-semibold text-base">
+                                      {person}
+                                    </h3>
+                                    <div className="flex justify-between items-center mt-1">
+                                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                                        {personTransactions.length} transactions
+                                      </span>
+                                      <span
+                                        className={`text-sm font-semibold ${
+                                          totalAmount >= 0
+                                            ? "text-green-600 dark:text-green-400"
+                                            : "text-red-600 dark:text-red-400"
+                                        }`}
+                                      >
+                                        {new Intl.NumberFormat("en-US", {
+                                          style: "currency",
+                                          currency: "USD",
+                                        }).format(totalAmount)}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="overflow-auto max-h-96">
+                                    <table className="w-full text-xs">
+                                      <thead className="sticky top-0 bg-gray-100 dark:bg-gray-700">
+                                        <tr>
+                                          <th className="text-left p-2 font-semibold">
+                                            Date
+                                          </th>
+                                          <th className="text-left p-2 font-semibold">
+                                            Description
+                                          </th>
+                                          <th className="text-right p-2 font-semibold">
+                                            Amount
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {personTransactions.map(
+                                          (transaction, idx) => (
+                                            <tr
+                                              key={`${transaction.id}-${idx}`}
+                                              className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            >
+                                              <td className="p-2 whitespace-nowrap">
+                                                {transaction.Date
+                                                  ? new Date(
+                                                      transaction.Date,
+                                                    ).toLocaleDateString(
+                                                      "en-US",
+                                                      {
+                                                        month: "short",
+                                                        day: "numeric",
+                                                      },
+                                                    )
+                                                  : "N/A"}
+                                              </td>
+                                              <td className="p-2">
+                                                <div className="truncate max-w-xs">
+                                                  {transaction.Description ||
+                                                    "N/A"}
+                                                </div>
+                                              </td>
+                                              <td
+                                                className={`p-2 text-right font-medium whitespace-nowrap ${
+                                                  (transaction.Amount || 0) >= 0
+                                                    ? "text-green-600 dark:text-green-400"
+                                                    : "text-red-600 dark:text-red-400"
+                                                }`}
+                                              >
+                                                {new Intl.NumberFormat(
+                                                  "en-US",
+                                                  {
+                                                    style: "currency",
+                                                    currency: "USD",
+                                                    minimumFractionDigits: 2,
+                                                  },
+                                                ).format(
+                                                  transaction.Amount || 0,
+                                                )}
+                                              </td>
+                                            </tr>
+                                          ),
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      </CardContent>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </Card>
+            )}
+
           {/* Empty State - No data */}
           {!transactionsLoading &&
             !transactionsError &&

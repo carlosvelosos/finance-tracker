@@ -411,8 +411,22 @@ export default function AggregatedTransactionsPage() {
                             const topThree = responsiblePersons.slice(0, 3);
 
                             return topThree.map((person) => {
+                              // Descriptions to exclude
+                              const excludedDescriptions = [
+                                "PAGAMENTO ON LINE",
+                                "PAGTO DEBITO AUTOMATICO",
+                                "CRED COMPRA INTERNAC",
+                                "EST IOF TRANS INTERNAC",
+                              ];
+
                               const personTransactions = transactions
                                 .filter((t) => t.Responsible === person)
+                                .filter(
+                                  (t) =>
+                                    !excludedDescriptions.includes(
+                                      t.Description || "",
+                                    ),
+                                )
                                 .sort(
                                   (a, b) =>
                                     new Date(b.Date || "").getTime() -

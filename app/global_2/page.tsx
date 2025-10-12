@@ -17,7 +17,6 @@ import { ChevronUp, ChevronDown, Settings } from "lucide-react";
 
 export default function AggregatedTransactionsPage() {
   const [showTableSelection, setShowTableSelection] = useState(true);
-  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Table discovery and selection
   const {
@@ -106,13 +105,6 @@ export default function AggregatedTransactionsPage() {
     await refetchTables();
     await refetchTransactions();
   }, [refetchTables, refetchTransactions]);
-
-  // Initialize only once to prevent constant reloading
-  useEffect(() => {
-    if (!hasInitialized && user) {
-      setHasInitialized(true);
-    }
-  }, [hasInitialized, user]);
 
   // Return early if not ready (AFTER all hooks have been declared)
   const earlyReturn = renderContent();

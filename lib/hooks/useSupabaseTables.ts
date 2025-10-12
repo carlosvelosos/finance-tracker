@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../supabaseClient";
 
@@ -24,6 +24,10 @@ export function useSupabaseTables() {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // Track if we've already fetched data for this user
+  const hasFetchedRef = useRef(false);
+  const currentUserIdRef = useRef<string | null>(null);
 
   // Predefined tables with descriptions (add more as needed)
   const knownTables = useMemo(
@@ -253,6 +257,12 @@ export function useSupabaseTables() {
   const fetchAvailableTables = useCallback(async () => {
     if (!user) return;
 
+    // Skip if we've already fetched for this user (prevents refetch on tab switch)
+    if (hasFetchedRef.current && currentUserIdRef.current === user.id) {
+      console.log("Skipping table fetch - data already loaded for this user");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -397,6 +407,10 @@ export function useSupabaseTables() {
       );
 
       setTables(tablesWithMetadata);
+
+      // Mark as fetched for this user
+      hasFetchedRef.current = true;
+      currentUserIdRef.current = user.id;
     } catch (err) {
       console.error("Error fetching Supabase tables:", err);
       setError(
@@ -409,7 +423,8 @@ export function useSupabaseTables() {
 
   useEffect(() => {
     fetchAvailableTables();
-  }, [user, knownTables, fetchAvailableTables]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]); // Only depend on user, not the fetch function itself
 
   const toggleTableSelection = useCallback((tableName: string) => {
     setSelectedTables((prev) =>
@@ -439,6 +454,8 @@ export function useSupabaseTables() {
   }, []);
 
   const refetch = useCallback(async () => {
+    // Reset the fetch flag to force a refetch
+    hasFetchedRef.current = false;
     await fetchAvailableTables();
   }, [fetchAvailableTables]);
 

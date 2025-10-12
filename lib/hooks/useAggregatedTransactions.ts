@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../supabaseClient";
 import { Transaction } from "@/types/transaction";
@@ -35,6 +35,10 @@ export function useAggregatedTransactions({
   const [tableNetValues, setTableNetValues] = useState<TableNetValueData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // Track what we've already fetched to prevent re-fetching on tab visibility
+  const lastFetchedTablesRef = useRef<string>("");
+  const hasFetchedRef = useRef(false);
 
   // Helper function to adjust transaction amounts based on Comment field (for Brazilian tables)
   const adjustTransactionAmounts = useCallback(
@@ -91,6 +95,20 @@ export function useAggregatedTransactions({
         transactionCountsByBank: {},
         newestDatesByBank: {},
       });
+      // Reset fetch tracking when no tables selected
+      lastFetchedTablesRef.current = "";
+      hasFetchedRef.current = false;
+      return;
+    }
+
+    // Create a stable key for the current selection
+    const tablesKey = selectedTables.sort().join(",");
+
+    // Skip if we've already fetched this exact combination (prevents refetch on tab switch)
+    if (hasFetchedRef.current && lastFetchedTablesRef.current === tablesKey) {
+      console.log(
+        "Skipping transaction fetch - data already loaded for these tables",
+      );
       return;
     }
 
@@ -305,6 +323,11 @@ export function useAggregatedTransactions({
         transactionCountsByBank,
         newestDatesByBank,
       });
+
+      // Mark as fetched for this table combination
+      const tablesKey = selectedTables.sort().join(",");
+      lastFetchedTablesRef.current = tablesKey;
+      hasFetchedRef.current = true;
     } catch (err) {
       console.error("Error fetching aggregated transactions:", err);
       setError(
@@ -330,9 +353,13 @@ export function useAggregatedTransactions({
 
   useEffect(() => {
     fetchAggregatedTransactions();
-  }, [user, enabled, selectedTables, fetchAggregatedTransactions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, enabled, selectedTables]); // Don't include the fetch function itself
 
   const refetch = useCallback(async () => {
+    // Reset the fetch flag to force a refetch
+    hasFetchedRef.current = false;
+    lastFetchedTablesRef.current = "";
     await fetchAggregatedTransactions();
   }, [fetchAggregatedTransactions]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSupabaseTables } from "../../lib/hooks/useSupabaseTables";
 import { useAggregatedTransactions } from "../../lib/hooks/useAggregatedTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";

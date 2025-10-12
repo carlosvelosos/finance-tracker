@@ -19,7 +19,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { ChevronUp, ChevronDown, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
 
 export default function AggregatedTransactionsPage() {
   const [showTableSelection, setShowTableSelection] = useState(true);
@@ -120,7 +120,11 @@ export default function AggregatedTransactionsPage() {
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="flex min-h-screen">
         {/* Main Content Area */}
-        <div className="flex-1 p-4 space-y-6 pr-80">
+        <div
+          className={`flex-1 p-4 space-y-6 transition-all duration-300 ${
+            showTableSelection ? "pr-80" : "pr-4"
+          }`}
+        >
           {/* Page Header */}
           <BankTablePageHeader
             title="Multi-Table Aggregated Transactions"
@@ -398,7 +402,11 @@ export default function AggregatedTransactionsPage() {
         </div>
 
         {/* Right Sidebar - Table Selection & Configuration */}
-        <div className="fixed right-0 top-0 h-full w-80 bg-transparent border-l border-gray-800 p-3 overflow-y-auto text-sm">
+        <div
+          className={`fixed top-0 h-full w-80 bg-transparent border-l border-gray-800 p-3 overflow-y-auto text-sm transition-all duration-300 ${
+            showTableSelection ? "right-0" : "-right-80"
+          }`}
+        >
           <Card className="h-full">
             <CardHeader className="pb-2 px-3 pt-3">
               <div className="flex items-center justify-between">
@@ -411,32 +419,45 @@ export default function AggregatedTransactionsPage() {
                   variant="ghost"
                   size="sm"
                   className="p-1 h-6 w-6"
+                  title={showTableSelection ? "Hide sidebar" : "Show sidebar"}
                 >
                   {showTableSelection ? (
-                    <ChevronUp size={14} />
+                    <ChevronRight size={14} />
                   ) : (
-                    <ChevronDown size={14} />
+                    <ChevronLeft size={14} />
                   )}
                 </Button>
               </div>
             </CardHeader>
 
-            {showTableSelection && (
-              <CardContent className="flex-1 overflow-y-auto px-3 pb-3 text-xs">
-                <TableSelectionPanel
-                  tables={tables}
-                  selectedTables={selectedTables}
-                  loading={tablesLoading}
-                  error={tablesError}
-                  onToggleTable={toggleTableSelection}
-                  onSelectAll={selectAllTables}
-                  onDeselectAll={deselectAllTables}
-                  onRefresh={refetchTables}
-                />
-              </CardContent>
-            )}
+            <CardContent className="flex-1 overflow-y-auto px-3 pb-3 text-xs">
+              <TableSelectionPanel
+                tables={tables}
+                selectedTables={selectedTables}
+                loading={tablesLoading}
+                error={tablesError}
+                onToggleTable={toggleTableSelection}
+                onSelectAll={selectAllTables}
+                onDeselectAll={deselectAllTables}
+                onRefresh={refetchTables}
+              />
+            </CardContent>
           </Card>
         </div>
+
+        {/* Toggle Button - Visible when sidebar is hidden */}
+        {!showTableSelection && (
+          <Button
+            onClick={() => setShowTableSelection(true)}
+            variant="outline"
+            size="sm"
+            className="fixed right-4 top-4 z-50 shadow-lg"
+            title="Show table selection"
+          >
+            <Settings size={16} className="mr-2" />
+            <ChevronLeft size={16} />
+          </Button>
+        )}
       </div>
     </ProtectedRoute>
   );

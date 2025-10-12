@@ -596,7 +596,7 @@ export default function AggregatedTransactionsPage() {
                           // Take up to 3 responsible persons
                           const topThree = responsiblePersons.slice(0, 3);
 
-                          // Get all unique year-months and sort chronologically
+                          // Get all unique year-months and sort chronologically (newest to oldest)
                           const yearMonths = [
                             ...new Set(
                               filteredTransactions
@@ -607,7 +607,7 @@ export default function AggregatedTransactionsPage() {
                                 })
                                 .filter((ym): ym is string => Boolean(ym)),
                             ),
-                          ].sort();
+                          ].sort((a, b) => b.localeCompare(a));
 
                           return (
                             <div className="space-y-6">

@@ -104,6 +104,11 @@ export default function TableSelectionPanel({
     );
   }
 
+  // Sort tables by table name (alphabetically)
+  const sortedTables = [...tables].sort((a, b) => {
+    return a.name.localeCompare(b.name);
+  });
+
   return (
     <div className={className}>
       {/* Control Buttons */}
@@ -148,7 +153,7 @@ export default function TableSelectionPanel({
 
       {/* Tables List */}
       <div className="space-y-2">
-        {tables.map((table) => (
+        {sortedTables.map((table) => (
           <div
             key={table.name}
             className={`p-2 rounded border transition-colors cursor-pointer hover:bg-gray-50 ${

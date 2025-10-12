@@ -543,6 +543,246 @@ export default function AggregatedTransactionsPage() {
               </Card>
             )}
 
+          {/* Transactions by Responsible Person and Month - Grid Layout */}
+          {!transactionsLoading &&
+            !transactionsError &&
+            selectedTables.length > 0 &&
+            transactions.length > 0 && (
+              <Card className="mb-6">
+                <Accordion
+                  type="single"
+                  collapsible
+                  defaultValue="by-month-responsible"
+                >
+                  <AccordionItem
+                    value="by-month-responsible"
+                    className="border-none"
+                  >
+                    <CardHeader className="pb-3">
+                      <AccordionTrigger className="hover:no-underline py-0">
+                        <CardTitle className="text-lg font-semibold">
+                          Transactions by Month and Responsible Person
+                        </CardTitle>
+                      </AccordionTrigger>
+                    </CardHeader>
+                    <AccordionContent>
+                      <CardContent>
+                        {(() => {
+                          // Descriptions to exclude
+                          const excludedDescriptions = [
+                            "PAGAMENTO ON LINE",
+                            "PAGTO DEBITO AUTOMATICO",
+                            "CRED COMPRA INTERNAC",
+                            "EST IOF TRANS INTERNAC",
+                          ];
+
+                          // Filter transactions
+                          const filteredTransactions = transactions.filter(
+                            (t) =>
+                              !excludedDescriptions.includes(
+                                t.Description || "",
+                              ),
+                          );
+
+                          // Get unique responsible persons
+                          const responsiblePersons = [
+                            ...new Set(
+                              filteredTransactions
+                                .map((t) => t.Responsible)
+                                .filter((r): r is string => Boolean(r)),
+                            ),
+                          ].sort();
+
+                          // Take up to 3 responsible persons
+                          const topThree = responsiblePersons.slice(0, 3);
+
+                          // Get all unique year-months and sort chronologically
+                          const yearMonths = [
+                            ...new Set(
+                              filteredTransactions
+                                .map((t) => {
+                                  if (!t.Date) return null;
+                                  const date = new Date(t.Date);
+                                  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+                                })
+                                .filter((ym): ym is string => Boolean(ym)),
+                            ),
+                          ].sort();
+
+                          return (
+                            <div className="space-y-6">
+                              {yearMonths.map((yearMonth) => {
+                                const [year, month] = yearMonth.split("-");
+                                const monthName = new Date(
+                                  parseInt(year),
+                                  parseInt(month) - 1,
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                });
+
+                                return (
+                                  <div key={yearMonth}>
+                                    <h3 className="text-base font-semibold mb-3 text-gray-700 dark:text-gray-300">
+                                      {monthName}
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                      {topThree.map((person) => {
+                                        const personMonthTransactions =
+                                          filteredTransactions
+                                            .filter((t) => {
+                                              if (
+                                                !t.Date ||
+                                                t.Responsible !== person
+                                              )
+                                                return false;
+                                              const date = new Date(t.Date);
+                                              const tYearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+                                              return tYearMonth === yearMonth;
+                                            })
+                                            .sort(
+                                              (a, b) =>
+                                                new Date(
+                                                  b.Date || "",
+                                                ).getTime() -
+                                                new Date(
+                                                  a.Date || "",
+                                                ).getTime(),
+                                            );
+
+                                        const totalAmount =
+                                          personMonthTransactions.reduce(
+                                            (sum, t) => sum + (t.Amount || 0),
+                                            0,
+                                          );
+
+                                        return (
+                                          <div
+                                            key={`${yearMonth}-${person}`}
+                                            className="border rounded-lg p-4 bg-white dark:bg-gray-800"
+                                          >
+                                            <div className="mb-3 pb-2 border-b">
+                                              <h4 className="font-semibold text-sm">
+                                                {person}
+                                              </h4>
+                                              <div className="flex justify-between items-center mt-1">
+                                                <span className="text-xs text-gray-600 dark:text-gray-400">
+                                                  {
+                                                    personMonthTransactions.length
+                                                  }{" "}
+                                                  transactions
+                                                </span>
+                                                <span
+                                                  className={`text-sm font-semibold ${
+                                                    totalAmount >= 0
+                                                      ? "text-green-600 dark:text-green-400"
+                                                      : "text-red-600 dark:text-red-400"
+                                                  }`}
+                                                >
+                                                  {new Intl.NumberFormat(
+                                                    "en-US",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "USD",
+                                                    },
+                                                  ).format(totalAmount)}
+                                                </span>
+                                              </div>
+                                            </div>
+
+                                            {personMonthTransactions.length >
+                                            0 ? (
+                                              <div className="overflow-auto max-h-80">
+                                                <table className="w-full text-xs">
+                                                  <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
+                                                    <tr>
+                                                      <th className="text-left p-2 font-semibold">
+                                                        Date
+                                                      </th>
+                                                      <th className="text-left p-2 font-semibold">
+                                                        Description
+                                                      </th>
+                                                      <th className="text-right p-2 font-semibold">
+                                                        Amount
+                                                      </th>
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    {personMonthTransactions.map(
+                                                      (transaction, idx) => (
+                                                        <tr
+                                                          key={`${transaction.id}-${idx}`}
+                                                          className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                        >
+                                                          <td className="p-2 whitespace-nowrap">
+                                                            {transaction.Date
+                                                              ? new Date(
+                                                                  transaction.Date,
+                                                                ).toLocaleDateString(
+                                                                  "en-US",
+                                                                  {
+                                                                    month:
+                                                                      "short",
+                                                                    day: "numeric",
+                                                                  },
+                                                                )
+                                                              : "N/A"}
+                                                          </td>
+                                                          <td className="p-2">
+                                                            <div className="truncate max-w-xs">
+                                                              {transaction.Description ||
+                                                                "N/A"}
+                                                            </div>
+                                                          </td>
+                                                          <td
+                                                            className={`p-2 text-right font-medium whitespace-nowrap ${
+                                                              (transaction.Amount ||
+                                                                0) >= 0
+                                                                ? "text-green-600 dark:text-green-400"
+                                                                : "text-red-600 dark:text-red-400"
+                                                            }`}
+                                                          >
+                                                            {new Intl.NumberFormat(
+                                                              "en-US",
+                                                              {
+                                                                style:
+                                                                  "currency",
+                                                                currency: "USD",
+                                                                minimumFractionDigits: 2,
+                                                              },
+                                                            ).format(
+                                                              transaction.Amount ||
+                                                                0,
+                                                            )}
+                                                          </td>
+                                                        </tr>
+                                                      ),
+                                                    )}
+                                                  </tbody>
+                                                </table>
+                                              </div>
+                                            ) : (
+                                              <div className="text-center text-gray-400 text-xs py-4">
+                                                No transactions
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                      </CardContent>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </Card>
+            )}
+
           {/* Empty State - No data */}
           {!transactionsLoading &&
             !transactionsError &&

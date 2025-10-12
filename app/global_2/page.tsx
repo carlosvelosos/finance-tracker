@@ -13,6 +13,12 @@ import AggregatedDataSourceInfo from "@/components/ui/aggregated-data-source-inf
 import TableNetValueChart from "../../components/ui/table-net-value-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import { ChevronUp, ChevronDown, Settings } from "lucide-react";
 
 export default function AggregatedTransactionsPage() {
@@ -235,113 +241,126 @@ export default function AggregatedTransactionsPage() {
             selectedTables.length > 0 &&
             tableNetValues.length > 0 && (
               <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold">
-                    Table Net Values Summary
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[...tableNetValues]
-                      .sort((a, b) => a.tableName.localeCompare(b.tableName))
-                      .map((table) => {
-                        const isPositive = table.netValue >= 0;
-                        const formattedValue = new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                        }).format(Math.abs(table.netValue));
+                <Accordion type="single" collapsible defaultValue="summary">
+                  <AccordionItem value="summary" className="border-none">
+                    <CardHeader className="pb-3">
+                      <AccordionTrigger className="hover:no-underline py-0">
+                        <CardTitle className="text-lg font-semibold">
+                          Table Net Values Summary
+                        </CardTitle>
+                      </AccordionTrigger>
+                    </CardHeader>
+                    <AccordionContent>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {[...tableNetValues]
+                            .sort((a, b) =>
+                              a.tableName.localeCompare(b.tableName),
+                            )
+                            .map((table) => {
+                              const isPositive = table.netValue >= 0;
+                              const formattedValue = new Intl.NumberFormat(
+                                "en-US",
+                                {
+                                  style: "currency",
+                                  currency: "USD",
+                                  minimumFractionDigits: 2,
+                                },
+                              ).format(Math.abs(table.netValue));
 
-                        return (
-                          <div
-                            key={table.tableName}
-                            className="flex items-center justify-between py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg border"
-                          >
-                            <div className="flex-1">
-                              <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                {table.displayName || table.tableName}
-                              </h4>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {table.transactionCount.toLocaleString()}{" "}
-                                transactions (excl. automatic debits)
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <div
-                                className={`text-lg font-semibold ${
-                                  isPositive
-                                    ? "text-green-600 dark:text-green-400"
-                                    : "text-red-600 dark:text-red-400"
-                                }`}
-                              >
-                                {isPositive ? "+" : "-"}
-                                {formattedValue}
+                              return (
+                                <div
+                                  key={table.tableName}
+                                  className="flex items-center justify-between py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg border"
+                                >
+                                  <div className="flex-1">
+                                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                                      {table.displayName || table.tableName}
+                                    </h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      {table.transactionCount.toLocaleString()}{" "}
+                                      transactions (excl. automatic debits)
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <div
+                                      className={`text-lg font-semibold ${
+                                        isPositive
+                                          ? "text-green-600 dark:text-green-400"
+                                          : "text-red-600 dark:text-red-400"
+                                      }`}
+                                    >
+                                      {isPositive ? "+" : "-"}
+                                      {formattedValue}
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                      {table.tableName}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                        </div>
+
+                        {/* Summary Totals */}
+                        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                              <div className="text-lg font-semibold text-green-700 dark:text-green-300">
+                                {new Intl.NumberFormat("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                }).format(
+                                  tableNetValues.reduce(
+                                    (sum, t) => sum + Math.max(0, t.netValue),
+                                    0,
+                                  ),
+                                )}
                               </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {table.tableName}
+                              <div className="text-sm text-green-600 dark:text-green-400">
+                                Total Positive
+                              </div>
+                            </div>
+                            <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                              <div className="text-lg font-semibold text-red-700 dark:text-red-300">
+                                {new Intl.NumberFormat("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                }).format(
+                                  Math.abs(
+                                    tableNetValues.reduce(
+                                      (sum, t) => sum + Math.min(0, t.netValue),
+                                      0,
+                                    ),
+                                  ),
+                                )}
+                              </div>
+                              <div className="text-sm text-red-600 dark:text-red-400">
+                                Total Negative
+                              </div>
+                            </div>
+                            <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                              <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                                {new Intl.NumberFormat("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                }).format(
+                                  tableNetValues.reduce(
+                                    (sum, t) => sum + t.netValue,
+                                    0,
+                                  ),
+                                )}
+                              </div>
+                              <div className="text-sm text-blue-600 dark:text-blue-400">
+                                Net Total
                               </div>
                             </div>
                           </div>
-                        );
-                      })}
-                  </div>
-
-                  {/* Summary Totals */}
-                  <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <div className="text-lg font-semibold text-green-700 dark:text-green-300">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          }).format(
-                            tableNetValues.reduce(
-                              (sum, t) => sum + Math.max(0, t.netValue),
-                              0,
-                            ),
-                          )}
                         </div>
-                        <div className="text-sm text-green-600 dark:text-green-400">
-                          Total Positive
-                        </div>
-                      </div>
-                      <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                        <div className="text-lg font-semibold text-red-700 dark:text-red-300">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          }).format(
-                            Math.abs(
-                              tableNetValues.reduce(
-                                (sum, t) => sum + Math.min(0, t.netValue),
-                                0,
-                              ),
-                            ),
-                          )}
-                        </div>
-                        <div className="text-sm text-red-600 dark:text-red-400">
-                          Total Negative
-                        </div>
-                      </div>
-                      <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          }).format(
-                            tableNetValues.reduce(
-                              (sum, t) => sum + t.netValue,
-                              0,
-                            ),
-                          )}
-                        </div>
-                        <div className="text-sm text-blue-600 dark:text-blue-400">
-                          Net Total
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
+                      </CardContent>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </Card>
             )}
 

@@ -134,6 +134,12 @@ export default function TransactionTable({
     value: string;
   } | null>(null);
 
+  /** Track which responsible cell is currently being edited */
+  const [editingResponsible, setEditingResponsible] = useState<{
+    id: string | number;
+    value: string;
+  } | null>(null);
+
   /** Track which comment cell is currently being edited */
   const [editingComment, setEditingComment] = useState<{
     id: string | number;
@@ -270,6 +276,77 @@ export default function TransactionTable({
     } finally {
       setUpdatingId(null);
       setEditingCategory(null);
+    }
+  };
+
+  /**
+   * Update Transaction Responsible
+   *
+   * Handles inline editing of transaction responsible person with database persistence.
+   * Similar to category updates but specifically for the responsible field.
+   * Features:
+   * - Optimistic UI updates for immediate feedback
+   * - Error handling with user notifications
+   * - Support for both string and numeric transaction IDs
+   * - Loading state management during database operations
+   *
+   * @param {string | number} id - Transaction ID to update
+   * @param {string} newResponsible - New responsible person value to set
+   */
+  const handleUpdateResponsible = async (
+    id: string | number,
+    newResponsible: string,
+  ) => {
+    setUpdatingId(id);
+    try {
+      // Find the transaction to get its source table and database ID
+      const transaction = localTransactions.find((t) => t.id === id);
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      // Determine the table name and database ID
+      const tableName = transaction.sourceTable || TransactionTableName;
+      const dbId =
+        transaction.originalId ||
+        (typeof id === "number" ? id : parseInt(id.toString()));
+
+      if (!tableName) {
+        throw new Error("Cannot determine table name for update");
+      }
+
+      const { error } = await supabase
+        .from(tableName)
+        .update({ Responsible: newResponsible })
+        .eq("id", dbId);
+
+      if (error) {
+        console.error("Error updating responsible:", error);
+        toast.error(`Failed to update responsible: ${error.message}`, {
+          duration: 3000,
+          position: "top-right",
+        });
+      } else {
+        // Update local state to reflect the change immediately
+        setLocalTransactions((prevTransactions) =>
+          prevTransactions.map((t) =>
+            t.id === id ? { ...t, Responsible: newResponsible } : t,
+          ),
+        );
+        toast.success("Responsible updated successfully", {
+          duration: 2000,
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      console.error("Error in update operation:", error);
+      toast.error("An unexpected error occurred", {
+        duration: 3000,
+        position: "top-right",
+      });
+    } finally {
+      setUpdatingId(null);
+      setEditingResponsible(null);
     }
   };
 
@@ -986,7 +1063,59 @@ export default function TransactionTable({
               )}
 
               {!hiddenColumns.includes("Responsible") && (
-                <TableCell>{transaction.Responsible || "N/A"}</TableCell>
+                <TableCell>
+                  {editingResponsible &&
+                  editingResponsible.id === transaction.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editingResponsible.value}
+                        onChange={(e) =>
+                          setEditingResponsible({
+                            id: transaction.id,
+                            value: e.target.value,
+                          })
+                        }
+                        className="w-full p-1 border border-gray-300 rounded-md"
+                        autoFocus
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleUpdateResponsible(
+                            transaction.id,
+                            editingResponsible.value,
+                          )
+                        }
+                        disabled={updatingId === transaction.id}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {updatingId === transaction.id ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingResponsible(null)}
+                        className="text-gray-700 border-gray-300 hover:bg-gray-100"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingResponsible({
+                          id: transaction.id,
+                          value: transaction.Responsible || "",
+                        });
+                      }}
+                    >
+                      {transaction.Responsible || "N/A"}
+                    </div>
+                  )}
+                </TableCell>
               )}
 
               {!hiddenColumns.includes("Bank") && (

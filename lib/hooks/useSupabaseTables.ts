@@ -241,6 +241,11 @@ export function useSupabaseTables() {
           description:
             "Inter MasterCard PDF-converted transactions for September 2025",
         },
+        INMCPDF_202510: {
+          displayName: "INMCPDF Oct 2025",
+          description:
+            "Inter MasterCard PDF-converted transactions for October 2025",
+        },
       }) as Record<string, { displayName: string; description: string }>,
     [],
   );

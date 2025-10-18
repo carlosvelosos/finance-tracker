@@ -523,9 +523,14 @@ export async function uploadToSupabase(
     console.log("Insert without select - data:", insertData);
     console.log("Insert without select - error:", insertError);
 
+    // Check if insertError is a real error (has properties) or just an empty object
+    const hasInsertError =
+      insertError &&
+      (insertError.message || insertError.code || insertError.details);
+
     // For insert without .select(), data will be null but that's OK if no error
     let finalData, finalError;
-    if (insertError) {
+    if (hasInsertError) {
       // First insert had an error, try with .select()
       console.log("First insert had error, trying with .select()...");
       const { data, error } = await supabase
@@ -542,7 +547,7 @@ export async function uploadToSupabase(
       // First insert succeeded (no error, even if data is null)
       console.log("First insert succeeded without error");
       finalData = insertData; // Will be null, but that's OK
-      finalError = insertError; // Will be null
+      finalError = insertError; // Will be null or empty object
     }
     console.log("Final insert - data:", finalData);
     console.log("Final insert - error:", finalError);

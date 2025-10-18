@@ -494,3 +494,113 @@ export function processInterBRAccount(data: string[][], fileName: string) {
 
   return { tableName, transactions };
 }
+
+export function processInterBRAccountMonthly(
+  data: string[][],
+  fileName: string,
+) {
+  // Find the header row that contains "Data Lançamento;Descrição;Valor;Saldo"
+  let headerRowIndex = -1;
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    if (row.length > 0 && row[0].includes("Data Lançamento")) {
+      headerRowIndex = i;
+      break;
+    }
+  }
+
+  if (headerRowIndex === -1) {
+    throw new Error("Header row with 'Data Lançamento' not found in the file.");
+  }
+
+  // Start processing transactions from the row after the header
+  const transactions = data
+    .slice(headerRowIndex + 1)
+    .filter((row) => row.length >= 4 && row[0].trim()) // Ensure row has enough columns and a date
+    .map((row, index) => {
+      // Parse the date from DD/MM/YYYY to YYYY-MM-DD
+      const rawDate = row[0]?.trim() || "";
+      let formattedDate: string | null = null;
+      if (rawDate) {
+        const dateParts = rawDate.split("/");
+        if (dateParts.length === 3) {
+          // Convert from DD/MM/YYYY to YYYY-MM-DD
+          formattedDate = `${dateParts[2]}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
+        }
+      }
+
+      // Clean the description
+      const description = row[1]?.trim().replace(/"/g, "") || "";
+
+      // Extract and clean the amount (Valor column) - Brazilian format with comma as decimal separator
+      const rawAmount = row[2]?.trim() || "0";
+      console.log(`Row ${index + 1} - Raw Amount: "${rawAmount}"`);
+
+      // Clean amount - handle Brazilian format with comma as decimal separator and dots as thousand separators
+      const cleanedAmount = rawAmount
+        .replace(/"/g, "") // Remove quotation marks
+        .replace(/\./g, "") // Remove thousand separators (dots)
+        .replace(",", ".") // Replace comma with dot for decimal point
+        .trim();
+
+      console.log(`Row ${index + 1} - Cleaned Amount: "${cleanedAmount}"`);
+
+      const amount = parseFloat(cleanedAmount) || 0;
+      console.log(`Row ${index + 1} - Final Amount: ${amount}`);
+
+      // Extract and clean the balance (Saldo column)
+      const rawBalance = row[3]?.trim() || "0";
+      const cleanedBalance = rawBalance
+        .replace(/"/g, "") // Remove quotation marks
+        .replace(/\./g, "") // Remove thousand separators (dots)
+        .replace(",", ".") // Replace comma with dot for decimal point
+        .trim();
+
+      const balance = parseFloat(cleanedBalance) || 0;
+
+      return {
+        id: index + 1, // Sequential ID
+        Date: formattedDate, // Formatted date in YYYY-MM-DD
+        Description: description, // Cleaned description
+        Amount: amount, // Parsed amount
+        Balance: balance, // Parsed balance
+        Bank: "Inter-BR", // Set bank name
+        Comment: null, // No comment field in this format
+      };
+    });
+
+  if (transactions.length === 0) {
+    throw new Error("No transactions found in the file.");
+  }
+
+  // Extract year and month from filename pattern: Extrato-DD-MM-YYYY-a-DD-MM-YYYY-CSV.csv
+  const monthlyMatch = fileName.match(/Extrato-\d{2}-(\d{2})-(\d{4})-a-/i);
+
+  let year: string;
+  let month: string;
+
+  if (monthlyMatch) {
+    month = monthlyMatch[1]; // "01"
+    year = monthlyMatch[2]; // "2025"
+  } else {
+    // Fallback: Extract from first transaction date
+    if (transactions.length > 0 && transactions[0].Date) {
+      const dateParts = transactions[0].Date.split("-");
+      year = dateParts[0];
+      month = dateParts[1];
+    } else {
+      // Last fallback: Use current date
+      const currentDate = new Date();
+      year = currentDate.getFullYear().toString();
+      month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    }
+  }
+
+  // Construct the table name in the format INACC_YYYYMM
+  const tableName = `INACC_${year}${month}`;
+
+  console.log("Table Name:", tableName);
+  console.log("Transactions:", transactions);
+
+  return { tableName, transactions };
+}

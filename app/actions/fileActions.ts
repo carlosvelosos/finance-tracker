@@ -6,6 +6,7 @@ import {
   processInterBRMastercard,
   processInterBRMastercardPDF,
   processInterBRAccount,
+  processInterBRAccountMonthly,
   processHandelsbanken,
   processAmex,
   processSEB,
@@ -25,7 +26,10 @@ export async function processFileData(file: File, bank: string) {
       const parsed = Papa.parse<string[]>(text, {
         header: false, // Disable header row parsing
         skipEmptyLines: true, // Skip empty lines
-        delimiter: bank === "Inter-BR-Account" ? ";" : ",", // Use semicolon for Inter BR Account files
+        delimiter:
+          bank === "Inter-BR-Account" || bank === "Inter-BR-Account-Monthly"
+            ? ";"
+            : ",", // Use semicolon for Inter BR Account files
       });
       data = parsed.data as string[][]; // Cast parsed data to string[][]
     } else {
@@ -52,6 +56,11 @@ export async function processFileData(file: File, bank: string) {
       case "Inter-BR-Account":
         console.log("Processing Inter-BR-Account");
         processedData = processInterBRAccount(data, file.name);
+        console.log("Processed data:", processedData);
+        break;
+      case "Inter-BR-Account-Monthly":
+        console.log("Processing Inter-BR-Account-Monthly");
+        processedData = processInterBRAccountMonthly(data, file.name);
         console.log("Processed data:", processedData);
         break;
       case "Handelsbanken-SE":

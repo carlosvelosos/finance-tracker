@@ -53,6 +53,7 @@
  *     * Inter-BR-Mastercard: INMC_YYYY (extracts year from filename)
  *     * Inter-BR-Mastercard-from-PDF: INMCPDF_YYYYMM (extracts year/month from PDF filename)
  *     * Inter-BR-Account: IN_YYYY (extracts year from filename)
+ *     * Inter-BR-Account-Monthly: INACC_YYYYMM (extracts year/month from filename pattern Extrato-DD-MM-YYYY-a-DD-MM-YYYY-CSV.csv)
  *     * Handelsbanken-SE: handelsbanken_transactions
  *     * AmericanExpress-SE: amex_YYYY
  *     * SEB_SJ_Prio-SE: seb_sj_prio_YYYY
@@ -84,7 +85,8 @@
  * • DEV - Development/testing environment
  * • Inter-BR-Mastercard - Inter Brazil Mastercard accounts
  * • Inter-BR-Mastercard-from-PDF - Inter Brazil Mastercard PDF-converted statements
- * • Inter-BR-Account - Inter Brazil account statements
+ * • Inter-BR-Account - Inter Brazil account statements (yearly)
+ * • Inter-BR-Account-Monthly - Inter Brazil account statements (monthly, format: Extrato-DD-MM-YYYY-a-DD-MM-YYYY-CSV.csv)
  * • Handelsbanken-SE - Handelsbanken Sweden
  * • AmericanExpress-SE - American Express Sweden
  * • SEB_SJ_Prio-SE - SEB SJ Prio card Sweden
@@ -125,6 +127,7 @@ const BANK_OPTIONS = [
   "Inter-BR-Mastercard",
   "Inter-BR-Mastercard-from-PDF",
   "Inter-BR-Account",
+  "Inter-BR-Account-Monthly",
   "Handelsbanken-SE",
   "AmericanExpress-SE",
   "SEB_SJ_Prio-SE",
@@ -558,6 +561,24 @@ export default function UploadPage() {
         // Extract year from filename for Inter-BR-Account tables (format: IN_YYYY)
         const accountYearMatch = fileName.match(/(\d{4})/);
         return accountYearMatch ? `IN_${accountYearMatch[1]}` : "IN_2025";
+      case "Inter-BR-Account-Monthly":
+        // Extract year and month from filename for Inter-BR-Account-Monthly tables (format: INACC_YYYYMM)
+        // Expected filename pattern: Extrato-DD-MM-YYYY-a-DD-MM-YYYY-CSV.csv
+        const monthlyMatch = fileName.match(
+          /Extrato-\d{2}-(\d{2})-(\d{4})-a-/i,
+        );
+        if (monthlyMatch) {
+          const month = monthlyMatch[1]; // "01"
+          const year = monthlyMatch[2]; // "2025"
+          return `INACC_${year}${month}`;
+        }
+        // Fallback to current year/month if pattern doesn't match
+        const currentDateMonthly = new Date();
+        const fallbackYearMonthly = currentDateMonthly.getFullYear();
+        const fallbackMonthMonthly = String(
+          currentDateMonthly.getMonth() + 1,
+        ).padStart(2, "0");
+        return `INACC_${fallbackYearMonthly}${fallbackMonthMonthly}`;
       case "Handelsbanken-SE":
         // Extract year from filename for Handelsbanken tables (format: HB_YYYY)
         const hbYearMatch = fileName.match(/(\d{4})/);

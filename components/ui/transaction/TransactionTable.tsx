@@ -69,13 +69,19 @@ interface TransactionTableProps {
  * A comprehensive, feature-rich table component for displaying and managing financial transactions.
  * This component provides advanced functionality including:
  * - Multi-column sorting with special date handling
- * - Real-time text filtering across multiple fields
+ * - Real-time text filtering across multiple fields with NOT: exclusion syntax
  * - Year and month-based filtering via tab interfaces
  * - Inline editing of categories and comments with database persistence
  * - Automatic total amount calculations
  * - Responsive design with customizable column visibility
  * - Bank-specific filtering and category exclusion
  * - Row click handlers for additional interactions
+ *
+ * TEXT FILTER SYNTAX:
+ * - Include matching: "Carlos" - shows only transactions containing "Carlos"
+ * - Exclude matching: "NOT: Carlos" - shows only transactions NOT containing "Carlos"
+ * - Case-insensitive: Works with "NOT:", "not:", "NoT:", etc.
+ * - Works on: Category, Description, Responsible, and Comment fields
  *
  * @param props - TransactionTableProps configuration object
  * @returns {JSX.Element} Rendered transaction table with all features
@@ -424,19 +430,91 @@ export default function TransactionTable({
   // ========== DATA FILTERING AND PROCESSING ==========
 
   /**
+   * Check if a filter value contains the NOT: prefix for negation
+   *
+   * Determines whether a filter string is intended to exclude rather than include matches.
+   * The check is case-insensitive and handles whitespace variations.
+   *
+   * @param {string} filterValue - The filter input string to check
+   * @returns {boolean} True if the filter starts with "NOT:" (case-insensitive)
+   *
+   * @example
+   * isNegatedFilter("NOT: Carlos") // returns true
+   * isNegatedFilter("not:Carlos") // returns true
+   * isNegatedFilter("Carlos") // returns false
+   */
+  const isNegatedFilter = (filterValue: string): boolean => {
+    return filterValue.trim().toLowerCase().startsWith("not:");
+  };
+
+  /**
+   * Extract the actual search term from a filter value
+   *
+   * Removes the "NOT:" prefix if present and returns the trimmed search term.
+   * Handles various spacing patterns around the prefix and search term.
+   *
+   * @param {string} filterValue - The filter input string
+   * @returns {string} The search term without the NOT: prefix
+   *
+   * @example
+   * getFilterTerm("NOT: Carlos") // returns "Carlos"
+   * getFilterTerm("not:Carlos") // returns "Carlos"
+   * getFilterTerm("Carlos") // returns "Carlos"
+   */
+  const getFilterTerm = (filterValue: string): string => {
+    if (isNegatedFilter(filterValue)) {
+      return filterValue.trim().substring(4).trim(); // Remove "NOT:" (4 chars) and trim whitespace
+    }
+    return filterValue.trim();
+  };
+
+  /**
+   * Apply a text filter with support for NOT: exclusion syntax
+   *
+   * Performs case-insensitive substring matching with optional negation.
+   * When the filter starts with "NOT:", returns true for non-matches instead of matches.
+   *
+   * @param {string | null | undefined} fieldValue - The field value to filter against
+   * @param {string} filterValue - The filter input (may contain "NOT:" prefix)
+   * @returns {boolean} True if the transaction should be included in results
+   *
+   * @example
+   * applyTextFilter("Carlos", "Car") // returns true (includes match)
+   * applyTextFilter("Carlos", "NOT: Car") // returns false (excludes match)
+   * applyTextFilter("Amanda", "NOT: Car") // returns true (excludes non-match)
+   */
+  const applyTextFilter = (
+    fieldValue: string | null | undefined,
+    filterValue: string,
+  ): boolean => {
+    if (!filterValue) return true;
+
+    const isNegated = isNegatedFilter(filterValue);
+    const searchTerm = getFilterTerm(filterValue).toLowerCase();
+    const fieldValueLower = (fieldValue || "").toLowerCase();
+
+    const matches = fieldValueLower.includes(searchTerm);
+    return isNegated ? !matches : matches;
+  };
+
+  /**
    * Apply Multiple Filters to Transaction Data
    *
    * Processes the transaction array through a series of filter chains to provide
    * a comprehensive filtering system. Each filter is applied sequentially and
    * only executes if the corresponding feature is enabled.
    *
+   * Text filters support "NOT:" prefix for exclusion filtering:
+   * - Regular: "Carlos" includes transactions containing "Carlos"
+   * - Negated: "NOT: Carlos" excludes transactions containing "Carlos"
+   *
    * Filters applied in order:
    * 1. Bank filtering - Show only transactions from specified bank
    * 2. Category exclusion - Remove specified categories from display
-   * 3. Category text search - Filter by category name containing search term
-   * 4. Description text search - Filter by description containing search term
-   * 5. Responsible person text search - Filter by responsible person name
-   * 6. Comment text search - Filter by comment containing search term
+   * 3. Category text search - Filter by category name (supports NOT: exclusion)
+   * 4. Description text search - Filter by description (supports NOT: exclusion)
+   * 5. Responsible person text search - Filter by responsible person (supports NOT: exclusion)
+   * 6. Comment text search - Filter by comment (supports NOT: exclusion)
    * 7. Year filtering - Show only transactions from selected year
    * 8. Month filtering - Show only transactions from selected month
    *
@@ -453,31 +531,19 @@ export default function TransactionTable({
     )
     .filter((transaction) => {
       if (!showCategoryFilter || !categoryFilter) return true;
-      const categoryQuery = categoryFilter.toLowerCase();
-      return (
-        transaction.Category?.toLowerCase().includes(categoryQuery) || false
-      );
+      return applyTextFilter(transaction.Category, categoryFilter);
     })
     .filter((transaction) => {
       if (!showDescriptionFilter || !descriptionFilter) return true;
-      const descriptionQuery = descriptionFilter.toLowerCase();
-      return (
-        transaction.Description?.toLowerCase().includes(descriptionQuery) ||
-        false
-      );
+      return applyTextFilter(transaction.Description, descriptionFilter);
     })
     .filter((transaction) => {
       if (!showResponsibleFilter || !responsibleFilter) return true;
-      const responsibleQuery = responsibleFilter.toLowerCase();
-      return (
-        transaction.Responsible?.toLowerCase().includes(responsibleQuery) ||
-        false
-      );
+      return applyTextFilter(transaction.Responsible, responsibleFilter);
     })
     .filter((transaction) => {
       if (!showCommentFilter || !commentFilter) return true;
-      const commentQuery = commentFilter.toLowerCase();
-      return transaction.Comment?.toLowerCase().includes(commentQuery) || false;
+      return applyTextFilter(transaction.Comment, commentFilter);
     })
     .filter((transaction) => {
       if (!showYearFilter || selectedYear === "All") return true;
@@ -722,7 +788,7 @@ export default function TransactionTable({
           {showCategoryFilter && (
             <input
               type="text"
-              placeholder="Filter by Category"
+              placeholder="Filter by Category (use NOT: to exclude)"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"
@@ -731,7 +797,7 @@ export default function TransactionTable({
           {showDescriptionFilter && (
             <input
               type="text"
-              placeholder="Filter by Description"
+              placeholder="Filter by Description (use NOT: to exclude)"
               value={descriptionFilter}
               onChange={(e) => setDescriptionFilter(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"
@@ -740,7 +806,7 @@ export default function TransactionTable({
           {showResponsibleFilter && (
             <input
               type="text"
-              placeholder="Filter by Responsible"
+              placeholder="Filter by Responsible (use NOT: to exclude)"
               value={responsibleFilter}
               onChange={(e) => setResponsibleFilter(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"
@@ -749,7 +815,7 @@ export default function TransactionTable({
           {showCommentFilter && (
             <input
               type="text"
-              placeholder="Filter by Comment"
+              placeholder="Filter by Comment (use NOT: to exclude)"
               value={commentFilter}
               onChange={(e) => setCommentFilter(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"

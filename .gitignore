@@ -44,3 +44,10 @@ next-env.d.ts
 # Private data
 /.env.local
 privat
+
+# Reports
+/reports/*.json
+
+# Build outputs
+.next/
+out/

@@ -68,12 +68,16 @@ export default function AggregatedTransactionsPage() {
     const nonAutomaticDebitTransactions = transactions.filter(
       (t) =>
         t.Description !== "PAGTO DEBITO AUTOMATICO" &&
-        t.Category !== "Pagamento fatura anterior",
+        t.Category !== "Pagamento fatura anterior" &&
+        t.Category !== "Inter MC Credit card" &&
+        t.Category !== "Rico Visa Credit card",
     );
     const automaticDebitTransactions = transactions.filter(
       (t) =>
         t.Description === "PAGTO DEBITO AUTOMATICO" ||
-        t.Category === "Pagamento fatura anterior",
+        t.Category === "Pagamento fatura anterior" ||
+        t.Category === "Inter MC Credit card" ||
+        t.Category === "Rico Visa Credit card",
     );
 
     return [

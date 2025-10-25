@@ -289,21 +289,14 @@ export function BillChart({
   }, [chartData]);
 
   // Calculate salary percentages
-  const { monthlySalary, annualSalary, monthlyPercentage, annualPercentage } =
-    useMemo(() => {
-      const monthlySal = country === "Sweden" ? 33000 : 1000;
-      const annualSal = monthlySal * 12;
-      const monthlyPct = meanMonthly > 0 ? (meanMonthly / monthlySal) * 100 : 0;
-      const annualPct =
-        annualProjection > 0 ? (annualProjection / annualSal) * 100 : 0;
+  const { monthlyPercentage } = useMemo(() => {
+    const monthlySal = country === "Sweden" ? 33000 : 1000;
+    const monthlyPct = meanMonthly > 0 ? (meanMonthly / monthlySal) * 100 : 0;
 
-      return {
-        monthlySalary: monthlySal,
-        annualSalary: annualSal,
-        monthlyPercentage: monthlyPct,
-        annualPercentage: annualPct,
-      };
-    }, [country, meanMonthly, annualProjection]);
+    return {
+      monthlyPercentage: monthlyPct,
+    };
+  }, [country, meanMonthly]);
 
   return (
     <Card

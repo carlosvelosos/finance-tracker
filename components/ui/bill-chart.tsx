@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import {
   CartesianGrid,
   Line,
-  LineChart,
+  ComposedChart,
+  Bar,
   XAxis,
   YAxis,
   ResponsiveContainer,
@@ -114,10 +115,12 @@ export function BillChart({
       const currentMonthIndex = new Date().getMonth();
 
       return months.map((month, index) => {
-        cumulative += monthlyValues[index] || 0;
+        const monthlyValue = monthlyValues[index] || 0;
+        cumulative += monthlyValue;
         return {
           name: month.substring(0, 3),
           value: cumulative,
+          monthlyTotal: monthlyValue,
           isPast: index <= currentMonthIndex,
         };
       });
@@ -148,6 +151,7 @@ export function BillChart({
       return {
         name: month.substring(0, 3),
         value: cumulativeTotal,
+        monthlyTotal: monthlyTotal,
         isPast: monthIndex <= currentMonthIndex,
       };
     });
@@ -160,6 +164,11 @@ export function BillChart({
         color ||
         (country === "Sweden" ? "hsl(var(--chart-1))" : "hsl(var(--chart-3))"),
     },
+    monthlyTotal: {
+      label: "Monthly Total",
+      color:
+        country === "Sweden" ? "hsl(var(--chart-2))" : "hsl(var(--chart-4))",
+    },
   } satisfies ChartConfig;
 
   // Custom tooltip content with position at top of chart
@@ -168,10 +177,13 @@ export function BillChart({
     coordinate,
   }: TooltipProps<ValueType, NameType>) => {
     if (payload && payload.length > 0 && coordinate) {
-      const value = payload[0].value as number;
+      const cumulativeValue = payload.find((p) => p.dataKey === "value")
+        ?.value as number;
+      const monthlyValue = payload.find((p) => p.dataKey === "monthlyTotal")
+        ?.value as number;
 
       // Format currency based on country
-      const formattedValue =
+      const formatCurrency = (value: number) =>
         country === "Sweden"
           ? new Intl.NumberFormat("sv-SE", {
               style: "currency",
@@ -184,22 +196,27 @@ export function BillChart({
 
       return (
         <div
-          className="absolute shadow-md rounded p-2 pointer-events-none z-[100]"
+          className="absolute shadow-md rounded p-2 pointer-events-none z-[100] bg-gray-900 border border-gray-700"
           style={{
             left: `${coordinate.x}px`,
             top: "-20px", // Fixed position at top of chart
             transform: "translateX(-50%)", // Center horizontally
-            maxWidth: "200px",
+            minWidth: "160px",
           }}
         >
-          <div className="flex items-center gap-2">
-            {/* <div
-              className="w-3 h-3 rounded-full"
-              style={{
-                backgroundColor: payload[0].isPast ? "#1E40AF" : "#333333",
-              }}
-            /> */}
-            <span className="font-medium">{formattedValue}</span>
+          <div className="flex flex-col gap-1 text-xs">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-gray-400">Monthly:</span>
+              <span className="font-medium text-white">
+                {formatCurrency(monthlyValue)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-gray-400">Cumulative:</span>
+              <span className="font-medium text-white">
+                {formatCurrency(cumulativeValue)}
+              </span>
+            </div>
           </div>
         </div>
       );
@@ -224,7 +241,7 @@ export function BillChart({
           {/* <div className="text-sm font-medium mb-1">{country}</div> */}
           <ChartContainer config={chartConfig} className="h-[90%] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart
+              <ComposedChart
                 data={chartData}
                 margin={{
                   left: 0,
@@ -244,7 +261,23 @@ export function BillChart({
                   axisLine={false}
                   tickMargin={8}
                 />
+                {/* Left Y-axis for cumulative line */}
                 <YAxis
+                  yAxisId="left"
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                    }).format(value)
+                  }
+                  width={40}
+                />
+                {/* Right Y-axis for monthly bars */}
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(value) =>
@@ -257,11 +290,47 @@ export function BillChart({
                 />
                 <ChartTooltip cursor={true} content={renderTooltipContent} />
 
-                {/* Single line with gradient stroke color */}
+                {/* Define gradient to handle color split */}
+                <defs>
+                  <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset={gradientOffset} stopColor="#0c51b5" />
+                    <stop offset={gradientOffset} stopColor="#333333" />
+                  </linearGradient>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop
+                      offset={gradientOffset}
+                      stopColor={
+                        country === "Sweden"
+                          ? "rgba(59, 130, 246, 0.4)"
+                          : "rgba(34, 197, 94, 0.4)"
+                      }
+                    />
+                    <stop
+                      offset={gradientOffset}
+                      stopColor={
+                        country === "Sweden"
+                          ? "rgba(100, 100, 100, 0.3)"
+                          : "rgba(100, 100, 100, 0.3)"
+                      }
+                    />
+                  </linearGradient>
+                </defs>
+
+                {/* Bar chart for monthly totals */}
+                <Bar
+                  yAxisId="right"
+                  dataKey="monthlyTotal"
+                  fill="url(#barGradient)"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={40}
+                />
+
+                {/* Line chart for cumulative values */}
                 <Line
+                  yAxisId="left"
                   type="monotone"
                   dataKey="value"
-                  name="Value"
+                  name="Cumulative"
                   strokeWidth={2}
                   stroke="url(#splitColor)"
                   connectNulls
@@ -269,15 +338,7 @@ export function BillChart({
                   activeDot={<PastFutureActiveDot />}
                   isAnimationActive={false}
                 />
-
-                {/* Define gradient to handle color split */}
-                <defs>
-                  <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset={gradientOffset} stopColor="#0c51b5" />
-                    <stop offset={gradientOffset} stopColor="#333333" />
-                  </linearGradient>
-                </defs>
-              </LineChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </ChartContainer>
         </div>

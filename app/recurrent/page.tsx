@@ -277,8 +277,12 @@ export default function BillsPage() {
   };
 
   // Calculate cumulative totals per country (from January to current month)
+  // Excludes credit card expenses to avoid double-counting
   const cumulativeTotalsPerCountry = bills.reduce(
     (acc, bill) => {
+      // Skip bills marked as credit card to avoid double-counting
+      if (bill.is_credit_card) return acc;
+
       // Create an array of month abbreviations from January to the current month
       const relevantMonths = MONTHS.slice(0, currentMonthIndex + 1).map(
         (month) => month.toLowerCase().substring(0, 3),

@@ -63,7 +63,7 @@ export default function BillCard({
       "November",
       "December",
     ],
-    []
+    [],
   );
 
   // Update carousel when month changes from parent component
@@ -135,14 +135,18 @@ export default function BillCard({
     const sortedBills = [...countryBills].sort((a, b) => a.due_day - b.due_day);
 
     // Calculate total for all bills (paid and unpaid)
-    const totalValue = sortedBills.reduce((sum, bill) => {
-      const monthValue = bill[valueField];
-      return (
-        sum + (typeof monthValue === "number" ? monthValue : bill.base_value)
-      );
-    }, 0);
+    // Excludes credit card expenses to avoid double-counting
+    const totalValue = sortedBills
+      .filter((bill) => !bill.is_credit_card) // Skip credit card expenses
+      .reduce((sum, bill) => {
+        const monthValue = bill[valueField];
+        return (
+          sum + (typeof monthValue === "number" ? monthValue : bill.base_value)
+        );
+      }, 0);
 
     // Calculate total for unpaid bills only
+    // Includes credit card expenses when unpaid (so you know what needs to be paid)
     const unpaidTotalValue = sortedBills
       .filter((bill) => !bill[statusField])
       .reduce((sum, bill) => {
@@ -153,7 +157,7 @@ export default function BillCard({
       }, 0);
 
     const unpaidBillsCount = sortedBills.filter(
-      (bill) => !bill[statusField]
+      (bill) => !bill[statusField],
     ).length;
 
     return {
@@ -250,7 +254,7 @@ export default function BillCard({
                   "transition-all flex items-center",
                   currentSlide === index
                     ? "h-2 w-8 rounded-full bg-green-600" // Adjusted height to match inactive dots
-                    : "h-2 w-2 rounded-full bg-[#898989]"
+                    : "h-2 w-2 rounded-full bg-[#898989]",
                 )}
                 onClick={() => {
                   carouselApi?.scrollTo(index);

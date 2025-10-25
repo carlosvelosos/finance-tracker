@@ -173,8 +173,10 @@ export function BillChart({
       const valueField = `${monthAbbr}_value` as keyof Bill;
 
       // Calculate monthly total for selected country
+      // Excludes credit card expenses to avoid double-counting
       const monthlyTotal = bills
         .filter((bill) => bill.country === country)
+        .filter((bill) => !bill.is_credit_card) // Skip credit card expenses
         .reduce((sum, bill) => {
           const monthValue = bill[valueField];
           return (

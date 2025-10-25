@@ -11,6 +11,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetClose,
@@ -87,6 +95,8 @@ export default function BillItem({
           payment_method: editBill.payment_method,
           country: editBill.country,
           base_value: editBill.base_value,
+          is_credit_card: editBill.is_credit_card,
+          credit_card_name: editBill.credit_card_name,
           [valueField]: editBill[valueField],
           updated_at: new Date().toISOString(),
         })
@@ -108,7 +118,7 @@ export default function BillItem({
         toast.error(
           `Failed to update bill: ${
             error instanceof Error ? error.message : "Unknown error"
-          }`
+          }`,
         );
       } else {
         console.error("Error updating bill:", error);
@@ -256,6 +266,66 @@ export default function BillItem({
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label
+                      htmlFor="is_credit_card"
+                      className="text-right font-medium text-gray-300"
+                    >
+                      Credit Card
+                    </Label>
+                    <div className="col-span-3 flex items-center">
+                      <Checkbox
+                        id="is_credit_card"
+                        checked={editBill.is_credit_card}
+                        onCheckedChange={(checked) => {
+                          setEditBill((prev) => ({
+                            ...prev,
+                            is_credit_card: checked === true,
+                            credit_card_name:
+                              checked === true ? prev.credit_card_name : null,
+                          }));
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {editBill.is_credit_card && (
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label
+                        htmlFor="credit_card_name"
+                        className="text-right font-medium text-gray-300"
+                      >
+                        Card Name
+                      </Label>
+                      <Select
+                        value={editBill.credit_card_name || ""}
+                        onValueChange={(value) =>
+                          setEditBill((prev) => ({
+                            ...prev,
+                            credit_card_name: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select a credit card" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {editBill.country === "Sweden" ? (
+                            <>
+                              <SelectItem value="Amex">Amex</SelectItem>
+                              <SelectItem value="SJ Prio">SJ Prio</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="Inter MC">Inter MC</SelectItem>
+                              <SelectItem value="Rico Visa">
+                                Rico Visa
+                              </SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
                       htmlFor="base_value"
                       className="text-right font-medium text-gray-300"
                     >
@@ -268,7 +338,7 @@ export default function BillItem({
                       onChange={(e) =>
                         handleInputChange(
                           "base_value",
-                          parseFloat(e.target.value)
+                          parseFloat(e.target.value),
                         )
                       }
                       className="col-span-3"
@@ -292,7 +362,7 @@ export default function BillItem({
                       onChange={(e) =>
                         handleInputChange(
                           valueField,
-                          parseFloat(e.target.value)
+                          parseFloat(e.target.value),
                         )
                       }
                       className="col-span-3"
@@ -327,6 +397,16 @@ export default function BillItem({
 
             <div className="font-medium text-gray-300">Payment Method:</div>
             <div>{bill.payment_method}</div>
+
+            <div className="font-medium text-gray-300">Credit Card:</div>
+            <div>{bill.is_credit_card ? "Yes" : "No"}</div>
+
+            {bill.is_credit_card && bill.credit_card_name && (
+              <>
+                <div className="font-medium text-gray-300">Card Name:</div>
+                <div>{bill.credit_card_name}</div>
+              </>
+            )}
 
             <div className="font-medium text-gray-300">Base Value:</div>
             <div>{formatCurrency(bill.base_value, bill.country)}</div>

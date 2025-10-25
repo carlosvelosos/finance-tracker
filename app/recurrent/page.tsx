@@ -251,6 +251,96 @@ export default function BillsPage() {
     }
   };
 
+  // Function to update future month values based on mean of past months
+  const updateFutureMonthsWithMean = async () => {
+    try {
+      setIsSubmitting(true);
+      const currentMonthIdx = new Date().getMonth();
+      const updatedBills: Bill[] = [];
+
+      // Process each bill
+      for (const bill of bills) {
+        const pastMonthValues: number[] = [];
+
+        // Collect values from past months (January to current month)
+        for (let i = 0; i <= currentMonthIdx; i++) {
+          const monthAbbr = MONTHS[i].toLowerCase().substring(0, 3);
+          const valueField = `${monthAbbr}_value` as keyof Bill;
+          const monthValue = bill[valueField];
+
+          if (typeof monthValue === "number") {
+            pastMonthValues.push(monthValue);
+          } else {
+            pastMonthValues.push(bill.base_value);
+          }
+        }
+
+        // Calculate mean of past months
+        const meanValue =
+          pastMonthValues.length > 0
+            ? pastMonthValues.reduce((sum, val) => sum + val, 0) /
+              pastMonthValues.length
+            : bill.base_value;
+
+        // Round to 2 decimal places
+        const roundedMean = Math.round(meanValue * 100) / 100;
+
+        // Prepare update object for future months
+        const updateData: Record<string, number> = {};
+        let hasUpdates = false;
+
+        // Update future months (from next month to December)
+        for (let i = currentMonthIdx + 1; i < 12; i++) {
+          const monthAbbr = MONTHS[i].toLowerCase().substring(0, 3);
+          const valueField = `${monthAbbr}_value`;
+          updateData[valueField] = roundedMean;
+          hasUpdates = true;
+        }
+
+        // Only update if there are future months to update
+        if (hasUpdates) {
+          const { error } = await supabase
+            .from("recurrent_2025")
+            .update({
+              ...updateData,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", bill.id);
+
+          if (error) throw error;
+
+          // Update local state
+          const updatedBill = { ...bill };
+          Object.entries(updateData).forEach(([key, value]) => {
+            (updatedBill as Record<string, unknown>)[key] = value;
+          });
+          updatedBills.push(updatedBill);
+        }
+      }
+
+      // Update local bills state
+      setBills((prevBills) =>
+        prevBills.map(
+          (bill) =>
+            updatedBills.find((updated) => updated.id === bill.id) || bill,
+        ),
+      );
+
+      toast.success("Future months updated successfully", {
+        description: `Updated ${updatedBills.length} bills with mean values from past months`,
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error("Error updating future months:", error);
+      toast.error("Failed to update future months", {
+        description: "Please try again.",
+        duration: 5000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Handler for direct month selection from carousel
   const handleMonthChange = (monthName: string) => {
     const newIndex = MONTHS.findIndex((m) => m === monthName);
@@ -622,7 +712,14 @@ export default function BillsPage() {
         </Table>
 
         {/* Add Expense Button & Sheet */}
-        <div className="flex justify-center mt-6 mb-16">
+        <div className="flex justify-center gap-4 mt-6 mb-16">
+          <Button
+            onClick={updateFutureMonthsWithMean}
+            disabled={isSubmitting}
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            {isSubmitting ? "Updating..." : "Update Future Months with Mean"}
+          </Button>
           <Sheet>
             <SheetTrigger asChild>
               <Button className="bg-green-500 hover:bg-green-600 text-white">

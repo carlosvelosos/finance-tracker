@@ -19,6 +19,7 @@ import { Label } from "../../components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
   Select,
@@ -85,6 +86,8 @@ export default function BillsPage() {
     payment_method: "",
     country: "Sweden",
     base_value: 0,
+    is_credit_card: false,
+    credit_card_name: null as string | null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -197,6 +200,8 @@ export default function BillsPage() {
           payment_method: newExpense.payment_method,
           country: newExpense.country,
           base_value: newExpense.base_value,
+          is_credit_card: newExpense.is_credit_card,
+          credit_card_name: newExpense.credit_card_name,
           ...statusFields,
         })
         .select();
@@ -229,6 +234,8 @@ export default function BillsPage() {
         payment_method: "",
         country: "Sweden",
         base_value: 0,
+        is_credit_card: false,
+        credit_card_name: null,
       });
     } catch (error) {
       console.error("Error adding expense:", error);
@@ -726,6 +733,63 @@ export default function BillsPage() {
                     }`}
                   />
                 </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label
+                    htmlFor="is_credit_card"
+                    className="text-right text-black"
+                  >
+                    Credit Card
+                  </Label>
+                  <div className="col-span-3 flex items-center">
+                    <Checkbox
+                      id="is_credit_card"
+                      checked={newExpense.is_credit_card}
+                      onCheckedChange={(checked) => {
+                        setNewExpense({
+                          ...newExpense,
+                          is_credit_card: checked === true,
+                          credit_card_name: checked === true ? null : null,
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+                {newExpense.is_credit_card && (
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
+                      htmlFor="credit_card_name"
+                      className="text-right text-black"
+                    >
+                      Card Name
+                    </Label>
+                    <Select
+                      value={newExpense.credit_card_name || ""}
+                      onValueChange={(value) =>
+                        setNewExpense({
+                          ...newExpense,
+                          credit_card_name: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="col-span-3 text-black">
+                        <SelectValue placeholder="Select a credit card" />
+                      </SelectTrigger>
+                      <SelectContent className="text-black">
+                        {newExpense.country === "Sweden" ? (
+                          <>
+                            <SelectItem value="Amex">Amex</SelectItem>
+                            <SelectItem value="SJ Prio">SJ Prio</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="Inter MC">Inter MC</SelectItem>
+                            <SelectItem value="Rico Visa">Rico Visa</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               <SheetFooter>
                 <SheetClose asChild>

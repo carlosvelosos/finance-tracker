@@ -5,6 +5,8 @@ export type Bill = {
   payment_method: string;
   country: string;
   base_value: number;
+  is_credit_card: boolean;
+  credit_card_name: string | null;
   jan_value: number | null;
   feb_value: number | null;
   mar_value: number | null;
@@ -31,4 +33,4 @@ export type Bill = {
   dec_status: boolean;
   created_at: string;
   updated_at: string;
-}; 
+};

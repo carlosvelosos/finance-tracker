@@ -209,6 +209,20 @@ export function BillChart({
     },
   } satisfies ChartConfig;
 
+  // Format currency based on country - shared function
+  const formatCurrency = (value: number) =>
+    country === "Sweden"
+      ? new Intl.NumberFormat("sv-SE", {
+          style: "currency",
+          currency: "SEK",
+          maximumFractionDigits: 0,
+        }).format(value)
+      : new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+          maximumFractionDigits: 0,
+        }).format(value);
+
   // Custom tooltip content with position at top of chart
   const renderTooltipContent = ({
     payload,
@@ -219,18 +233,6 @@ export function BillChart({
         ?.value as number;
       const monthlyValue = payload.find((p) => p.dataKey === "monthlyTotal")
         ?.value as number;
-
-      // Format currency based on country
-      const formatCurrency = (value: number) =>
-        country === "Sweden"
-          ? new Intl.NumberFormat("sv-SE", {
-              style: "currency",
-              currency: "SEK",
-            }).format(value)
-          : new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(value);
 
       return (
         <div
@@ -266,13 +268,34 @@ export function BillChart({
   const currentMonthIndex = new Date().getMonth();
   const gradientOffset = currentMonthIndex / 11; // Position as percentage along x-axis
 
+  // Calculate mean monthly expense and annual projection
+  const { meanMonthly, annualProjection } = useMemo(() => {
+    // Only calculate based on past months (including current month)
+    const pastMonths = chartData.filter((data) => data.isPast);
+    const totalMonthlyExpenses = pastMonths.reduce(
+      (sum, data) => sum + data.monthlyTotal,
+      0,
+    );
+    const mean =
+      pastMonths.length > 0 ? totalMonthlyExpenses / pastMonths.length : 0;
+    const projection = mean * 12;
+
+    return {
+      meanMonthly: mean,
+      annualProjection: projection,
+    };
+  }, [chartData]);
+
   return (
     <Card
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col h-[350px] ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
         <CardTitle>{country} Cumulative Bills</CardTitle>
-        <CardDescription>Accumulated expenses over 2025</CardDescription>
+        <CardDescription>
+          Avg monthly: {formatCurrency(meanMonthly)} | Annual projection:{" "}
+          {formatCurrency(annualProjection)}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4">
         <div className="h-full rounded-lg p-3">

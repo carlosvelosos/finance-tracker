@@ -291,7 +291,11 @@ export function BillChart({
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col h-[350px] ${className}`}
     >
       <CardHeader className="pb-2 shrink-0">
-        <CardTitle>{country} Cumulative Bills</CardTitle>
+        <CardTitle
+          className={country === "Sweden" ? "text-blue-500" : "text-green-500"}
+        >
+          {country} Cumulative Bills
+        </CardTitle>
         <CardDescription>
           Avg monthly: {formatCurrency(meanMonthly)} | Annual projection:{" "}
           {formatCurrency(annualProjection)}
@@ -354,7 +358,7 @@ export function BillChart({
                 {/* Define gradient to handle color split for line only */}
                 <defs>
                   <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset={gradientOffset} stopColor="#0c51b5" />
+                    <stop offset={gradientOffset} stopColor="#fbbf24" />
                     <stop offset={gradientOffset} stopColor="#333333" />
                   </linearGradient>
                 </defs>

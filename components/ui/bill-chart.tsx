@@ -286,6 +286,23 @@ export function BillChart({
     };
   }, [chartData]);
 
+  // Calculate salary percentages
+  const { monthlySalary, annualSalary, monthlyPercentage, annualPercentage } =
+    useMemo(() => {
+      const monthlySal = country === "Sweden" ? 33000 : 1000;
+      const annualSal = monthlySal * 12;
+      const monthlyPct = meanMonthly > 0 ? (meanMonthly / monthlySal) * 100 : 0;
+      const annualPct =
+        annualProjection > 0 ? (annualProjection / annualSal) * 100 : 0;
+
+      return {
+        monthlySalary: monthlySal,
+        annualSalary: annualSal,
+        monthlyPercentage: monthlyPct,
+        annualPercentage: annualPct,
+      };
+    }, [country, meanMonthly, annualProjection]);
+
   return (
     <Card
       className={`bg-[#171717] rounded-lg shadow-md border border-gray-800 text-[#898989] flex flex-col h-[350px] ${className}`}
@@ -298,7 +315,7 @@ export function BillChart({
         </CardTitle>
         <CardDescription>
           Avg monthly: {formatCurrency(meanMonthly)} | Annual projection:{" "}
-          {formatCurrency(annualProjection)}
+          {formatCurrency(annualProjection)} | {monthlyPercentage.toFixed(1)} %
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden px-4">

@@ -55,6 +55,18 @@ interface DotProps {
   };
 }
 
+// Define a type for bar shape props
+interface BarShapeProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  payload?: {
+    isPast: boolean;
+  };
+  fill?: string;
+}
+
 // Define a custom dot component properly typed
 const PastFutureDot = (props: DotProps) => {
   const { cx, cy, payload } = props;
@@ -84,6 +96,32 @@ const PastFutureActiveDot = (props: DotProps) => {
       r={6}
       fill={payload.isPast ? "#1E40AF" : "#6B7280"}
       stroke={payload.isPast ? "#1E40AF" : "#6B7280"}
+    />
+  );
+};
+
+// Define a custom bar shape component that changes color based on isPast
+const CustomBarShape = (props: BarShapeProps & { country: string }) => {
+  const { x, y, width, height, payload, country } = props;
+  if (x === undefined || y === undefined || !width || !height || !payload)
+    return null;
+
+  // Define colors based on country and isPast status
+  const fillColor = payload.isPast
+    ? country === "Sweden"
+      ? "rgba(59, 130, 246, 0.5)" // Blue for Sweden past
+      : "rgba(34, 197, 94, 0.5)" // Green for Brazil past
+    : "rgba(100, 100, 100, 0.3)"; // Gray for future months
+
+  return (
+    <rect
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      fill={fillColor}
+      rx={4}
+      ry={4}
     />
   );
 };
@@ -290,37 +328,21 @@ export function BillChart({
                 />
                 <ChartTooltip cursor={true} content={renderTooltipContent} />
 
-                {/* Define gradient to handle color split */}
+                {/* Define gradient to handle color split for line only */}
                 <defs>
                   <linearGradient id="splitColor" x1="0" y1="0" x2="1" y2="0">
                     <stop offset={gradientOffset} stopColor="#0c51b5" />
                     <stop offset={gradientOffset} stopColor="#333333" />
                   </linearGradient>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop
-                      offset={gradientOffset}
-                      stopColor={
-                        country === "Sweden"
-                          ? "rgba(59, 130, 246, 0.4)"
-                          : "rgba(34, 197, 94, 0.4)"
-                      }
-                    />
-                    <stop
-                      offset={gradientOffset}
-                      stopColor={
-                        country === "Sweden"
-                          ? "rgba(100, 100, 100, 0.3)"
-                          : "rgba(100, 100, 100, 0.3)"
-                      }
-                    />
-                  </linearGradient>
                 </defs>
 
-                {/* Bar chart for monthly totals */}
+                {/* Bar chart for monthly totals with custom shape */}
                 <Bar
                   yAxisId="right"
                   dataKey="monthlyTotal"
-                  fill="url(#barGradient)"
+                  shape={(props: BarShapeProps) => (
+                    <CustomBarShape {...props} country={country} />
+                  )}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={40}
                 />

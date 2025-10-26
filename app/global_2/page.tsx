@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { useSupabaseTables } from "../../lib/hooks/useSupabaseTables";
+import { useTableSelection } from "@/context/TableSelectionContext";
 import { useAggregatedTransactions } from "../../lib/hooks/useAggregatedTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";
 import ProtectedRoute from "@/components/protected-route";
@@ -24,7 +24,7 @@ import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
 export default function AggregatedTransactionsPage() {
   const [showTableSelection, setShowTableSelection] = useState(true);
 
-  // Table discovery and selection
+  // Table discovery and selection - now using shared context
   const {
     tables,
     selectedTables,
@@ -35,7 +35,7 @@ export default function AggregatedTransactionsPage() {
     deselectAllTables,
     refetch: refetchTables,
     user,
-  } = useSupabaseTables();
+  } = useTableSelection();
 
   // Aggregated transactions data
   const {
@@ -174,15 +174,11 @@ export default function AggregatedTransactionsPage() {
                 </Button>
               </div>
             }
-            // Chart buttons - could be expanded to show aggregated charts
+            // Chart buttons - navigates to aggregated charts
             chartButtons={[
               {
-                url: "./category/chart",
-                text: "Category Analysis",
-              },
-              {
-                url: "./overview/chart",
-                text: "Overview Chart",
+                url: "./chart",
+                text: "Category Chart",
               },
             ]}
             layout="split"

@@ -187,6 +187,7 @@ const EmailClient = () => {
   // Sender navigation state
   const [selectedSenderFilter, setSelectedSenderFilter] =
     useState<string>("all");
+  const [expandedDomains, setExpandedDomains] = useState<string[]>([]);
 
   // Ignored emails state
   const [ignoredEmails, setIgnoredEmails] = useState<Set<string>>(new Set());
@@ -1017,9 +1018,12 @@ const EmailClient = () => {
     return filtered;
   }, [emails, selectedDateFilter, hideIgnored, ignoredEmails]);
 
-  // Memoized function to organize emails by sender
+  // Memoized function to organize emails by sender domain and then by sender
   const emailsBySender = useMemo(() => {
-    const senderMap: Record<string, EmailData[]> = {};
+    const domainMap: Record<
+      string,
+      Record<string, { emails: EmailData[]; fullEmail: string }>
+    > = {};
 
     // Filter emails based on hideIgnoredBySender flag
     const emailsToOrganize = hideIgnoredBySender
@@ -1030,35 +1034,52 @@ const EmailClient = () => {
       const fromHeader = getHeader(email.payload.headers, "From");
       if (!fromHeader) return;
 
-      // Extract email address or use full sender string
+      // Extract email address
       const senderEmail = fromHeader.match(/<(.+?)>/)
         ? fromHeader.match(/<(.+?)>/)![1]
         : fromHeader;
-      const senderName = fromHeader.match(/^([^<]+)/)
-        ? fromHeader
-            .match(/^([^<]+)/)![1]
-            .trim()
-            .replace(/"/g, "")
-        : senderEmail;
-      const displayName = senderName !== senderEmail ? senderName : senderEmail;
 
-      if (!senderMap[displayName]) {
-        senderMap[displayName] = [];
+      // Extract domain and username
+      const emailParts = senderEmail.match(/^(.+)@(.+)$/);
+      if (!emailParts) return;
+
+      const username = emailParts[1];
+      const domain = emailParts[2];
+
+      if (!domainMap[domain]) {
+        domainMap[domain] = {};
       }
-      senderMap[displayName].push(email);
+      if (!domainMap[domain][username]) {
+        domainMap[domain][username] = { emails: [], fullEmail: senderEmail };
+      }
+      domainMap[domain][username].emails.push(email);
     });
 
-    // Convert to array and sort by email count (ascending - fewer emails first)
-    return Object.entries(senderMap)
-      .sort(([, emailsA], [, emailsB]) => emailsA.length - emailsB.length)
-      .map(([sender, emails]) => ({ sender, emails, count: emails.length }));
+    // Convert to array and sort domains by total email count (ascending)
+    return Object.entries(domainMap)
+      .map(([domain, senders]) => {
+        const totalEmails = Object.values(senders).reduce(
+          (sum, sender) => sum + sender.emails.length,
+          0,
+        );
+        const sendersArray = Object.entries(senders)
+          .sort(([, a], [, b]) => a.emails.length - b.emails.length)
+          .map(([username, data]) => ({
+            username,
+            fullEmail: data.fullEmail,
+            emails: data.emails,
+            count: data.emails.length,
+          }));
+        return { domain, senders: sendersArray, totalCount: totalEmails };
+      })
+      .sort((a, b) => a.totalCount - b.totalCount);
   }, [emails, hideIgnoredBySender, ignoredEmails]);
 
   // Memoized function to filter emails based on selected sender
   const filteredEmailsBySender = useMemo(() => {
     let filtered = emails;
 
-    // Apply sender filter
+    // Apply sender filter (selectedSenderFilter now stores full email)
     if (selectedSenderFilter !== "all") {
       filtered = filtered.filter((email) => {
         const fromHeader = getHeader(email.payload.headers, "From");
@@ -1067,16 +1088,8 @@ const EmailClient = () => {
         const senderEmail = fromHeader.match(/<(.+?)>/)
           ? fromHeader.match(/<(.+?)>/)![1]
           : fromHeader;
-        const senderName = fromHeader.match(/^([^<]+)/)
-          ? fromHeader
-              .match(/^([^<]+)/)![1]
-              .trim()
-              .replace(/"/g, "")
-          : senderEmail;
-        const displayName =
-          senderName !== senderEmail ? senderName : senderEmail;
 
-        return displayName === selectedSenderFilter;
+        return senderEmail === selectedSenderFilter;
       });
     }
 
@@ -4696,35 +4709,63 @@ const EmailClient = () => {
                       </div>
                     </button>
 
-                    {/* Sender List - Sorted by count (ascending) */}
+                    {/* Sender List - Organized by Domain */}
                     <div className="space-y-1 max-h-[600px] overflow-y-auto">
-                      {emailsBySender.map(({ sender, count }) => (
-                        <button
-                          key={sender}
-                          onClick={() => setSelectedSenderFilter(sender)}
-                          className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                            selectedSenderFilter === sender
-                              ? "bg-primary text-primary-foreground"
-                              : "hover:bg-muted"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm truncate flex-1">
-                              {sender}
-                            </span>
-                            <Badge
-                              variant={
-                                selectedSenderFilter === sender
-                                  ? "secondary"
-                                  : "outline"
-                              }
-                              className="text-xs shrink-0"
-                            >
-                              {count}
-                            </Badge>
-                          </div>
-                        </button>
-                      ))}
+                      <Accordion
+                        type="multiple"
+                        value={expandedDomains}
+                        onValueChange={setExpandedDomains}
+                      >
+                        {emailsBySender.map(
+                          ({ domain, senders, totalCount }) => (
+                            <AccordionItem key={domain} value={domain}>
+                              <AccordionTrigger className="hover:no-underline py-2 px-3 hover:bg-muted rounded-md">
+                                <div className="flex items-center justify-between w-full pr-2">
+                                  <span className="text-sm font-medium">
+                                    {domain}
+                                  </span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {totalCount}
+                                  </Badge>
+                                </div>
+                              </AccordionTrigger>
+                              <AccordionContent className="pl-4 space-y-1">
+                                {senders.map(
+                                  ({ username, fullEmail, count }) => (
+                                    <button
+                                      key={fullEmail}
+                                      onClick={() =>
+                                        setSelectedSenderFilter(fullEmail)
+                                      }
+                                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                                        selectedSenderFilter === fullEmail
+                                          ? "bg-primary text-primary-foreground"
+                                          : "hover:bg-muted"
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between gap-2">
+                                        <span className="text-sm truncate flex-1">
+                                          {username}
+                                        </span>
+                                        <Badge
+                                          variant={
+                                            selectedSenderFilter === fullEmail
+                                              ? "secondary"
+                                              : "outline"
+                                          }
+                                          className="text-xs shrink-0"
+                                        >
+                                          {count}
+                                        </Badge>
+                                      </div>
+                                    </button>
+                                  ),
+                                )}
+                              </AccordionContent>
+                            </AccordionItem>
+                          ),
+                        )}
+                      </Accordion>
                     </div>
                   </div>
                 </div>

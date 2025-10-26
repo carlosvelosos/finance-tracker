@@ -98,6 +98,31 @@ export default function TableSelectionPanel({
     });
   };
 
+  // Group tables by bank prefix (string before "_")
+  const groupedTables = React.useMemo(() => {
+    const groups = new Map<string, TableInfo[]>();
+
+    tables.forEach((table) => {
+      const match = table.name.match(/^([^_]+)_/);
+      const groupName = match ? match[1] : "Other";
+
+      if (!groups.has(groupName)) {
+        groups.set(groupName, []);
+      }
+      groups.get(groupName)!.push(table);
+    });
+
+    // Sort groups alphabetically and sort tables within each group
+    const sortedGroups = Array.from(groups.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, groupTables]) => ({
+        groupName,
+        tables: groupTables.sort((a, b) => a.name.localeCompare(b.name)),
+      }));
+
+    return sortedGroups;
+  }, [tables]);
+
   if (loading) {
     return (
       <div className={`${className} p-6 bg-gray-50 rounded-lg border`}>
@@ -164,36 +189,6 @@ export default function TableSelectionPanel({
       </div>
     );
   }
-
-  // Group tables by bank prefix (string before "_")
-  const groupedTables = React.useMemo(() => {
-    const groups = new Map<string, TableInfo[]>();
-
-    tables.forEach((table) => {
-      const match = table.name.match(/^([^_]+)_/);
-      const groupName = match ? match[1] : "Other";
-
-      if (!groups.has(groupName)) {
-        groups.set(groupName, []);
-      }
-      groups.get(groupName)!.push(table);
-    });
-
-    // Sort groups alphabetically and sort tables within each group
-    const sortedGroups = Array.from(groups.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([groupName, groupTables]) => ({
-        groupName,
-        tables: groupTables.sort((a, b) => a.name.localeCompare(b.name)),
-      }));
-
-    return sortedGroups;
-  }, [tables]);
-
-  // Sort tables by table name (alphabetically)
-  const sortedTables = [...tables].sort((a, b) => {
-    return a.name.localeCompare(b.name);
-  });
 
   return (
     <div className={className}>
@@ -282,7 +277,7 @@ export default function TableSelectionPanel({
                     checked={
                       someGroupSelected ? "indeterminate" : allGroupSelected
                     }
-                    onCheckedChange={(e) => {
+                    onCheckedChange={() => {
                       toggleGroupSelection(groupTables);
                     }}
                     onClick={(e) => e.stopPropagation()}

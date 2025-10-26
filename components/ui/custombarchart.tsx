@@ -168,9 +168,6 @@ export function CustomBarChart({
   // Log totals by category
   console.log("Totals by Category:", totals);
 
-  // Keep track of original signed values for color coding
-  const signedTotals = { ...totals };
-
   // Calculate totals per bank
   const totalsPerBank = processedData.reduce(
     (acc, transaction) => {

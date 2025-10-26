@@ -151,6 +151,9 @@ export function CustomBarChart({
   // Log totals by category
   console.log("Totals by Category:", totals);
 
+  // Keep track of original signed values for color coding
+  const signedTotals = { ...totals };
+
   // Calculate totals per bank
   const totalsPerBank = processedData.reduce(
     (acc, transaction) => {
@@ -180,11 +183,13 @@ export function CustomBarChart({
     .map(([category, total]) => ({
       category,
       total: Math.abs(total),
+      originalTotal: total, // Keep the signed value for color coding
     }))
     .sort((a, b) => a.total - b.total);
 
   let minorExpensesTotal = 0;
   const filteredCategories = [];
+  const categoryColorMap = new Map<string, boolean>(); // Track if category is positive
 
   // Iterate through sorted categories
   for (const category of sortedCategories) {
@@ -195,15 +200,20 @@ export function CustomBarChart({
     } else {
       // Add the category to filteredCategories if it doesn't qualify as a minor expense
       filteredCategories.push(category);
+      // Track if original value was positive
+      categoryColorMap.set(category.category, category.originalTotal >= 0);
     }
   }
 
   // Add "Minor expenses" category if there are any minor expenses
   if (minorExpensesTotal > 0) {
+    const minorExpensesKey = `Minor expenses (${minorExpensesThreshold}%)`;
     filteredCategories.push({
-      category: `Minor expenses (${minorExpensesThreshold}%)`,
+      category: minorExpensesKey,
       total: minorExpensesTotal,
+      originalTotal: minorExpensesTotal, // Minor expenses are always shown as positive
     });
+    categoryColorMap.set(minorExpensesKey, false); // Show as expense (red)
   }
 
   // Final chart data
@@ -341,7 +351,18 @@ export function CustomBarChart({
               return (
                 <AccordionItem key={item.category} value={item.category}>
                   <AccordionTrigger>
-                    {index + 1}. {item.category} - {formatCurrency(item.total)}
+                    <span>
+                      {index + 1}. {item.category} -{" "}
+                      <span
+                        className={
+                          categoryColorMap.get(item.category)
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }
+                      >
+                        {formatCurrency(item.total)}
+                      </span>
+                    </span>
                   </AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc pl-4 text-xs space-y-2">
@@ -402,8 +423,14 @@ export function CustomBarChart({
                                       {description}
                                     </span>
                                   </div>
-                                  <span className="pl-2 whitespace-nowrap">
-                                    {formatCurrency(sum)}
+                                  <span
+                                    className={`pl-2 whitespace-nowrap font-medium ${
+                                      sum >= 0
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-red-600 dark:text-red-400"
+                                    }`}
+                                  >
+                                    {formatCurrency(Math.abs(sum))}
                                   </span>
                                 </li>
                               );
@@ -417,7 +444,15 @@ export function CustomBarChart({
                                 className="flex justify-between hover:bg-gray-100 hover:rounded-md px-2 py-1"
                               >
                                 <span>{description}</span>
-                                <span>{formatCurrency(sum)}</span>
+                                <span
+                                  className={`font-medium ${
+                                    sum >= 0
+                                      ? "text-green-600 dark:text-green-400"
+                                      : "text-red-600 dark:text-red-400"
+                                  }`}
+                                >
+                                  {formatCurrency(Math.abs(sum))}
+                                </span>
                               </li>
                             ))}
                     </ul>

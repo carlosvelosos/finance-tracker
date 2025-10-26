@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import {
   Loader2,
   Mail,
@@ -59,6 +60,7 @@ interface EmailData {
     body?: { data?: string };
     parts?: EmailPart[];
   };
+  ignored?: boolean; // Optional flag to mark emails as ignored
 }
 
 interface EmailPart {
@@ -185,6 +187,12 @@ const EmailClient = () => {
   // Sender navigation state
   const [selectedSenderFilter, setSelectedSenderFilter] =
     useState<string>("all");
+
+  // Ignored emails state
+  const [ignoredEmails, setIgnoredEmails] = useState<Set<string>>(new Set());
+  const [hideIgnored, setHideIgnored] = useState(false); // Toggle for Recent Emails section
+  const [hideIgnoredBySender, setHideIgnoredBySender] = useState(false); // Toggle for Emails by Sender section
+
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<{
     currentWeek: string;
@@ -969,32 +977,40 @@ const EmailClient = () => {
 
   // Memoized function to filter emails based on selected date filter
   const filteredEmailsByDate = useMemo(() => {
-    if (selectedDateFilter.type === "all") {
-      return emails;
+    let filtered = emails;
+
+    // Apply date filter
+    if (selectedDateFilter.type !== "all") {
+      filtered = filtered.filter((email) => {
+        const dateHeader = getHeader(email.payload.headers, "Date");
+        if (!dateHeader) return false;
+
+        try {
+          const date = new Date(dateHeader);
+
+          switch (selectedDateFilter.type) {
+            case "day":
+              return getDateIdentifier(date) === selectedDateFilter.value;
+            case "week":
+              return getWeekIdentifier(date) === selectedDateFilter.value;
+            case "month":
+              return getMonthIdentifier(date) === selectedDateFilter.value;
+            default:
+              return true;
+          }
+        } catch {
+          return false;
+        }
+      });
     }
 
-    return emails.filter((email) => {
-      const dateHeader = getHeader(email.payload.headers, "Date");
-      if (!dateHeader) return false;
+    // Apply ignored filter
+    if (hideIgnored) {
+      filtered = filtered.filter((email) => !ignoredEmails.has(email.id));
+    }
 
-      try {
-        const date = new Date(dateHeader);
-
-        switch (selectedDateFilter.type) {
-          case "day":
-            return getDateIdentifier(date) === selectedDateFilter.value;
-          case "week":
-            return getWeekIdentifier(date) === selectedDateFilter.value;
-          case "month":
-            return getMonthIdentifier(date) === selectedDateFilter.value;
-          default:
-            return true;
-        }
-      } catch {
-        return false;
-      }
-    });
-  }, [emails, selectedDateFilter]);
+    return filtered;
+  }, [emails, selectedDateFilter, hideIgnored, ignoredEmails]);
 
   // Memoized function to organize emails by sender
   const emailsBySender = useMemo(() => {
@@ -1030,28 +1046,37 @@ const EmailClient = () => {
 
   // Memoized function to filter emails based on selected sender
   const filteredEmailsBySender = useMemo(() => {
-    if (selectedSenderFilter === "all") {
-      return emails;
+    let filtered = emails;
+
+    // Apply sender filter
+    if (selectedSenderFilter !== "all") {
+      filtered = filtered.filter((email) => {
+        const fromHeader = getHeader(email.payload.headers, "From");
+        if (!fromHeader) return false;
+
+        const senderEmail = fromHeader.match(/<(.+?)>/)
+          ? fromHeader.match(/<(.+?)>/)![1]
+          : fromHeader;
+        const senderName = fromHeader.match(/^([^<]+)/)
+          ? fromHeader
+              .match(/^([^<]+)/)![1]
+              .trim()
+              .replace(/"/g, "")
+          : senderEmail;
+        const displayName =
+          senderName !== senderEmail ? senderName : senderEmail;
+
+        return displayName === selectedSenderFilter;
+      });
     }
 
-    return emails.filter((email) => {
-      const fromHeader = getHeader(email.payload.headers, "From");
-      if (!fromHeader) return false;
+    // Apply ignored filter
+    if (hideIgnoredBySender) {
+      filtered = filtered.filter((email) => !ignoredEmails.has(email.id));
+    }
 
-      const senderEmail = fromHeader.match(/<(.+?)>/)
-        ? fromHeader.match(/<(.+?)>/)![1]
-        : fromHeader;
-      const senderName = fromHeader.match(/^([^<]+)/)
-        ? fromHeader
-            .match(/^([^<]+)/)![1]
-            .trim()
-            .replace(/"/g, "")
-        : senderEmail;
-      const displayName = senderName !== senderEmail ? senderName : senderEmail;
-
-      return displayName === selectedSenderFilter;
-    });
-  }, [emails, selectedSenderFilter]);
+    return filtered;
+  }, [emails, selectedSenderFilter, hideIgnoredBySender, ignoredEmails]);
 
   // Function to get the number of emails to show for each institution
   const getEmailsToShow = (organization: string) => {
@@ -1085,6 +1110,40 @@ const EmailClient = () => {
       return newSet;
     });
   }, []);
+
+  // Function to toggle email ignored status
+  const toggleEmailIgnored = useCallback(
+    (emailId: string) => {
+      setIgnoredEmails((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(emailId)) {
+          newSet.delete(emailId);
+        } else {
+          newSet.add(emailId);
+        }
+        return newSet;
+      });
+
+      // Also update the email object in the emails array
+      setEmails((prevEmails) =>
+        prevEmails.map((email) =>
+          email.id === emailId ? { ...email, ignored: !email.ignored } : email,
+        ),
+      );
+
+      // Update originalUploadedEmails if in upload mode
+      if (dataSource === "upload") {
+        setOriginalUploadedEmails((prevEmails) =>
+          prevEmails.map((email) =>
+            email.id === emailId
+              ? { ...email, ignored: !email.ignored }
+              : email,
+          ),
+        );
+      }
+    },
+    [dataSource],
+  );
 
   // Function to fetch and export emails for a specific date range with weekly batching
   const exportEmailsForDateRange = async () => {
@@ -1367,6 +1426,7 @@ const EmailClient = () => {
           from: getHeader(email.payload.headers, "From"),
           subject: getHeader(email.payload.headers, "Subject"),
           to: getHeader(email.payload.headers, "To"),
+          ignored: ignoredEmails.has(email.id),
         })),
         exportDate: new Date().toISOString(),
         fetchedBy: userInfo?.email || "unknown",
@@ -1412,6 +1472,47 @@ const EmailClient = () => {
       }, 3000);
     }
   };
+
+  // Function to export currently loaded emails with ignored flags
+  const exportCurrentEmails = () => {
+    if (emails.length === 0) {
+      setError("No emails to export");
+      return;
+    }
+
+    try {
+      const exportData = {
+        source: dataSource === "upload" ? "uploaded_file" : "gmail_fetch",
+        totalEmails: emails.length,
+        ignoredCount: ignoredEmails.size,
+        emails: emails.map((email) => ({
+          id: email.id,
+          snippet: email.snippet,
+          headers: email.payload.headers,
+          date: getHeader(email.payload.headers, "Date"),
+          from: getHeader(email.payload.headers, "From"),
+          subject: getHeader(email.payload.headers, "Subject"),
+          to: getHeader(email.payload.headers, "To"),
+          ignored: ignoredEmails.has(email.id),
+        })),
+        exportDate: new Date().toISOString(),
+        exportedBy: userInfo?.email || "offline_user",
+      };
+
+      const timestamp = new Date().toISOString().split("T")[0];
+      downloadJsonFile(exportData, `emails-export-${timestamp}`);
+
+      console.log(
+        `Exported ${emails.length} emails (${ignoredEmails.size} ignored)`,
+      );
+    } catch (error) {
+      console.error("Error exporting emails:", error);
+      setError(
+        `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  };
+
   // Function to download JSON file
   const downloadJsonFile = (data: object, filename: string) => {
     const jsonString = JSON.stringify(data, null, 2);
@@ -1458,6 +1559,7 @@ const EmailClient = () => {
             headers?: object[];
             body?: object;
             parts?: object[];
+            ignored?: boolean;
           },
           index: number,
         ) => {
@@ -1474,9 +1576,19 @@ const EmailClient = () => {
               body: email.body || {},
               parts: email.parts || [],
             },
+            ignored: email.ignored || false, // Load ignored status from file
           };
         },
       );
+
+      // Load ignored emails into Set
+      const ignoredSet = new Set<string>();
+      transformedEmails.forEach((email: EmailData) => {
+        if (email.ignored) {
+          ignoredSet.add(email.id);
+        }
+      });
+      setIgnoredEmails(ignoredSet);
 
       // Store original emails for re-filtering
       setOriginalUploadedEmails(transformedEmails); // Apply sender filtering if "Selected Senders Only" is chosen
@@ -4164,13 +4276,41 @@ const EmailClient = () => {
         !(dataSource === "upload" && !showAllUploadSenders) && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Recent Emails ({emails.length})
-              </CardTitle>
-              <CardDescription>
-                Your {dataSource === "upload" ? "uploaded" : "latest Gmail"}{" "}
-                messages
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Recent Emails ({emails.length})
+                </CardTitle>
+                {emails.length > 0 && (
+                  <Button
+                    onClick={exportCurrentEmails}
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export All
+                  </Button>
+                )}
+              </div>
+              <CardDescription className="flex items-center justify-between">
+                <span>
+                  Your {dataSource === "upload" ? "uploaded" : "latest Gmail"}{" "}
+                  messages
+                </span>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="hide-ignored"
+                    checked={hideIgnored}
+                    onCheckedChange={setHideIgnored}
+                  />
+                  <label
+                    htmlFor="hide-ignored"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    Hide ignored ({ignoredEmails.size})
+                  </label>
+                </div>
               </CardDescription>
             </CardHeader>{" "}
             <CardContent>
@@ -4436,11 +4576,14 @@ const EmailClient = () => {
                       const subject = getHeader(headers, "Subject");
                       const from = getHeader(headers, "From");
                       const date = getHeader(headers, "Date");
+                      const isIgnored = ignoredEmails.has(email.id);
 
                       return (
                         <div
                           key={email.id}
-                          className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                          className={`border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
+                            isIgnored ? "opacity-50" : ""
+                          }`}
                           onClick={() => toggleEmailExpansion(email.id)}
                         >
                           <div className="flex items-start justify-between mb-2">
@@ -4457,6 +4600,17 @@ const EmailClient = () => {
                                 <Calendar className="w-3 h-3 mr-1" />
                                 {formatDate(date)}
                               </Badge>
+                              <Button
+                                size="sm"
+                                variant={isIgnored ? "default" : "ghost"}
+                                className="h-6 px-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleEmailIgnored(email.id);
+                                }}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
                           {expandedEmails.has(email.id) && (
@@ -4490,9 +4644,24 @@ const EmailClient = () => {
                 <Users className="h-5 w-5" />
                 Emails by Sender ({emails.length})
               </CardTitle>
-              <CardDescription>
-                Browse your {dataSource === "upload" ? "uploaded" : "Gmail"}{" "}
-                emails organized by sender
+              <CardDescription className="flex items-center justify-between">
+                <span>
+                  Browse your {dataSource === "upload" ? "uploaded" : "Gmail"}{" "}
+                  emails organized by sender
+                </span>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="hide-ignored-sender"
+                    checked={hideIgnoredBySender}
+                    onCheckedChange={setHideIgnoredBySender}
+                  />
+                  <label
+                    htmlFor="hide-ignored-sender"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    Hide ignored ({ignoredEmails.size})
+                  </label>
+                </div>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -4575,11 +4744,14 @@ const EmailClient = () => {
                       const subject = getHeader(headers, "Subject");
                       const from = getHeader(headers, "From");
                       const date = getHeader(headers, "Date");
+                      const isIgnored = ignoredEmails.has(email.id);
 
                       return (
                         <div
                           key={email.id}
-                          className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                          className={`border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
+                            isIgnored ? "opacity-50" : ""
+                          }`}
                           onClick={() => toggleEmailExpansion(email.id)}
                         >
                           <div className="flex items-start justify-between mb-2">
@@ -4596,6 +4768,17 @@ const EmailClient = () => {
                                 <Calendar className="w-3 h-3 mr-1" />
                                 {formatDate(date)}
                               </Badge>
+                              <Button
+                                size="sm"
+                                variant={isIgnored ? "default" : "ghost"}
+                                className="h-6 px-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleEmailIgnored(email.id);
+                                }}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
                           {expandedEmails.has(email.id) && (

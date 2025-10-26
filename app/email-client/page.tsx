@@ -31,8 +31,6 @@ import {
   Upload,
   FileText,
   X,
-  ChevronRight,
-  ChevronDown,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -912,7 +910,7 @@ const EmailClient = () => {
   };
 
   // Helper function to get ISO week number
-  const getWeekNumber = (date: Date): number => {
+  const getWeekNumber = useCallback((date: Date): number => {
     const d = new Date(
       Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
     );
@@ -920,23 +918,26 @@ const EmailClient = () => {
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-  };
+  }, []);
 
   // Helper function to get week identifier (YYYY-Www)
-  const getWeekIdentifier = (date: Date): string => {
-    const weekNum = getWeekNumber(date);
-    return `${date.getFullYear()}-W${weekNum.toString().padStart(2, "0")}`;
-  };
+  const getWeekIdentifier = useCallback(
+    (date: Date): string => {
+      const weekNum = getWeekNumber(date);
+      return `${date.getFullYear()}-W${weekNum.toString().padStart(2, "0")}`;
+    },
+    [getWeekNumber],
+  );
 
   // Helper function to get month identifier (YYYY-MM)
-  const getMonthIdentifier = (date: Date): string => {
+  const getMonthIdentifier = useCallback((date: Date): string => {
     return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}`;
-  };
+  }, []);
 
   // Helper function to get date identifier (YYYY-MM-DD)
-  const getDateIdentifier = (date: Date): string => {
+  const getDateIdentifier = useCallback((date: Date): string => {
     return date.toISOString().split("T")[0];
-  };
+  }, []);
 
   // Memoized function to organize emails by date hierarchy
   const emailsByDateHierarchy = useMemo(() => {
@@ -979,7 +980,14 @@ const EmailClient = () => {
     });
 
     return hierarchy;
-  }, [emails, hideIgnored, ignoredEmails]);
+  }, [
+    emails,
+    hideIgnored,
+    ignoredEmails,
+    getMonthIdentifier,
+    getWeekIdentifier,
+    getDateIdentifier,
+  ]);
 
   // Memoized function to filter emails based on selected date filter
   const filteredEmailsByDate = useMemo(() => {
@@ -1016,7 +1024,15 @@ const EmailClient = () => {
     }
 
     return filtered;
-  }, [emails, selectedDateFilter, hideIgnored, ignoredEmails]);
+  }, [
+    emails,
+    selectedDateFilter,
+    hideIgnored,
+    ignoredEmails,
+    getDateIdentifier,
+    getWeekIdentifier,
+    getMonthIdentifier,
+  ]);
 
   // Memoized function to organize emails by sender domain and then by sender
   const emailsBySender = useMemo(() => {
@@ -1497,13 +1513,18 @@ const EmailClient = () => {
   };
 
   // Function to export currently loaded emails with ignored flags
-  const exportCurrentEmails = () => {
+  const exportCurrentEmails = async () => {
     if (emails.length === 0) {
       setError("No emails to export");
       return;
     }
 
     try {
+      // Suggest filename based on uploaded file or use default
+      const defaultFilename = uploadedFile
+        ? uploadedFile.name
+        : `emails-export-${new Date().toISOString().split("T")[0]}.json`;
+
       const exportData = {
         source: dataSource === "upload" ? "uploaded_file" : "gmail_fetch",
         totalEmails: emails.length,
@@ -1522,12 +1543,70 @@ const EmailClient = () => {
         exportedBy: userInfo?.email || "offline_user",
       };
 
-      const timestamp = new Date().toISOString().split("T")[0];
-      downloadJsonFile(exportData, `emails-export-${timestamp}`);
+      const jsonString = JSON.stringify(exportData, null, 2);
 
-      console.log(
-        `Exported ${emails.length} emails (${ignoredEmails.size} ignored)`,
-      );
+      // Check if File System Access API is supported
+      if ("showSaveFilePicker" in window) {
+        try {
+          // Use File System Access API for native Save As dialog
+          const fileHandle = await (
+            window as unknown as {
+              showSaveFilePicker: (options: {
+                suggestedName: string;
+                types: {
+                  description: string;
+                  accept: Record<string, string[]>;
+                }[];
+              }) => Promise<{
+                createWritable: () => Promise<{
+                  write: (data: string) => Promise<void>;
+                  close: () => Promise<void>;
+                }>;
+                name: string;
+              }>;
+            }
+          ).showSaveFilePicker({
+            suggestedName: defaultFilename,
+            types: [
+              {
+                description: "JSON Files",
+                accept: { "application/json": [".json"] },
+              },
+            ],
+          });
+
+          const writable = await fileHandle.createWritable();
+          await writable.write(jsonString);
+          await writable.close();
+
+          console.log(
+            `Exported ${emails.length} emails (${ignoredEmails.size} ignored) to ${fileHandle.name}`,
+          );
+          setSuccess(`Successfully exported to ${fileHandle.name}`);
+        } catch (err) {
+          // User cancelled the dialog
+          if (err instanceof Error && err.name === "AbortError") {
+            console.log("Export cancelled by user");
+            return;
+          }
+          throw err;
+        }
+      } else {
+        // Fallback to traditional download for browsers that don't support File System Access API
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = defaultFilename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log(
+          `Exported ${emails.length} emails (${ignoredEmails.size} ignored)`,
+        );
+      }
     } catch (error) {
       console.error("Error exporting emails:", error);
       setError(
@@ -1973,7 +2052,7 @@ const EmailClient = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-8xl border border-gray-200">
+    <div className="container mx-auto p-6 max-w-8xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Gmail Client</h1>
         <p className="text-muted-foreground">
@@ -2040,8 +2119,8 @@ const EmailClient = () => {
                 </Button>
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground mb-2">
-                    Don't want to sign in? Use offline mode to analyze exported
-                    Gmail data
+                    Don&apos;t want to sign in? Use offline mode to analyze
+                    exported Gmail data
                   </p>
                   <Button
                     onClick={() => {

@@ -949,7 +949,12 @@ const EmailClient = () => {
       };
     } = {};
 
-    emails.forEach((email) => {
+    // Filter emails based on hideIgnored flag
+    const emailsToOrganize = hideIgnored
+      ? emails.filter((email) => !ignoredEmails.has(email.id))
+      : emails;
+
+    emailsToOrganize.forEach((email) => {
       const dateHeader = getHeader(email.payload.headers, "Date");
       if (!dateHeader) return;
 
@@ -973,7 +978,7 @@ const EmailClient = () => {
     });
 
     return hierarchy;
-  }, [emails]);
+  }, [emails, hideIgnored, ignoredEmails]);
 
   // Memoized function to filter emails based on selected date filter
   const filteredEmailsByDate = useMemo(() => {
@@ -1016,7 +1021,12 @@ const EmailClient = () => {
   const emailsBySender = useMemo(() => {
     const senderMap: Record<string, EmailData[]> = {};
 
-    emails.forEach((email) => {
+    // Filter emails based on hideIgnoredBySender flag
+    const emailsToOrganize = hideIgnoredBySender
+      ? emails.filter((email) => !ignoredEmails.has(email.id))
+      : emails;
+
+    emailsToOrganize.forEach((email) => {
       const fromHeader = getHeader(email.payload.headers, "From");
       if (!fromHeader) return;
 
@@ -1042,7 +1052,7 @@ const EmailClient = () => {
     return Object.entries(senderMap)
       .sort(([, emailsA], [, emailsB]) => emailsA.length - emailsB.length)
       .map(([sender, emails]) => ({ sender, emails, count: emails.length }));
-  }, [emails]);
+  }, [emails, hideIgnoredBySender, ignoredEmails]);
 
   // Memoized function to filter emails based on selected sender
   const filteredEmailsBySender = useMemo(() => {

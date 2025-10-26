@@ -17,7 +17,7 @@ export default function ContactPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
           {/* Email Card */}
           <Card className="bg-[#1E1E1E] border-gray-700 hover:border-green-500 transition-colors">
             <CardHeader>
@@ -59,6 +59,30 @@ export default function ContactPage() {
                 className="text-green-400 hover:text-green-300 transition-colors underline"
               >
                 View on GitHub
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* LinkedIn Card */}
+          <Card className="bg-[#1E1E1E] border-gray-700 hover:border-green-500 transition-colors">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-green-400">
+                <Linkedin size={24} />
+                LinkedIn
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300 mb-4">
+                Connect with us on LinkedIn for professional updates and
+                networking.
+              </p>
+              <Link
+                href="https://www.linkedin.com/in/your-profile"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 transition-colors underline"
+              >
+                Connect on LinkedIn
               </Link>
             </CardContent>
           </Card>

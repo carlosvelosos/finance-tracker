@@ -181,6 +181,10 @@ const EmailClient = () => {
   }>({ type: "all" });
   const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>([]);
+
+  // Sender navigation state
+  const [selectedSenderFilter, setSelectedSenderFilter] =
+    useState<string>("all");
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<{
     currentWeek: string;
@@ -991,6 +995,63 @@ const EmailClient = () => {
       }
     });
   }, [emails, selectedDateFilter]);
+
+  // Memoized function to organize emails by sender
+  const emailsBySender = useMemo(() => {
+    const senderMap: Record<string, EmailData[]> = {};
+
+    emails.forEach((email) => {
+      const fromHeader = getHeader(email.payload.headers, "From");
+      if (!fromHeader) return;
+
+      // Extract email address or use full sender string
+      const senderEmail = fromHeader.match(/<(.+?)>/)
+        ? fromHeader.match(/<(.+?)>/)![1]
+        : fromHeader;
+      const senderName = fromHeader.match(/^([^<]+)/)
+        ? fromHeader
+            .match(/^([^<]+)/)![1]
+            .trim()
+            .replace(/"/g, "")
+        : senderEmail;
+      const displayName = senderName !== senderEmail ? senderName : senderEmail;
+
+      if (!senderMap[displayName]) {
+        senderMap[displayName] = [];
+      }
+      senderMap[displayName].push(email);
+    });
+
+    // Convert to array and sort by email count (ascending - fewer emails first)
+    return Object.entries(senderMap)
+      .sort(([, emailsA], [, emailsB]) => emailsA.length - emailsB.length)
+      .map(([sender, emails]) => ({ sender, emails, count: emails.length }));
+  }, [emails]);
+
+  // Memoized function to filter emails based on selected sender
+  const filteredEmailsBySender = useMemo(() => {
+    if (selectedSenderFilter === "all") {
+      return emails;
+    }
+
+    return emails.filter((email) => {
+      const fromHeader = getHeader(email.payload.headers, "From");
+      if (!fromHeader) return false;
+
+      const senderEmail = fromHeader.match(/<(.+?)>/)
+        ? fromHeader.match(/<(.+?)>/)![1]
+        : fromHeader;
+      const senderName = fromHeader.match(/^([^<]+)/)
+        ? fromHeader
+            .match(/^([^<]+)/)![1]
+            .trim()
+            .replace(/"/g, "")
+        : senderEmail;
+      const displayName = senderName !== senderEmail ? senderName : senderEmail;
+
+      return displayName === selectedSenderFilter;
+    });
+  }, [emails, selectedSenderFilter]);
 
   // Function to get the number of emails to show for each institution
   const getEmailsToShow = (organization: string) => {
@@ -4416,6 +4477,138 @@ const EmailClient = () => {
                     : "No emails found. Click &quot;Refresh Emails&quot; to try again."}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        )}
+      {/* Emails by Sender Section */}
+      {(isSignedIn || offlineMode) &&
+        !(dataSource === "upload" && !showAllUploadSenders) &&
+        emails.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Emails by Sender ({emails.length})
+              </CardTitle>
+              <CardDescription>
+                Browse your {dataSource === "upload" ? "uploaded" : "Gmail"}{" "}
+                emails organized by sender
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Sender Navigation Panel */}
+                <div className="lg:col-span-1 border-r pr-4">
+                  <div className="space-y-2">
+                    {/* All Emails Option */}
+                    <button
+                      onClick={() => setSelectedSenderFilter("all")}
+                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                        selectedSenderFilter === "all"
+                          ? "bg-primary text-primary-foreground"
+                          : "hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">All Senders</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {emails.length}
+                        </Badge>
+                      </div>
+                    </button>
+
+                    {/* Sender List - Sorted by count (ascending) */}
+                    <div className="space-y-1 max-h-[600px] overflow-y-auto">
+                      {emailsBySender.map(({ sender, count }) => (
+                        <button
+                          key={sender}
+                          onClick={() => setSelectedSenderFilter(sender)}
+                          className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                            selectedSenderFilter === sender
+                              ? "bg-primary text-primary-foreground"
+                              : "hover:bg-muted"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm truncate flex-1">
+                              {sender}
+                            </span>
+                            <Badge
+                              variant={
+                                selectedSenderFilter === sender
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                              className="text-xs shrink-0"
+                            >
+                              {count}
+                            </Badge>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email List */}
+                <div className="lg:col-span-3 space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-muted-foreground">
+                      {selectedSenderFilter === "all"
+                        ? `Showing all ${filteredEmailsBySender.length} emails`
+                        : `Showing ${filteredEmailsBySender.length} emails from ${selectedSenderFilter}`}
+                    </p>
+                    {selectedSenderFilter !== "all" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedSenderFilter("all")}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Clear Filter
+                      </Button>
+                    )}
+                  </div>
+                  <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                    {filteredEmailsBySender.map((email) => {
+                      const headers = email.payload.headers;
+                      const subject = getHeader(headers, "Subject");
+                      const from = getHeader(headers, "From");
+                      const date = getHeader(headers, "Date");
+
+                      return (
+                        <div
+                          key={email.id}
+                          className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                          onClick={() => toggleEmailExpansion(email.id)}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium truncate">
+                                {subject || "No Subject"}
+                              </h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {from}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 ml-4">
+                              <Badge variant="secondary" className="text-xs">
+                                <Calendar className="w-3 h-3 mr-1" />
+                                {formatDate(date)}
+                              </Badge>
+                            </div>
+                          </div>
+                          {expandedEmails.has(email.id) && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {email.snippet}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}

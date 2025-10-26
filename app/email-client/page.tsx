@@ -189,6 +189,7 @@ const EmailClient = () => {
   const [originalUploadedEmails, setOriginalUploadedEmails] = useState<
     EmailData[]
   >([]);
+  const [offlineMode, setOfflineMode] = useState(false);
   const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
   const DISCOVERY_DOC =
@@ -221,12 +222,18 @@ const EmailClient = () => {
     }
   };
   useEffect(() => {
+    // Skip Google API initialization in offline mode
+    if (offlineMode) {
+      setIsCheckingAuth(false);
+      return;
+    }
+
     initializeGapi();
     loadCachedEmails();
     updateStorageInfo();
     checkExistingAuth(); // Check for existing authentication
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [offlineMode]);
   const initializeGapi = useCallback(async () => {
     try {
       console.log("Initializing Google APIs...");
@@ -1367,12 +1374,14 @@ const EmailClient = () => {
             const senderLower = fromHeader.toLowerCase();
             const orgLower = organization.toLowerCase();
 
-            // Special case: When filtering for "Inter", exclude Pinterest emails
-            if (
-              orgLower === "inter" &&
-              senderLower.includes("@discover.pinterest.com")
-            ) {
-              return false;
+            // Special case: When filtering for "Inter", exclude Pinterest and Auditoria Interna emails
+            if (orgLower === "inter") {
+              if (
+                senderLower.includes("@discover.pinterest.com") ||
+                senderLower.includes("auditoria interna")
+              ) {
+                return false;
+              }
             }
 
             return senderLower.includes(orgLower);
@@ -1662,7 +1671,9 @@ const EmailClient = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Gmail Client</h1>
         <p className="text-muted-foreground">
-          Connect to your Gmail account to view your emails
+          {offlineMode
+            ? "Offline mode - Upload and analyze your exported Gmail data"
+            : "Connect to your Gmail account to view your emails"}
         </p>
       </div>{" "}
       {error && (
@@ -1681,101 +1692,162 @@ const EmailClient = () => {
           </div>
         </div>
       )}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Account Status
-          </CardTitle>{" "}
-          <CardDescription>
-            {isSignedIn
-              ? "You are signed in to Gmail (session will persist for 10 minutes)"
-              : isCheckingAuth
-                ? "Checking for existing session..."
-                : "Sign in to access your Gmail account"}
-          </CardDescription>
-        </CardHeader>{" "}
-        <CardContent>
-          {!isSignedIn ? (
-            <Button
-              onClick={handleSignIn}
-              disabled={loading || isCheckingAuth}
-              className="w-full sm:w-auto"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : isCheckingAuth ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Checking authentication...
-                </>
-              ) : (
-                <>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Sign in with Google
-                </>
-              )}
-            </Button>
-          ) : (
-            <div className="space-y-4">
-              {" "}
-              {userInfo && (
-                <div className="flex items-center gap-3">
-                  {userInfo.picture && (
-                    <Image
-                      src={userInfo.picture}
-                      alt="Profile"
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full"
-                    />
+      {!offlineMode && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Account Status
+            </CardTitle>{" "}
+            <CardDescription>
+              {isSignedIn
+                ? "You are signed in to Gmail (session will persist for 10 minutes)"
+                : isCheckingAuth
+                  ? "Checking for existing session..."
+                  : "Sign in to access your Gmail account"}
+            </CardDescription>
+          </CardHeader>{" "}
+          <CardContent>
+            {!isSignedIn ? (
+              <div className="space-y-4">
+                <Button
+                  onClick={handleSignIn}
+                  disabled={loading || isCheckingAuth}
+                  className="w-full sm:w-auto"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : isCheckingAuth ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Checking authentication...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="mr-2 h-4 w-4" />
+                      Sign in with Google
+                    </>
                   )}
-                  <div>
-                    <p className="font-medium">{userInfo.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {userInfo.email}
-                    </p>
-                  </div>
-                </div>
-              )}
-              <div className="flex gap-2">
-                {dataSource === "fetch" && (
-                  <Button
-                    onClick={fetchEmails}
-                    disabled={loading || isLoadingFromCache}
-                    variant="outline"
-                  >
-                    {loading || isLoadingFromCache ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {isLoadingFromCache ? "Loading cache..." : "Loading..."}
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Refresh Emails
-                      </>
-                    )}
-                  </Button>
-                )}
-                <Button onClick={handleSignOut} variant="outline">
-                  Sign Out
                 </Button>
-                {cacheAge && dataSource === "fetch" && (
-                  <Button onClick={clearCache} variant="outline" size="sm">
-                    Clear Cache
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Don't want to sign in? Use offline mode to analyze exported
+                    Gmail data
+                  </p>
+                  <Button
+                    onClick={() => {
+                      setOfflineMode(true);
+                      setDataSource("upload");
+                    }}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Use Offline Mode
                   </Button>
-                )}
+                </div>
               </div>
+            ) : (
+              <div className="space-y-4">
+                {" "}
+                {userInfo && (
+                  <div className="flex items-center gap-3">
+                    {userInfo.picture && (
+                      <Image
+                        src={userInfo.picture}
+                        alt="Profile"
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{userInfo.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {userInfo.email}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  {dataSource === "fetch" && (
+                    <Button
+                      onClick={fetchEmails}
+                      disabled={loading || isLoadingFromCache}
+                      variant="outline"
+                    >
+                      {loading || isLoadingFromCache ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {isLoadingFromCache
+                            ? "Loading cache..."
+                            : "Loading..."}
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="mr-2 h-4 w-4" />
+                          Refresh Emails
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  <Button onClick={handleSignOut} variant="outline">
+                    Sign Out
+                  </Button>
+                  {cacheAge && dataSource === "fetch" && (
+                    <Button onClick={clearCache} variant="outline" size="sm">
+                      Clear Cache
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+      {offlineMode && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Offline Mode
+            </CardTitle>
+            <CardDescription>
+              You are using offline mode. Upload exported Gmail JSON files to
+              analyze your data
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-400">
+                  📁 In offline mode, you can upload and analyze previously
+                  exported Gmail data without signing in to Google.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setOfflineMode(false);
+                  setDataSource("fetch");
+                  setEmails([]);
+                  setOriginalUploadedEmails([]);
+                  setUploadedFile(null);
+                }}
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Switch to Online Mode
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
       {/* Data Source Selection Card */}
-      {isSignedIn && (
+      {(isSignedIn || offlineMode) && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1783,72 +1855,75 @@ const EmailClient = () => {
               Data Source
             </CardTitle>
             <CardDescription>
-              Choose to fetch new data from Gmail or upload previously saved
-              JSON files
+              {offlineMode
+                ? "Upload previously exported JSON files for analysis"
+                : "Choose to fetch new data from Gmail or upload previously saved JSON files"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Fetch from Gmail Option */}
-                <div
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    dataSource === "fetch"
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => {
-                    if (uploadedFile) {
-                      clearUploadedData();
-                    }
-                    setDataSource("fetch");
-                  }}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <Mail className="h-5 w-5 text-primary" />
-                    <h3 className="font-medium">Fetch from Gmail</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Connect to Gmail API and fetch emails for a specific date
-                    range
-                  </p>
-                  {dataSource === "fetch" && (
-                    <div className="mt-2">
-                      <Badge variant="default" className="text-xs">
-                        Selected
-                      </Badge>
+              {!offlineMode && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Fetch from Gmail Option */}
+                  <div
+                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                      dataSource === "fetch"
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => {
+                      if (uploadedFile) {
+                        clearUploadedData();
+                      }
+                      setDataSource("fetch");
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <Mail className="h-5 w-5 text-primary" />
+                      <h3 className="font-medium">Fetch from Gmail</h3>
                     </div>
-                  )}
-                </div>
+                    <p className="text-sm text-muted-foreground">
+                      Connect to Gmail API and fetch emails for a specific date
+                      range
+                    </p>
+                    {dataSource === "fetch" && (
+                      <div className="mt-2">
+                        <Badge variant="default" className="text-xs">
+                          Selected
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Upload JSON File Option */}
-                <div
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    dataSource === "upload"
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => setDataSource("upload")}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <Upload className="h-5 w-5 text-primary" />
-                    <h3 className="font-medium">Upload JSON File</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Upload a previously exported JSON file to analyze existing
-                    data
-                  </p>
-                  {dataSource === "upload" && (
-                    <div className="mt-2">
-                      <Badge variant="default" className="text-xs">
-                        Selected
-                      </Badge>
+                  {/* Upload JSON File Option */}
+                  <div
+                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                      dataSource === "upload"
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setDataSource("upload")}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <Upload className="h-5 w-5 text-primary" />
+                      <h3 className="font-medium">Upload JSON File</h3>
                     </div>
-                  )}
+                    <p className="text-sm text-muted-foreground">
+                      Upload a previously exported JSON file to analyze existing
+                      data
+                    </p>
+                    {dataSource === "upload" && (
+                      <div className="mt-2">
+                        <Badge variant="default" className="text-xs">
+                          Selected
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>{" "}
+              )}
               {/* File Upload Section */}
-              {dataSource === "upload" && (
+              {(dataSource === "upload" || offlineMode) && (
                 <div className="space-y-4">
                   {/* Sender Selection for Upload */}
                   <div className="space-y-3">
@@ -1995,7 +2070,7 @@ const EmailClient = () => {
         </Card>
       )}
       {/* Data Export Card */}
-      {isSignedIn && dataSource === "fetch" && (
+      {isSignedIn && dataSource === "fetch" && !offlineMode && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -2159,7 +2234,7 @@ const EmailClient = () => {
           </CardContent>
         </Card>
       )}
-      {isSignedIn && emails.length > 0 && (
+      {(isSignedIn || offlineMode) && emails.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -2699,12 +2774,14 @@ const EmailClient = () => {
                           const emailLower = email.toLowerCase();
                           const institutionLower = institution.toLowerCase();
 
-                          // Special case: When checking for "Inter", exclude Pinterest emails
-                          if (
-                            institutionLower === "inter" &&
-                            emailLower.includes("@discover.pinterest.com")
-                          ) {
-                            continue;
+                          // Special case: When checking for "Inter", exclude Pinterest and Auditoria Interna emails
+                          if (institutionLower === "inter") {
+                            if (
+                              emailLower.includes("@discover.pinterest.com") ||
+                              emailLower.includes("auditoria interna")
+                            ) {
+                              continue;
+                            }
                           }
                           // Check if email matches institution
                           let matches = false;
@@ -2927,7 +3004,7 @@ const EmailClient = () => {
           </CardContent>
         </Card>
       )}
-      {isSignedIn && emails.length > 0 && (
+      {(isSignedIn || offlineMode) && emails.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -2947,12 +3024,14 @@ const EmailClient = () => {
                   const senderLower = sender.toLowerCase();
                   const orgLower = organization.toLowerCase();
 
-                  // Special case: When filtering for "Inter", exclude Pinterest emails
-                  if (
-                    orgLower === "inter" &&
-                    senderLower.includes("@discover.pinterest.com")
-                  ) {
-                    return false;
+                  // Special case: When filtering for "Inter", exclude Pinterest and Auditoria Interna emails
+                  if (orgLower === "inter") {
+                    if (
+                      senderLower.includes("@discover.pinterest.com") ||
+                      senderLower.includes("auditoria interna")
+                    ) {
+                      return false;
+                    }
                   }
 
                   return senderLower.includes(orgLower);
@@ -3887,99 +3966,104 @@ const EmailClient = () => {
         </Card>
       )}
       {/* Upload Mode Information Card */}
-      {isSignedIn && dataSource === "upload" && !uploadedFile && (
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="text-center py-8">
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Upload Mode Selected</h3>
-              <p className="text-muted-foreground mb-4">
-                Upload a previously exported JSON file to view and analyze your
-                email data. The file should contain emails exported from this
-                application.
-              </p>{" "}
-              <p className="text-sm text-muted-foreground">
-                Go to the &quot;Data Source&quot; section above to upload your
-                JSON file.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      {isSignedIn && !(dataSource === "upload" && !showAllUploadSenders) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Recent Emails ({emails.length})
-            </CardTitle>
-            <CardDescription>
-              Your {dataSource === "upload" ? "uploaded" : "latest Gmail"}{" "}
-              messages
-            </CardDescription>
-          </CardHeader>{" "}
-          <CardContent>
-            {loading || isLoadingFromCache ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin" />{" "}
-                <span className="ml-2">
-                  {isLoadingFromCache
-                    ? "Loading cached emails..."
-                    : dataSource === "upload"
-                      ? "Processing uploaded file..."
-                      : "Loading emails..."}
-                </span>
+      {(isSignedIn || offlineMode) &&
+        dataSource === "upload" &&
+        !uploadedFile && (
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="text-center py-8">
+                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  Upload Mode Selected
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Upload a previously exported JSON file to view and analyze
+                  your email data. The file should contain emails exported from
+                  this application.
+                </p>{" "}
+                <p className="text-sm text-muted-foreground">
+                  Go to the &quot;Data Source&quot; section above to upload your
+                  JSON file.
+                </p>
               </div>
-            ) : emails.length > 0 ? (
-              <div className="space-y-4">
-                {emails.map((email) => {
-                  const headers = email.payload.headers;
-                  const subject = getHeader(headers, "Subject");
-                  const from = getHeader(headers, "From");
-                  const date = getHeader(headers, "Date");
+            </CardContent>
+          </Card>
+        )}
+      {(isSignedIn || offlineMode) &&
+        !(dataSource === "upload" && !showAllUploadSenders) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Recent Emails ({emails.length})
+              </CardTitle>
+              <CardDescription>
+                Your {dataSource === "upload" ? "uploaded" : "latest Gmail"}{" "}
+                messages
+              </CardDescription>
+            </CardHeader>{" "}
+            <CardContent>
+              {loading || isLoadingFromCache ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin" />{" "}
+                  <span className="ml-2">
+                    {isLoadingFromCache
+                      ? "Loading cached emails..."
+                      : dataSource === "upload"
+                        ? "Processing uploaded file..."
+                        : "Loading emails..."}
+                  </span>
+                </div>
+              ) : emails.length > 0 ? (
+                <div className="space-y-4">
+                  {emails.map((email) => {
+                    const headers = email.payload.headers;
+                    const subject = getHeader(headers, "Subject");
+                    const from = getHeader(headers, "From");
+                    const date = getHeader(headers, "Date");
 
-                  return (
-                    <div
-                      key={email.id}
-                      className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => toggleEmailExpansion(email.id)}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium truncate">
-                            {subject || "No Subject"}
-                          </h3>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {from}
+                    return (
+                      <div
+                        key={email.id}
+                        className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => toggleEmailExpansion(email.id)}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium truncate">
+                              {subject || "No Subject"}
+                            </h3>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {from}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 ml-4">
+                            <Badge variant="secondary" className="text-xs">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {formatDate(date)}
+                            </Badge>
+                          </div>
+                        </div>
+                        {expandedEmails.has(email.id) && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {email.snippet}
                           </p>
-                        </div>
-                        <div className="flex items-center gap-2 ml-4">
-                          <Badge variant="secondary" className="text-xs">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            {formatDate(date)}
-                          </Badge>
-                        </div>
+                        )}
                       </div>
-                      {expandedEmails.has(email.id) && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {email.snippet}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                {" "}
-                {dataSource === "upload"
-                  ? "No emails found in uploaded file."
-                  : "No emails found. Click &quot;Refresh Emails&quot; to try again."}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  {" "}
+                  {dataSource === "upload"
+                    ? "No emails found in uploaded file."
+                    : "No emails found. Click &quot;Refresh Emails&quot; to try again."}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
     </div>
   );
 };

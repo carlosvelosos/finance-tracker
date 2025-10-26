@@ -50,6 +50,9 @@ export default function TableSelectionPanel({
     new Set(),
   );
 
+  // Track which individual table cards are expanded
+  const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
+
   const toggleGroup = (groupName: string) => {
     setCollapsedGroups((prev) => {
       const newSet = new Set(prev);
@@ -57,6 +60,19 @@ export default function TableSelectionPanel({
         newSet.delete(groupName);
       } else {
         newSet.add(groupName);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleTableExpansion = (tableName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedTables((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(tableName)) {
+        newSet.delete(tableName);
+      } else {
+        newSet.add(tableName);
       }
       return newSet;
     });
@@ -283,86 +299,127 @@ export default function TableSelectionPanel({
               {/* Group Tables */}
               {!isCollapsed && (
                 <div className="p-2 space-y-2 bg-white dark:bg-gray-900">
-                  {groupTables.map((table) => (
-                    <div
-                      key={table.name}
-                      className={`p-2 rounded border transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                        table.isSelected
-                          ? "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 shadow-sm"
-                          : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
-                      }`}
-                      onClick={() => onToggleTable(table.name)}
-                    >
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          checked={table.isSelected}
-                          onChange={() => onToggleTable(table.name)}
-                          className="mt-0.5 scale-75"
-                        />
+                  {groupTables.map((table) => {
+                    const isTableExpanded = expandedTables.has(table.name);
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate text-xs">
+                    return (
+                      <div
+                        key={table.name}
+                        className={`rounded border transition-colors ${
+                          table.isSelected
+                            ? "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 shadow-sm"
+                            : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                        }`}
+                      >
+                        {/* Table Header - Always Visible */}
+                        <div
+                          className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                          onClick={() => onToggleTable(table.name)}
+                        >
+                          <div className="flex items-center space-x-2 flex-1 min-w-0">
+                            <Checkbox
+                              checked={table.isSelected}
+                              onChange={() => onToggleTable(table.name)}
+                              className="scale-75 flex-shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate text-xs flex-1">
                               {table.displayName}
                             </h4>
-                            {table.isSelected && (
-                              <Badge
-                                variant="secondary"
-                                className="ml-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 text-xs px-1 py-0 h-4"
+
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {table.isSelected && (
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 text-xs px-1 py-0 h-4"
+                                >
+                                  ✓
+                                </Badge>
+                              )}
+
+                              <button
+                                onClick={(e) =>
+                                  toggleTableExpansion(table.name, e)
+                                }
+                                className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                title={
+                                  isTableExpanded
+                                    ? "Collapse details"
+                                    : "Expand details"
+                                }
                               >
-                                ✓
-                              </Badge>
-                            )}
+                                {isTableExpanded ? (
+                                  <ChevronDown
+                                    size={12}
+                                    className="text-gray-600 dark:text-gray-400"
+                                  />
+                                ) : (
+                                  <ChevronRight
+                                    size={12}
+                                    className="text-gray-600 dark:text-gray-400"
+                                  />
+                                )}
+                              </button>
+                            </div>
                           </div>
+                        </div>
 
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 leading-tight">
-                            {table.description}
-                          </p>
+                        {/* Table Details - Expandable */}
+                        {isTableExpanded && (
+                          <div className="px-2 pb-2 pt-0 border-t border-gray-100 dark:border-gray-800">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 leading-tight mt-2">
+                              {table.description}
+                            </p>
 
-                          {/* Table Statistics - More Compact */}
-                          <div className="space-y-1">
-                            {typeof table.transactionCount === "number" && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Database size={10} />
-                                <span>
-                                  {table.transactionCount.toLocaleString()} txns
-                                </span>
-                              </div>
-                            )}
-
-                            {table.newestDate && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Calendar size={10} />
-                                <span>
-                                  {new Date(
-                                    table.newestDate,
-                                  ).toLocaleDateString()}
-                                </span>
-                              </div>
-                            )}
-
-                            {table.uniqueBanks &&
-                              table.uniqueBanks.length > 0 && (
+                            {/* Table Statistics - More Compact */}
+                            <div className="space-y-1 mb-2">
+                              {typeof table.transactionCount === "number" && (
                                 <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                  <Building2 size={10} />
+                                  <Database size={10} />
                                   <span>
-                                    {table.uniqueBanks.length} bank
-                                    {table.uniqueBanks.length === 1 ? "" : "s"}
+                                    {table.transactionCount.toLocaleString()}{" "}
+                                    txns
                                   </span>
                                 </div>
                               )}
-                          </div>
 
-                          {/* Technical Details - More Compact */}
-                          <div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-800">
-                            <p className="text-xs text-gray-400 font-mono truncate">
-                              {table.name}
-                            </p>
+                              {table.newestDate && (
+                                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                  <Calendar size={10} />
+                                  <span>
+                                    {new Date(
+                                      table.newestDate,
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              )}
+
+                              {table.uniqueBanks &&
+                                table.uniqueBanks.length > 0 && (
+                                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                    <Building2 size={10} />
+                                    <span>
+                                      {table.uniqueBanks.length} bank
+                                      {table.uniqueBanks.length === 1
+                                        ? ""
+                                        : "s"}
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+
+                            {/* Technical Details - More Compact */}
+                            <div className="pt-1 border-t border-gray-100 dark:border-gray-800">
+                              <p className="text-xs text-gray-400 font-mono truncate">
+                                {table.name}
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

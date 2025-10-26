@@ -655,7 +655,7 @@ export default function UploadPage() {
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileChange}
                   multiple
-                  className="cursor-pointer bg-[#121212] border-gray-600 text-white file:bg-green-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 hover:border-green-500"
+                  className="cursor-pointer bg-[#121212] border-gray-600 text-white file:bg-green-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 file:inline-flex file:items-center hover:border-green-500"
                 />
                 {files.length > 0 && (
                   <div className="text-sm text-gray-300">

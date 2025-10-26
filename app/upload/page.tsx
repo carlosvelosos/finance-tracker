@@ -605,288 +605,319 @@ export default function UploadPage() {
 
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">
+      <div className="min-h-screen bg-[#121212] text-white">
+        <div className="container mx-auto px-4 py-16 max-w-2xl">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-green-400">
               Upload Bank Statement
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {/* Bank selection dropdown */}
-            <Select onValueChange={setSelectedBank}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a bank account" />
-              </SelectTrigger>
-              <SelectContent>
-                {BANK_OPTIONS.map((bank) => (
-                  <SelectItem key={bank} value={bank}>
-                    {bank}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {/* File input field - now supports multiple files */}
-            <div className="space-y-2">
-              <Input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileChange}
-                multiple
-                className="cursor-pointer"
-              />
-              {files.length > 0 && (
-                <div className="text-sm text-gray-600">
-                  <strong>
-                    {files.length} file{files.length > 1 ? "s" : ""} selected:
-                  </strong>
-                  <ul className="mt-1 space-y-1">
-                    {files.slice(0, 3).map((file, index) => (
-                      <li
-                        key={index}
-                        className="text-xs text-gray-500 truncate"
-                      >
-                        • {file.name}
-                      </li>
-                    ))}
-                    {files.length > 3 && (
-                      <li className="text-xs text-gray-500">
-                        • ... and {files.length - 3} more file
-                        {files.length - 3 > 1 ? "s" : ""}
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              )}
-            </div>
-            {/* Clear data option */}
-            <div
-              className={`flex flex-col space-y-2 p-3 rounded-md border ${
-                clearData
-                  ? "bg-red-50 border-red-200"
-                  : "bg-yellow-50 border-yellow-200"
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="clearData"
-                  checked={clearData}
-                  onCheckedChange={handleClearDataChange}
-                />
-                <label
-                  htmlFor="clearData"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Clear existing data before upload
-                </label>
-              </div>
-              {targetTableNames.length > 0 && (
-                <div className="ml-6 text-xs text-gray-600">
-                  Target table{targetTableNames.length > 1 ? "s" : ""}:{" "}
-                  <div className="mt-1">
-                    {targetTableNames.slice(0, 3).map((tableName, index) => (
-                      <code
-                        key={index}
-                        className="bg-gray-100 px-1 rounded mr-2 mb-1 inline-block"
-                      >
-                        {tableName}
-                      </code>
-                    ))}
-                    {targetTableNames.length > 3 && (
-                      <span className="text-xs text-gray-500">
-                        ... and {targetTableNames.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div
-              className={`text-xs -mt-2 ${
-                clearData ? "text-red-600 font-medium" : "text-gray-600"
-              }`}
-            >
-              {clearData
-                ? targetTableNames.length > 0
-                  ? `🚨 ALL existing data in ${targetTableNames.length} table${targetTableNames.length > 1 ? "s" : ""} will be deleted before upload!`
-                  : "🚨 ALL existing data will be deleted before upload!"
-                : "⚠️ Check this option when uploading updated versions of the same bank statements to avoid duplicates"}
-            </div>
-            {/* Upload Progress Display */}
-            {uploadProgress.totalFiles > 0 && (
-              <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-md">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-blue-800">
-                    {uploading ? "Upload Progress" : "Upload Results"}
-                  </span>
-                  <span className="text-sm text-blue-600">
-                    {uploadProgress.currentFile} / {uploadProgress.totalFiles}
-                  </span>
-                </div>
+            </h1>
+            <p className="text-gray-400 text-lg">
+              Select your bank and upload transaction files
+            </p>
+          </div>
 
-                {uploadProgress.status && (
-                  <div className="text-sm text-blue-700">
-                    {uploadProgress.status}
+          <Card className="bg-[#1E1E1E] border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-2xl text-green-400">
+                Upload Files
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {/* Bank selection dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Bank Account
+                </label>
+                <Select onValueChange={setSelectedBank}>
+                  <SelectTrigger className="w-full bg-[#121212] border-gray-600 text-white focus:border-green-500">
+                    <SelectValue placeholder="Select a bank account" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1E1E1E] border-gray-600">
+                    {BANK_OPTIONS.map((bank) => (
+                      <SelectItem
+                        key={bank}
+                        value={bank}
+                        className="text-white hover:bg-[#121212] focus:bg-[#121212]"
+                      >
+                        {bank}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* File input field - now supports multiple files */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Upload Files
+                </label>
+                <Input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileChange}
+                  multiple
+                  className="cursor-pointer bg-[#121212] border-gray-600 text-white file:bg-green-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 hover:border-green-500"
+                />
+                {files.length > 0 && (
+                  <div className="text-sm text-gray-300">
+                    <strong>
+                      {files.length} file{files.length > 1 ? "s" : ""} selected:
+                    </strong>
+                    <ul className="mt-1 space-y-1">
+                      {files.slice(0, 3).map((file, index) => (
+                        <li
+                          key={index}
+                          className="text-xs text-gray-400 truncate"
+                        >
+                          • {file.name}
+                        </li>
+                      ))}
+                      {files.length > 3 && (
+                        <li className="text-xs text-gray-400">
+                          • ... and {files.length - 3} more file
+                          {files.length - 3 > 1 ? "s" : ""}
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 )}
-
-                {/* Progress bar */}
-                <div className="w-full bg-blue-100 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${(uploadProgress.currentFile / uploadProgress.totalFiles) * 100}%`,
-                    }}
-                  ></div>
-                </div>
-
-                {/* Results list */}
-                <div className="max-h-32 overflow-y-auto space-y-1">
-                  {uploadProgress.results.map((result, index) => (
-                    <div
-                      key={index}
-                      className={`text-xs p-2 rounded flex items-center ${
-                        result.status === "success"
-                          ? "bg-green-100 text-green-800"
-                          : result.status === "error"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      <span className="mr-2">
-                        {result.status === "success"
-                          ? "✅"
-                          : result.status === "error"
-                            ? "❌"
-                            : "⏳"}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="truncate font-medium">
-                          {result.fileName}
-                        </div>
-                        <div className="truncate text-xs opacity-75">
-                          {result.message}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
-            {/* Upload Summary */}
-            {uploadSummary.show && (
+              {/* Clear data option */}
               <div
-                className={`p-4 border rounded-md ${
-                  uploadSummary.success
-                    ? "bg-green-50 border-green-200"
-                    : "bg-red-50 border-red-200"
+                className={`flex flex-col space-y-2 p-3 rounded-md border ${
+                  clearData
+                    ? "bg-red-900/20 border-red-700"
+                    : "bg-yellow-900/20 border-yellow-700"
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">
-                    {uploadSummary.success ? "✅" : "❌"}
-                  </span>
-                  <div>
-                    <div
-                      className={`font-medium ${
-                        uploadSummary.success
-                          ? "text-green-800"
-                          : "text-red-800"
-                      }`}
-                    >
-                      {uploadSummary.message}
-                    </div>
-                    <div
-                      className={`text-sm ${
-                        uploadSummary.success
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {uploadSummary.details}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="clearData"
+                    checked={clearData}
+                    onCheckedChange={handleClearDataChange}
+                    className="border-gray-600"
+                  />
+                  <label
+                    htmlFor="clearData"
+                    className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Clear existing data before upload
+                  </label>
+                </div>
+                {targetTableNames.length > 0 && (
+                  <div className="ml-6 text-xs text-gray-400">
+                    Target table{targetTableNames.length > 1 ? "s" : ""}:{" "}
+                    <div className="mt-1">
+                      {targetTableNames.slice(0, 3).map((tableName, index) => (
+                        <code
+                          key={index}
+                          className="bg-[#121212] border border-gray-600 px-1 rounded mr-2 mb-1 inline-block"
+                        >
+                          {tableName}
+                        </code>
+                      ))}
+                      {targetTableNames.length > 3 && (
+                        <span className="text-xs text-gray-500">
+                          ... and {targetTableNames.length - 3} more
+                        </span>
+                      )}
                     </div>
                   </div>
-                </div>
-                <button
-                  onClick={() =>
-                    setUploadSummary({
-                      show: false,
-                      success: false,
-                      message: "",
-                      details: "",
-                    })
-                  }
-                  className="mt-2 text-xs text-gray-500 hover:text-gray-700 underline"
-                >
-                  Dismiss
-                </button>
+                )}
               </div>
-            )}
-            {/* Upload button */}
-            <Button
-              onClick={handleUpload}
-              disabled={uploading || files.length === 0}
-              className="w-full"
-            >
-              {uploading
-                ? `Uploading ${uploadProgress.currentFile}/${uploadProgress.totalFiles}...`
-                : files.length === 0
-                  ? "Select files to upload"
-                  : files.length === 1
-                    ? "Upload File"
-                    : `Upload ${files.length} Files`}
-            </Button>{" "}
-            {/* Debug info */}
-            {process.env.NODE_ENV === "development" && (
-              <div className="text-xs text-gray-500 mt-2">
-                Clear Data: {clearData ? "YES" : "NO"} | Target Table:{" "}
-                {targetTableNames?.join(", ") || "None"}
-              </div>
-            )}
-          </CardContent>
-        </Card>{" "}
-        {/* Clear Data Warning Dialog */}
-        <Dialog
-          open={showClearDataWarning}
-          onOpenChange={setShowClearDataWarning}
-        >
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-red-600">
-                ⚠️ Clear Existing Data
-              </DialogTitle>
-              <DialogDescription>
-                You are about to clear ALL existing data from the following
-                table before uploading new data:
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="p-2 bg-gray-100 rounded text-center font-mono text-sm">
-                {targetTableNames?.join(", ") || "Unknown tables"}
-              </div>
-
-              <div className="text-sm text-gray-600">
-                <strong>This action cannot be undone!</strong>
-                <br />
-                <br />
-                Only proceed if you want to replace all existing records with
-                the new file data.
-              </div>
-            </div>
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="outline" onClick={cancelClearData}>
-                Cancel
-              </Button>
-              <Button
-                onClick={confirmClearData}
-                className="bg-red-600 hover:bg-red-700 text-white"
+              <div
+                className={`text-xs -mt-2 ${
+                  clearData ? "text-red-400 font-medium" : "text-gray-400"
+                }`}
               >
-                Yes, Clear Data
+                {clearData
+                  ? targetTableNames.length > 0
+                    ? `🚨 ALL existing data in ${targetTableNames.length} table${targetTableNames.length > 1 ? "s" : ""} will be deleted before upload!`
+                    : "🚨 ALL existing data will be deleted before upload!"
+                  : "⚠️ Check this option when uploading updated versions of the same bank statements to avoid duplicates"}
+              </div>
+              {/* Upload Progress Display */}
+              {uploadProgress.totalFiles > 0 && (
+                <div className="space-y-3 p-4 bg-blue-900/20 border border-blue-700 rounded-md">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-blue-300">
+                      {uploading ? "Upload Progress" : "Upload Results"}
+                    </span>
+                    <span className="text-sm text-blue-400">
+                      {uploadProgress.currentFile} / {uploadProgress.totalFiles}
+                    </span>
+                  </div>
+
+                  {uploadProgress.status && (
+                    <div className="text-sm text-blue-300">
+                      {uploadProgress.status}
+                    </div>
+                  )}
+
+                  {/* Progress bar */}
+                  <div className="w-full bg-blue-950 rounded-full h-2">
+                    <div
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(uploadProgress.currentFile / uploadProgress.totalFiles) * 100}%`,
+                      }}
+                    ></div>
+                  </div>
+
+                  {/* Results list */}
+                  <div className="max-h-32 overflow-y-auto space-y-1">
+                    {uploadProgress.results.map((result, index) => (
+                      <div
+                        key={index}
+                        className={`text-xs p-2 rounded flex items-center ${
+                          result.status === "success"
+                            ? "bg-green-900/30 text-green-300 border border-green-700"
+                            : result.status === "error"
+                              ? "bg-red-900/30 text-red-300 border border-red-700"
+                              : "bg-gray-800 text-gray-400 border border-gray-700"
+                        }`}
+                      >
+                        <span className="mr-2">
+                          {result.status === "success"
+                            ? "✅"
+                            : result.status === "error"
+                              ? "❌"
+                              : "⏳"}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="truncate font-medium">
+                            {result.fileName}
+                          </div>
+                          <div className="truncate text-xs opacity-75">
+                            {result.message}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Upload Summary */}
+              {uploadSummary.show && (
+                <div
+                  className={`p-4 border rounded-md ${
+                    uploadSummary.success
+                      ? "bg-green-900/20 border-green-700"
+                      : "bg-red-900/20 border-red-700"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">
+                      {uploadSummary.success ? "✅" : "❌"}
+                    </span>
+                    <div>
+                      <div
+                        className={`font-medium ${
+                          uploadSummary.success
+                            ? "text-green-300"
+                            : "text-red-300"
+                        }`}
+                      >
+                        {uploadSummary.message}
+                      </div>
+                      <div
+                        className={`text-sm ${
+                          uploadSummary.success
+                            ? "text-green-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {uploadSummary.details}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setUploadSummary({
+                        show: false,
+                        success: false,
+                        message: "",
+                        details: "",
+                      })
+                    }
+                    className="mt-2 text-xs text-gray-400 hover:text-gray-300 underline"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+              {/* Upload button */}
+              <Button
+                onClick={handleUpload}
+                disabled={uploading || files.length === 0}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:bg-gray-700 disabled:text-gray-400"
+              >
+                {uploading
+                  ? `Uploading ${uploadProgress.currentFile}/${uploadProgress.totalFiles}...`
+                  : files.length === 0
+                    ? "Select files to upload"
+                    : files.length === 1
+                      ? "Upload File"
+                      : `Upload ${files.length} Files`}
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+              {/* Debug info */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="text-xs text-gray-500 mt-2">
+                  Clear Data: {clearData ? "YES" : "NO"} | Target Table:{" "}
+                  {targetTableNames?.join(", ") || "None"}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Clear Data Warning Dialog */}
+          <Dialog
+            open={showClearDataWarning}
+            onOpenChange={setShowClearDataWarning}
+          >
+            <DialogContent className="max-w-md bg-[#1E1E1E] border-gray-700 text-white">
+              <DialogHeader>
+                <DialogTitle className="text-red-400">
+                  ⚠️ Clear Existing Data
+                </DialogTitle>
+                <DialogDescription className="text-gray-300">
+                  You are about to clear ALL existing data from the following
+                  table before uploading new data:
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="p-2 bg-[#121212] border border-gray-600 rounded text-center font-mono text-sm text-gray-300">
+                  {targetTableNames?.join(", ") || "Unknown tables"}
+                </div>
+
+                <div className="text-sm text-gray-400">
+                  <strong className="text-gray-300">
+                    This action cannot be undone!
+                  </strong>
+                  <br />
+                  <br />
+                  Only proceed if you want to replace all existing records with
+                  the new file data.
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={cancelClearData}
+                  className="border-gray-600 text-gray-300 hover:bg-[#121212]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmClearData}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Yes, Clear Data
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </ProtectedRoute>
   );

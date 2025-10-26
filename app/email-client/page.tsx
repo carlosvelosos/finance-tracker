@@ -30,6 +30,8 @@ import {
   Upload,
   FileText,
   X,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -42,6 +44,12 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface EmailData {
   id: string;
@@ -165,6 +173,14 @@ const EmailClient = () => {
   const [expandedEmails, setExpandedEmails] = useState<Set<string>>(new Set());
   const [exportStartDate, setExportStartDate] = useState<string>("");
   const [exportEndDate, setExportEndDate] = useState<string>("");
+
+  // Date navigation state
+  const [selectedDateFilter, setSelectedDateFilter] = useState<{
+    type: "all" | "day" | "week" | "month";
+    value?: string; // ISO date string for day, "YYYY-Www" for week, "YYYY-MM" for month
+  }>({ type: "all" });
+  const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
+  const [expandedWeeks, setExpandedWeeks] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<{
     currentWeek: string;
@@ -881,6 +897,100 @@ const EmailClient = () => {
       return dateString;
     }
   };
+
+  // Helper function to get ISO week number
+  const getWeekNumber = (date: Date): number => {
+    const d = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+    );
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  };
+
+  // Helper function to get week identifier (YYYY-Www)
+  const getWeekIdentifier = (date: Date): string => {
+    const weekNum = getWeekNumber(date);
+    return `${date.getFullYear()}-W${weekNum.toString().padStart(2, "0")}`;
+  };
+
+  // Helper function to get month identifier (YYYY-MM)
+  const getMonthIdentifier = (date: Date): string => {
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}`;
+  };
+
+  // Helper function to get date identifier (YYYY-MM-DD)
+  const getDateIdentifier = (date: Date): string => {
+    return date.toISOString().split("T")[0];
+  };
+
+  // Memoized function to organize emails by date hierarchy
+  const emailsByDateHierarchy = useMemo(() => {
+    const hierarchy: {
+      [year: string]: {
+        [month: string]: {
+          [week: string]: {
+            [day: string]: EmailData[];
+          };
+        };
+      };
+    } = {};
+
+    emails.forEach((email) => {
+      const dateHeader = getHeader(email.payload.headers, "Date");
+      if (!dateHeader) return;
+
+      try {
+        const date = new Date(dateHeader);
+        const year = date.getFullYear().toString();
+        const month = getMonthIdentifier(date);
+        const week = getWeekIdentifier(date);
+        const day = getDateIdentifier(date);
+
+        if (!hierarchy[year]) hierarchy[year] = {};
+        if (!hierarchy[year][month]) hierarchy[year][month] = {};
+        if (!hierarchy[year][month][week]) hierarchy[year][month][week] = {};
+        if (!hierarchy[year][month][week][day])
+          hierarchy[year][month][week][day] = [];
+
+        hierarchy[year][month][week][day].push(email);
+      } catch (error) {
+        console.warn("Invalid date format:", dateHeader, error);
+      }
+    });
+
+    return hierarchy;
+  }, [emails]);
+
+  // Memoized function to filter emails based on selected date filter
+  const filteredEmailsByDate = useMemo(() => {
+    if (selectedDateFilter.type === "all") {
+      return emails;
+    }
+
+    return emails.filter((email) => {
+      const dateHeader = getHeader(email.payload.headers, "Date");
+      if (!dateHeader) return false;
+
+      try {
+        const date = new Date(dateHeader);
+
+        switch (selectedDateFilter.type) {
+          case "day":
+            return getDateIdentifier(date) === selectedDateFilter.value;
+          case "week":
+            return getWeekIdentifier(date) === selectedDateFilter.value;
+          case "month":
+            return getMonthIdentifier(date) === selectedDateFilter.value;
+          default:
+            return true;
+        }
+      } catch {
+        return false;
+      }
+    });
+  }, [emails, selectedDateFilter]);
 
   // Function to get the number of emails to show for each institution
   const getEmailsToShow = (organization: string) => {
@@ -4015,43 +4125,288 @@ const EmailClient = () => {
                   </span>
                 </div>
               ) : emails.length > 0 ? (
-                <div className="space-y-4">
-                  {emails.map((email) => {
-                    const headers = email.payload.headers;
-                    const subject = getHeader(headers, "Subject");
-                    const from = getHeader(headers, "From");
-                    const date = getHeader(headers, "Date");
-
-                    return (
-                      <div
-                        key={email.id}
-                        className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                        onClick={() => toggleEmailExpansion(email.id)}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                  {/* Side Navigation Panel */}
+                  <div className="lg:col-span-1 border-r pr-4">
+                    <div className="space-y-2">
+                      {/* All Emails Option */}
+                      <button
+                        onClick={() => setSelectedDateFilter({ type: "all" })}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                          selectedDateFilter.type === "all"
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted"
+                        }`}
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium truncate">
-                              {subject || "No Subject"}
-                            </h3>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {from}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 ml-4">
-                            <Badge variant="secondary" className="text-xs">
-                              <Calendar className="w-3 h-3 mr-1" />
-                              {formatDate(date)}
-                            </Badge>
-                          </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            All Emails
+                          </span>
+                          <Badge variant="secondary" className="text-xs">
+                            {emails.length}
+                          </Badge>
                         </div>
-                        {expandedEmails.has(email.id) && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {email.snippet}
-                          </p>
-                        )}
+                      </button>
+
+                      {/* Date Hierarchy Navigation */}
+                      <div className="space-y-1">
+                        {Object.keys(emailsByDateHierarchy)
+                          .sort((a, b) => parseInt(b) - parseInt(a))
+                          .map((year) => {
+                            const yearData = emailsByDateHierarchy[year];
+                            const months = Object.keys(yearData)
+                              .sort()
+                              .reverse();
+
+                            return (
+                              <div key={year} className="space-y-1">
+                                <div className="text-xs font-semibold text-muted-foreground px-3 py-1">
+                                  {year}
+                                </div>
+                                <Accordion
+                                  type="multiple"
+                                  value={expandedMonths}
+                                  onValueChange={setExpandedMonths}
+                                >
+                                  {months.map((monthId) => {
+                                    const monthData = yearData[monthId];
+                                    const weeks = Object.keys(monthData).sort();
+                                    const monthDate = new Date(monthId + "-01");
+                                    const monthName =
+                                      monthDate.toLocaleDateString("en-US", {
+                                        month: "long",
+                                      });
+                                    const monthEmailCount = Object.values(
+                                      monthData,
+                                    )
+                                      .flatMap((week) => Object.values(week))
+                                      .flatMap((day) => day).length;
+
+                                    return (
+                                      <AccordionItem
+                                        key={monthId}
+                                        value={monthId}
+                                        className="border-none"
+                                      >
+                                        <AccordionTrigger
+                                          className={`px-3 py-2 hover:no-underline hover:bg-muted rounded-md ${
+                                            selectedDateFilter.type ===
+                                              "month" &&
+                                            selectedDateFilter.value === monthId
+                                              ? "bg-primary/10"
+                                              : ""
+                                          }`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedDateFilter({
+                                              type: "month",
+                                              value: monthId,
+                                            });
+                                          }}
+                                        >
+                                          <div className="flex items-center justify-between w-full mr-2">
+                                            <span className="text-sm font-medium">
+                                              {monthName}
+                                            </span>
+                                            <Badge
+                                              variant="secondary"
+                                              className="text-xs"
+                                            >
+                                              {monthEmailCount}
+                                            </Badge>
+                                          </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="pb-0 pt-1">
+                                          <Accordion
+                                            type="multiple"
+                                            value={expandedWeeks}
+                                            onValueChange={setExpandedWeeks}
+                                          >
+                                            {weeks.map((weekId) => {
+                                              const weekData =
+                                                monthData[weekId];
+                                              const days =
+                                                Object.keys(weekData).sort();
+                                              const weekNumber =
+                                                weekId.split("-W")[1];
+                                              const weekEmailCount =
+                                                Object.values(weekData).flatMap(
+                                                  (day) => day,
+                                                ).length;
+
+                                              return (
+                                                <AccordionItem
+                                                  key={weekId}
+                                                  value={weekId}
+                                                  className="border-none ml-2"
+                                                >
+                                                  <AccordionTrigger
+                                                    className={`px-3 py-1.5 hover:no-underline hover:bg-muted rounded-md text-xs ${
+                                                      selectedDateFilter.type ===
+                                                        "week" &&
+                                                      selectedDateFilter.value ===
+                                                        weekId
+                                                        ? "bg-primary/10"
+                                                        : ""
+                                                    }`}
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setSelectedDateFilter({
+                                                        type: "week",
+                                                        value: weekId,
+                                                      });
+                                                    }}
+                                                  >
+                                                    <div className="flex items-center justify-between w-full mr-2">
+                                                      <span>
+                                                        Week {weekNumber}
+                                                      </span>
+                                                      <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                      >
+                                                        {weekEmailCount}
+                                                      </Badge>
+                                                    </div>
+                                                  </AccordionTrigger>
+                                                  <AccordionContent className="pb-0 pt-1">
+                                                    <div className="space-y-0.5 ml-2">
+                                                      {days.map((dayId) => {
+                                                        const dayEmails =
+                                                          weekData[dayId];
+                                                        const dayDate =
+                                                          new Date(dayId);
+                                                        const dayName =
+                                                          dayDate.toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                              weekday: "short",
+                                                              month: "short",
+                                                              day: "numeric",
+                                                            },
+                                                          );
+
+                                                        return (
+                                                          <button
+                                                            key={dayId}
+                                                            onClick={() =>
+                                                              setSelectedDateFilter(
+                                                                {
+                                                                  type: "day",
+                                                                  value: dayId,
+                                                                },
+                                                              )
+                                                            }
+                                                            className={`w-full text-left px-3 py-1.5 rounded-md transition-colors text-xs ${
+                                                              selectedDateFilter.type ===
+                                                                "day" &&
+                                                              selectedDateFilter.value ===
+                                                                dayId
+                                                                ? "bg-primary text-primary-foreground"
+                                                                : "hover:bg-muted"
+                                                            }`}
+                                                          >
+                                                            <div className="flex items-center justify-between">
+                                                              <span>
+                                                                {dayName}
+                                                              </span>
+                                                              <Badge
+                                                                variant={
+                                                                  selectedDateFilter.type ===
+                                                                    "day" &&
+                                                                  selectedDateFilter.value ===
+                                                                    dayId
+                                                                    ? "secondary"
+                                                                    : "outline"
+                                                                }
+                                                                className="text-xs"
+                                                              >
+                                                                {
+                                                                  dayEmails.length
+                                                                }
+                                                              </Badge>
+                                                            </div>
+                                                          </button>
+                                                        );
+                                                      })}
+                                                    </div>
+                                                  </AccordionContent>
+                                                </AccordionItem>
+                                              );
+                                            })}
+                                          </Accordion>
+                                        </AccordionContent>
+                                      </AccordionItem>
+                                    );
+                                  })}
+                                </Accordion>
+                              </div>
+                            );
+                          })}
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
+
+                  {/* Email List */}
+                  <div className="lg:col-span-3 space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm text-muted-foreground">
+                        {selectedDateFilter.type === "all"
+                          ? `Showing all ${filteredEmailsByDate.length} emails`
+                          : selectedDateFilter.type === "day"
+                            ? `Showing ${filteredEmailsByDate.length} emails from ${new Date(selectedDateFilter.value!).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}`
+                            : selectedDateFilter.type === "week"
+                              ? `Showing ${filteredEmailsByDate.length} emails from ${selectedDateFilter.value}`
+                              : `Showing ${filteredEmailsByDate.length} emails from ${new Date(selectedDateFilter.value! + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" })}`}
+                      </p>
+                      {selectedDateFilter.type !== "all" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedDateFilter({ type: "all" })}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Clear Filter
+                        </Button>
+                      )}
+                    </div>
+                    {filteredEmailsByDate.map((email) => {
+                      const headers = email.payload.headers;
+                      const subject = getHeader(headers, "Subject");
+                      const from = getHeader(headers, "From");
+                      const date = getHeader(headers, "Date");
+
+                      return (
+                        <div
+                          key={email.id}
+                          className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                          onClick={() => toggleEmailExpansion(email.id)}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium truncate">
+                                {subject || "No Subject"}
+                              </h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {from}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 ml-4">
+                              <Badge variant="secondary" className="text-xs">
+                                <Calendar className="w-3 h-3 mr-1" />
+                                {formatDate(date)}
+                              </Badge>
+                            </div>
+                          </div>
+                          {expandedEmails.has(email.id) && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {email.snippet}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">

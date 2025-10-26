@@ -1973,7 +1973,7 @@ const EmailClient = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-8xl border border-gray-200">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Gmail Client</h1>
         <p className="text-muted-foreground">

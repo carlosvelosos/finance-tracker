@@ -393,15 +393,23 @@ export function CustomBarChart({
                     }}
                   >
                     <div className="flex items-center gap-2 w-full">
-                      <button
+                      <div
                         data-toggle-category
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           toggleCategoryVisibility(item.category);
                         }}
-                        className="flex-shrink-0 w-4 h-4 border-2 rounded flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="flex-shrink-0 w-4 h-4 border-2 rounded flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                         title={isHidden ? "Show category" : "Hide category"}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggleCategoryVisibility(item.category);
+                          }
+                        }}
                       >
                         {!isHidden && (
                           <svg
@@ -416,7 +424,7 @@ export function CustomBarChart({
                             />
                           </svg>
                         )}
-                      </button>
+                      </div>
                       <span className={isHidden ? "line-through" : ""}>
                         {index + 1}. {item.category} -{" "}
                         <span

@@ -48,6 +48,23 @@ export function CustomBarChart({
     1,
     currentMonth,
   ]);
+  // State for hidden categories
+  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // Toggle category visibility
+  const toggleCategoryVisibility = (category: string) => {
+    setHiddenCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
 
   if (!data || data.length === 0) {
     return (
@@ -216,14 +233,22 @@ export function CustomBarChart({
     categoryColorMap.set(minorExpensesKey, false); // Show as expense (red)
   }
 
-  // Final chart data
-  const chartData = filteredCategories.sort((a, b) => b.total - a.total);
+  // Final chart data - before filtering hidden categories
+  const allChartData = filteredCategories.sort((a, b) => b.total - a.total);
+
+  // Filter out hidden categories from chart display
+  const chartData = allChartData.filter(
+    (item) => !hiddenCategories.has(item.category),
+  );
+
+  // Recalculate visible total for accurate percentages
+  const visibleTotalSum = chartData.reduce((sum, item) => sum + item.total, 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>
-          {title} - {formatCurrency(totalSum)}
+          {title} - {formatCurrency(visibleTotalSum)}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
@@ -271,7 +296,8 @@ export function CustomBarChart({
                 radius={10}
                 barSize={20}
                 label={({ x, y, width, value }) => {
-                  const percentage = ((value as number) / totalSum) * 100;
+                  const percentage =
+                    ((value as number) / visibleTotalSum) * 100;
                   return (
                     <text
                       x={x + width + 10}
@@ -331,8 +357,12 @@ export function CustomBarChart({
           </div>
         </div>
         <div className="flex-col items-center justify-center mt-2 w-full">
+          <div className="mb-2 px-4 text-xs text-gray-600 dark:text-gray-400">
+            Click on a category to hide/show it in the chart
+          </div>
           <Accordion type="single" collapsible>
-            {chartData.map((item, index) => {
+            {allChartData.map((item, index) => {
+              const isHidden = hiddenCategories.has(item.category);
               const filteredData = processedData.filter(
                 (entry) => entry.Category === item.category,
               );
@@ -349,20 +379,60 @@ export function CustomBarChart({
               );
 
               return (
-                <AccordionItem key={item.category} value={item.category}>
-                  <AccordionTrigger>
-                    <span>
-                      {index + 1}. {item.category} -{" "}
-                      <span
-                        className={
-                          categoryColorMap.get(item.category)
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
-                        }
+                <AccordionItem
+                  key={item.category}
+                  value={item.category}
+                  className={isHidden ? "opacity-40" : ""}
+                >
+                  <AccordionTrigger
+                    onClick={(e) => {
+                      // Check if click was on the chevron or expand area
+                      const target = e.target as HTMLElement;
+                      if (target.closest("[data-toggle-category]")) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleCategoryVisibility(item.category);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <button
+                        data-toggle-category
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleCategoryVisibility(item.category);
+                        }}
+                        className="flex-shrink-0 w-4 h-4 border-2 rounded flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                        title={isHidden ? "Show category" : "Hide category"}
                       >
-                        {formatCurrency(item.total)}
+                        {!isHidden && (
+                          <svg
+                            className="w-3 h-3"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                      <span className={isHidden ? "line-through" : ""}>
+                        {index + 1}. {item.category} -{" "}
+                        <span
+                          className={
+                            categoryColorMap.get(item.category)
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                          }
+                        >
+                          {formatCurrency(item.total)}
+                        </span>
                       </span>
-                    </span>
+                    </div>
                   </AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc pl-4 text-xs space-y-2">

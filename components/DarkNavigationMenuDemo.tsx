@@ -84,13 +84,13 @@ const BRbankLinks: { title: string; href: string; description: string }[] = [
 const transactionLinks: { title: string; href: string; description: string }[] =
   [
     {
-      title: "All Transactions",
-      href: "/global",
+      title: "Transaction Tables",
+      href: "/global_2",
       description: "View all financial transactions across all your accounts.",
     },
     {
       title: "Transaction Charts",
-      href: "/global/chart",
+      href: "/global_2/chart",
       description: "Visualize spending patterns across all your accounts.",
     },
     {
@@ -98,11 +98,11 @@ const transactionLinks: { title: string; href: string; description: string }[] =
       href: "/recurrent",
       description: "Track and manage your recurring bills and subscriptions.",
     },
-    {
-      title: "Family",
-      href: "/family",
-      description: "Manage family finances and shared expenses.",
-    },
+    // {
+    //   title: "Family",
+    //   href: "/family",
+    //   description: "Manage family finances and shared expenses.",
+    // },
   ];
 
 export function DarkNavigationMenuDemo() {

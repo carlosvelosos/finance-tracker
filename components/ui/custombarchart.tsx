@@ -128,11 +128,12 @@ export function CustomBarChart({
         : transaction.Amount,
   }));
 
-  // Format numbers as Swedish currency (SEK)
+  // Format numbers as generic currency (no specific currency symbol)
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("sv-SE", {
-      style: "currency",
-      currency: "SEK",
+    new Intl.NumberFormat("en-US", {
+      style: "decimal",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(value);
 
   // Process the raw transaction data

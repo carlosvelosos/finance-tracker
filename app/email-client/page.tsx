@@ -219,6 +219,7 @@ const EmailClient = () => {
   });
   const [dataSource, setDataSource] = useState<"fetch" | "upload">("fetch");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [originalUploadedEmails, setOriginalUploadedEmails] = useState<
     EmailData[]
@@ -2158,60 +2159,127 @@ const EmailClient = () => {
     }
   };
 
-  // Function to handle file upload and processing
+  // Function to handle file upload and processing (supports multiple files)
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    setUploadedFile(file);
     setIsProcessingUpload(true);
     setError("");
 
     try {
-      const text = await file.text();
-      const jsonData = JSON.parse(text); // Validate the JSON structure
-      if (!jsonData.emails || !Array.isArray(jsonData.emails)) {
+      // Start with existing emails if we're adding more files
+      const allTransformedEmails: EmailData[] = [...originalUploadedEmails];
+      const processedFiles: File[] = [...uploadedFiles];
+      const errors: string[] = [];
+
+      // Check for duplicate filenames
+      const existingFileNames = new Set(uploadedFiles.map((f) => f.name));
+      const newFiles: File[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (existingFileNames.has(file.name)) {
+          errors.push(`${file.name}: File already uploaded (skipped)`);
+          console.warn(`Skipping duplicate file: ${file.name}`);
+        } else {
+          newFiles.push(file);
+        }
+      }
+
+      if (newFiles.length === 0 && errors.length > 0) {
+        setError(
+          `All selected files are already uploaded:\n${errors.join("\n")}`,
+        );
+        setIsProcessingUpload(false);
+        event.target.value = "";
+        return;
+      }
+
+      // Process each new file
+      for (let i = 0; i < newFiles.length; i++) {
+        const file = newFiles[i];
+        try {
+          const text = await file.text();
+          const jsonData = JSON.parse(text);
+
+          // Validate the JSON structure
+          if (!jsonData.emails || !Array.isArray(jsonData.emails)) {
+            throw new Error(
+              `Invalid file format in ${file.name}: Missing or invalid 'emails' array`,
+            );
+          }
+
+          // Transform the data to match our expected email format
+          const transformedEmails = jsonData.emails.map(
+            (
+              email: {
+                id?: string;
+                snippet?: string;
+                headers?: object[];
+                body?: object;
+                parts?: object[];
+                ignored?: boolean;
+              },
+              index: number,
+            ) => {
+              if (!email.id) {
+                email.id = `uploaded-${file.name}-${index}`;
+              }
+
+              // Ensure we have the required structure
+              return {
+                id: email.id,
+                snippet: email.snippet || "",
+                payload: {
+                  headers: email.headers || [],
+                  body: email.body || {},
+                  parts: email.parts || [],
+                },
+                ignored: email.ignored || false, // Load ignored status from file
+              };
+            },
+          );
+
+          allTransformedEmails.push(...transformedEmails);
+          processedFiles.push(file);
+
+          console.log(
+            `Processed ${file.name}: ${transformedEmails.length} emails`,
+          );
+        } catch (fileError) {
+          const errorMsg =
+            fileError instanceof Error ? fileError.message : "Unknown error";
+          errors.push(`${file.name}: ${errorMsg}`);
+          console.error(`Error processing ${file.name}:`, fileError);
+        }
+      }
+
+      if (allTransformedEmails.length === 0) {
         throw new Error(
-          "Invalid file format: Missing or invalid 'emails' array",
+          errors.length > 0
+            ? `Failed to process files:\n${errors.join("\n")}`
+            : "No valid emails found in uploaded files",
         );
       }
 
-      // Transform the data to match our expected email format
-      const transformedEmails = jsonData.emails.map(
-        (
-          email: {
-            id?: string;
-            snippet?: string;
-            headers?: object[];
-            body?: object;
-            parts?: object[];
-            ignored?: boolean;
-          },
-          index: number,
-        ) => {
-          if (!email.id) {
-            email.id = `uploaded-${index}`;
-          }
+      // Deduplicate emails by ID (merge with existing emails)
+      const uniqueEmailsMap = new Map<string, EmailData>();
+      allTransformedEmails.forEach((email) => {
+        if (!uniqueEmailsMap.has(email.id)) {
+          uniqueEmailsMap.set(email.id, email);
+        }
+      });
+      const uniqueEmails = Array.from(uniqueEmailsMap.values());
 
-          // Ensure we have the required structure
-          return {
-            id: email.id,
-            snippet: email.snippet || "",
-            payload: {
-              headers: email.headers || [],
-              body: email.body || {},
-              parts: email.parts || [],
-            },
-            ignored: email.ignored || false, // Load ignored status from file
-          };
-        },
-      );
+      const duplicatesRemoved =
+        allTransformedEmails.length - uniqueEmails.length;
 
-      // Load ignored emails into Set
-      const ignoredSet = new Set<string>();
-      transformedEmails.forEach((email: EmailData) => {
+      // Merge ignored emails with existing set
+      const ignoredSet = new Set<string>(ignoredEmails);
+      uniqueEmails.forEach((email: EmailData) => {
         if (email.ignored) {
           ignoredSet.add(email.id);
         }
@@ -2219,10 +2287,12 @@ const EmailClient = () => {
       setIgnoredEmails(ignoredSet);
 
       // Store original emails for re-filtering
-      setOriginalUploadedEmails(transformedEmails); // Apply sender filtering if "Selected Senders Only" is chosen
-      let finalEmails = transformedEmails;
+      setOriginalUploadedEmails(uniqueEmails);
+
+      // Apply sender filtering if "Selected Senders Only" is chosen
+      let finalEmails = uniqueEmails;
       if (!showAllUploadSenders) {
-        finalEmails = transformedEmails.filter((email: EmailData) => {
+        finalEmails = uniqueEmails.filter((email: EmailData) => {
           const sender = getHeader(getEmailHeaders(email), "From");
           return selectedSenders.some((organization) =>
             sender?.toLowerCase().includes(organization.toLowerCase()),
@@ -2231,40 +2301,71 @@ const EmailClient = () => {
       }
 
       // Update state with filtered emails
-      setEmails(finalEmails); // For uploaded files, we don't need to cache in localStorage
-      // as the data is already stored in the file itself
-      // Just set a cache age to indicate data freshness
+      setEmails(finalEmails);
+      setUploadedFiles(processedFiles);
+      setUploadedFile(processedFiles[0]); // Keep for backward compatibility
+
+      // Set cache age to indicate data freshness
       setCacheAge(new Date());
       setFetchTime(0);
 
       // Clear any existing errors and set success message
       setError("");
-      setSuccess(
-        `Successfully loaded ${finalEmails.length} emails from ${file.name}` +
-          (showAllUploadSenders
-            ? ""
-            : ` (filtered from ${transformedEmails.length} total emails)`),
-      );
+      const isAddingMore = uploadedFiles.length > 0;
+      const newFilesCount = newFiles.length;
+      const totalFilesCount = processedFiles.length;
+
+      let successMsg = "";
+      if (isAddingMore) {
+        successMsg = `Added ${newFilesCount} file${newFilesCount > 1 ? "s" : ""}. Total: ${finalEmails.length} emails from ${totalFilesCount} file${totalFilesCount > 1 ? "s" : ""}`;
+      } else {
+        const filesStr =
+          processedFiles.length === 1
+            ? processedFiles[0].name
+            : `${processedFiles.length} files`;
+        successMsg = `Successfully loaded ${finalEmails.length} emails from ${filesStr}`;
+      }
+
+      if (duplicatesRemoved > 0) {
+        successMsg += ` (${duplicatesRemoved} duplicates removed)`;
+      }
+
+      if (!showAllUploadSenders) {
+        successMsg += ` (filtered from ${uniqueEmails.length} total emails)`;
+      }
+
+      if (errors.length > 0) {
+        successMsg += `\n\nWarnings:\n${errors.join("\n")}`;
+      }
+
+      setSuccess(successMsg);
 
       console.log(
-        `Successfully loaded ${finalEmails.length} emails from ${file.name}` +
-          (showAllUploadSenders
-            ? ""
-            : ` (filtered from ${transformedEmails.length} total emails)`),
+        `Successfully loaded ${finalEmails.length} emails from ${processedFiles.length} file(s)`,
       );
+      if (duplicatesRemoved > 0) {
+        console.log(`Removed ${duplicatesRemoved} duplicate emails`);
+      }
+      if (errors.length > 0) {
+        console.warn("Some files had errors:", errors);
+      }
     } catch (error) {
-      console.error("Error processing uploaded file:", error);
-      let errorMessage = "Failed to process uploaded file";
+      console.error("Error processing uploaded files:", error);
+      let errorMessage = "Failed to process uploaded files";
 
       if (error instanceof Error) {
         errorMessage = error.message;
       } else if (error instanceof SyntaxError) {
-        errorMessage = "Invalid JSON format in uploaded file";
+        errorMessage = "Invalid JSON format in uploaded file(s)";
       }
 
       setSuccess(""); // Clear any existing success messages
       setError(errorMessage);
-      setUploadedFile(null);
+      // Don't clear existing files if we were just adding more
+      if (uploadedFiles.length === 0) {
+        setUploadedFile(null);
+        setUploadedFiles([]);
+      }
     } finally {
       setIsProcessingUpload(false);
       // Reset the input
@@ -2323,6 +2424,7 @@ const EmailClient = () => {
   // Function to clear uploaded data and reset to fetch mode
   const clearUploadedData = () => {
     setUploadedFile(null);
+    setUploadedFiles([]);
     setEmails([]);
     setOriginalUploadedEmails([]);
     setDataSource("fetch");
@@ -2330,6 +2432,7 @@ const EmailClient = () => {
     setFetchTime(null);
     setSuccess(""); // Clear success message
     setError(""); // Clear error message
+    setIgnoredEmails(new Set()); // Clear ignored emails
     // Note: We don't remove cache here since it might contain fetched Gmail data
     // Only clear if we're certain it was from upload mode
   };
@@ -3012,19 +3115,21 @@ const EmailClient = () => {
                     )}
                   </div>
 
-                  {!uploadedFile ? (
+                  {uploadedFiles.length === 0 ? (
                     <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
                       <div className="text-center">
                         <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
                         <h3 className="text-sm font-medium mb-1">
-                          Upload JSON File
+                          Upload JSON File(s)
                         </h3>
                         <p className="text-xs text-muted-foreground mb-4">
-                          Select a previously exported email JSON file
+                          Select one or more previously exported email JSON
+                          files
                         </p>
                         <input
                           type="file"
                           accept=".json"
+                          multiple
                           onChange={handleFileUpload}
                           className="hidden"
                           id="json-file-upload"
@@ -3046,7 +3151,7 @@ const EmailClient = () => {
                               ) : (
                                 <>
                                   <FileText className="mr-2 h-4 w-4" />
-                                  Choose File
+                                  Choose File(s)
                                 </>
                               )}
                             </span>
@@ -3055,31 +3160,91 @@ const EmailClient = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
-                          <div>
-                            <h3 className="font-medium text-green-800 dark:text-green-200">
-                              File Uploaded Successfully
-                            </h3>
-                            <p className="text-sm text-green-600 dark:text-green-400">
-                              {uploadedFile.name} (
-                              {(uploadedFile.size / 1024).toFixed(1)} KB)
-                            </p>
-                            <p className="text-xs text-green-600 dark:text-green-400">
-                              {emails.length} emails loaded from file
-                            </p>
+                    <div className="space-y-3">
+                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            <div>
+                              <h3 className="font-medium text-green-800 dark:text-green-200">
+                                {uploadedFiles.length === 1
+                                  ? "File Uploaded Successfully"
+                                  : `${uploadedFiles.length} Files Uploaded Successfully`}
+                              </h3>
+                              <p className="text-sm text-green-600 dark:text-green-400">
+                                {emails.length} email(s) loaded
+                              </p>
+                            </div>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearUploadedData}
+                            className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={clearUploadedData}
-                          className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+
+                        {/* File list */}
+                        {uploadedFiles.length > 1 && (
+                          <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-800">
+                            <h4 className="text-xs font-medium text-green-800 dark:text-green-200 mb-2">
+                              Uploaded Files:
+                            </h4>
+                            <div className="space-y-1">
+                              {uploadedFiles.map((file, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between text-xs"
+                                >
+                                  <span className="text-green-700 dark:text-green-300">
+                                    {file.name}
+                                  </span>
+                                  <span className="text-green-600 dark:text-green-400">
+                                    {(file.size / 1024).toFixed(1)} KB
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Add more files button */}
+                      <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-3">
+                        <input
+                          type="file"
+                          accept=".json"
+                          multiple
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="json-file-upload-more"
+                          disabled={isProcessingUpload}
+                        />
+                        <label htmlFor="json-file-upload-more">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full cursor-pointer"
+                            disabled={isProcessingUpload}
+                            asChild
+                          >
+                            <span>
+                              {isProcessingUpload ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="mr-2 h-4 w-4" />
+                                  Add More Files
+                                </>
+                              )}
+                            </span>
+                          </Button>
+                        </label>
                       </div>
                     </div>
                   )}

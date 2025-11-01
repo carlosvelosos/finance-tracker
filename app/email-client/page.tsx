@@ -31,6 +31,9 @@ import {
   Upload,
   FileText,
   X,
+  Zap,
+  Info,
+  CheckCircle2,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -53,11 +56,16 @@ import {
 interface EmailData {
   id: string;
   snippet: string;
-  payload: {
+  payload?: {
     headers: { name: string; value: string }[];
     body?: { data?: string };
     parts?: EmailPart[];
   };
+  headers?: { name: string; value: string }[]; // Alternative location for headers (in stored files)
+  date?: string; // Date field (in stored files)
+  from?: string; // From field (in stored files)
+  subject?: string; // Subject field (in stored files)
+  to?: string; // To field (in stored files)
   ignored?: boolean; // Optional flag to mark emails as ignored
 }
 
@@ -217,6 +225,28 @@ const EmailClient = () => {
     EmailData[]
   >([]);
   const [offlineMode, setOfflineMode] = useState(false);
+
+  // Smart Fetching state
+  const [emailCacheInfo, setEmailCacheInfo] = useState<{
+    latestFile: string | null;
+    latestEmailDate: Date | null;
+    totalFiles: number;
+    scanning: boolean;
+    error: string | null;
+    needsMigration: boolean;
+  } | null>(null);
+  const [isSmartFetching, setIsSmartFetching] = useState(false);
+  const [smartFetchLogs, setSmartFetchLogs] = useState<
+    {
+      timestamp: string;
+      message: string;
+      type: "info" | "success" | "warning" | "error";
+    }[]
+  >([]);
+  const [showSmartFetchConsole, setShowSmartFetchConsole] = useState(false);
+  const [needsMigration, setNeedsMigration] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+
   const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
   const DISCOVERY_DOC =
@@ -261,6 +291,56 @@ const EmailClient = () => {
     checkExistingAuth(); // Check for existing authentication
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offlineMode]);
+
+  // Background scan email directory on mount
+  useEffect(() => {
+    scanEmailCache();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Function to scan email cache in background
+  const scanEmailCache = async () => {
+    try {
+      setEmailCacheInfo({
+        latestFile: null,
+        latestEmailDate: null,
+        totalFiles: 0,
+        scanning: true,
+        error: null,
+        needsMigration: false,
+      });
+
+      const response = await fetch("/api/smart-fetch/scan");
+      if (!response.ok) {
+        throw new Error("Failed to scan email cache");
+      }
+
+      const data = await response.json();
+
+      setEmailCacheInfo({
+        latestFile: data.latestFile,
+        latestEmailDate: data.latestEmailDate
+          ? new Date(data.latestEmailDate)
+          : null,
+        totalFiles: data.totalFiles,
+        scanning: false,
+        error: null,
+        needsMigration: data.needsMigration,
+      });
+
+      setNeedsMigration(data.needsMigration);
+    } catch (error) {
+      console.error("Error scanning email cache:", error);
+      setEmailCacheInfo({
+        latestFile: null,
+        latestEmailDate: null,
+        totalFiles: 0,
+        scanning: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        needsMigration: false,
+      });
+    }
+  };
   const initializeGapi = useCallback(async () => {
     try {
       console.log("Initializing Google APIs...");
@@ -368,7 +448,7 @@ const EmailClient = () => {
         id: email.id,
         snippet: email.snippet.substring(0, 200), // Truncate snippet to 200 chars
         payload: {
-          headers: email.payload.headers.filter((h) =>
+          headers: getEmailHeaders(email).filter((h) =>
             ["From", "Subject", "Date"].includes(h.name),
           ), // Only keep essential headers
         },
@@ -397,7 +477,7 @@ const EmailClient = () => {
           id: email.id,
           snippet: email.snippet.substring(0, 100),
           payload: {
-            headers: email.payload.headers.slice(0, 3),
+            headers: getEmailHeaders(email).slice(0, 3),
           },
         }));
 
@@ -435,7 +515,7 @@ const EmailClient = () => {
               id: email.id,
               snippet: email.snippet.substring(0, 50),
               payload: {
-                headers: email.payload.headers
+                headers: getEmailHeaders(email)
                   .filter((h) => h.name === "From" || h.name === "Subject")
                   .slice(0, 2),
               },
@@ -898,6 +978,13 @@ const EmailClient = () => {
     return header?.value || "";
   };
 
+  // Helper function to safely get headers from email (handles both API and stored formats)
+  const getEmailHeaders = (
+    email: EmailData,
+  ): { name: string; value: string }[] => {
+    return email.payload?.headers || email.headers || [];
+  };
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -957,7 +1044,7 @@ const EmailClient = () => {
       : emails;
 
     emailsToOrganize.forEach((email) => {
-      const dateHeader = getHeader(email.payload.headers, "Date");
+      const dateHeader = getHeader(getEmailHeaders(email), "Date");
       if (!dateHeader) return;
 
       try {
@@ -996,7 +1083,7 @@ const EmailClient = () => {
     // Apply date filter
     if (selectedDateFilter.type !== "all") {
       filtered = filtered.filter((email) => {
-        const dateHeader = getHeader(email.payload.headers, "Date");
+        const dateHeader = getHeader(getEmailHeaders(email), "Date");
         if (!dateHeader) return false;
 
         try {
@@ -1047,7 +1134,7 @@ const EmailClient = () => {
       : emails;
 
     emailsToOrganize.forEach((email) => {
-      const fromHeader = getHeader(email.payload.headers, "From");
+      const fromHeader = getHeader(getEmailHeaders(email), "From");
       if (!fromHeader) return;
 
       // Extract email address
@@ -1098,7 +1185,7 @@ const EmailClient = () => {
     // Apply sender filter (selectedSenderFilter now stores full email)
     if (selectedSenderFilter !== "all") {
       filtered = filtered.filter((email) => {
-        const fromHeader = getHeader(email.payload.headers, "From");
+        const fromHeader = getHeader(getEmailHeaders(email), "From");
         if (!fromHeader) return false;
 
         const senderEmail = fromHeader.match(/<(.+?)>/)
@@ -1460,11 +1547,11 @@ const EmailClient = () => {
         emails: allEmailResults.map((email) => ({
           id: email.id,
           snippet: email.snippet,
-          headers: email.payload.headers,
-          date: getHeader(email.payload.headers, "Date"),
-          from: getHeader(email.payload.headers, "From"),
-          subject: getHeader(email.payload.headers, "Subject"),
-          to: getHeader(email.payload.headers, "To"),
+          headers: getEmailHeaders(email),
+          date: getHeader(getEmailHeaders(email), "Date"),
+          from: getHeader(getEmailHeaders(email), "From"),
+          subject: getHeader(getEmailHeaders(email), "Subject"),
+          to: getHeader(getEmailHeaders(email), "To"),
           ignored: ignoredEmails.has(email.id),
         })),
         exportDate: new Date().toISOString(),
@@ -1532,11 +1619,11 @@ const EmailClient = () => {
         emails: emails.map((email) => ({
           id: email.id,
           snippet: email.snippet,
-          headers: email.payload.headers,
-          date: getHeader(email.payload.headers, "Date"),
-          from: getHeader(email.payload.headers, "From"),
-          subject: getHeader(email.payload.headers, "Subject"),
-          to: getHeader(email.payload.headers, "To"),
+          headers: getEmailHeaders(email),
+          date: getHeader(getEmailHeaders(email), "Date"),
+          from: getHeader(getEmailHeaders(email), "From"),
+          subject: getHeader(getEmailHeaders(email), "Subject"),
+          to: getHeader(getEmailHeaders(email), "To"),
           ignored: ignoredEmails.has(email.id),
         })),
         exportDate: new Date().toISOString(),
@@ -1632,6 +1719,402 @@ const EmailClient = () => {
     console.log(`Downloaded ${filename}.json`);
   };
 
+  // Function to handle migration
+  const handleMigration = async () => {
+    try {
+      setIsMigrating(true);
+      setSmartFetchLogs([]);
+      setShowSmartFetchConsole(true);
+
+      const addLog = (
+        message: string,
+        type: "info" | "success" | "warning" | "error" = "info",
+      ) => {
+        const timestamp = new Date().toLocaleTimeString("en-US", {
+          hour12: false,
+        });
+        let icon = "ℹ️";
+        switch (type) {
+          case "success":
+            icon = "✅";
+            break;
+          case "warning":
+            icon = "⚠️";
+            break;
+          case "error":
+            icon = "❌";
+            break;
+        }
+        setSmartFetchLogs((prev) => [
+          ...prev,
+          {
+            timestamp,
+            message: `${icon} ${message}`,
+            type,
+          },
+        ]);
+      };
+
+      addLog("Starting migration process...", "info");
+
+      const response = await fetch("/api/smart-fetch/migrate", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Migration failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      // Display logs from migration
+      if (result.logs && Array.isArray(result.logs)) {
+        result.logs.forEach((log: string) => {
+          if (log.startsWith("ERROR:")) {
+            addLog(log.replace("ERROR:", "").trim(), "error");
+          } else if (log.startsWith("Warning:")) {
+            addLog(log, "warning");
+          } else if (log.includes("complete") || log.includes("Created")) {
+            addLog(log, "success");
+          } else {
+            addLog(log, "info");
+          }
+        });
+      }
+
+      if (result.success) {
+        addLog(`Migration successful!`, "success");
+        setNeedsMigration(false);
+        // Rescan cache
+        await scanEmailCache();
+      } else {
+        addLog(`Migration completed with errors`, "warning");
+      }
+    } catch (error) {
+      console.error("Migration error:", error);
+      setError(
+        `Migration failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
+  // Function to handle smart fetching
+  const handleSmartFetch = async () => {
+    if (!isSignedIn) {
+      setError("Please sign in first to use Smart Fetching");
+      return;
+    }
+
+    try {
+      setIsSmartFetching(true);
+      setSmartFetchLogs([]);
+      setShowSmartFetchConsole(true);
+      setError("");
+
+      const addLog = (
+        message: string,
+        type: "info" | "success" | "warning" | "error" = "info",
+      ) => {
+        const timestamp = new Date().toLocaleTimeString("en-US", {
+          hour12: false,
+        });
+        let icon = "ℹ️";
+        switch (type) {
+          case "success":
+            icon = "✅";
+            break;
+          case "warning":
+            icon = "⚠️";
+            break;
+          case "error":
+            icon = "❌";
+            break;
+        }
+        setSmartFetchLogs((prev) => [
+          ...prev,
+          {
+            timestamp,
+            message: `${icon} ${message}`,
+            type,
+          },
+        ]);
+      };
+
+      addLog("Starting Smart Fetching...", "info");
+
+      // Get latest email date from cache
+      if (!emailCacheInfo?.latestEmailDate) {
+        addLog("No existing emails found, fetching last 30 days", "info");
+      } else {
+        const latestDate = new Date(emailCacheInfo.latestEmailDate);
+        addLog(`Latest email: ${latestDate.toLocaleDateString()}`, "info");
+      }
+
+      // Calculate date range
+      const startDate = emailCacheInfo?.latestEmailDate
+        ? new Date(emailCacheInfo.latestEmailDate)
+        : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+      const endDate = new Date();
+
+      const formatGmailDate = (date: Date) => {
+        return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getDate().toString().padStart(2, "0")}`;
+      };
+
+      addLog(
+        `Fetching emails from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`,
+        "info",
+      );
+
+      // Check Gmail API
+      if (!window.gapi?.client?.gmail) {
+        throw new Error("Gmail API not initialized");
+      }
+
+      const token = window.gapi.client.getToken();
+      if (!token?.access_token) {
+        throw new Error("No valid access token. Please sign in again.");
+      }
+
+      // Fetch emails
+      const searchQuery = `after:${formatGmailDate(startDate)} before:${formatGmailDate(new Date(endDate.getTime() + 24 * 60 * 60 * 1000))}`;
+
+      addLog("Querying Gmail API...", "info");
+
+      const response = await window.gapi.client.gmail.users.messages.list({
+        userId: "me",
+        maxResults: 500,
+        q: searchQuery,
+      });
+
+      if (!response.result?.messages || response.result.messages.length === 0) {
+        addLog("No new emails found. You're up to date!", "success");
+        setIsSmartFetching(false);
+        return;
+      }
+
+      const messageIds = response.result.messages;
+      addLog(`Found ${messageIds.length} email(s)`, "info");
+
+      // Fetch email details in batches
+      const batchSize = 10;
+      const delay = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+      const allEmails: EmailData[] = [];
+
+      for (let i = 0; i < messageIds.length; i += batchSize) {
+        const batch = messageIds.slice(i, i + batchSize);
+        addLog(
+          `Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(messageIds.length / batchSize)}`,
+          "info",
+        );
+
+        const emailPromises = batch.map(async (message: { id: string }) => {
+          try {
+            const emailResponse =
+              await window.gapi.client.gmail.users.messages.get({
+                userId: "me",
+                id: message.id,
+                format: "full",
+              });
+            return emailResponse?.result || null;
+          } catch (error) {
+            console.error(`Error fetching email ${message.id}:`, error);
+            return null;
+          }
+        });
+
+        const batchResults = await Promise.all(emailPromises);
+        const validEmails = batchResults.filter(
+          (email): email is EmailData => email !== null,
+        );
+        allEmails.push(...validEmails);
+
+        if (i + batchSize < messageIds.length) {
+          await delay(200);
+        }
+      }
+
+      addLog(`Fetched ${allEmails.length} email(s)`, "success");
+
+      // Group by month
+      addLog("Grouping emails by month...", "info");
+
+      const getEmailDate = (email: EmailData): Date | null => {
+        try {
+          // Check if date is already parsed (from stored files)
+          if (email.date) {
+            return new Date(email.date);
+          }
+
+          // Otherwise, extract from headers (from Gmail API or stored files)
+          const headers = email.payload?.headers || email.headers || [];
+          const dateHeader = headers.find(
+            (h) => h.name.toLowerCase() === "date",
+          );
+          if (dateHeader?.value) {
+            return new Date(dateHeader.value);
+          }
+
+          return null;
+        } catch (error) {
+          console.warn("Failed to parse email date:", email.id, error);
+          return null;
+        }
+      };
+
+      const getMonthKey = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        return `${year}-${month}`;
+      };
+
+      const grouped = new Map<string, EmailData[]>();
+
+      for (const email of allEmails) {
+        const emailDate = getEmailDate(email);
+        if (!emailDate) {
+          addLog(`Skipping email ${email.id} (no valid date)`, "warning");
+          continue;
+        }
+
+        const monthKey = getMonthKey(emailDate);
+        if (!grouped.has(monthKey)) {
+          grouped.set(monthKey, []);
+        }
+        grouped.get(monthKey)!.push(email);
+      }
+
+      addLog(`Grouped into ${grouped.size} month(s)`, "info");
+
+      // Update monthly files
+      for (const [month, monthEmails] of grouped) {
+        try {
+          addLog(`Updating ${month}...`, "info");
+
+          // Check if file exists
+          const readResponse = await fetch(
+            `/api/smart-fetch/read?month=${month}`,
+          );
+          const existingData = readResponse.ok
+            ? await readResponse.json()
+            : null;
+
+          let allMonthEmails: EmailData[];
+          let duplicatesSkipped = 0;
+
+          if (existingData && existingData.emails) {
+            // Merge with existing
+            const existingIds = new Set(
+              existingData.emails.map((e: EmailData) => e.id),
+            );
+            const uniqueNew = monthEmails.filter((e) => {
+              if (existingIds.has(e.id)) {
+                duplicatesSkipped++;
+                return false;
+              }
+              return true;
+            });
+            allMonthEmails = [...existingData.emails, ...uniqueNew];
+          } else {
+            allMonthEmails = monthEmails;
+          }
+
+          // Sort by date
+          allMonthEmails.sort((a, b) => {
+            const dateA = getEmailDate(a);
+            const dateB = getEmailDate(b);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateA.getTime() - dateB.getTime();
+          });
+
+          // Prepare file data
+          const [year, monthNum] = month.split("-").map(Number);
+          const lastDay = new Date(year, monthNum, 0).getDate();
+
+          const fileData = {
+            dateRange: {
+              start: `${month}-01`,
+              end: `${month}-${lastDay.toString().padStart(2, "0")}`,
+            },
+            totalEmails: allMonthEmails.length,
+            emails: allMonthEmails.map((email) => {
+              // Safely access headers - could be in payload.headers or directly in headers
+              const headers = email.payload?.headers || email.headers || [];
+
+              return {
+                id: email.id,
+                snippet: email.snippet || "",
+                headers: headers,
+                date: getEmailDate(email)?.toISOString(),
+                from: headers.find((h) => h.name.toLowerCase() === "from")
+                  ?.value,
+                subject: headers.find((h) => h.name.toLowerCase() === "subject")
+                  ?.value,
+                to: headers.find((h) => h.name.toLowerCase() === "to")?.value,
+                ignored: email.ignored || false,
+              };
+            }),
+            exportDate: existingData?.exportDate || new Date().toISOString(),
+            fetchedBy: userInfo?.email || "unknown",
+            lastUpdated: new Date().toISOString(),
+          };
+
+          // Write file
+          const writeResponse = await fetch("/api/smart-fetch/write", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ month, data: fileData }),
+          });
+
+          if (!writeResponse.ok) {
+            throw new Error(`Failed to write file for ${month}`);
+          }
+
+          const newEmailsCount = monthEmails.length - duplicatesSkipped;
+          addLog(
+            `${existingData ? "Updated" : "Created"} gmail-export-${month}.json (${newEmailsCount} new, ${allMonthEmails.length} total)`,
+            "success",
+          );
+
+          if (duplicatesSkipped > 0) {
+            addLog(
+              `Skipped ${duplicatesSkipped} duplicate(s) in ${month}`,
+              "info",
+            );
+          }
+        } catch (error) {
+          addLog(`Failed to update ${month}: ${error}`, "error");
+        }
+      }
+
+      addLog(
+        `Smart Fetching complete! ${allEmails.length} email(s) processed`,
+        "success",
+      );
+
+      // Rescan cache to update info
+      await scanEmailCache();
+    } catch (error) {
+      console.error("Smart fetching error:", error);
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
+      setError(`Smart Fetching failed: ${errorMsg}`);
+      setSmartFetchLogs((prev) => [
+        ...prev,
+        {
+          timestamp: new Date().toLocaleTimeString("en-US", { hour12: false }),
+          message: `❌ ${errorMsg}`,
+          type: "error",
+        },
+      ]);
+    } finally {
+      setIsSmartFetching(false);
+    }
+  };
+
   // Function to handle file upload and processing
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -1697,7 +2180,7 @@ const EmailClient = () => {
       let finalEmails = transformedEmails;
       if (!showAllUploadSenders) {
         finalEmails = transformedEmails.filter((email: EmailData) => {
-          const sender = getHeader(email.payload.headers, "From");
+          const sender = getHeader(getEmailHeaders(email), "From");
           return selectedSenders.some((organization) =>
             sender?.toLowerCase().includes(organization.toLowerCase()),
           );
@@ -1752,7 +2235,7 @@ const EmailClient = () => {
       if (!showAllUploadSenders) {
         // Filter emails by selected senders
         filteredEmails = originalUploadedEmails.filter((email: EmailData) => {
-          const fromHeader = getHeader(email.payload.headers, "From");
+          const fromHeader = getHeader(getEmailHeaders(email), "From");
           if (!fromHeader) return false;
 
           return selectedSenders.some((organization) => {
@@ -1812,7 +2295,7 @@ const EmailClient = () => {
     const emailsByDay: Record<string, number> = {};
 
     emails.forEach((email) => {
-      const dateHeader = getHeader(email.payload.headers, "Date");
+      const dateHeader = getHeader(getEmailHeaders(email), "Date");
       if (dateHeader) {
         try {
           const date = new Date(dateHeader);
@@ -1848,7 +2331,7 @@ const EmailClient = () => {
 
     const validDates = emails
       .map((email) => {
-        const dateHeader = getHeader(email.payload.headers, "Date");
+        const dateHeader = getHeader(getEmailHeaders(email), "Date");
         try {
           return dateHeader ? new Date(dateHeader) : null;
         } catch {
@@ -1890,7 +2373,7 @@ const EmailClient = () => {
 
     const validDates = emails
       .map((email) => {
-        const dateHeader = getHeader(email.payload.headers, "Date");
+        const dateHeader = getHeader(getEmailHeaders(email), "Date");
         try {
           return dateHeader ? new Date(dateHeader) : null;
         } catch {
@@ -1932,7 +2415,7 @@ const EmailClient = () => {
     // 1. Analyze daily email counts for outlier days
     const emailsByDay: Record<string, number> = {};
     emails.filter((email) => {
-      const dateHeader = getHeader(email.payload.headers, "Date");
+      const dateHeader = getHeader(getEmailHeaders(email), "Date");
       try {
         if (dateHeader) {
           const date = new Date(dateHeader);
@@ -1971,7 +2454,7 @@ const EmailClient = () => {
     // 2. Analyze sender patterns to find top outlier
     const senderCounts: Record<string, number> = {};
     emails.forEach((email) => {
-      const sender = getHeader(email.payload.headers, "From");
+      const sender = getHeader(getEmailHeaders(email), "From");
       const senderEmail = sender.match(/<(.+?)>/)
         ? sender.match(/<(.+?)>/)![1]
         : sender;
@@ -2004,7 +2487,7 @@ const EmailClient = () => {
     // 3. Detect unusual patterns (emails sent at unusual hours)
     const hourCounts: Record<number, number> = {};
     emails.forEach((email) => {
-      const dateHeader = getHeader(email.payload.headers, "Date");
+      const dateHeader = getHeader(getEmailHeaders(email), "Date");
       try {
         if (dateHeader) {
           const date = new Date(dateHeader);
@@ -2076,6 +2559,115 @@ const EmailClient = () => {
             <span>{success}</span>
           </div>
         </div>
+      )}
+      {/* Email Cache Status Banner */}
+      {emailCacheInfo &&
+        !emailCacheInfo.scanning &&
+        emailCacheInfo.totalFiles > 0 && (
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                📧 Email Cache Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="font-medium">
+                    {emailCacheInfo.totalFiles} monthly archives found
+                  </span>
+                </div>
+                {emailCacheInfo.latestFile && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span>
+                      Latest:{" "}
+                      {emailCacheInfo.latestFile
+                        .replace("gmail-export-", "")
+                        .replace(".json", "")}
+                    </span>
+                  </div>
+                )}
+                {emailCacheInfo.latestEmailDate && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span>
+                      Last email:{" "}
+                      {new Date(
+                        emailCacheInfo.latestEmailDate,
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {emailCacheInfo.needsMigration && (
+                <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                        Migration Needed
+                      </p>
+                      <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                        Your email files need to be reorganized into the new
+                        monthly format. This will improve performance and
+                        organization.
+                      </p>
+                      <Button
+                        onClick={handleMigration}
+                        disabled={isMigrating}
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 border-yellow-600 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-400 dark:text-yellow-300 dark:hover:bg-yellow-900/20"
+                      >
+                        {isMigrating ? (
+                          <>
+                            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                            Migrating...
+                          </>
+                        ) : (
+                          "Run Migration"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!isSignedIn &&
+                !offlineMode &&
+                !emailCacheInfo.needsMigration && (
+                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
+                      <Info className="h-4 w-4" />
+                      <span>
+                        Sign in to use Smart Fetching and automatically sync
+                        your latest emails
+                      </span>
+                    </div>
+                  </div>
+                )}
+            </CardContent>
+          </Card>
+        )}
+      {emailCacheInfo?.scanning && (
+        <Card className="mb-6">
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Scanning email cache...</span>
+            </div>
+          </CardContent>
+        </Card>
       )}
       {!offlineMode && (
         <Card className="mb-6">
@@ -2615,6 +3207,185 @@ const EmailClient = () => {
                   week by week with real-time progress tracking.
                 </div>
               )}
+              {/* Smart Fetching Section */}
+              <div className="pt-6 border-t">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      Smart Fetching
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Automatically fetch and organize new emails into monthly
+                      files
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() =>
+                      setShowSmartFetchConsole(!showSmartFetchConsole)
+                    }
+                    disabled={isSmartFetching || needsMigration}
+                    variant={showSmartFetchConsole ? "default" : "outline"}
+                    className="gap-2"
+                  >
+                    {isSmartFetching ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Fetching...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4" />
+                        {showSmartFetchConsole
+                          ? "Hide Console"
+                          : "Start Smart Fetching"}
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {needsMigration && (
+                  <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm text-yellow-800 dark:text-yellow-200">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>
+                        Please run migration first before using Smart Fetching
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {showSmartFetchConsole && (
+                  <div className="mt-4">
+                    <Accordion type="single" collapsible defaultValue="console">
+                      <AccordionItem
+                        value="console"
+                        className="border rounded-lg"
+                      >
+                        <AccordionTrigger className="px-4 hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            <span className="font-medium">Console Log</span>
+                            {smartFetchLogs.length > 0 && (
+                              <Badge variant="secondary" className="ml-2">
+                                {smartFetchLogs.length} entries
+                              </Badge>
+                            )}
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="px-4 pb-4">
+                            {smartFetchLogs.length === 0 && !isSmartFetching ? (
+                              <div className="text-center py-8 text-muted-foreground">
+                                <Info className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                <p className="text-sm">
+                                  No logs yet. Click &quot;Start Smart
+                                  Fetching&quot; to begin.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="bg-slate-950 dark:bg-slate-900 rounded-lg p-4 font-mono text-xs max-h-96 overflow-y-auto">
+                                {smartFetchLogs.map((log, index) => (
+                                  <div
+                                    key={index}
+                                    className={`mb-1 ${
+                                      log.type === "error"
+                                        ? "text-red-400"
+                                        : log.type === "warning"
+                                          ? "text-yellow-400"
+                                          : log.type === "success"
+                                            ? "text-green-400"
+                                            : "text-blue-300"
+                                    }`}
+                                  >
+                                    <span className="text-slate-500">
+                                      [{log.timestamp}]
+                                    </span>{" "}
+                                    {log.message}
+                                  </div>
+                                ))}
+                                {isSmartFetching && (
+                                  <div className="text-blue-400 animate-pulse">
+                                    <Loader2 className="inline h-3 w-3 animate-spin mr-2" />
+                                    Processing...
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {!isSmartFetching &&
+                              smartFetchLogs.length === 0 && (
+                                <div className="mt-4">
+                                  <Button
+                                    onClick={handleSmartFetch}
+                                    disabled={needsMigration}
+                                    className="w-full"
+                                    size="lg"
+                                  >
+                                    <Zap className="mr-2 h-4 w-4" />
+                                    Start Smart Fetching
+                                  </Button>
+                                </div>
+                              )}
+
+                            {!isSmartFetching && smartFetchLogs.length > 0 && (
+                              <div className="mt-4 flex gap-2">
+                                <Button
+                                  onClick={() => setSmartFetchLogs([])}
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1"
+                                >
+                                  Clear Logs
+                                </Button>
+                                <Button
+                                  onClick={handleSmartFetch}
+                                  disabled={needsMigration}
+                                  size="sm"
+                                  className="flex-1"
+                                >
+                                  <Zap className="mr-2 h-4 w-4" />
+                                  Run Again
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                )}
+
+                {emailCacheInfo &&
+                  !needsMigration &&
+                  !showSmartFetchConsole && (
+                    <div className="mt-4 p-3 bg-muted/30 rounded-lg text-sm">
+                      <div className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="font-medium mb-1">
+                            How Smart Fetching Works:
+                          </p>
+                          <ul className="space-y-1 text-muted-foreground text-xs list-disc list-inside">
+                            <li>
+                              Fetches new emails from your latest cached email
+                              date to today
+                            </li>
+                            <li>Automatically groups emails by month</li>
+                            <li>
+                              Updates existing monthly files without duplicates
+                            </li>
+                            <li>Creates new monthly files as needed</li>
+                            <li>
+                              Maintains organized JSON files at
+                              C:\Users\carlo\GITHUB\finance-tracker\privat\data\email
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -2675,7 +3446,7 @@ const EmailClient = () => {
                   {
                     new Set(
                       emails.map((email) =>
-                        getHeader(email.payload.headers, "From"),
+                        getHeader(getEmailHeaders(email), "From"),
                       ),
                     ).size
                   }
@@ -2690,7 +3461,7 @@ const EmailClient = () => {
                     emails.filter(
                       (email) =>
                         new Date(
-                          getHeader(email.payload.headers, "Date"),
+                          getHeader(getEmailHeaders(email), "Date"),
                         ).toDateString() === new Date().toDateString(),
                     ).length
                   }
@@ -3051,7 +3822,7 @@ const EmailClient = () => {
                           email,
                         ) => {
                           const sender = getHeader(
-                            email.payload.headers,
+                            getEmailHeaders(email),
                             "From",
                           );
                           const senderEmail = sender.match(/<(.+?)>/)
@@ -3114,7 +3885,7 @@ const EmailClient = () => {
                           email,
                         ) => {
                           const sender = getHeader(
-                            email.payload.headers,
+                            getEmailHeaders(email),
                             "From",
                           );
                           const senderEmail = sender.match(/<(.+?)>/)
@@ -3378,7 +4149,7 @@ const EmailClient = () => {
                   {
                     new Set(
                       emails.map((email) =>
-                        getHeader(email.payload.headers, "From"),
+                        getHeader(getEmailHeaders(email), "From"),
                       ),
                     ).size
                   }{" "}
@@ -3405,7 +4176,7 @@ const EmailClient = () => {
               {" "}
               {selectedSenders.map((organization) => {
                 const organizationEmails = emails.filter((email) => {
-                  const sender = getHeader(email.payload.headers, "From");
+                  const sender = getHeader(getEmailHeaders(email), "From");
                   const senderLower = sender.toLowerCase();
                   const orgLower = organization.toLowerCase();
 
@@ -3453,7 +4224,7 @@ const EmailClient = () => {
                   const faturaCartaoEmails = organizationEmails.filter(
                     (email) => {
                       const subject = getHeader(
-                        email.payload.headers,
+                        getEmailHeaders(email),
                         "Subject",
                       );
                       return (
@@ -3466,7 +4237,7 @@ const EmailClient = () => {
                   const otherInterEmails = organizationEmails.filter(
                     (email) => {
                       const subject = getHeader(
-                        email.payload.headers,
+                        getEmailHeaders(email),
                         "Subject",
                       );
                       return !(
@@ -3512,7 +4283,7 @@ const EmailClient = () => {
                                 getEmailsToShow(`${organization}-fatura`),
                               )
                               .map((email) => {
-                                const headers = email.payload.headers;
+                                const headers = getEmailHeaders(email);
                                 const subject = getHeader(headers, "Subject");
                                 const from = getHeader(headers, "From");
                                 const date = getHeader(headers, "Date");
@@ -3620,7 +4391,7 @@ const EmailClient = () => {
                                 getEmailsToShow(`${organization}-other`),
                               )
                               .map((email) => {
-                                const headers = email.payload.headers;
+                                const headers = getEmailHeaders(email);
                                 const subject = getHeader(headers, "Subject");
                                 const from = getHeader(headers, "From");
                                 const date = getHeader(headers, "Date");
@@ -3715,10 +4486,10 @@ const EmailClient = () => {
                   const cartaoRicoFaturaEmails = organizationEmails.filter(
                     (email) => {
                       const subject = getHeader(
-                        email.payload.headers,
+                        getEmailHeaders(email),
                         "Subject",
                       );
-                      const from = getHeader(email.payload.headers, "From");
+                      const from = getHeader(getEmailHeaders(email), "From");
                       return (
                         subject.toLowerCase().includes("fatura") &&
                         from.toLowerCase().includes("fatura")
@@ -3727,8 +4498,11 @@ const EmailClient = () => {
                   );
 
                   const otherRicoEmails = organizationEmails.filter((email) => {
-                    const subject = getHeader(email.payload.headers, "Subject");
-                    const from = getHeader(email.payload.headers, "From");
+                    const subject = getHeader(
+                      getEmailHeaders(email),
+                      "Subject",
+                    );
+                    const from = getHeader(getEmailHeaders(email), "From");
                     return !(
                       (subject.toLowerCase().includes("fatura") ||
                         from.toLowerCase().includes("cartão rico")) &&
@@ -3775,7 +4549,7 @@ const EmailClient = () => {
                                 ),
                               )
                               .map((email) => {
-                                const headers = email.payload.headers;
+                                const headers = getEmailHeaders(email);
                                 const subject = getHeader(headers, "Subject");
                                 const from = getHeader(headers, "From");
                                 const date = getHeader(headers, "Date");
@@ -3887,7 +4661,7 @@ const EmailClient = () => {
                                 getEmailsToShow(`${organization}-other`),
                               )
                               .map((email) => {
-                                const headers = email.payload.headers;
+                                const headers = getEmailHeaders(email);
                                 const subject = getHeader(headers, "Subject");
                                 const from = getHeader(headers, "From");
                                 const date = getHeader(headers, "Date");
@@ -3982,7 +4756,7 @@ const EmailClient = () => {
                   const dinFakturaEmails = organizationEmails.filter(
                     (email) => {
                       const subject = getHeader(
-                        email.payload.headers,
+                        getEmailHeaders(email),
                         "Subject",
                       );
                       return subject.toLowerCase().includes("din faktura");
@@ -3990,7 +4764,10 @@ const EmailClient = () => {
                   );
 
                   const otherAmexEmails = organizationEmails.filter((email) => {
-                    const subject = getHeader(email.payload.headers, "Subject");
+                    const subject = getHeader(
+                      getEmailHeaders(email),
+                      "Subject",
+                    );
                     return !subject.toLowerCase().includes("din faktura");
                   });
 
@@ -4032,7 +4809,7 @@ const EmailClient = () => {
                                 getEmailsToShow(`${organization}-din-faktura`),
                               )
                               .map((email) => {
-                                const headers = email.payload.headers;
+                                const headers = getEmailHeaders(email);
                                 const subject = getHeader(headers, "Subject");
                                 const from = getHeader(headers, "From");
                                 const date = getHeader(headers, "Date");
@@ -4144,7 +4921,7 @@ const EmailClient = () => {
                                 getEmailsToShow(`${organization}-other`),
                               )
                               .map((email) => {
-                                const headers = email.payload.headers;
+                                const headers = getEmailHeaders(email);
                                 const subject = getHeader(headers, "Subject");
                                 const from = getHeader(headers, "From");
                                 const date = getHeader(headers, "Date");
@@ -4252,7 +5029,7 @@ const EmailClient = () => {
                       {organizationEmails
                         .slice(0, getEmailsToShow(organization))
                         .map((email) => {
-                          const headers = email.payload.headers;
+                          const headers = getEmailHeaders(email);
                           const subject = getHeader(headers, "Subject");
                           const from = getHeader(headers, "From");
                           const date = getHeader(headers, "Date");
@@ -4334,7 +5111,7 @@ const EmailClient = () => {
               })}
               {selectedSenders.every((organization) => {
                 const organizationEmails = emails.filter((email) => {
-                  const sender = getHeader(email.payload.headers, "From");
+                  const sender = getHeader(getEmailHeaders(email), "From");
                   return sender
                     .toLowerCase()
                     .includes(organization.toLowerCase());
@@ -4674,7 +5451,7 @@ const EmailClient = () => {
                       )}
                     </div>
                     {filteredEmailsByDate.map((email) => {
-                      const headers = email.payload.headers;
+                      const headers = getEmailHeaders(email);
                       const subject = getHeader(headers, "Subject");
                       const from = getHeader(headers, "From");
                       const date = getHeader(headers, "Date");
@@ -4870,7 +5647,7 @@ const EmailClient = () => {
                   </div>
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
                     {filteredEmailsBySender.map((email) => {
-                      const headers = email.payload.headers;
+                      const headers = getEmailHeaders(email);
                       const subject = getHeader(headers, "Subject");
                       const from = getHeader(headers, "From");
                       const date = getHeader(headers, "Date");

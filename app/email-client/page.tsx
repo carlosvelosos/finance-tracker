@@ -1599,7 +1599,7 @@ const EmailClient = () => {
     }
   };
 
-  // Function to export currently loaded emails with ignored flags
+  // Function to export currently loaded emails with ignored flags - updates monthly files
   const exportCurrentEmails = async () => {
     if (emails.length === 0) {
       setError("No emails to export");
@@ -1607,98 +1607,143 @@ const EmailClient = () => {
     }
 
     try {
-      // Suggest filename based on uploaded file or use default
-      const defaultFilename = uploadedFile
-        ? uploadedFile.name
-        : `emails-export-${new Date().toISOString().split("T")[0]}.json`;
+      setLoading(true);
 
-      const exportData = {
-        source: dataSource === "upload" ? "uploaded_file" : "gmail_fetch",
-        totalEmails: emails.length,
-        ignoredCount: ignoredEmails.size,
-        emails: emails.map((email) => ({
-          id: email.id,
-          snippet: email.snippet,
-          headers: getEmailHeaders(email),
-          date: getHeader(getEmailHeaders(email), "Date"),
-          from: getHeader(getEmailHeaders(email), "From"),
-          subject: getHeader(getEmailHeaders(email), "Subject"),
-          to: getHeader(getEmailHeaders(email), "To"),
-          ignored: ignoredEmails.has(email.id),
-        })),
-        exportDate: new Date().toISOString(),
-        exportedBy: userInfo?.email || "offline_user",
+      // Helper to get email date
+      const getEmailDate = (email: EmailData): Date | null => {
+        try {
+          if (email.date) {
+            return new Date(email.date);
+          }
+          const headers = getEmailHeaders(email);
+          const dateHeader = headers.find(
+            (h) => h.name.toLowerCase() === "date",
+          );
+          if (dateHeader?.value) {
+            return new Date(dateHeader.value);
+          }
+          return null;
+        } catch {
+          return null;
+        }
       };
 
-      const jsonString = JSON.stringify(exportData, null, 2);
+      // Helper to get month key
+      const getMonthKey = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        return `${year}-${month}`;
+      };
 
-      // Check if File System Access API is supported
-      if ("showSaveFilePicker" in window) {
+      // Group emails by month
+      const grouped = new Map<string, EmailData[]>();
+
+      for (const email of emails) {
+        const emailDate = getEmailDate(email);
+        if (!emailDate) {
+          console.warn(`Skipping email ${email.id} (no valid date)`);
+          continue;
+        }
+
+        const monthKey = getMonthKey(emailDate);
+        if (!grouped.has(monthKey)) {
+          grouped.set(monthKey, []);
+        }
+        grouped.get(monthKey)!.push(email);
+      }
+
+      let filesUpdated = 0;
+      let totalEmailsUpdated = 0;
+
+      // Update each monthly file
+      for (const [month, monthEmails] of grouped) {
         try {
-          // Use File System Access API for native Save As dialog
-          const fileHandle = await (
-            window as unknown as {
-              showSaveFilePicker: (options: {
-                suggestedName: string;
-                types: {
-                  description: string;
-                  accept: Record<string, string[]>;
-                }[];
-              }) => Promise<{
-                createWritable: () => Promise<{
-                  write: (data: string) => Promise<void>;
-                  close: () => Promise<void>;
-                }>;
-                name: string;
-              }>;
-            }
-          ).showSaveFilePicker({
-            suggestedName: defaultFilename,
-            types: [
-              {
-                description: "JSON Files",
-                accept: { "application/json": [".json"] },
-              },
-            ],
+          // Sort emails by date
+          const sortedEmails = [...monthEmails].sort((a, b) => {
+            const dateA = getEmailDate(a);
+            const dateB = getEmailDate(b);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateA.getTime() - dateB.getTime();
           });
 
-          const writable = await fileHandle.createWritable();
-          await writable.write(jsonString);
-          await writable.close();
+          // Prepare file data with updated ignored flags
+          const [year, monthNum] = month.split("-").map(Number);
+          const lastDay = new Date(year, monthNum, 0).getDate();
 
-          console.log(
-            `Exported ${emails.length} emails (${ignoredEmails.size} ignored) to ${fileHandle.name}`,
-          );
-          setSuccess(`Successfully exported to ${fileHandle.name}`);
-        } catch (err) {
-          // User cancelled the dialog
-          if (err instanceof Error && err.name === "AbortError") {
-            console.log("Export cancelled by user");
-            return;
+          const fileData = {
+            dateRange: {
+              start: `${month}-01`,
+              end: `${month}-${lastDay.toString().padStart(2, "0")}`,
+            },
+            totalEmails: sortedEmails.length,
+            emails: sortedEmails.map((email) => {
+              const headers = getEmailHeaders(email);
+              return {
+                id: email.id,
+                snippet: email.snippet || "",
+                headers: headers,
+                date: getEmailDate(email)?.toISOString(),
+                from: headers.find((h) => h.name.toLowerCase() === "from")
+                  ?.value,
+                subject: headers.find((h) => h.name.toLowerCase() === "subject")
+                  ?.value,
+                to: headers.find((h) => h.name.toLowerCase() === "to")?.value,
+                ignored: ignoredEmails.has(email.id),
+              };
+            }),
+            exportDate: new Date().toISOString(),
+            fetchedBy: userInfo?.email || "offline_user",
+            lastUpdated: new Date().toISOString(),
+          };
+
+          // Write to API
+          const writeResponse = await fetch("/api/smart-fetch/write", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ month, data: fileData }),
+          });
+
+          if (!writeResponse.ok) {
+            throw new Error(`Failed to update file for ${month}`);
           }
-          throw err;
-        }
-      } else {
-        // Fallback to traditional download for browsers that don't support File System Access API
-        const blob = new Blob([jsonString], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = defaultFilename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
 
-        console.log(
-          `Exported ${emails.length} emails (${ignoredEmails.size} ignored)`,
+          filesUpdated++;
+          totalEmailsUpdated += sortedEmails.length;
+          console.log(
+            `Updated gmail-export-${month}.json (${sortedEmails.length} emails)`,
+          );
+        } catch (error) {
+          console.error(`Error updating ${month}:`, error);
+          setError(
+            `Failed to update ${month}: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
+        }
+      }
+
+      if (filesUpdated > 0) {
+        setSuccess(
+          `Successfully updated ${filesUpdated} monthly file${filesUpdated > 1 ? "s" : ""} ` +
+            `with ${totalEmailsUpdated} email${totalEmailsUpdated > 1 ? "s" : ""} ` +
+            `(${ignoredEmails.size} marked as ignored)`,
         );
+        console.log(
+          `Export complete: ${filesUpdated} files updated, ${totalEmailsUpdated} emails processed, ${ignoredEmails.size} ignored`,
+        );
+
+        // Rescan cache to update UI
+        await scanEmailCache();
+      } else {
+        setError("No files were updated");
       }
     } catch (error) {
       console.error("Error exporting emails:", error);
       setError(
         `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -66,6 +66,7 @@ interface EmailData {
   subject?: string; // Subject field (in stored files)
   to?: string; // To field (in stored files)
   ignored?: boolean; // Optional flag to mark emails as ignored
+  sourceFile?: string; // Track which file this email came from
 }
 
 interface EmailPart {
@@ -220,6 +221,9 @@ const EmailClient = () => {
   const [dataSource, setDataSource] = useState<"fetch" | "upload">("fetch");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [fileEmailCounts, setFileEmailCounts] = useState<
+    Map<string, { total: number; filtered: number }>
+  >(new Map());
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [originalUploadedEmails, setOriginalUploadedEmails] = useState<
     EmailData[]
@@ -2174,6 +2178,16 @@ const EmailClient = () => {
       const allTransformedEmails: EmailData[] = [...originalUploadedEmails];
       const processedFiles: File[] = [...uploadedFiles];
       const errors: string[] = [];
+      const emailCountsPerFile = new Map<
+        string,
+        { total: number; emails: EmailData[] }
+      >(
+        // Copy existing counts
+        Array.from(fileEmailCounts.entries()).map(([name, counts]) => [
+          name,
+          { total: counts.total, emails: [] },
+        ]),
+      );
 
       // Check for duplicate filenames
       const existingFileNames = new Set(uploadedFiles.map((f) => f.name));
@@ -2239,12 +2253,19 @@ const EmailClient = () => {
                   parts: email.parts || [],
                 },
                 ignored: email.ignored || false, // Load ignored status from file
+                sourceFile: file.name, // Track which file this email came from
               };
             },
           );
 
           allTransformedEmails.push(...transformedEmails);
           processedFiles.push(file);
+
+          // Track emails per file
+          emailCountsPerFile.set(file.name, {
+            total: transformedEmails.length,
+            emails: transformedEmails,
+          });
 
           console.log(
             `Processed ${file.name}: ${transformedEmails.length} emails`,
@@ -2300,10 +2321,32 @@ const EmailClient = () => {
         });
       }
 
+      // Calculate filtered counts per file
+      const finalEmailCountsPerFile = new Map<
+        string,
+        { total: number; filtered: number }
+      >();
+      emailCountsPerFile.forEach((data, fileName) => {
+        const filteredCount = showAllUploadSenders
+          ? data.total
+          : data.emails.filter((email) => {
+              const sender = getHeader(getEmailHeaders(email), "From");
+              return selectedSenders.some((organization) =>
+                sender?.toLowerCase().includes(organization.toLowerCase()),
+              );
+            }).length;
+
+        finalEmailCountsPerFile.set(fileName, {
+          total: data.total,
+          filtered: filteredCount,
+        });
+      });
+
       // Update state with filtered emails
       setEmails(finalEmails);
       setUploadedFiles(processedFiles);
       setUploadedFile(processedFiles[0]); // Keep for backward compatibility
+      setFileEmailCounts(finalEmailCountsPerFile);
 
       // Set cache age to indicate data freshness
       setCacheAge(new Date());
@@ -2403,28 +2446,86 @@ const EmailClient = () => {
 
       setEmails(filteredEmails);
 
+      // Recalculate email counts per file based on current filter
+      if (fileEmailCounts.size > 0 && uploadedFiles.length > 0) {
+        const updatedCounts = new Map<
+          string,
+          { total: number; filtered: number }
+        >();
+
+        uploadedFiles.forEach((file) => {
+          const fileName = file.name;
+          const existingCounts = fileEmailCounts.get(fileName);
+
+          if (existingCounts) {
+            // Get emails from this specific file
+            const fileEmails = originalUploadedEmails.filter(
+              (email) => email.sourceFile === fileName,
+            );
+
+            const filteredCount = showAllUploadSenders
+              ? existingCounts.total
+              : fileEmails.filter((email) => {
+                  const fromHeader = getHeader(getEmailHeaders(email), "From");
+                  if (!fromHeader) return false;
+
+                  return selectedSenders.some((organization) => {
+                    const senderLower = fromHeader.toLowerCase();
+                    const orgLower = organization.toLowerCase();
+
+                    if (orgLower === "inter") {
+                      if (
+                        senderLower.includes("@discover.pinterest.com") ||
+                        senderLower.includes("auditoria interna")
+                      ) {
+                        return false;
+                      }
+                    }
+
+                    return senderLower.includes(orgLower);
+                  });
+                }).length;
+
+            updatedCounts.set(fileName, {
+              total: existingCounts.total,
+              filtered: filteredCount,
+            });
+          }
+        });
+
+        setFileEmailCounts(updatedCounts);
+      }
+
       // Update success message if we have an uploaded file
       if (uploadedFile) {
         setError(""); // Clear any existing errors
+        const filesStr =
+          uploadedFiles.length === 1
+            ? uploadedFiles[0].name
+            : `${uploadedFiles.length} files`;
         setSuccess(
-          `Successfully loaded ${filteredEmails.length} emails from ${uploadedFile.name}` +
+          `Successfully loaded ${filteredEmails.length} emails from ${filesStr}` +
             (showAllUploadSenders
               ? ""
               : ` (filtered from ${originalUploadedEmails.length} total emails)`),
         );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     showAllUploadSenders,
     selectedSenders,
     dataSource,
     originalUploadedEmails,
     uploadedFile,
+    uploadedFiles,
+    // fileEmailCounts intentionally excluded to avoid infinite loop
   ]);
   // Function to clear uploaded data and reset to fetch mode
   const clearUploadedData = () => {
     setUploadedFile(null);
     setUploadedFiles([]);
+    setFileEmailCounts(new Map());
     setEmails([]);
     setOriginalUploadedEmails([]);
     setDataSource("fetch");
@@ -3187,25 +3288,44 @@ const EmailClient = () => {
                         </div>
 
                         {/* File list */}
-                        {uploadedFiles.length > 1 && (
+                        {uploadedFiles.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-800">
                             <h4 className="text-xs font-medium text-green-800 dark:text-green-200 mb-2">
                               Uploaded Files:
                             </h4>
-                            <div className="space-y-1">
-                              {uploadedFiles.map((file, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center justify-between text-xs"
-                                >
-                                  <span className="text-green-700 dark:text-green-300">
-                                    {file.name}
-                                  </span>
-                                  <span className="text-green-600 dark:text-green-400">
-                                    {(file.size / 1024).toFixed(1)} KB
-                                  </span>
-                                </div>
-                              ))}
+                            <div className="space-y-2">
+                              {uploadedFiles.map((file, index) => {
+                                const counts = fileEmailCounts.get(file.name);
+                                return (
+                                  <div
+                                    key={index}
+                                    className="flex items-start justify-between text-xs"
+                                  >
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-green-700 dark:text-green-300 font-medium truncate">
+                                        {file.name}
+                                      </div>
+                                      <div className="text-green-600 dark:text-green-400 mt-0.5">
+                                        {counts ? (
+                                          showAllUploadSenders ? (
+                                            <span>{counts.total} emails</span>
+                                          ) : (
+                                            <span>
+                                              {counts.filtered} emails (
+                                              {counts.total} total)
+                                            </span>
+                                          )
+                                        ) : (
+                                          <span>Processing...</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <span className="text-green-600 dark:text-green-400 ml-2 whitespace-nowrap">
+                                      {(file.size / 1024).toFixed(1)} KB
+                                    </span>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         )}

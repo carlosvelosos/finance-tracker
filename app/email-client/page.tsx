@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  Suspense,
+} from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { StorageStatsDisplay } from "@/app/components/StorageStatsDisplay";
 import {
   Card,
   CardContent,
@@ -33,7 +42,11 @@ import {
   X,
   Zap,
   Info,
+  Paperclip,
+  ExternalLink,
+  Database,
 } from "lucide-react";
+import { hasAttachments, countAttachments } from "@/lib/utils/emailParser";
 import {
   ChartContainer,
   ChartTooltip,
@@ -150,6 +163,7 @@ declare global {
 }
 
 const EmailClient = () => {
+  const searchParams = useSearchParams();
   const [emails, setEmails] = useState<EmailData[]>([]);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -179,8 +193,48 @@ const EmailClient = () => {
     Record<string, number>
   >({});
   const [expandedEmails, setExpandedEmails] = useState<Set<string>>(new Set());
-  const [exportStartDate, setExportStartDate] = useState<string>("");
-  const [exportEndDate, setExportEndDate] = useState<string>("");
+  const [exportMonth, setExportMonth] = useState<string>("");
+  const [exportYear, setExportYear] = useState<string>("");
+
+  // Helper function for storing email metadata when user clicks to view
+  const handleViewFullEmailClick = (e: React.MouseEvent, emailId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("[EmailClient] Opening email in new tab:", emailId);
+
+    // Find the email in the current emails state
+    const email = emails.find((e) => e.id === emailId);
+
+    if (email) {
+      try {
+        const fullEmailsCacheKey = "gmail-full-emails";
+        const existingCache = localStorage.getItem(fullEmailsCacheKey);
+        const fullEmailsCache = existingCache ? JSON.parse(existingCache) : {};
+
+        // Store the email (with or without payload)
+        // If it has fullDataPath, the detail page will fetch full data from API
+        fullEmailsCache[emailId] = email;
+
+        // Keep only last 20 viewed emails to manage storage
+        const emailIds = Object.keys(fullEmailsCache);
+        if (emailIds.length > 20) {
+          const toRemove = emailIds.slice(0, emailIds.length - 20);
+          toRemove.forEach((id) => delete fullEmailsCache[id]);
+        }
+
+        localStorage.setItem(
+          fullEmailsCacheKey,
+          JSON.stringify(fullEmailsCache),
+        );
+        console.log("[EmailClient] Cached email metadata for:", emailId);
+      } catch (error) {
+        console.error("[EmailClient] Error caching email:", error);
+      }
+    }
+
+    // Open in new tab - detail page will fetch full data if needed
+    window.open(`/email-client/${emailId}`, "_blank", "noopener,noreferrer");
+  };
 
   // Date navigation state
   const [selectedDateFilter, setSelectedDateFilter] = useState<{
@@ -230,6 +284,88 @@ const EmailClient = () => {
   >([]);
   const [offlineMode, setOfflineMode] = useState(false);
 
+  // Initialize offline mode from URL parameter
+  useEffect(() => {
+    const offlineParam = searchParams.get("offline");
+    if (offlineParam === "true") {
+      console.log("[EmailClient] Restoring offline mode from URL parameter");
+      setOfflineMode(true);
+
+      // Restore uploaded emails from localStorage
+      try {
+        const savedData = localStorage.getItem("offline-uploaded-emails");
+        if (savedData) {
+          const { emails: savedEmails, timestamp } = JSON.parse(savedData);
+          console.log(
+            "[EmailClient] Restoring",
+            savedEmails.length,
+            "uploaded emails from localStorage",
+          );
+
+          setOriginalUploadedEmails(savedEmails);
+          setDataSource("upload");
+
+          // Helper to get headers safely
+          const getEmailHeaders = (
+            email: EmailData,
+          ): { name: string; value: string }[] => {
+            return email.payload?.headers || email.headers || [];
+          };
+
+          const getHeader = (
+            headers: { name: string; value: string }[],
+            name: string,
+          ) => {
+            const header = headers.find(
+              (h) => h.name.toLowerCase() === name.toLowerCase(),
+            );
+            return header?.value || "";
+          };
+
+          // Apply filtering based on current sender filter
+          let filteredEmails = savedEmails;
+          if (!showAllUploadSenders) {
+            filteredEmails = savedEmails.filter((email: EmailData) => {
+              const fromHeader = getHeader(getEmailHeaders(email), "From");
+              if (!fromHeader) return false;
+
+              return selectedSenders.some((organization) => {
+                const senderLower = fromHeader.toLowerCase();
+                const orgLower = organization.toLowerCase();
+
+                // Special case: When filtering for "Inter", exclude Pinterest and Auditoria Interna emails
+                if (orgLower === "inter") {
+                  if (
+                    senderLower.includes("@discover.pinterest.com") ||
+                    senderLower.includes("auditoria interna")
+                  ) {
+                    return false;
+                  }
+                }
+
+                return senderLower.includes(orgLower);
+              });
+            });
+          }
+
+          setEmails(filteredEmails);
+          setCacheAge(new Date(timestamp));
+          console.log(
+            "[EmailClient] Restored and filtered to",
+            filteredEmails.length,
+            "emails",
+          );
+        } else {
+          console.log(
+            "[EmailClient] No saved uploaded emails found in localStorage",
+          );
+        }
+      } catch (error) {
+        console.error("[EmailClient] Error restoring uploaded emails:", error);
+      }
+    }
+  }, [searchParams, showAllUploadSenders, selectedSenders]);
+
   // Smart Fetching state
   const [emailCacheInfo, setEmailCacheInfo] = useState<{
     latestFile: string | null;
@@ -250,6 +386,8 @@ const EmailClient = () => {
   const [showSmartFetchConsole, setShowSmartFetchConsole] = useState(false);
   const [needsMigration, setNeedsMigration] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
+  const [includeFullEmailData, setIncludeFullEmailData] = useState(true); // Default to true for full data
+  const [excludeIgnoredEmails, setExcludeIgnoredEmails] = useState(false); // Default to false to keep all emails
 
   const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
@@ -988,6 +1126,40 @@ const EmailClient = () => {
     return email.payload?.headers || email.headers || [];
   };
 
+  // Helper function to check if email has attachments (works for both v1.0 and v2.0 formats)
+  const emailHasAttachments = (email: EmailData): boolean => {
+    // v2.0 format: check hasAttachments field
+    const emailV2 = email as EmailData & { hasAttachments?: boolean };
+    if (emailV2.hasAttachments !== undefined) {
+      return emailV2.hasAttachments;
+    }
+    // v1.0 format: check payload
+    if (email.payload) {
+      return hasAttachments(email.payload);
+    }
+    return false;
+  };
+
+  // Helper function to get attachment count (works for both v1.0 and v2.0 formats)
+  const getAttachmentCount = (email: EmailData): number => {
+    // v2.0 format: use attachmentCount field
+    const emailV2 = email as EmailData & { attachmentCount?: number };
+    if (emailV2.attachmentCount !== undefined) {
+      return emailV2.attachmentCount;
+    }
+    // v1.0 format: count from payload
+    if (email.payload) {
+      return countAttachments(email.payload);
+    }
+    return 0;
+  };
+
+  // Helper function to check if email has full data stored (v2.0 format)
+  const hasFullDataStored = (email: EmailData): boolean => {
+    const emailV2 = email as EmailData & { fullDataPath?: string };
+    return !!emailV2.fullDataPath;
+  };
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -1276,13 +1448,8 @@ const EmailClient = () => {
 
   // Function to fetch and export emails for a specific date range with weekly batching
   const exportEmailsForDateRange = async () => {
-    if (!exportStartDate || !exportEndDate) {
-      setError("Please select both start and end dates for export");
-      return;
-    }
-
-    if (new Date(exportStartDate) > new Date(exportEndDate)) {
-      setError("Start date must be before end date");
+    if (!exportMonth || !exportYear) {
+      setError("Please select both month and year for export");
       return;
     }
 
@@ -1294,15 +1461,24 @@ const EmailClient = () => {
       setExportProgress({
         currentWeek: "",
         weekProgress: 0,
-        totalWeeks: 0,
+        totalWeeks: 1,
         completedWeeks: 0,
         totalEmails: 0,
         processedEmails: 0,
         currentStep: "Initializing...",
       });
 
+      const month = `${exportYear}-${exportMonth}`;
+      console.log(`Fetching emails for ${month}...`);
+
+      // Calculate month start and end dates
+      const [year, monthNum] = month.split("-").map(Number);
+      const startDate = new Date(year, monthNum - 1, 1);
+      const endDate = new Date(year, monthNum, 0);
+      endDate.setHours(23, 59, 59, 999);
+
       console.log(
-        `Fetching emails from ${exportStartDate} to ${exportEndDate}...`,
+        `Month range: ${startDate.toISOString()} to ${endDate.toISOString()}`,
       );
 
       // Check if gapi is loaded and client is initialized
@@ -1318,264 +1494,271 @@ const EmailClient = () => {
         throw new Error("No valid access token found. Please sign in again.");
       }
 
-      // Calculate weekly intervals
-      const startDateObj = new Date(exportStartDate);
-      const endDateObj = new Date(exportEndDate);
-      const weeklyIntervals: { start: Date; end: Date; label: string }[] = [];
-      const currentWeekStart = new Date(startDateObj);
-
-      while (currentWeekStart <= endDateObj) {
-        const currentWeekEnd = new Date(currentWeekStart);
-        currentWeekEnd.setDate(currentWeekEnd.getDate() + 6);
-
-        // Don't go beyond the end date
-        if (currentWeekEnd > endDateObj) {
-          currentWeekEnd.setTime(endDateObj.getTime());
-        }
-
-        const weekLabel = `${currentWeekStart.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })} - ${currentWeekEnd.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })}`;
-
-        weeklyIntervals.push({
-          start: new Date(currentWeekStart),
-          end: new Date(currentWeekEnd),
-          label: weekLabel,
-        });
-
-        // Move to next week
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      }
-
-      // Update progress with total weeks
-      setExportProgress((prev) => ({
-        ...prev,
-        totalWeeks: weeklyIntervals.length,
-        currentStep: `Processing ${weeklyIntervals.length} weekly intervals`,
-      }));
-
-      console.log(`Processing ${weeklyIntervals.length} weekly intervals`);
-
       // Format dates for Gmail search (YYYY/MM/DD)
       const formatGmailDate = (date: Date) => {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getDate().toString().padStart(2, "0")}`;
       };
 
-      const allEmailResults: EmailData[] = [];
+      // Create search query for the month
+      const searchQuery = `after:${formatGmailDate(startDate)} before:${formatGmailDate(new Date(endDate.getTime() + 24 * 60 * 60 * 1000))}`;
+
+      console.log(`Searching Gmail with query: ${searchQuery}`);
+
+      // Update progress
+      setExportProgress((prev) => ({
+        ...prev,
+        currentStep: `Searching for emails in ${month}...`,
+      }));
+
+      // Get message list for the month
+      const response = await window.gapi.client.gmail.users.messages.list({
+        userId: "me",
+        maxResults: 500,
+        q: searchQuery,
+      });
+
+      if (!response.result?.messages || response.result.messages.length === 0) {
+        setError(`No emails found for ${month}`);
+        return;
+      }
+
+      const messages = response.result.messages;
+      console.log(`Found ${messages.length} messages for ${month}`);
+
+      // Update progress with total emails found
+      setExportProgress((prev) => ({
+        ...prev,
+        totalEmails: messages.length,
+        currentStep: `Found ${messages.length} emails. Fetching details...`,
+      }));
+
+      // Fetch detailed information for each message (in batches)
+      const batchSize = 10;
+      const monthEmails: EmailData[] = [];
       const delay = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms));
 
-      // Process each week
-      for (let weekIndex = 0; weekIndex < weeklyIntervals.length; weekIndex++) {
-        const week = weeklyIntervals[weekIndex];
+      for (let i = 0; i < messages.length; i += batchSize) {
+        const batch = messages.slice(i, i + batchSize);
+        const batchNum = Math.floor(i / batchSize) + 1;
+        const totalBatches = Math.ceil(messages.length / batchSize);
 
-        // Update progress for current week
+        console.log(`Processing batch ${batchNum}/${totalBatches}`);
+
+        // Update progress
         setExportProgress((prev) => ({
           ...prev,
-          currentWeek: week.label,
-          completedWeeks: weekIndex,
-          weekProgress: 0,
-          currentStep: `Fetching emails for ${week.label}`,
+          weekProgress: Math.round((i / messages.length) * 100),
+          currentStep: `Processing batch ${batchNum}/${totalBatches}`,
         }));
 
-        console.log(
-          `Processing week ${weekIndex + 1}/${weeklyIntervals.length}: ${week.label}`,
+        const emailPromises = batch.map(async (message: { id: string }) => {
+          try {
+            const emailResponse =
+              await window.gapi.client.gmail.users.messages.get({
+                userId: "me",
+                id: message.id,
+                format: "full",
+              });
+
+            return emailResponse?.result || null;
+          } catch (emailError) {
+            console.error(`Error fetching email ${message.id}:`, emailError);
+            return null;
+          }
+        });
+
+        const batchResults = await Promise.all(emailPromises);
+        const validResults = batchResults.filter(
+          (email): email is EmailData => email !== null,
         );
+        monthEmails.push(...validResults);
 
-        try {
-          // Create search query for this week
-          const searchQuery = `after:${formatGmailDate(week.start)} before:${formatGmailDate(new Date(week.end.getTime() + 24 * 60 * 60 * 1000))}`;
+        // Update processed emails count
+        setExportProgress((prev) => ({
+          ...prev,
+          processedEmails: monthEmails.length,
+        }));
 
-          // Get message list for this week
-          const response = await window.gapi.client.gmail.users.messages.list({
-            userId: "me",
-            maxResults: 500,
-            q: searchQuery,
-          });
-
-          if (!response.result) {
-            console.warn(`No response for week ${week.label}`);
-            continue;
-          }
-
-          if (
-            !response.result.messages ||
-            response.result.messages.length === 0
-          ) {
-            console.log(`No messages found for week ${week.label}`);
-
-            // Update progress
-            setExportProgress((prev) => ({
-              ...prev,
-              weekProgress: 100,
-              currentStep: `Week ${week.label} completed (0 emails)`,
-            }));
-
-            // Small delay before next week
-            await delay(100);
-            continue;
-          }
-
-          const weeklyMessages = response.result.messages;
-          console.log(
-            `Found ${weeklyMessages.length} messages for week ${week.label}`,
-          );
-
-          // Update total emails count
-          setExportProgress((prev) => ({
-            ...prev,
-            totalEmails: prev.totalEmails + weeklyMessages.length,
-            currentStep: `Processing ${weeklyMessages.length} emails for ${week.label}`,
-          }));
-
-          // Fetch detailed information for each message in this week (in batches)
-          const batchSize = 8; // Smaller batch size for better progress tracking
-          const weeklyEmailResults: (EmailData | null)[] = [];
-
-          for (let i = 0; i < weeklyMessages.length; i += batchSize) {
-            const batch = weeklyMessages.slice(i, i + batchSize);
-            const batchProgress = Math.round((i / weeklyMessages.length) * 100);
-
-            // Update week progress
-            setExportProgress((prev) => ({
-              ...prev,
-              weekProgress: batchProgress,
-              currentStep: `Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(weeklyMessages.length / batchSize)} for ${week.label}`,
-            }));
-
-            console.log(
-              `  Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(weeklyMessages.length / batchSize)} for week ${week.label}`,
-            );
-
-            const emailPromises = batch.map(async (message: { id: string }) => {
-              try {
-                const emailResponse =
-                  await window.gapi.client.gmail.users.messages.get({
-                    userId: "me",
-                    id: message.id,
-                    format: "full",
-                  });
-
-                if (!emailResponse?.result) {
-                  return null;
-                }
-
-                return emailResponse.result;
-              } catch (emailError) {
-                console.error(
-                  `Error fetching email ${message.id}:`,
-                  emailError,
-                );
-                return null;
-              }
-            });
-
-            const batchResults = await Promise.all(emailPromises);
-            weeklyEmailResults.push(...batchResults);
-
-            // Update processed emails count
-            const validResults = batchResults.filter((email) => email !== null);
-            setExportProgress((prev) => ({
-              ...prev,
-              processedEmails: prev.processedEmails + validResults.length,
-            }));
-
-            // Add delay between batches
-            if (i + batchSize < weeklyMessages.length) {
-              await delay(150); // Slightly longer delay for stability
-            }
-          }
-
-          // Filter valid emails for this week
-          const validWeeklyEmails = weeklyEmailResults.filter(
-            (email): email is EmailData => email !== null,
-          );
-
-          allEmailResults.push(...validWeeklyEmails);
-
-          // Mark week as complete
-          setExportProgress((prev) => ({
-            ...prev,
-            weekProgress: 100,
-            currentStep: `Week ${week.label} completed (${validWeeklyEmails.length} emails)`,
-          }));
-
-          console.log(
-            `Completed week ${week.label}: ${validWeeklyEmails.length} emails`,
-          );
-
-          // Delay before next week
-          await delay(300);
-        } catch (weekError) {
-          console.error(`Error processing week ${week.label}:`, weekError);
-
-          setExportProgress((prev) => ({
-            ...prev,
-            weekProgress: 100,
-            currentStep: `Week ${week.label} failed - continuing...`,
-          }));
-
-          // Continue with next week even if this one fails
-          await delay(500);
+        // Add delay between batches
+        if (i + batchSize < messages.length) {
+          await delay(200);
         }
       }
 
-      // Final progress update
+      console.log(`Fetched ${monthEmails.length} emails for ${month}`);
+
+      // Update progress - fetching complete
       setExportProgress((prev) => ({
         ...prev,
-        completedWeeks: weeklyIntervals.length,
-        currentStep: "Creating export file...",
+        weekProgress: 100,
+        currentStep: "Processing and saving data...",
       }));
 
-      console.log(
-        `Successfully processed all weeks. Total emails: ${allEmailResults.length}`,
-      );
+      // Check if file exists
+      const readResponse = await fetch(`/api/smart-fetch/read?month=${month}`);
+      const existingData = readResponse.ok ? await readResponse.json() : null;
 
-      // Create export data structure
-      const exportData = {
-        dateRange: {
-          start: exportStartDate,
-          end: exportEndDate,
-        },
-        totalEmails: allEmailResults.length,
-        weeklyBreakdown: weeklyIntervals.map((week) => ({
-          week: week.label,
-          start: week.start.toISOString(),
-          end: week.end.toISOString(),
-        })),
-        emails: allEmailResults.map((email) => ({
-          id: email.id,
-          snippet: email.snippet,
-          headers: getEmailHeaders(email),
-          date: getHeader(getEmailHeaders(email), "Date"),
-          from: getHeader(getEmailHeaders(email), "From"),
-          subject: getHeader(getEmailHeaders(email), "Subject"),
-          to: getHeader(getEmailHeaders(email), "To"),
-          ignored: ignoredEmails.has(email.id),
-        })),
-        exportDate: new Date().toISOString(),
-        fetchedBy: userInfo?.email || "unknown",
+      let allMonthEmails: EmailData[];
+      let duplicatesSkipped = 0;
+
+      if (existingData && existingData.emails) {
+        // Merge with existing
+        const existingIds = new Set(
+          existingData.emails.map((e: EmailData) => e.id),
+        );
+        const uniqueNew = monthEmails.filter((e) => {
+          if (existingIds.has(e.id)) {
+            duplicatesSkipped++;
+            return false;
+          }
+          return true;
+        });
+        allMonthEmails = [...existingData.emails, ...uniqueNew];
+        console.log(
+          `Merged: ${uniqueNew.length} new emails, ${duplicatesSkipped} duplicates skipped`,
+        );
+      } else {
+        allMonthEmails = monthEmails;
+      }
+
+      // Sort by date
+      const getEmailDate = (email: EmailData): Date | null => {
+        try {
+          if (email.date) {
+            return new Date(email.date);
+          }
+          const headers = getEmailHeaders(email);
+          const dateHeader = headers.find(
+            (h) => h.name.toLowerCase() === "date",
+          );
+          if (dateHeader?.value) {
+            return new Date(dateHeader.value);
+          }
+          return null;
+        } catch {
+          return null;
+        }
       };
 
-      // Final step
+      allMonthEmails.sort((a, b) => {
+        const dateA = getEmailDate(a);
+        const dateB = getEmailDate(b);
+        if (!dateA && !dateB) return 0;
+        if (!dateA) return 1;
+        if (!dateB) return -1;
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      // Prepare file data
+      const lastDay = new Date(year, monthNum, 0).getDate();
+
+      // Helper to check for attachments
+      const getAttachmentInfo = (email: EmailData) => {
+        if (!email.payload) return { hasAttachments: false, count: 0 };
+
+        const count = countAttachments(email.payload);
+        return {
+          hasAttachments: count > 0,
+          count,
+        };
+      };
+
+      const fileData = {
+        dateRange: {
+          start: `${month}-01`,
+          end: `${month}-${lastDay.toString().padStart(2, "0")}`,
+        },
+        totalEmails: allMonthEmails.length,
+        version: "2.0",
+        emails: allMonthEmails.map((email) => {
+          const headers = email.payload?.headers || email.headers || [];
+          const emailDate = getEmailDate(email);
+          const attachmentInfo = getAttachmentInfo(email);
+          const dateStr = emailDate
+            ? emailDate.toISOString().split("T")[0]
+            : null;
+          const isIgnored = email.ignored || false;
+
+          return {
+            id: email.id,
+            snippet: email.snippet || "",
+            headers: headers,
+            date: emailDate?.toISOString(),
+            from: headers.find((h) => h.name.toLowerCase() === "from")?.value,
+            subject: headers.find((h) => h.name.toLowerCase() === "subject")
+              ?.value,
+            to: headers.find((h) => h.name.toLowerCase() === "to")?.value,
+            ignored: isIgnored,
+            hasAttachments: attachmentInfo.hasAttachments,
+            attachmentCount: attachmentInfo.count,
+            // Don't include fullDataPath for ignored emails
+            fullDataPath:
+              !isIgnored && dateStr
+                ? (() => {
+                    const [emailYear, emailMonth, emailDay] =
+                      dateStr.split("-");
+                    return `full/${emailYear}/${emailMonth}/${emailDay}/${email.id}.json`;
+                  })()
+                : undefined,
+          };
+        }),
+        exportDate: existingData?.exportDate || new Date().toISOString(),
+        fetchedBy: userInfo?.email || "unknown",
+        lastUpdated: new Date().toISOString(),
+      };
+
+      // Write file with full email data
+      console.log(
+        `Saving ${allMonthEmails.length} emails to ${month} with full data...`,
+      );
+
+      // Update progress
       setExportProgress((prev) => ({
         ...prev,
-        currentStep: "Download starting...",
+        currentStep: `Saving ${allMonthEmails.length} emails to file...`,
       }));
 
-      // Download the JSON file
-      downloadJsonFile(
-        exportData,
-        `gmail-export-${exportStartDate}-to-${exportEndDate}`,
+      const writeResponse = await fetch("/api/smart-fetch/write", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          month,
+          data: fileData,
+          fullEmails: allMonthEmails,
+          saveFullData: true,
+        }),
+      });
+
+      if (!writeResponse.ok) {
+        const errorText = await writeResponse.text();
+        throw new Error(`Failed to write file for ${month}: ${errorText}`);
+      }
+
+      const writeResult = await writeResponse.json();
+      const newEmailsCount = monthEmails.length - duplicatesSkipped;
+
+      // Update progress - complete
+      setExportProgress((prev) => ({
+        ...prev,
+        completedWeeks: 1,
+        currentStep: "Complete! Refreshing UI...",
+      }));
+
+      setSuccess(
+        `Successfully ${existingData ? "updated" : "created"} gmail-export-${month}.json ` +
+          `(${newEmailsCount} new, ${allMonthEmails.length} total)` +
+          (writeResult.fullData
+            ? `, ${writeResult.fullData.saved} full data files saved`
+            : ""),
       );
 
       console.log(
-        `Successfully exported ${allEmailResults.length} emails from ${weeklyIntervals.length} weeks`,
+        `Export complete: ${month} with ${allMonthEmails.length} emails, ${newEmailsCount} new`,
       );
+
+      // Rescan cache to update UI
+      await scanEmailCache();
     } catch (error) {
       console.error("Error exporting emails:", error);
       let errorMessage = "Unknown error occurred";
@@ -1604,6 +1787,7 @@ const EmailClient = () => {
 
   // Function to export currently loaded emails with ignored flags - updates monthly files
   const exportCurrentEmails = async () => {
+    console.log("=== EXPORT STARTED - NEW VERSION WITH FULL DATA STORAGE ===");
     if (emails.length === 0) {
       setError("No emails to export");
       return;
@@ -1675,25 +1859,55 @@ const EmailClient = () => {
           const [year, monthNum] = month.split("-").map(Number);
           const lastDay = new Date(year, monthNum, 0).getDate();
 
+          // Check for attachments helper
+          const getAttachmentInfo = (email: EmailData) => {
+            if (!email.payload) return { hasAttachments: false, count: 0 };
+
+            const count = getAttachmentCount(email);
+            return {
+              hasAttachments: count > 0,
+              count,
+            };
+          };
+
           const fileData = {
             dateRange: {
               start: `${month}-01`,
               end: `${month}-${lastDay.toString().padStart(2, "0")}`,
             },
             totalEmails: sortedEmails.length,
+            version: "2.0",
             emails: sortedEmails.map((email) => {
               const headers = getEmailHeaders(email);
+              const emailDate = getEmailDate(email);
+              const attachmentInfo = getAttachmentInfo(email);
+              const dateStr = emailDate
+                ? emailDate.toISOString().split("T")[0]
+                : null;
+              const isIgnored = ignoredEmails.has(email.id);
+
               return {
                 id: email.id,
                 snippet: email.snippet || "",
                 headers: headers,
-                date: getEmailDate(email)?.toISOString(),
+                date: emailDate?.toISOString(),
                 from: headers.find((h) => h.name.toLowerCase() === "from")
                   ?.value,
                 subject: headers.find((h) => h.name.toLowerCase() === "subject")
                   ?.value,
                 to: headers.find((h) => h.name.toLowerCase() === "to")?.value,
-                ignored: ignoredEmails.has(email.id),
+                ignored: isIgnored,
+                hasAttachments: attachmentInfo.hasAttachments,
+                attachmentCount: attachmentInfo.count,
+                // Don't include fullDataPath for ignored emails - we'll delete their full data
+                fullDataPath:
+                  !isIgnored && dateStr
+                    ? (() => {
+                        const [emailYear, emailMonth, emailDay] =
+                          dateStr.split("-");
+                        return `full/${emailYear}/${emailMonth}/${emailDay}/${email.id}.json`;
+                      })()
+                    : undefined,
               };
             }),
             exportDate: new Date().toISOString(),
@@ -1701,15 +1915,80 @@ const EmailClient = () => {
             lastUpdated: new Date().toISOString(),
           };
 
-          // Write to API
+          // Separate ignored and non-ignored emails
+          const ignoredInMonth = sortedEmails.filter((email) =>
+            ignoredEmails.has(email.id),
+          );
+
+          // Write to API - just update the monthly JSON, don't save full data
+          // (Export All works with already-loaded emails that don't have payloads)
+          console.log(
+            `[Export] Updating monthly JSON for ${month} (${sortedEmails.length} emails, ${ignoredInMonth.length} ignored)`,
+          );
           const writeResponse = await fetch("/api/smart-fetch/write", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ month, data: fileData }),
+            body: JSON.stringify({
+              month,
+              data: fileData,
+              saveFullData: false, // Don't try to save full data - we don't have payloads
+            }),
           });
 
           if (!writeResponse.ok) {
-            throw new Error(`Failed to update file for ${month}`);
+            const errorText = await writeResponse.text();
+            console.error(`[Export] Write API error for ${month}:`, errorText);
+            throw new Error(`Failed to update file for ${month}: ${errorText}`);
+          }
+
+          const writeResult = await writeResponse.json();
+          console.log(`[Export] Write API response for ${month}:`, writeResult);
+
+          // Delete full data files for ignored emails to save space
+          // (in case they were previously saved when not ignored)
+          if (ignoredInMonth.length > 0) {
+            console.log(
+              `[Export] Deleting full data for ${ignoredInMonth.length} ignored email(s) in ${month}`,
+            );
+            let deletedCount = 0;
+            let notFoundCount = 0;
+            for (const email of ignoredInMonth) {
+              const emailDate = getEmailDate(email);
+              if (emailDate) {
+                const dateStr = emailDate.toISOString().split("T")[0];
+
+                try {
+                  const deleteResponse = await fetch(
+                    `/api/smart-fetch/full-data?emailId=${encodeURIComponent(email.id)}&date=${encodeURIComponent(dateStr)}`,
+                    { method: "DELETE" },
+                  );
+                  if (deleteResponse.ok) {
+                    const deleteResult = await deleteResponse.json();
+                    if (deleteResult.success) {
+                      deletedCount++;
+                      console.log(`[Export] Deleted full data for ${email.id}`);
+                    }
+                  } else if (deleteResponse.status === 404) {
+                    notFoundCount++;
+                    // File doesn't exist, which is fine for ignored emails
+                  } else {
+                    const errorData = await deleteResponse.json();
+                    console.warn(
+                      `[Export] Failed to delete ${email.id}:`,
+                      errorData.error,
+                    );
+                  }
+                } catch (error) {
+                  console.warn(
+                    `[Export] Failed to delete full data for ${email.id}:`,
+                    error,
+                  );
+                }
+              }
+            }
+            console.log(
+              `[Export] Deleted ${deletedCount} full data file(s), ${notFoundCount} already removed`,
+            );
           }
 
           filesUpdated++;
@@ -1726,13 +2005,69 @@ const EmailClient = () => {
       }
 
       if (filesUpdated > 0) {
+        // Collect all ignored emails across all months for final cleanup
+        console.log(
+          "[Export] Starting final cleanup of all ignored emails' full data files...",
+        );
+        let totalDeletedFiles = 0;
+        let totalNotFoundFiles = 0;
+        let totalDeleteErrors = 0;
+
+        for (const email of emails) {
+          if (ignoredEmails.has(email.id)) {
+            const emailDate = getEmailDate(email);
+            if (emailDate) {
+              const dateStr = emailDate.toISOString().split("T")[0];
+
+              try {
+                const deleteResponse = await fetch(
+                  `/api/smart-fetch/full-data?emailId=${encodeURIComponent(email.id)}&date=${encodeURIComponent(dateStr)}`,
+                  { method: "DELETE" },
+                );
+
+                if (deleteResponse.ok) {
+                  const deleteResult = await deleteResponse.json();
+                  if (deleteResult.success) {
+                    totalDeletedFiles++;
+                    console.log(
+                      `[Export Final Cleanup] Deleted: ${email.id} (${dateStr})`,
+                    );
+                  }
+                } else if (deleteResponse.status === 404) {
+                  totalNotFoundFiles++;
+                  // File doesn't exist, already removed or never created
+                } else {
+                  totalDeleteErrors++;
+                  const errorData = await deleteResponse.json();
+                  console.error(
+                    `[Export Final Cleanup] Failed to delete ${email.id}:`,
+                    errorData.error,
+                  );
+                }
+              } catch (error) {
+                totalDeleteErrors++;
+                console.error(
+                  `[Export Final Cleanup] Error deleting ${email.id}:`,
+                  error,
+                );
+              }
+            }
+          }
+        }
+
+        console.log("[Export Final Cleanup] Summary:");
+        console.log(`  - Files deleted: ${totalDeletedFiles}`);
+        console.log(`  - Files not found: ${totalNotFoundFiles}`);
+        console.log(`  - Errors: ${totalDeleteErrors}`);
+
         setSuccess(
           `Successfully updated ${filesUpdated} monthly file${filesUpdated > 1 ? "s" : ""} ` +
             `with ${totalEmailsUpdated} email${totalEmailsUpdated > 1 ? "s" : ""} ` +
-            `(${ignoredEmails.size} marked as ignored)`,
+            `(${ignoredEmails.size} marked as ignored, ${totalDeletedFiles} full data files deleted)`,
         );
         console.log(
-          `Export complete: ${filesUpdated} files updated, ${totalEmailsUpdated} emails processed, ${ignoredEmails.size} ignored`,
+          `Export complete: ${filesUpdated} files updated, ${totalEmailsUpdated} emails processed, ` +
+            `${ignoredEmails.size} ignored, ${totalDeletedFiles} files deleted`,
         );
 
         // Rescan cache to update UI
@@ -1750,22 +2085,22 @@ const EmailClient = () => {
     }
   };
 
-  // Function to download JSON file
-  const downloadJsonFile = (data: object, filename: string) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+  // Function to download JSON file (kept for potential future use)
+  // const downloadJsonFile = (data: object, filename: string) => {
+  //   const jsonString = JSON.stringify(data, null, 2);
+  //   const blob = new Blob([jsonString], { type: "application/json" });
+  //   const url = URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${filename}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = `${filename}.json`;
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
-    console.log(`Downloaded ${filename}.json`);
-  };
+  //   URL.revokeObjectURL(url);
+  //   console.log(`Downloaded ${filename}.json`);
+  // };
 
   // Function to handle migration
   const handleMigration = async () => {
@@ -2083,27 +2418,56 @@ const EmailClient = () => {
           const [year, monthNum] = month.split("-").map(Number);
           const lastDay = new Date(year, monthNum, 0).getDate();
 
+          // Helper to check for attachments
+          const getAttachmentInfo = (email: EmailData) => {
+            if (!email.payload) return { hasAttachments: false, count: 0 };
+
+            const count = getAttachmentCount(email);
+            return {
+              hasAttachments: count > 0,
+              count,
+            };
+          };
+
           const fileData = {
             dateRange: {
               start: `${month}-01`,
               end: `${month}-${lastDay.toString().padStart(2, "0")}`,
             },
             totalEmails: allMonthEmails.length,
+            version: "2.0",
             emails: allMonthEmails.map((email) => {
               // Safely access headers - could be in payload.headers or directly in headers
               const headers = email.payload?.headers || email.headers || [];
+              const emailDate = getEmailDate(email);
+              const attachmentInfo = getAttachmentInfo(email);
+              const dateStr = emailDate
+                ? emailDate.toISOString().split("T")[0]
+                : null;
+              const isIgnored = email.ignored || false;
 
               return {
                 id: email.id,
                 snippet: email.snippet || "",
                 headers: headers,
-                date: getEmailDate(email)?.toISOString(),
+                date: emailDate?.toISOString(),
                 from: headers.find((h) => h.name.toLowerCase() === "from")
                   ?.value,
                 subject: headers.find((h) => h.name.toLowerCase() === "subject")
                   ?.value,
                 to: headers.find((h) => h.name.toLowerCase() === "to")?.value,
-                ignored: email.ignored || false,
+                ignored: isIgnored,
+                hasAttachments: attachmentInfo.hasAttachments,
+                attachmentCount: attachmentInfo.count,
+                // Don't include fullDataPath for ignored emails
+                fullDataPath:
+                  !isIgnored && dateStr
+                    ? (() => {
+                        const [emailYear, emailMonth, emailDay] =
+                          dateStr.split("-");
+                        return `full/${emailYear}/${emailMonth}/${emailDay}/${email.id}.json`;
+                      })()
+                    : undefined,
               };
             }),
             exportDate: existingData?.exportDate || new Date().toISOString(),
@@ -2111,22 +2475,94 @@ const EmailClient = () => {
             lastUpdated: new Date().toISOString(),
           };
 
-          // Write file
+          // Separate ignored and non-ignored emails
+          const ignoredInMonth = allMonthEmails.filter((e) => e.ignored);
+          const nonIgnoredEmails = allMonthEmails.filter((e) => !e.ignored);
+
+          // Delete full data files for ignored emails if excludeIgnoredEmails is enabled
+          if (excludeIgnoredEmails && ignoredInMonth.length > 0) {
+            addLog(
+              `Deleting full data for ${ignoredInMonth.length} ignored email(s)...`,
+              "info",
+            );
+            let deletedCount = 0;
+            for (const email of ignoredInMonth) {
+              const emailDate = getEmailDate(email);
+              if (emailDate) {
+                const dateStr = emailDate.toISOString().split("T")[0];
+                const [emailYear, emailMonth, emailDay] = dateStr.split("-");
+                const fullDataPath = `full/${emailYear}/${emailMonth}/${emailDay}/${email.id}.json`;
+
+                try {
+                  const deleteResponse = await fetch(
+                    `/api/smart-fetch/full-data?file=${encodeURIComponent(fullDataPath)}`,
+                    { method: "DELETE" },
+                  );
+                  if (deleteResponse.ok) {
+                    deletedCount++;
+                  }
+                } catch (error) {
+                  console.warn(
+                    `Failed to delete full data for ${email.id}:`,
+                    error,
+                  );
+                }
+              }
+            }
+            addLog(`Deleted ${deletedCount} full data file(s)`, "success");
+          }
+
+          // Write file with full email data (only for non-ignored emails if option is enabled)
+          const emailsToSaveFull =
+            includeFullEmailData && !excludeIgnoredEmails
+              ? allMonthEmails
+              : includeFullEmailData
+                ? nonIgnoredEmails
+                : [];
+
+          if (includeFullEmailData) {
+            addLog(
+              `Saving full email data for ${emailsToSaveFull.length} email(s)...`,
+              "info",
+            );
+          }
           const writeResponse = await fetch("/api/smart-fetch/write", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ month, data: fileData }),
+            body: JSON.stringify({
+              month,
+              data: fileData,
+              fullEmails: emailsToSaveFull,
+              saveFullData: includeFullEmailData && emailsToSaveFull.length > 0,
+            }),
           });
 
           if (!writeResponse.ok) {
-            throw new Error(`Failed to write file for ${month}`);
+            const errorText = await writeResponse.text();
+            throw new Error(`Failed to write file for ${month}: ${errorText}`);
           }
+
+          const writeResult = await writeResponse.json();
 
           const newEmailsCount = monthEmails.length - duplicatesSkipped;
           addLog(
             `${existingData ? "Updated" : "Created"} gmail-export-${month}.json (${newEmailsCount} new, ${allMonthEmails.length} total)`,
             "success",
           );
+
+          // Log full data storage results
+          if (writeResult.fullData) {
+            addLog(
+              `Saved ${writeResult.fullData.saved} full email data files`,
+              "success",
+            );
+            if (writeResult.fullData.errors.length > 0) {
+              addLog(
+                `${writeResult.fullData.errors.length} errors saving full data`,
+                "warning",
+              );
+            }
+          }
 
           if (duplicatesSkipped > 0) {
             addLog(
@@ -2232,10 +2668,17 @@ const EmailClient = () => {
               email: {
                 id?: string;
                 snippet?: string;
-                headers?: object[];
+                headers?: { name: string; value: string }[];
                 body?: object;
                 parts?: object[];
                 ignored?: boolean;
+                fullDataPath?: string;
+                hasAttachments?: boolean;
+                attachmentCount?: number;
+                date?: string;
+                from?: string;
+                subject?: string;
+                to?: string;
               },
               index: number,
             ) => {
@@ -2244,17 +2687,52 @@ const EmailClient = () => {
               }
 
               // Ensure we have the required structure
-              return {
+              // Preserve all v2.0 fields (fullDataPath, hasAttachments, etc.)
+              const result: EmailData & {
+                ignored?: boolean;
+                sourceFile?: string;
+                fullDataPath?: string;
+                hasAttachments?: boolean;
+                attachmentCount?: number;
+                date?: string;
+                from?: string;
+                subject?: string;
+                to?: string;
+              } = {
                 id: email.id,
                 snippet: email.snippet || "",
-                payload: {
-                  headers: email.headers || [],
-                  body: email.body || {},
-                  parts: email.parts || [],
-                },
                 ignored: email.ignored || false, // Load ignored status from file
                 sourceFile: file.name, // Track which file this email came from
               };
+
+              // Preserve v2.0 metadata fields if present
+              if (email.fullDataPath) result.fullDataPath = email.fullDataPath;
+              if (email.hasAttachments !== undefined)
+                result.hasAttachments = email.hasAttachments;
+              if (email.attachmentCount !== undefined)
+                result.attachmentCount = email.attachmentCount;
+              if (email.date) result.date = email.date;
+              if (email.from) result.from = email.from;
+              if (email.subject) result.subject = email.subject;
+              if (email.to) result.to = email.to;
+
+              // For v2.0 format: if email has fullDataPath, DON'T create payload
+              // The detail page will fetch full data from API using fullDataPath
+              // Only create payload if the JSON actually contains headers/body/parts data
+              const hasActualPayloadData =
+                (Array.isArray(email.headers) && email.headers.length > 0) ||
+                (email.body && Object.keys(email.body).length > 0) ||
+                (Array.isArray(email.parts) && email.parts.length > 0);
+
+              if (hasActualPayloadData) {
+                result.payload = {
+                  headers: email.headers || [],
+                  body: email.body || {},
+                  parts: email.parts || [],
+                };
+              }
+
+              return result;
             },
           );
 
@@ -2347,6 +2825,26 @@ const EmailClient = () => {
       setUploadedFiles(processedFiles);
       setUploadedFile(processedFiles[0]); // Keep for backward compatibility
       setFileEmailCounts(finalEmailCountsPerFile);
+
+      // Save to localStorage for offline mode persistence
+      try {
+        localStorage.setItem(
+          "offline-uploaded-emails",
+          JSON.stringify({
+            emails: uniqueEmails,
+            timestamp: Date.now(),
+          }),
+        );
+        console.log(
+          "[EmailClient] Saved uploaded emails to localStorage:",
+          uniqueEmails.length,
+        );
+      } catch (error) {
+        console.warn(
+          "[EmailClient] Failed to save uploaded emails to localStorage:",
+          error,
+        );
+      }
 
       // Set cache age to indicate data freshness
       setCacheAge(new Date());
@@ -3383,39 +3881,50 @@ const EmailClient = () => {
               Export Email Data
             </CardTitle>
             <CardDescription>
-              Download your emails for a specific date range as JSON
+              Fetch and save emails for a specific month to a monthly JSON file
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label
-                    htmlFor="export-start-date"
-                    className="text-sm font-medium"
-                  >
-                    Start Date
+                  <label htmlFor="export-month" className="text-sm font-medium">
+                    Month
                   </label>
-                  <Input
-                    id="export-start-date"
-                    type="date"
-                    value={exportStartDate}
-                    onChange={(e) => setExportStartDate(e.target.value)}
+                  <select
+                    id="export-month"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={exportMonth}
+                    onChange={(e) => setExportMonth(e.target.value)}
                     disabled={isExporting}
-                  />
+                  >
+                    <option value="">Select month...</option>
+                    <option value="01">January</option>
+                    <option value="02">February</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
+                    <option value="05">May</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">August</option>
+                    <option value="09">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                  </select>
                 </div>
                 <div className="space-y-2">
-                  <label
-                    htmlFor="export-end-date"
-                    className="text-sm font-medium"
-                  >
-                    End Date
+                  <label htmlFor="export-year" className="text-sm font-medium">
+                    Year
                   </label>
                   <Input
-                    id="export-end-date"
-                    type="date"
-                    value={exportEndDate}
-                    onChange={(e) => setExportEndDate(e.target.value)}
+                    id="export-year"
+                    type="number"
+                    min="2000"
+                    max="2100"
+                    placeholder="2025"
+                    value={exportYear}
+                    onChange={(e) => setExportYear(e.target.value)}
                     disabled={isExporting}
                   />
                 </div>
@@ -3498,41 +4007,43 @@ const EmailClient = () => {
               )}
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  {exportStartDate && exportEndDate && (
+                  {exportMonth && exportYear && (
                     <span>
-                      Export period:{" "}
-                      {new Date(exportStartDate).toLocaleDateString()} -{" "}
-                      {new Date(exportEndDate).toLocaleDateString()}
+                      Will export: {exportYear}-{exportMonth} (gmail-export-
+                      {exportYear}-{exportMonth}.json)
                     </span>
                   )}
                 </div>
                 <Button
                   onClick={exportEmailsForDateRange}
-                  disabled={isExporting || !exportStartDate || !exportEndDate}
+                  disabled={isExporting || !exportMonth || !exportYear}
                   className="min-w-[120px]"
                 >
                   {isExporting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Exporting...
+                      Fetching...
                     </>
                   ) : (
                     <>
                       <Download className="mr-2 h-4 w-4" />
-                      Export Data
+                      Fetch & Save
                     </>
                   )}
                 </Button>
               </div>
-              {exportStartDate && exportEndDate && !isExporting && (
+              {exportMonth && exportYear && !isExporting && (
                 <div className="text-xs text-muted-foreground bg-muted/30 rounded p-3">
                   {" "}
-                  <strong>Note:</strong> This will fetch emails from Gmail for
-                  the specified date range and download them as a JSON file
-                  named &quot;gmail-export-{exportStartDate}-to-{exportEndDate}
-                  .json&quot;. The file will include email headers, subjects,
-                  senders, and snippets. Large date ranges will be processed
-                  week by week with real-time progress tracking.
+                  <strong>Note:</strong> This will fetch all emails from Gmail
+                  for the selected month ({exportYear}-{exportMonth}) and save
+                  them to &quot;gmail-export-{exportYear}-{exportMonth}
+                  .json&quot; in v2.0 format at
+                  C:\Users\carlo\GITHUB\finance-tracker\privat\data\email. The
+                  file will include email headers, subjects, senders, snippets,
+                  attachment information, and metadata. Full email data will be
+                  saved to separate files in the full/ directory. If the file
+                  already exists, it will be updated with any new emails.
                 </div>
               )}
               {/* Smart Fetching Section */}
@@ -3585,6 +4096,56 @@ const EmailClient = () => {
 
                 {showSmartFetchConsole && (
                   <div className="mt-4">
+                    {/* Options Section */}
+                    <div className="mb-4 p-4 bg-muted/50 rounded-lg space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            id="include-full-data"
+                            checked={includeFullEmailData}
+                            onCheckedChange={setIncludeFullEmailData}
+                          />
+                          <div>
+                            <label
+                              htmlFor="include-full-data"
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              Include full email data
+                            </label>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Save complete email body and attachments to
+                              separate files
+                            </p>
+                          </div>
+                        </div>
+                        {includeFullEmailData && (
+                          <Badge variant="secondary" className="text-xs">
+                            v2.0 Format
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          id="exclude-ignored"
+                          checked={excludeIgnoredEmails}
+                          onCheckedChange={setExcludeIgnoredEmails}
+                        />
+                        <div>
+                          <label
+                            htmlFor="exclude-ignored"
+                            className="text-sm font-medium cursor-pointer"
+                          >
+                            Exclude ignored emails
+                          </label>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Don&apos;t include manually ignored emails in
+                            exports
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <Accordion type="single" collapsible defaultValue="console">
                       <AccordionItem
                         value="console"
@@ -4488,6 +5049,23 @@ const EmailClient = () => {
           </CardContent>
         </Card>
       )}
+      {/* Storage Management Card */}
+      {(isSignedIn || offlineMode) && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Storage Management
+            </CardTitle>
+            <CardDescription>
+              Monitor email storage and manage full data files
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <StorageStatsDisplay />
+          </CardContent>
+        </Card>
+      )}
       {(isSignedIn || offlineMode) && emails.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
@@ -4641,12 +5219,47 @@ const EmailClient = () => {
                                           <Calendar className="w-3 h-3 mr-1" />
                                           {formatDate(date)}
                                         </Badge>
+                                        {emailHasAttachments(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            {getAttachmentCount(email)}
+                                          </Badge>
+                                        )}
+                                        {hasFullDataStored(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                            title="Full email data stored"
+                                          >
+                                            <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
                                     {expandedEmails.has(email.id) && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2">
-                                        {email.snippet}
-                                      </p>
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                          {email.snippet}
+                                        </p>
+                                        <Link
+                                          href={`/email-client/${email.id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) =>
+                                            handleViewFullEmailClick(
+                                              e,
+                                              email.id,
+                                            )
+                                          }
+                                          className="inline-flex items-center text-xs text-primary hover:underline"
+                                        >
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          View Full Email
+                                        </Link>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -4749,12 +5362,47 @@ const EmailClient = () => {
                                           <Calendar className="w-3 h-3 mr-1" />
                                           {formatDate(date)}
                                         </Badge>
+                                        {emailHasAttachments(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            {getAttachmentCount(email)}
+                                          </Badge>
+                                        )}
+                                        {hasFullDataStored(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                            title="Full email data stored"
+                                          >
+                                            <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
                                     {expandedEmails.has(email.id) && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2">
-                                        {email.snippet}
-                                      </p>
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                          {email.snippet}
+                                        </p>
+                                        <Link
+                                          href={`/email-client/${email.id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) =>
+                                            handleViewFullEmailClick(
+                                              e,
+                                              email.id,
+                                            )
+                                          }
+                                          className="inline-flex items-center text-xs text-primary hover:underline"
+                                        >
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          View Full Email
+                                        </Link>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -4907,12 +5555,47 @@ const EmailClient = () => {
                                           <Calendar className="w-3 h-3 mr-1" />
                                           {formatDate(date)}
                                         </Badge>
+                                        {emailHasAttachments(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            {getAttachmentCount(email)}
+                                          </Badge>
+                                        )}
+                                        {hasFullDataStored(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                            title="Full email data stored"
+                                          >
+                                            <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
                                     {expandedEmails.has(email.id) && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2">
-                                        {email.snippet}
-                                      </p>
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                          {email.snippet}
+                                        </p>
+                                        <Link
+                                          href={`/email-client/${email.id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) =>
+                                            handleViewFullEmailClick(
+                                              e,
+                                              email.id,
+                                            )
+                                          }
+                                          className="inline-flex items-center text-xs text-primary hover:underline"
+                                        >
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          View Full Email
+                                        </Link>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -5019,12 +5702,47 @@ const EmailClient = () => {
                                           <Calendar className="w-3 h-3 mr-1" />
                                           {formatDate(date)}
                                         </Badge>
+                                        {emailHasAttachments(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            {getAttachmentCount(email)}
+                                          </Badge>
+                                        )}
+                                        {hasFullDataStored(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                            title="Full email data stored"
+                                          >
+                                            <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
                                     {expandedEmails.has(email.id) && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2">
-                                        {email.snippet}
-                                      </p>
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                          {email.snippet}
+                                        </p>
+                                        <Link
+                                          href={`/email-client/${email.id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) =>
+                                            handleViewFullEmailClick(
+                                              e,
+                                              email.id,
+                                            )
+                                          }
+                                          className="inline-flex items-center text-xs text-primary hover:underline"
+                                        >
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          View Full Email
+                                        </Link>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -5167,12 +5885,47 @@ const EmailClient = () => {
                                           <Calendar className="w-3 h-3 mr-1" />
                                           {formatDate(date)}
                                         </Badge>
+                                        {emailHasAttachments(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            {getAttachmentCount(email)}
+                                          </Badge>
+                                        )}
+                                        {hasFullDataStored(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                            title="Full email data stored"
+                                          >
+                                            <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
                                     {expandedEmails.has(email.id) && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2">
-                                        {email.snippet}
-                                      </p>
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                          {email.snippet}
+                                        </p>
+                                        <Link
+                                          href={`/email-client/${email.id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) =>
+                                            handleViewFullEmailClick(
+                                              e,
+                                              email.id,
+                                            )
+                                          }
+                                          className="inline-flex items-center text-xs text-primary hover:underline"
+                                        >
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          View Full Email
+                                        </Link>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -5279,12 +6032,47 @@ const EmailClient = () => {
                                           <Calendar className="w-3 h-3 mr-1" />
                                           {formatDate(date)}
                                         </Badge>
+                                        {emailHasAttachments(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            {getAttachmentCount(email)}
+                                          </Badge>
+                                        )}
+                                        {hasFullDataStored(email) && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                            title="Full email data stored"
+                                          >
+                                            <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
                                     {expandedEmails.has(email.id) && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2">
-                                        {email.snippet}
-                                      </p>
+                                      <div className="mt-3 pt-3 border-t space-y-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                          {email.snippet}
+                                        </p>
+                                        <Link
+                                          href={`/email-client/${email.id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) =>
+                                            handleViewFullEmailClick(
+                                              e,
+                                              email.id,
+                                            )
+                                          }
+                                          className="inline-flex items-center text-xs text-primary hover:underline"
+                                        >
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          View Full Email
+                                        </Link>
+                                      </div>
                                     )}
                                   </div>
                                 );
@@ -5385,12 +6173,44 @@ const EmailClient = () => {
                                     <Calendar className="w-3 h-3 mr-1" />
                                     {formatDate(date)}
                                   </Badge>
+                                  {emailHasAttachments(email) && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      <Paperclip className="w-3 h-3 mr-1" />
+                                      {getAttachmentCount(email)}
+                                    </Badge>
+                                  )}
+                                  {hasFullDataStored(email) && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                      title="Full email data stored"
+                                    >
+                                      <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
                               {expandedEmails.has(email.id) && (
-                                <p className="text-xs text-muted-foreground line-clamp-2">
-                                  {email.snippet}
-                                </p>
+                                <div className="mt-3 pt-3 border-t space-y-2">
+                                  <p className="text-xs text-muted-foreground line-clamp-2">
+                                    {email.snippet}
+                                  </p>
+                                  <Link
+                                    href={`/email-client/${email.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) =>
+                                      handleViewFullEmailClick(e, email.id)
+                                    }
+                                    className="inline-flex items-center text-xs text-primary hover:underline"
+                                  >
+                                    <ExternalLink className="w-3 h-3 mr-1" />
+                                    View Full Email
+                                  </Link>
+                                </div>
                               )}
                             </div>
                           );
@@ -5807,6 +6627,21 @@ const EmailClient = () => {
                                 <Calendar className="w-3 h-3 mr-1" />
                                 {formatDate(date)}
                               </Badge>
+                              {emailHasAttachments(email) && (
+                                <Badge variant="outline" className="text-xs">
+                                  <Paperclip className="w-3 h-3 mr-1" />
+                                  {getAttachmentCount(email)}
+                                </Badge>
+                              )}
+                              {hasFullDataStored(email) && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                  title="Full email data stored"
+                                >
+                                  <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                </Badge>
+                              )}
                               <Button
                                 size="sm"
                                 variant={isIgnored ? "default" : "ghost"}
@@ -5821,9 +6656,23 @@ const EmailClient = () => {
                             </div>
                           </div>
                           {expandedEmails.has(email.id) && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {email.snippet}
-                            </p>
+                            <div className="mt-3 pt-3 border-t space-y-2">
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {email.snippet}
+                              </p>
+                              <Link
+                                href={`/email-client/${email.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) =>
+                                  handleViewFullEmailClick(e, email.id)
+                                }
+                                className="inline-flex items-center text-xs text-primary hover:underline"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                View Full Email
+                              </Link>
+                            </div>
                           )}
                         </div>
                       );
@@ -6003,6 +6852,21 @@ const EmailClient = () => {
                                 <Calendar className="w-3 h-3 mr-1" />
                                 {formatDate(date)}
                               </Badge>
+                              {emailHasAttachments(email) && (
+                                <Badge variant="outline" className="text-xs">
+                                  <Paperclip className="w-3 h-3 mr-1" />
+                                  {getAttachmentCount(email)}
+                                </Badge>
+                              )}
+                              {hasFullDataStored(email) && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                  title="Full email data stored"
+                                >
+                                  <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                </Badge>
+                              )}
                               <Button
                                 size="sm"
                                 variant={isIgnored ? "default" : "ghost"}
@@ -6017,9 +6881,23 @@ const EmailClient = () => {
                             </div>
                           </div>
                           {expandedEmails.has(email.id) && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {email.snippet}
-                            </p>
+                            <div className="mt-3 pt-3 border-t space-y-2">
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {email.snippet}
+                              </p>
+                              <Link
+                                href={`/email-client/${email.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) =>
+                                  handleViewFullEmailClick(e, email.id)
+                                }
+                                className="inline-flex items-center text-xs text-primary hover:underline"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                View Full Email
+                              </Link>
+                            </div>
                           )}
                         </div>
                       );
@@ -6034,4 +6912,17 @@ const EmailClient = () => {
   );
 };
 
-export default EmailClient;
+// Wrapper component with Suspense boundary
+export default function EmailClientPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">Loading...</div>
+        </div>
+      }
+    >
+      <EmailClient />
+    </Suspense>
+  );
+}

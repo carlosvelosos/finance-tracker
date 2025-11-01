@@ -48,7 +48,7 @@ function getEmailDate(email: EmailData): Date | null {
     }
 
     return null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -180,8 +180,8 @@ export async function POST() {
 
         // Backup the file
         await fs.copyFile(filePath, path.join(backupPath, filename));
-      } catch (error) {
-        const errMsg = `Error processing ${filename}: ${error}`;
+      } catch (err) {
+        const errMsg = `Error processing ${filename}: ${err}`;
         result.errors.push(errMsg);
         result.logs.push(`ERROR: ${errMsg}`);
       }
@@ -237,8 +237,8 @@ export async function POST() {
         result.logs.push(
           `Created gmail-export-${month}.json (${emails.length} emails)`,
         );
-      } catch (error) {
-        const errMsg = `Error creating monthly file for ${month}: ${error}`;
+      } catch (err) {
+        const errMsg = `Error creating monthly file for ${month}: ${err}`;
         result.errors.push(errMsg);
         result.logs.push(`ERROR: ${errMsg}`);
       }
@@ -250,7 +250,7 @@ export async function POST() {
         try {
           await fs.unlink(path.join(EMAIL_DIR_PATH, filename));
           result.logs.push(`Removed old file: ${filename}`);
-        } catch (error) {
+        } catch {
           result.logs.push(`Warning: Could not delete ${filename}`);
         }
       }

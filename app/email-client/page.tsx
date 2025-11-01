@@ -33,7 +33,6 @@ import {
   X,
   Zap,
   Info,
-  CheckCircle2,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -292,14 +291,8 @@ const EmailClient = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offlineMode]);
 
-  // Background scan email directory on mount
-  useEffect(() => {
-    scanEmailCache();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Function to scan email cache in background
-  const scanEmailCache = async () => {
+  const scanEmailCache = useCallback(async () => {
     try {
       setEmailCacheInfo({
         latestFile: null,
@@ -340,7 +333,12 @@ const EmailClient = () => {
         needsMigration: false,
       });
     }
-  };
+  }, []);
+
+  // Background scan email directory on mount
+  useEffect(() => {
+    scanEmailCache();
+  }, [scanEmailCache]);
   const initializeGapi = useCallback(async () => {
     try {
       console.log("Initializing Google APIs...");

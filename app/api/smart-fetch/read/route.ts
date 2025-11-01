@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       const content = await fs.readFile(filePath, "utf-8");
       const data = JSON.parse(content);
       return NextResponse.json(data);
-    } catch (error) {
+    } catch {
       // File doesn't exist or is corrupted
       return NextResponse.json(null, { status: 404 });
     }

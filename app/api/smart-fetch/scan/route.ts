@@ -60,7 +60,7 @@ function getEmailDate(email: {
     }
 
     return null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

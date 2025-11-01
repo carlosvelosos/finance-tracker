@@ -190,8 +190,8 @@ function getEmailDate(email: EmailData): Date | null {
     }
 
     return null;
-  } catch (error) {
-    console.error("Error parsing email date:", email.id, error);
+  } catch (err) {
+    console.error("Error parsing email date:", email.id, err);
     return null;
   }
 }
@@ -353,7 +353,7 @@ export async function readMonthlyFile(
     const filePath = path.join(EMAIL_DIR_PATH, filename);
     const content = await fs.readFile(filePath, "utf-8");
     return JSON.parse(content);
-  } catch (error) {
+  } catch {
     // File doesn't exist or is corrupted
     return null;
   }
@@ -597,8 +597,8 @@ export async function migrateExistingFiles(
 
         // Backup the file
         await fs.copyFile(filePath, path.join(backupPath, filename));
-      } catch (error) {
-        const errMsg = `Error processing ${filename}: ${error}`;
+      } catch (err) {
+        const errMsg = `Error processing ${filename}: ${err}`;
         result.errors.push(errMsg);
         if (onLog) onLog(createLogEntry(errMsg, "error"));
       }
@@ -661,8 +661,8 @@ export async function migrateExistingFiles(
               "success",
             ),
           );
-      } catch (error) {
-        const errMsg = `Error creating monthly file for ${month}: ${error}`;
+      } catch (err) {
+        const errMsg = `Error creating monthly file for ${month}: ${err}`;
         result.errors.push(errMsg);
         if (onLog) onLog(createLogEntry(errMsg, "error"));
       }
@@ -675,7 +675,7 @@ export async function migrateExistingFiles(
           await fs.unlink(path.join(EMAIL_DIR_PATH, filename));
           if (onLog)
             onLog(createLogEntry(`Removed old file: ${filename}`, "info"));
-        } catch (error) {
+        } catch {
           if (onLog)
             onLog(
               createLogEntry(
@@ -740,4 +740,4 @@ export default {
 
   // Utilities
   createLogEntry,
-};
+} as const;

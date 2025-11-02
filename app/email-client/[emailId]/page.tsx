@@ -589,7 +589,7 @@ export default function EmailDetailPage() {
       </Card>
 
       {/* Email Body Card */}
-      <Card className="mb-6">
+      <Card variant="flat-shadow-bottom" className="mb-6">
         <CardHeader>
           <CardTitle>Message</CardTitle>
         </CardHeader>

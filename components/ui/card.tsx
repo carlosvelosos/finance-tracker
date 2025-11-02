@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface CardProps extends React.ComponentProps<"div"> {
-  variant?: "default" | "flat";
+  variant?: "default" | "flat" | "flat-shadow" | "flat-shadow-bottom";
 }
 
 function Card({ className, variant = "default", ...props }: CardProps) {
@@ -13,6 +13,9 @@ function Card({ className, variant = "default", ...props }: CardProps) {
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 py-6",
         variant === "default" && "rounded-xl border shadow-sm",
+        variant === "flat-shadow" && "shadow-sm",
+        variant === "flat-shadow-bottom" &&
+          "shadow-[0_1px_2px_0_rgb(0_0_0_/0.05)]",
         className,
       )}
       {...props}

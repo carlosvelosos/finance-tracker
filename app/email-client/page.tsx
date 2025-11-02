@@ -5097,7 +5097,7 @@ const EmailClient = () => {
         </Card>
       )}
       {(isSignedIn || offlineMode) && emails.length > 0 && (
-        <Card className="mb-6">
+        <Card variant="flat-shadow-bottom" className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5" />
@@ -6332,7 +6332,7 @@ const EmailClient = () => {
         )}
       {(isSignedIn || offlineMode) &&
         !(dataSource === "upload" && !showAllUploadSenders) && (
-          <Card variant="flat">
+          <Card variant="flat-shadow-bottom" className="mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -6727,7 +6727,7 @@ const EmailClient = () => {
       {(isSignedIn || offlineMode) &&
         !(dataSource === "upload" && !showAllUploadSenders) &&
         emails.length > 0 && (
-          <Card className="mt-6">
+          <Card variant="flat-shadow-bottom" className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />

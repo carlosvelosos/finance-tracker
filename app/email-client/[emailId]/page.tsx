@@ -1,9 +1,8 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Calendar, Mail, Paperclip, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -41,10 +40,7 @@ interface EmailData {
 
 export default function EmailDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const emailId = params.emailId as string;
-  const isOfflineMode = searchParams.get("offline") === "true";
 
   const [email, setEmail] = useState<EmailData | null>(null);
   const [loading, setLoading] = useState(true);

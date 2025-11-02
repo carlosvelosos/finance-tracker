@@ -198,4 +198,9 @@ For questions or issues, please refer to the [Documentation](Documentation/) or 
 
 ```bash
 git checkout -b design/badge-count-improvements
+
+git branch
+
+git branch -d design-exploration  # Safe delete (only if merged)
+git branch -D design-exploration  # Force delete
 ```

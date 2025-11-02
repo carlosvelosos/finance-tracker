@@ -539,7 +539,7 @@ export default function EmailDetailPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
       {/* Email Header Card */}
-      <Card className="mb-6">
+      <Card variant="flat-transparent" className="mb-6">
         <CardHeader>
           <CardTitle className="text-2xl break-words">
             {subject || "No Subject"}

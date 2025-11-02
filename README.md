@@ -204,3 +204,64 @@ git branch
 git branch -d design-exploration  # Safe delete (only if merged)
 git branch -D design-exploration  # Force delete
 ```
+
+To merge your design/email-client-v2 branch into main while keeping the commit history, follow these steps:
+
+Step 1: Make sure all your changes are committed
+
+```bash
+git status  # Check if there are uncommitted changes
+git add .   # If needed
+git commit -m "Your commit message"  # If needed
+```
+
+Step 2: Switch to the main branch
+
+```bash
+git checkout main
+```
+
+Step 3: Pull latest changes from remote (if working with others)
+
+```bash
+git pull origin main
+```
+
+Step 4: Merge the design branch (keeping history)
+
+```bash
+git merge design/email-client-v2
+```
+
+This will create a merge commit that preserves all individual commits from your design branch.
+
+Step 5: Push to remote
+
+```bash
+git push origin main
+```
+
+Alternative: Merge with --no-ff (recommended)
+
+```bash
+git merge --no-ff design/email-client-v2 -m "Merge design/email-client-v2: Badge count improvements"
+```
+
+The --no-ff flag ensures a merge commit is always created, even if Git could do a fast-forward, making the history clearer.
+
+What you'll see in the history:
+
+- Merge branch 'design/email-client-v2' into main
+  |\
+  | _ Update badges to show non-ignored/total counts
+  | _ Fix overflow in Recent Emails section
+  | \* Add Gmail search link feature
+  |/
+- Previous main branch commit
+
+If you want to clean up the branch after merging:
+
+```bash
+git branch -d design/email-client-v2  # Delete local branch
+git push origin --delete design/email-client-v2  # Delete remote branch (if pushed)
+```

@@ -333,11 +333,12 @@ const EmailClient = () => {
                 const senderLower = fromHeader.toLowerCase();
                 const orgLower = organization.toLowerCase();
 
-                // Special case: When filtering for "Inter", exclude Pinterest and Auditoria Interna emails
+                // Special case: When filtering for "Inter", exclude Pinterest, Auditoria Interna, and Intersport emails
                 if (orgLower === "inter") {
                   if (
                     senderLower.includes("@discover.pinterest.com") ||
-                    senderLower.includes("auditoria interna")
+                    senderLower.includes("auditoria interna") ||
+                    senderLower.includes("intersport")
                   ) {
                     return false;
                   }
@@ -2927,11 +2928,12 @@ const EmailClient = () => {
             const senderLower = fromHeader.toLowerCase();
             const orgLower = organization.toLowerCase();
 
-            // Special case: When filtering for "Inter", exclude Pinterest and Auditoria Interna emails
+            // Special case: When filtering for "Inter", exclude Pinterest, Auditoria Interna, and Intersport emails
             if (orgLower === "inter") {
               if (
                 senderLower.includes("@discover.pinterest.com") ||
-                senderLower.includes("auditoria interna")
+                senderLower.includes("auditoria interna") ||
+                senderLower.includes("intersport")
               ) {
                 return false;
               }
@@ -5086,11 +5088,12 @@ const EmailClient = () => {
                   const senderLower = sender.toLowerCase();
                   const orgLower = organization.toLowerCase();
 
-                  // Special case: When filtering for "Inter", exclude Pinterest and Auditoria Interna emails
+                  // Special case: When filtering for "Inter", exclude Pinterest, Auditoria Interna, and Intersport emails
                   if (orgLower === "inter") {
                     if (
                       senderLower.includes("@discover.pinterest.com") ||
-                      senderLower.includes("auditoria interna")
+                      senderLower.includes("auditoria interna") ||
+                      senderLower.includes("intersport")
                     ) {
                       return false;
                     }

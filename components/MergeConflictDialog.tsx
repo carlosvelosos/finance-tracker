@@ -310,20 +310,23 @@ export function MergeConflictDialog({
                 <div className="flex-1">
                   <table className="w-full text-xs border-collapse">
                     <thead className="bg-blue-100">
-                      <tr className="border-b-2 border-blue-300">
-                        <th className="px-2 py-2 text-left font-semibold text-blue-900">
+                      <tr
+                        className="border-b-2 border-blue-300"
+                        style={{ height: "36px" }}
+                      >
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
                           ID
                         </th>
-                        <th className="px-2 py-2 text-left font-semibold text-blue-900">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
                           Date
                         </th>
-                        <th className="px-2 py-2 text-left font-semibold text-blue-900">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
                           Description
                         </th>
-                        <th className="px-2 py-2 text-right font-semibold text-blue-900">
+                        <th className="px-2 py-1 text-right font-semibold text-blue-900 align-middle">
                           Amount
                         </th>
-                        <th className="px-2 py-2 text-left font-semibold text-blue-900">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
                           Category
                         </th>
                       </tr>
@@ -369,20 +372,23 @@ export function MergeConflictDialog({
               <div className="flex-1">
                 <table className="w-full text-xs border-collapse">
                   <thead className="bg-gray-100">
-                    <tr className="border-b-2 border-gray-300">
-                      <th className="px-2 py-2 text-left font-semibold text-gray-900">
+                    <tr
+                      className="border-b-2 border-gray-300"
+                      style={{ height: "36px" }}
+                    >
+                      <th className="px-2 py-1 text-left font-semibold text-gray-900 align-middle">
                         Date
                       </th>
-                      <th className="px-2 py-2 text-left font-semibold text-gray-900">
+                      <th className="px-2 py-1 text-left font-semibold text-gray-900 align-middle">
                         Description
                       </th>
-                      <th className="px-2 py-2 text-right font-semibold text-gray-900">
+                      <th className="px-2 py-1 text-right font-semibold text-gray-900 align-middle">
                         Amount
                       </th>
-                      <th className="px-2 py-2 text-center font-semibold text-gray-900">
+                      <th className="px-2 py-1 text-center font-semibold text-gray-900 align-middle">
                         Status
                       </th>
-                      <th className="px-2 py-2 text-center font-semibold text-gray-900">
+                      <th className="px-2 py-1 text-center font-semibold text-gray-900 align-middle">
                         Action
                       </th>
                     </tr>
@@ -545,26 +551,27 @@ function ExistingTransactionRow({
 }: ExistingTransactionRowProps) {
   return (
     <tr
-      className={`border-b hover:bg-blue-100 h-8 ${
+      className={`border-b hover:bg-blue-100 ${
         isHighlighted ? "bg-yellow-100" : "bg-white"
       }`}
+      style={{ height: "32px", maxHeight: "32px" }}
     >
-      <td className="px-2 py-2 text-gray-700 whitespace-nowrap">
+      <td className="px-2 py-1 text-gray-700 whitespace-nowrap align-middle">
         {transaction.id}
       </td>
-      <td className="px-2 py-2 text-gray-900 whitespace-nowrap">
+      <td className="px-2 py-1 text-gray-900 whitespace-nowrap align-middle">
         {formatDate(transaction.Date)}
       </td>
       <td
-        className="px-2 py-2 max-w-xs truncate text-gray-900"
+        className="px-2 py-1 max-w-xs truncate text-gray-900 align-middle"
         title={transaction.Description || "N/A"}
       >
         {transaction.Description || "N/A"}
       </td>
-      <td className="px-2 py-2 text-right whitespace-nowrap font-medium text-gray-900">
+      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-gray-900 align-middle">
         {formatCurrency(transaction.Amount)}
       </td>
-      <td className="px-2 py-2 text-gray-700 whitespace-nowrap">
+      <td className="px-2 py-1 text-gray-700 whitespace-nowrap align-middle">
         {transaction.Category || "Uncategorized"}
       </td>
     </tr>
@@ -580,32 +587,33 @@ interface NewTransactionRowProps {
 function NewTransactionRow({ transaction, status }: NewTransactionRowProps) {
   return (
     <tr
-      className={`border-b h-8 ${
+      className={`border-b ${
         status === "safe"
           ? "bg-green-50 hover:bg-green-100"
           : "bg-gray-100 hover:bg-gray-200"
       }`}
+      style={{ height: "32px", maxHeight: "32px" }}
     >
-      <td className="px-2 py-2 whitespace-nowrap text-gray-900">
+      <td className="px-2 py-1 whitespace-nowrap text-gray-900 align-middle">
         {formatDate(transaction.Date)}
       </td>
       <td
-        className="px-2 py-2 max-w-xs truncate text-gray-900"
+        className="px-2 py-1 max-w-xs truncate text-gray-900 align-middle"
         title={transaction.Description || "N/A"}
       >
         {transaction.Description || "N/A"}
       </td>
-      <td className="px-2 py-2 text-right whitespace-nowrap font-medium text-gray-900">
+      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-gray-900 align-middle">
         {formatCurrency(transaction.Amount)}
       </td>
-      <td className="px-2 py-2 text-center whitespace-nowrap">
+      <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
         {status === "safe" ? (
           <CheckCircleIcon className="h-4 w-4 text-green-600 inline" />
         ) : (
           <XCircleIcon className="h-4 w-4 text-gray-500 inline" />
         )}
       </td>
-      <td className="px-2 py-2 text-center whitespace-nowrap">
+      <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
         <span className="text-xs text-gray-500">
           {status === "safe" ? "Auto-add" : "Auto-skip"}
         </span>
@@ -635,21 +643,22 @@ function ConflictTransactionRow({
 
   return (
     <tr
-      className={`border-b h-8 bg-yellow-50 hover:bg-yellow-100 ${getBorderColor()}`}
+      className={`border-b bg-yellow-50 hover:bg-yellow-100 ${getBorderColor()}`}
+      style={{ height: "32px", maxHeight: "32px" }}
     >
-      <td className="px-2 py-2 whitespace-nowrap text-gray-900">
+      <td className="px-2 py-1 whitespace-nowrap text-gray-900 align-middle">
         {formatDate(conflict.newTransaction.Date)}
       </td>
       <td
-        className="px-2 py-2 max-w-xs truncate text-gray-900"
+        className="px-2 py-1 max-w-xs truncate text-gray-900 align-middle"
         title={conflict.newTransaction.Description || "N/A"}
       >
         {conflict.newTransaction.Description || "N/A"}
       </td>
-      <td className="px-2 py-2 text-right whitespace-nowrap font-medium text-gray-900">
+      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-gray-900 align-middle">
         {formatCurrency(conflict.newTransaction.Amount)}
       </td>
-      <td className="px-2 py-2 text-center whitespace-nowrap">
+      <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
         <span
           className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
             conflict.matchLevel === 1
@@ -670,13 +679,13 @@ function ConflictTransactionRow({
                 : "50%"}
         </span>
       </td>
-      <td className="px-2 py-2 text-center whitespace-nowrap">
-        <div className="flex gap-1 justify-center">
+      <td className="px-2 py-1 text-center whitespace-nowrap align-middle overflow-hidden">
+        <div className="flex gap-1 justify-center items-center">
           <Button
             size="sm"
             variant={decision === "add" ? "default" : "outline"}
             onClick={() => onDecide("add")}
-            className="h-6 px-2 text-[10px]"
+            className="h-5 px-1.5 text-[10px] py-0 min-h-0 leading-none"
           >
             Add
           </Button>
@@ -684,7 +693,7 @@ function ConflictTransactionRow({
             size="sm"
             variant={decision === "skip" ? "default" : "outline"}
             onClick={() => onDecide("skip")}
-            className="h-6 px-2 text-[10px]"
+            className="h-5 px-1.5 text-[10px] py-0 min-h-0 leading-none"
           >
             Skip
           </Button>

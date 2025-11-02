@@ -1358,7 +1358,7 @@ const EmailClient = () => {
   const filteredEmailsBySender = useMemo(() => {
     let filtered = emails;
 
-    // Apply sender filter (selectedSenderFilter now stores full email)
+    // Apply sender filter (can be full email or domain)
     if (selectedSenderFilter !== "all") {
       filtered = filtered.filter((email) => {
         const fromHeader = getHeader(getEmailHeaders(email), "From");
@@ -1368,7 +1368,18 @@ const EmailClient = () => {
           ? fromHeader.match(/<(.+?)>/)![1]
           : fromHeader;
 
-        return senderEmail === selectedSenderFilter;
+        // Check if filtering by full email
+        if (senderEmail === selectedSenderFilter) {
+          return true;
+        }
+
+        // Check if filtering by domain (if selectedSenderFilter doesn't contain @)
+        if (!selectedSenderFilter.includes("@")) {
+          const emailDomain = senderEmail.split("@")[1];
+          return emailDomain === selectedSenderFilter;
+        }
+
+        return false;
       });
     }
 
@@ -6755,16 +6766,52 @@ const EmailClient = () => {
                         {emailsBySender.map(
                           ({ domain, senders, totalCount }) => (
                             <AccordionItem key={domain} value={domain}>
-                              <AccordionTrigger className="hover:no-underline py-2 px-3 hover:bg-muted rounded-md">
-                                <div className="flex items-center justify-between w-full pr-2">
-                                  <span className="text-sm font-medium">
-                                    {domain}
-                                  </span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {totalCount}
-                                  </Badge>
+                              <div
+                                className={`${
+                                  selectedSenderFilter === domain
+                                    ? "bg-primary/10 rounded-md"
+                                    : ""
+                                }`}
+                              >
+                                <div className="flex items-center">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedSenderFilter(domain);
+                                    }}
+                                    className={`flex-1 flex items-center justify-between py-2 px-3 rounded-md transition-colors text-left ${
+                                      selectedSenderFilter === domain
+                                        ? "bg-primary/20"
+                                        : "hover:bg-muted/50"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`text-sm font-medium ${
+                                        selectedSenderFilter === domain
+                                          ? "text-primary"
+                                          : ""
+                                      }`}
+                                    >
+                                      {domain}
+                                    </span>
+                                    <Badge
+                                      variant={
+                                        selectedSenderFilter === domain
+                                          ? "default"
+                                          : "outline"
+                                      }
+                                      className="text-xs ml-2"
+                                    >
+                                      {totalCount}
+                                    </Badge>
+                                  </button>
+                                  <AccordionTrigger className="hover:no-underline py-2 px-2 hover:bg-muted rounded-md">
+                                    <span className="sr-only">
+                                      Toggle senders
+                                    </span>
+                                  </AccordionTrigger>
                                 </div>
-                              </AccordionTrigger>
+                              </div>
                               <AccordionContent className="pl-4 space-y-1">
                                 {senders.map(
                                   ({ username, fullEmail, count }) => (
@@ -6812,7 +6859,9 @@ const EmailClient = () => {
                     <p className="text-sm text-muted-foreground">
                       {selectedSenderFilter === "all"
                         ? `Showing all ${filteredEmailsBySender.length} emails`
-                        : `Showing ${filteredEmailsBySender.length} emails from ${selectedSenderFilter}`}
+                        : selectedSenderFilter.includes("@")
+                          ? `Showing ${filteredEmailsBySender.length} emails from ${selectedSenderFilter}`
+                          : `Showing ${filteredEmailsBySender.length} emails from @${selectedSenderFilter}`}
                     </p>
                     {selectedSenderFilter !== "all" && (
                       <Button

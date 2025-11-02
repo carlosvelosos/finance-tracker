@@ -193,3 +193,9 @@ This project is private and proprietary.
 ## Support
 
 For questions or issues, please refer to the [Documentation](Documentation/) or create an issue in the repository.
+
+## New branch
+
+```bash
+git checkout -b design/badge-count-improvements
+```

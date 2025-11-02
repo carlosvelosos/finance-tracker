@@ -367,141 +367,82 @@ export function MergeConflictDialog({
               </div>
 
               <div className="flex-1">
-                {/* Safe to Add Table */}
-                {(filter === "all" || filter === "safe") &&
-                  analysis.safeToAdd.length > 0 && (
-                    <div className="mb-3">
-                      <div className="bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 flex items-center gap-1 sticky top-0">
-                        <CheckCircleIcon className="h-3 w-3" />
-                        Safe to Add ({analysis.safeToAdd.length})
-                      </div>
-                      <table className="w-full text-xs border-collapse">
-                        <thead className="bg-green-50">
-                          <tr className="border-b-2 border-green-300">
-                            <th className="px-2 py-2 text-left font-semibold text-green-900">
-                              Date
-                            </th>
-                            <th className="px-2 py-2 text-left font-semibold text-green-900">
-                              Description
-                            </th>
-                            <th className="px-2 py-2 text-right font-semibold text-green-900">
-                              Amount
-                            </th>
-                            <th className="px-2 py-2 text-center font-semibold text-green-900">
-                              Status
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {analysis.safeToAdd
-                            .slice()
-                            .sort((a, b) => {
-                              const dateA = a.Date || "";
-                              const dateB = b.Date || "";
-                              return dateA.localeCompare(dateB); // Oldest first
-                            })
-                            .map((txn) => (
-                              <NewTransactionRow
-                                key={txn.id}
-                                transaction={txn}
-                                status="safe"
-                              />
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                <table className="w-full text-xs border-collapse">
+                  <thead className="bg-gray-100">
+                    <tr className="border-b-2 border-gray-300">
+                      <th className="px-2 py-2 text-left font-semibold text-gray-900">
+                        Date
+                      </th>
+                      <th className="px-2 py-2 text-left font-semibold text-gray-900">
+                        Description
+                      </th>
+                      <th className="px-2 py-2 text-right font-semibold text-gray-900">
+                        Amount
+                      </th>
+                      <th className="px-2 py-2 text-center font-semibold text-gray-900">
+                        Status
+                      </th>
+                      <th className="px-2 py-2 text-center font-semibold text-gray-900">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      // Combine all new transactions
+                      const allNewTransactions: Array<{
+                        transaction: Transaction;
+                        type: "safe" | "conflict" | "skipped";
+                        conflict?: ConflictMatch;
+                      }> = [
+                        ...analysis.safeToAdd.map((txn) => ({
+                          transaction: txn,
+                          type: "safe" as const,
+                        })),
+                        ...analysis.conflicts.map((c) => ({
+                          transaction: c.newTransaction,
+                          type: "conflict" as const,
+                          conflict: c,
+                        })),
+                        ...analysis.autoSkipped.map((txn) => ({
+                          transaction: txn,
+                          type: "skipped" as const,
+                        })),
+                      ];
 
-                {/* Conflicts Table */}
-                {(filter === "all" || filter === "conflicts") &&
-                  filteredConflicts.length > 0 && (
-                    <div className="mb-3">
-                      <div className="bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800 flex items-center gap-1 sticky top-0">
-                        <AlertCircleIcon className="h-3 w-3" />
-                        Conflicts - Review Required ({filteredConflicts.length})
-                      </div>
-                      <table className="w-full text-xs border-collapse">
-                        <thead className="bg-yellow-50">
-                          <tr className="border-b-2 border-yellow-300">
-                            <th className="px-2 py-2 text-left font-semibold text-yellow-900">
-                              Date
-                            </th>
-                            <th className="px-2 py-2 text-left font-semibold text-yellow-900">
-                              Description
-                            </th>
-                            <th className="px-2 py-2 text-right font-semibold text-yellow-900">
-                              Amount
-                            </th>
-                            <th className="px-2 py-2 text-center font-semibold text-yellow-900">
-                              Match
-                            </th>
-                            <th className="px-2 py-2 text-center font-semibold text-yellow-900">
-                              Action
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredConflicts.map((conflict) => (
+                      // Sort by date
+                      allNewTransactions.sort((a, b) => {
+                        const dateA = a.transaction.Date || "";
+                        const dateB = b.transaction.Date || "";
+                        return dateA.localeCompare(dateB); // Oldest first
+                      });
+
+                      // Render rows
+                      return allNewTransactions.map((item, index) => {
+                        if (item.type === "conflict" && item.conflict) {
+                          return (
                             <ConflictTransactionRow
-                              key={conflict.newTransaction.id}
-                              conflict={conflict}
-                              decision={decisions.get(
-                                conflict.newTransaction.id,
-                              )}
+                              key={item.transaction.id}
+                              conflict={item.conflict}
+                              decision={decisions.get(item.transaction.id)}
                               onDecide={(action) =>
-                                handleDecision(conflict, action)
+                                handleDecision(item.conflict!, action)
                               }
                             />
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                {/* Auto-Skipped Table */}
-                {(filter === "all" || filter === "skipped") &&
-                  analysis.autoSkipped.length > 0 && (
-                    <div className="mb-3">
-                      <div className="bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 flex items-center gap-1 sticky top-0">
-                        <XCircleIcon className="h-3 w-3" />
-                        Auto-Skipped ({analysis.autoSkipped.length})
-                      </div>
-                      <table className="w-full text-xs border-collapse">
-                        <thead className="bg-gray-100">
-                          <tr className="border-b-2 border-gray-400">
-                            <th className="px-2 py-2 text-left font-semibold text-gray-800">
-                              Date
-                            </th>
-                            <th className="px-2 py-2 text-left font-semibold text-gray-800">
-                              Description
-                            </th>
-                            <th className="px-2 py-2 text-right font-semibold text-gray-800">
-                              Amount
-                            </th>
-                            <th className="px-2 py-2 text-center font-semibold text-gray-800">
-                              Status
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {analysis.autoSkipped
-                            .slice()
-                            .sort((a, b) => {
-                              const dateA = a.Date || "";
-                              const dateB = b.Date || "";
-                              return dateA.localeCompare(dateB); // Oldest first
-                            })
-                            .map((txn) => (
-                              <NewTransactionRow
-                                key={txn.id}
-                                transaction={txn}
-                                status="skipped"
-                              />
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                          );
+                        } else {
+                          return (
+                            <NewTransactionRow
+                              key={item.transaction.id}
+                              transaction={item.transaction}
+                              status={item.type === "safe" ? "safe" : "skipped"}
+                            />
+                          );
+                        }
+                      });
+                    })()}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -663,6 +604,11 @@ function NewTransactionRow({ transaction, status }: NewTransactionRowProps) {
         ) : (
           <XCircleIcon className="h-4 w-4 text-gray-500 inline" />
         )}
+      </td>
+      <td className="px-2 py-2 text-center whitespace-nowrap">
+        <span className="text-xs text-gray-500">
+          {status === "safe" ? "Auto-add" : "Auto-skip"}
+        </span>
       </td>
     </tr>
   );

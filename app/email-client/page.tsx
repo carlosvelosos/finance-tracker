@@ -45,6 +45,8 @@ import {
   Paperclip,
   ExternalLink,
   Database,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { hasAttachments, countAttachments } from "@/lib/utils/emailParser";
 import {
@@ -174,6 +176,7 @@ const EmailClient = () => {
   const [cacheAge, setCacheAge] = useState<Date | null>(null);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [storageInfo, setStorageInfo] = useState<{
     size: number;
     quota: number;
@@ -283,6 +286,46 @@ const EmailClient = () => {
     EmailData[]
   >([]);
   const [offlineMode, setOfflineMode] = useState(false);
+
+  // Theme toggle function
+  const toggleTheme = useCallback(() => {
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === "light" ? "dark" : "light";
+      localStorage.setItem("email-client-theme", newTheme);
+
+      // Apply theme to document
+      if (newTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+
+      // Dispatch custom event for same-tab theme updates
+      window.dispatchEvent(new Event("themechange"));
+
+      return newTheme;
+    });
+  }, []);
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("email-client-theme") as
+      | "light"
+      | "dark"
+      | null;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+
+    setTheme(initialTheme);
+
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
 
   // Initialize offline mode from URL parameter
   useEffect(() => {
@@ -3311,13 +3354,28 @@ const EmailClient = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-8xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Gmail Client</h1>
-        <p className="text-muted-foreground">
-          {offlineMode
-            ? "Offline mode - Upload and analyze your exported Gmail data"
-            : "Connect to your Gmail account to view your emails"}
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Gmail Client</h1>
+          <p className="text-muted-foreground">
+            {offlineMode
+              ? "Offline mode - Upload and analyze your exported Gmail data"
+              : "Connect to your Gmail account to view your emails"}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleTheme}
+          className="ml-4"
+          title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+        >
+          {theme === "light" ? (
+            <Moon className="h-5 w-5" />
+          ) : (
+            <Sun className="h-5 w-5" />
+          )}
+        </Button>
       </div>{" "}
       {error && (
         <div className="mb-6 p-4 border border-red-200 bg-red-50 rounded-lg text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
@@ -5097,7 +5155,7 @@ const EmailClient = () => {
         </Card>
       )}
       {(isSignedIn || offlineMode) && emails.length > 0 && (
-        <Card className="mb-6">
+        <Card variant="flat-shadow-bottom" className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5" />
@@ -6332,7 +6390,7 @@ const EmailClient = () => {
         )}
       {(isSignedIn || offlineMode) &&
         !(dataSource === "upload" && !showAllUploadSenders) && (
-          <Card>
+          <Card variant="flat-shadow-bottom" className="mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -6727,7 +6785,7 @@ const EmailClient = () => {
       {(isSignedIn || offlineMode) &&
         !(dataSource === "upload" && !showAllUploadSenders) &&
         emails.length > 0 && (
-          <Card className="mt-6">
+          <Card variant="flat-shadow-bottom" className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />

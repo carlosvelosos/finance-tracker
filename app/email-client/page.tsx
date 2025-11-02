@@ -6332,7 +6332,7 @@ const EmailClient = () => {
         )}
       {(isSignedIn || offlineMode) &&
         !(dataSource === "upload" && !showAllUploadSenders) && (
-          <Card>
+          <Card variant="flat">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">

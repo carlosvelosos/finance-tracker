@@ -6770,7 +6770,7 @@ const EmailClient = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">All Senders</span>
                         <Badge variant="secondary" className="text-xs">
-                          {emails.length}
+                          {emails.length - ignoredEmails.size}/{emails.length}
                         </Badge>
                       </div>
                     </button>

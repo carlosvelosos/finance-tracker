@@ -300,6 +300,9 @@ const EmailClient = () => {
         document.documentElement.classList.remove("dark");
       }
 
+      // Dispatch custom event for same-tab theme updates
+      window.dispatchEvent(new Event("themechange"));
+
       return newTheme;
     });
   }, []);

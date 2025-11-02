@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { ArrowLeft, Calendar, Mail, Paperclip, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,47 @@ export default function EmailDetailPage() {
   const [emailBody, setEmailBody] = useState<ParsedEmailBody | null>(null);
   const [attachments, setAttachments] = useState<AttachmentInfo[]>([]);
   const hasLoadedRef = useRef(false);
+
+  // Apply theme from localStorage (synced with email client page)
+  const applyTheme = useCallback(() => {
+    const savedTheme = localStorage.getItem("email-client-theme");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    const theme = savedTheme || (prefersDark ? "dark" : "light");
+
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  // Initialize theme on mount and listen for storage changes
+  useEffect(() => {
+    // Apply theme immediately
+    applyTheme();
+
+    // Listen for theme changes from the main email client page
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "email-client-theme") {
+        applyTheme();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Also listen for changes within the same tab (for immediate updates)
+    const handleThemeChange = () => {
+      applyTheme();
+    };
+    window.addEventListener("themechange", handleThemeChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("themechange", handleThemeChange);
+    };
+  }, [applyTheme]);
 
   useEffect(() => {
     // Prevent double-loading in React 18 Strict Mode

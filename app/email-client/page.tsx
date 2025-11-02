@@ -6402,7 +6402,7 @@ const EmailClient = () => {
                             All Emails
                           </span>
                           <Badge variant="secondary" className="text-xs">
-                            {emails.length}
+                            {emails.length - ignoredEmails.size}/{emails.length}
                           </Badge>
                         </div>
                       </button>

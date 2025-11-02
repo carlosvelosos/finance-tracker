@@ -2,7 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ArrowLeft, Calendar, Mail, Paperclip, User } from "lucide-react";
+import { Calendar, Mail, Paperclip, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -523,21 +523,8 @@ export default function EmailDetailPage() {
           <CardHeader>
             <CardTitle className="text-destructive">Error</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <p>{error || "Email not found"}</p>
-            <Button
-              onClick={() =>
-                router.push(
-                  isOfflineMode
-                    ? "/email-client?offline=true"
-                    : "/email-client",
-                )
-              }
-              variant="outline"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Email Client
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -551,22 +538,6 @@ export default function EmailDetailPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
-      {/* Back Navigation */}
-      <div className="mb-6">
-        <Button
-          onClick={() =>
-            router.push(
-              isOfflineMode ? "/email-client?offline=true" : "/email-client",
-            )
-          }
-          variant="outline"
-          size="sm"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Email Client
-        </Button>
-      </div>
-
       {/* Email Header Card */}
       <Card className="mb-6">
         <CardHeader>

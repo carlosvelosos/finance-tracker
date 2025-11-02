@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-[#121212] text-white">
+      <body>
         <AuthProvider>
           <NavbarWrapper />{" "}
           {/* Wrapper that conditionally renders the navbar */}

@@ -40,6 +40,17 @@ export default function NavbarWrapper() {
   // Don't show navbar during password reset
   if (pathname?.includes("/auth/reset-password")) return null;
 
+  // Don't show navbar on email detail pages for clean UI
+  // Match /email-client/{emailId} pattern (with or without trailing slash)
+  // But allow /email-client (main page) and any query params like /email-client?offline=true
+  const isEmailDetailPage =
+    pathname?.startsWith("/email-client/") &&
+    pathname !== "/email-client" &&
+    pathname !== "/email-client/";
+  if (isEmailDetailPage) {
+    return null;
+  }
+
   // Only render the navbar if the user is authenticated
   if (!user) return null;
 

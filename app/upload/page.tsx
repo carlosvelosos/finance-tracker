@@ -102,6 +102,12 @@ import {
   processFileData,
   uploadToSupabase,
 } from "@/app/actions/fileActions";
+import {
+  analyzeUploadConflicts,
+  ConflictAnalysis,
+  Transaction,
+} from "@/app/actions/conflictAnalysis";
+import { MergeConflictDialog } from "@/components/MergeConflictDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -139,6 +145,13 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [clearData, setClearData] = useState(false);
   const [showClearDataWarning, setShowClearDataWarning] = useState(false);
+
+  // NEW: Conflict resolution state
+  const [autoSkipDuplicates, setAutoSkipDuplicates] = useState(false);
+  const [conflictAnalysis, setConflictAnalysis] =
+    useState<ConflictAnalysis | null>(null);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
   // Final upload summary
   const [uploadSummary, setUploadSummary] = useState<{
@@ -202,6 +215,255 @@ export default function UploadPage() {
     }
   };
   const handleUpload = async () => {
+    if (!files.length || !selectedBank) {
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Upload Requirements Missing",
+        details: "Please select a bank and upload at least one valid file.",
+      });
+      return;
+    }
+
+    // Start with first file
+    setCurrentFileIndex(0);
+    await processNextFile(0);
+  };
+
+  // NEW: Process files with conflict resolution
+  const processNextFile = async (fileIndex: number) => {
+    if (fileIndex >= files.length) {
+      // All files processed
+      return;
+    }
+
+    const file = files[fileIndex];
+    setUploading(true);
+
+    try {
+      console.log(
+        `Processing file ${fileIndex + 1}/${files.length}:`,
+        file.name,
+      );
+
+      // Step 1: Process file data
+      const processResult = await processFileData(file, selectedBank!);
+
+      if (!processResult.success) {
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "File Processing Failed",
+          details: processResult.message || "Failed to process file",
+        });
+        setUploading(false);
+        return;
+      }
+
+      const { tableName, transactions } = processResult.data!;
+
+      // Step 2: If clearData is enabled, use old direct upload flow
+      if (clearData) {
+        console.log("Clear data enabled - using direct upload flow");
+        const uploadResult = await uploadToSupabase(
+          tableName,
+          transactions,
+          true,
+        );
+
+        if (uploadResult.success) {
+          setUploadSummary({
+            show: true,
+            success: true,
+            message: "Upload Successful!",
+            details: uploadResult.message,
+          });
+        } else {
+          // Handle table creation if needed
+          if (
+            "error" in uploadResult &&
+            uploadResult.error === "TABLE_NOT_EXISTS"
+          ) {
+            const createResult = await executeTableCreation(tableName);
+            if (createResult.success) {
+              const retryResult = await uploadToSupabase(
+                tableName,
+                transactions,
+                true,
+              );
+              setUploadSummary({
+                show: true,
+                success: retryResult.success,
+                message: retryResult.success
+                  ? "Upload Successful!"
+                  : "Upload Failed",
+                details: retryResult.message,
+              });
+            } else {
+              setUploadSummary({
+                show: true,
+                success: false,
+                message: "Table Creation Failed",
+                details: createResult.message,
+              });
+            }
+          } else {
+            setUploadSummary({
+              show: true,
+              success: false,
+              message: "Upload Failed",
+              details: uploadResult.message,
+            });
+          }
+        }
+        setUploading(false);
+        return;
+      }
+
+      // Step 3: NEW - Analyze for conflicts
+      console.log("Analyzing conflicts...");
+      const analysis = await analyzeUploadConflicts(
+        tableName,
+        transactions,
+        autoSkipDuplicates,
+      );
+
+      console.log("Conflict analysis complete:", {
+        safe: analysis.safeToAdd.length,
+        conflicts: analysis.conflicts.length,
+        autoSkipped: analysis.autoSkipped.length,
+      });
+
+      // Step 4: Check if there's anything to upload
+      const totalToReview =
+        analysis.safeToAdd.length + analysis.conflicts.length;
+
+      if (totalToReview === 0 && analysis.autoSkipped.length > 0) {
+        // All transactions were auto-skipped
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "No New Transactions",
+          details: `All ${analysis.autoSkipped.length} transactions already exist in the database.`,
+        });
+        setUploading(false);
+        return;
+      }
+
+      if (totalToReview === 0 && analysis.autoSkipped.length === 0) {
+        // No transactions at all
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "No Transactions Found",
+          details: "The file appears to be empty or has no valid transactions.",
+        });
+        setUploading(false);
+        return;
+      }
+
+      // Step 5: Show merge dialog if there are conflicts or safe transactions
+      setConflictAnalysis(analysis);
+      setShowMergeDialog(true);
+      setUploading(false);
+    } catch (error) {
+      console.error("Error processing file:", error);
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Processing Error",
+        details:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+      setUploading(false);
+    }
+  };
+
+  // NEW: Handle conflict resolution
+  const handleResolveConflicts = async (transactionsToAdd: Transaction[]) => {
+    if (!conflictAnalysis) return;
+
+    setShowMergeDialog(false);
+    setUploading(true);
+
+    try {
+      console.log("Uploading resolved transactions:", transactionsToAdd.length);
+
+      // Upload approved transactions
+      const result = await uploadToSupabase(
+        conflictAnalysis.tableName,
+        transactionsToAdd,
+        false, // Never clear data in merge mode
+      );
+
+      if (result.success) {
+        setUploadSummary({
+          show: true,
+          success: true,
+          message: "Upload Successful!",
+          details: result.message,
+        });
+      } else {
+        // Handle table creation if needed
+        if ("error" in result && result.error === "TABLE_NOT_EXISTS") {
+          const createResult = await executeTableCreation(
+            conflictAnalysis.tableName,
+          );
+          if (createResult.success) {
+            const retryResult = await uploadToSupabase(
+              conflictAnalysis.tableName,
+              transactionsToAdd,
+              false,
+            );
+            setUploadSummary({
+              show: true,
+              success: retryResult.success,
+              message: retryResult.success
+                ? "Upload Successful!"
+                : "Upload Failed",
+              details: retryResult.message,
+            });
+          } else {
+            setUploadSummary({
+              show: true,
+              success: false,
+              message: "Table Creation Failed",
+              details: createResult.message,
+            });
+          }
+        } else {
+          setUploadSummary({
+            show: true,
+            success: false,
+            message: "Upload Failed",
+            details: result.message,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error uploading transactions:", error);
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Upload Error",
+        details:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUploading(false);
+      setConflictAnalysis(null);
+    }
+  };
+
+  // NEW: Handle cancel from merge dialog
+  const handleCancelMerge = () => {
+    setShowMergeDialog(false);
+    setConflictAnalysis(null);
+    setUploading(false);
+  };
+
+  // OLD UPLOAD FUNCTION REPLACED - Now using conflict resolution flow above
+  const handleUploadOld = async () => {
     if (!files.length || !selectedBank) {
       setUploadSummary({
         show: true,
@@ -735,6 +997,33 @@ export default function UploadPage() {
                     : "🚨 ALL existing data will be deleted before upload!"
                   : "⚠️ Check this option when uploading updated versions of the same bank statements to avoid duplicates"}
               </div>
+
+              {/* NEW: Auto-skip exact duplicates option */}
+              {!clearData && (
+                <div className="flex flex-col space-y-2 p-3 rounded-md border bg-blue-900/20 border-blue-700">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="autoSkip"
+                      checked={autoSkipDuplicates}
+                      onCheckedChange={(checked) =>
+                        setAutoSkipDuplicates(checked as boolean)
+                      }
+                      className="border-gray-600"
+                    />
+                    <label
+                      htmlFor="autoSkip"
+                      className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Auto-skip exact duplicates (100% match)
+                    </label>
+                  </div>
+                  <div className="ml-6 text-xs text-gray-400">
+                    Automatically skip transactions that already exist in the
+                    database. You'll still review conflicts for partial matches.
+                  </div>
+                </div>
+              )}
+
               {/* Upload Progress Display */}
               {uploadProgress.totalFiles > 0 && (
                 <div className="space-y-3 p-4 bg-blue-900/20 border border-blue-700 rounded-md">
@@ -917,6 +1206,16 @@ export default function UploadPage() {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* NEW: Merge Conflict Resolution Dialog */}
+          {conflictAnalysis && (
+            <MergeConflictDialog
+              analysis={conflictAnalysis}
+              onResolve={handleResolveConflicts}
+              onCancel={handleCancelMerge}
+              open={showMergeDialog}
+            />
+          )}
         </div>
       </div>
     </ProtectedRoute>

@@ -1458,6 +1458,23 @@ const EmailClient = () => {
     [dataSource],
   );
 
+  // Function to open Gmail advanced search for a domain
+  const openGmailSearch = useCallback((domain: string) => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const dateStr = `${year}/${month}/${day}`;
+
+    const encodedDomain = encodeURIComponent(`@${domain}`);
+    const query = encodeURIComponent(`from:(@${domain})`);
+    const encodedDate = encodeURIComponent(dateStr);
+
+    const gmailUrl = `https://mail.google.com/mail/u/0/#advanced-search/from=${encodedDomain}&subset=all&within=1y&date=${encodedDate}&query=${query}`;
+
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+  }, []);
+
   // Function to fetch and export emails for a specific date range with weekly batching
   const exportEmailsForDateRange = async () => {
     if (!exportMonth || !exportYear) {
@@ -6863,16 +6880,34 @@ const EmailClient = () => {
                           ? `Showing ${filteredEmailsBySender.length} emails from ${selectedSenderFilter}`
                           : `Showing ${filteredEmailsBySender.length} emails from @${selectedSenderFilter}`}
                     </p>
-                    {selectedSenderFilter !== "all" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedSenderFilter("all")}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Clear Filter
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {/* Gmail Search Button - Only show when domain is selected */}
+                      {selectedSenderFilter !== "all" &&
+                        !selectedSenderFilter.includes("@") && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              openGmailSearch(selectedSenderFilter)
+                            }
+                            className="gap-2"
+                            title="Open Gmail advanced search for this domain"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            Gmail
+                          </Button>
+                        )}
+                      {selectedSenderFilter !== "all" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedSenderFilter("all")}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Clear Filter
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
                     {filteredEmailsBySender.map((email) => {

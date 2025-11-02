@@ -6386,7 +6386,7 @@ const EmailClient = () => {
               ) : emails.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                   {/* Side Navigation Panel */}
-                  <div className="lg:col-span-1 border-r pr-4">
+                  <div className="lg:col-span-1 border-r pr-4 max-h-[600px] overflow-y-auto">
                     <div className="space-y-2">
                       {/* All Emails Option */}
                       <button
@@ -6629,85 +6629,87 @@ const EmailClient = () => {
                         </Button>
                       )}
                     </div>
-                    {filteredEmailsByDate.map((email) => {
-                      const headers = getEmailHeaders(email);
-                      const subject = getHeader(headers, "Subject");
-                      const from = getHeader(headers, "From");
-                      const date = getHeader(headers, "Date");
-                      const isIgnored = ignoredEmails.has(email.id);
+                    <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                      {filteredEmailsByDate.map((email) => {
+                        const headers = getEmailHeaders(email);
+                        const subject = getHeader(headers, "Subject");
+                        const from = getHeader(headers, "From");
+                        const date = getHeader(headers, "Date");
+                        const isIgnored = ignoredEmails.has(email.id);
 
-                      return (
-                        <div
-                          key={email.id}
-                          className={`border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
-                            isIgnored ? "opacity-50" : ""
-                          }`}
-                          onClick={() => toggleEmailExpansion(email.id)}
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium truncate">
-                                {subject || "No Subject"}
-                              </h3>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {from}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2 ml-4">
-                              <Badge variant="secondary" className="text-xs">
-                                <Calendar className="w-3 h-3 mr-1" />
-                                {formatDate(date)}
-                              </Badge>
-                              {emailHasAttachments(email) && (
-                                <Badge variant="outline" className="text-xs">
-                                  <Paperclip className="w-3 h-3 mr-1" />
-                                  {getAttachmentCount(email)}
+                        return (
+                          <div
+                            key={email.id}
+                            className={`border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
+                              isIgnored ? "opacity-50" : ""
+                            }`}
+                            onClick={() => toggleEmailExpansion(email.id)}
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium truncate">
+                                  {subject || "No Subject"}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {from}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <Badge variant="secondary" className="text-xs">
+                                  <Calendar className="w-3 h-3 mr-1" />
+                                  {formatDate(date)}
                                 </Badge>
-                              )}
-                              {hasFullDataStored(email) && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-                                  title="Full email data stored"
+                                {emailHasAttachments(email) && (
+                                  <Badge variant="outline" className="text-xs">
+                                    <Paperclip className="w-3 h-3 mr-1" />
+                                    {getAttachmentCount(email)}
+                                  </Badge>
+                                )}
+                                {hasFullDataStored(email) && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                    title="Full email data stored"
+                                  >
+                                    <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                  </Badge>
+                                )}
+                                <Button
+                                  size="sm"
+                                  variant={isIgnored ? "default" : "ghost"}
+                                  className="h-6 px-2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleEmailIgnored(email.id);
+                                  }}
                                 >
-                                  <Database className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                </Badge>
-                              )}
-                              <Button
-                                size="sm"
-                                variant={isIgnored ? "default" : "ghost"}
-                                className="h-6 px-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleEmailIgnored(email.id);
-                                }}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </div>
+                            {expandedEmails.has(email.id) && (
+                              <div className="mt-3 pt-3 border-t space-y-2">
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                  {email.snippet}
+                                </p>
+                                <Link
+                                  href={`/email-client/${email.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) =>
+                                    handleViewFullEmailClick(e, email.id)
+                                  }
+                                  className="inline-flex items-center text-xs text-primary hover:underline"
+                                >
+                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  View Full Email
+                                </Link>
+                              </div>
+                            )}
                           </div>
-                          {expandedEmails.has(email.id) && (
-                            <div className="mt-3 pt-3 border-t space-y-2">
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {email.snippet}
-                              </p>
-                              <Link
-                                href={`/email-client/${email.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) =>
-                                  handleViewFullEmailClick(e, email.id)
-                                }
-                                className="inline-flex items-center text-xs text-primary hover:underline"
-                              >
-                                <ExternalLink className="w-3 h-3 mr-1" />
-                                View Full Email
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               ) : (

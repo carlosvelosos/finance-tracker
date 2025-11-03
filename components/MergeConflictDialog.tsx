@@ -63,7 +63,8 @@ export function MergeConflictDialog({
   onCancel,
   open,
 }: MergeConflictDialogProps) {
-  // State for user decisions (conflict ID -> action)
+  // State for user decisions (transaction ID -> action)
+  // Now includes ALL transactions (safe, conflicts, skipped)
   const [decisions, setDecisions] = useState<Map<number, "add" | "skip">>(
     new Map(),
   );
@@ -75,18 +76,59 @@ export function MergeConflictDialog({
 
   // Initialize decisions with defaults when analysis changes
   useEffect(() => {
-    const defaultDecisions = initializeDefaultDecisions(analysis.conflicts);
+    const defaultDecisions = new Map<number, "add" | "skip">();
+
+    // Safe transactions default to "add"
+    analysis.safeToAdd.forEach((txn) => {
+      defaultDecisions.set(txn.id, "add");
+    });
+
+    // Conflicts use conflict analysis default
+    analysis.conflicts.forEach((conflict) => {
+      const defaultAction = conflict.matchLevel === 1 ? "skip" : "add";
+      defaultDecisions.set(conflict.newTransaction.id, defaultAction);
+    });
+
+    // Auto-skipped transactions default to "skip"
+    analysis.autoSkipped.forEach((txn) => {
+      defaultDecisions.set(txn.id, "skip");
+    });
+
     setDecisions(defaultDecisions);
   }, [analysis]);
 
-  // Calculate counts
+  // Calculate counts and total amount
   const counts = useMemo(() => {
-    const toAdd =
-      analysis.safeToAdd.length +
-      Array.from(decisions.values()).filter((d) => d === "add").length;
-    const toSkip =
-      analysis.autoSkipped.length +
-      Array.from(decisions.values()).filter((d) => d === "skip").length;
+    const toAdd = Array.from(decisions.values()).filter(
+      (d) => d === "add",
+    ).length;
+    const toSkip = Array.from(decisions.values()).filter(
+      (d) => d === "skip",
+    ).length;
+
+    // Calculate total amount for transactions to be added
+    let totalAmount = 0;
+
+    // Sum amounts from safe transactions
+    analysis.safeToAdd.forEach((txn) => {
+      if (decisions.get(txn.id) === "add") {
+        totalAmount += txn.Amount || 0;
+      }
+    });
+
+    // Sum amounts from conflicts
+    analysis.conflicts.forEach((conflict) => {
+      if (decisions.get(conflict.newTransaction.id) === "add") {
+        totalAmount += conflict.newTransaction.Amount || 0;
+      }
+    });
+
+    // Sum amounts from auto-skipped (if user overrode)
+    analysis.autoSkipped.forEach((txn) => {
+      if (decisions.get(txn.id) === "add") {
+        totalAmount += txn.Amount || 0;
+      }
+    });
 
     return {
       safe: analysis.safeToAdd.length,
@@ -95,13 +137,14 @@ export function MergeConflictDialog({
       existing: analysis.existingTransactions.length,
       toAdd,
       toSkip,
+      totalAmount,
     };
   }, [analysis, decisions]);
 
-  // Handle decision change
-  const handleDecision = (conflict: ConflictMatch, action: "add" | "skip") => {
+  // Handle decision change for any transaction
+  const handleDecision = (transactionId: number, action: "add" | "skip") => {
     const newDecisions = new Map(decisions);
-    newDecisions.set(conflict.newTransaction.id, action);
+    newDecisions.set(transactionId, action);
     setDecisions(newDecisions);
   };
 
@@ -168,7 +211,30 @@ export function MergeConflictDialog({
 
   // Handle commit
   const handleCommit = () => {
-    const transactionsToAdd = applyUserDecisions(analysis, decisions);
+    // Collect all transactions based on user decisions
+    const transactionsToAdd: Transaction[] = [];
+
+    // Process safe transactions
+    analysis.safeToAdd.forEach((txn) => {
+      if (decisions.get(txn.id) === "add") {
+        transactionsToAdd.push(txn);
+      }
+    });
+
+    // Process conflicts
+    analysis.conflicts.forEach((conflict) => {
+      if (decisions.get(conflict.newTransaction.id) === "add") {
+        transactionsToAdd.push(conflict.newTransaction);
+      }
+    });
+
+    // Process auto-skipped (user can override)
+    analysis.autoSkipped.forEach((txn) => {
+      if (decisions.get(txn.id) === "add") {
+        transactionsToAdd.push(txn);
+      }
+    });
+
     onResolve(transactionsToAdd);
   };
 
@@ -432,7 +498,7 @@ export function MergeConflictDialog({
                               conflict={item.conflict}
                               decision={decisions.get(item.transaction.id)}
                               onDecide={(action) =>
-                                handleDecision(item.conflict!, action)
+                                handleDecision(item.transaction.id, action)
                               }
                             />
                           );
@@ -442,6 +508,10 @@ export function MergeConflictDialog({
                               key={item.transaction.id}
                               transaction={item.transaction}
                               status={item.type === "safe" ? "safe" : "skipped"}
+                              decision={decisions.get(item.transaction.id)}
+                              onDecide={(action) =>
+                                handleDecision(item.transaction.id, action)
+                              }
                             />
                           );
                         }
@@ -456,10 +526,15 @@ export function MergeConflictDialog({
 
         {/* Footer with Summary and Actions */}
         <div className="flex flex-col sm:flex-row gap-3 border-t border-gray-700 pt-4 mt-4">
-          <div className="flex-1 text-sm text-gray-400">
-            Summary: {counts.toAdd} to add, {counts.toSkip} to skip
+          <div className="flex-1">
+            <div className="text-sm text-gray-300">
+              Summary: {counts.toAdd} to add, {counts.toSkip} to skip
+            </div>
+            <div className="text-lg font-bold text-green-400 mt-1">
+              Total Amount: {formatCurrency(counts.totalAmount)}
+            </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Button variant="outline" onClick={handleCancel}>
               Cancel Upload
             </Button>
@@ -582,13 +657,20 @@ function ExistingTransactionRow({
 interface NewTransactionRowProps {
   transaction: Transaction;
   status: "safe" | "skipped";
+  decision: "add" | "skip" | undefined;
+  onDecide: (action: "add" | "skip") => void;
 }
 
-function NewTransactionRow({ transaction, status }: NewTransactionRowProps) {
+function NewTransactionRow({
+  transaction,
+  status,
+  decision,
+  onDecide,
+}: NewTransactionRowProps) {
   return (
     <tr
       className={`border-b ${
-        status === "safe"
+        decision === "add"
           ? "bg-green-50 hover:bg-green-100"
           : "bg-gray-100 hover:bg-gray-200"
       }`}
@@ -607,16 +689,31 @@ function NewTransactionRow({ transaction, status }: NewTransactionRowProps) {
         {formatCurrency(transaction.Amount)}
       </td>
       <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
-        {status === "safe" ? (
+        {decision === "add" ? (
           <CheckCircleIcon className="h-4 w-4 text-green-600 inline" />
         ) : (
           <XCircleIcon className="h-4 w-4 text-gray-500 inline" />
         )}
       </td>
-      <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
-        <span className="text-xs text-gray-500">
-          {status === "safe" ? "Auto-add" : "Auto-skip"}
-        </span>
+      <td className="px-2 py-1 text-center whitespace-nowrap align-middle overflow-hidden">
+        <div className="flex gap-1 justify-center items-center">
+          <Button
+            size="sm"
+            variant={decision === "add" ? "default" : "outline"}
+            onClick={() => onDecide("add")}
+            className="h-5 px-1.5 text-[10px] py-0 min-h-0 leading-none"
+          >
+            Add
+          </Button>
+          <Button
+            size="sm"
+            variant={decision === "skip" ? "default" : "outline"}
+            onClick={() => onDecide("skip")}
+            className="h-5 px-1.5 text-[10px] py-0 min-h-0 leading-none"
+          >
+            Skip
+          </Button>
+        </div>
       </td>
     </tr>
   );

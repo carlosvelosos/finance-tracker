@@ -1,0 +1,108 @@
+-- =====================================================
+-- MULTI-TABLE CATEGORY LEARNING - DATABASE FUNCTION
+-- =====================================================
+-- 
+-- ⚠️ NOTE: THIS FILE IS FOR REFERENCE ONLY
+-- =====================================================
+-- 
+-- The multi-table category matching feature now uses the EXISTING
+-- RPC function 'get_user_accessible_tables()' that is already used
+-- by the global_2 aggregated transactions page.
+--
+-- NO NEW FUNCTION INSTALLATION REQUIRED!
+--
+-- If you can access the /global_2 page in your app, the function
+-- is already installed and working.
+--
+-- =====================================================
+-- EXISTING FUNCTION (Already in your database):
+-- =====================================================
+
+-- This function should already exist:
+-- CREATE OR REPLACE FUNCTION get_user_accessible_tables()
+-- RETURNS TABLE(table_name text, row_count bigint) AS $$
+-- BEGIN
+--   RETURN QUERY
+--   SELECT 
+--     t.table_name::text,
+--     (SELECT count(*) FROM information_schema.tables ist WHERE ist.table_name = t.table_name)::bigint as row_count
+--   FROM information_schema.tables t
+--   WHERE t.table_schema = 'public' 
+--   AND t.table_type = 'BASE TABLE'
+--   AND (t.table_name LIKE '%transaction%' OR t.table_name = 'IN_ALL');
+-- END;
+-- $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =====================================================
+-- HOW IT WORKS:
+-- =====================================================
+-- 1. Category analysis calls get_user_accessible_tables()
+-- 2. Function returns ALL transaction tables in database
+-- 3. Category analysis filters by table prefix (e.g., 'SEB_')
+-- 4. Fetches categorized data from all matching tables
+-- 5. Uses combined historical data for better suggestions
+--
+-- Example:
+-- - You have: SEB_202501, SEB_202502, SEB_202503
+-- - Uploading to: SEB_202504
+-- - System finds: All SEB_* tables
+-- - Uses: All 4 months of data for category suggestions
+
+-- =====================================================
+-- TESTING THE FUNCTION:
+-- =====================================================
+-- You can test the function with these queries:
+--
+-- Example 1: Find all SEB tables
+-- SELECT * FROM get_tables_by_prefix('SEB_');
+--
+-- Example 2: Find all Inter Mastercard tables
+-- SELECT * FROM get_tables_by_prefix('INMC_');
+--
+-- Example 3: Find all Inter Account tables
+-- SELECT * FROM get_tables_by_prefix('IN_');
+--
+-- Example 4: Find all Handelsbanken tables
+-- SELECT * FROM get_tables_by_prefix('HB_');
+--
+-- Example 5: Find all American Express tables
+-- SELECT * FROM get_tables_by_prefix('AM_');
+--
+-- =====================================================
+-- EXPECTED RESULTS:
+-- =====================================================
+-- If you have tables: SEB_202501, SEB_202502, SEB_202503
+-- 
+-- Query: SELECT * FROM get_tables_by_prefix('SEB_');
+-- 
+-- Result:
+-- ┌──────────────┐
+-- │ table_name   │
+-- ├──────────────┤
+-- │ SEB_202501   │
+-- │ SEB_202502   │
+-- │ SEB_202503   │
+-- └──────────────┘
+--
+-- =====================================================
+-- PERMISSIONS:
+-- =====================================================
+-- The function uses SECURITY DEFINER, which means it runs
+-- with the permissions of the user who created it (owner).
+-- This allows it to query pg_tables even if the calling
+-- user doesn't have direct access to system catalogs.
+--
+-- =====================================================
+-- TROUBLESHOOTING:
+-- =====================================================
+-- If you get permission errors, you may need to grant
+-- execute permissions to authenticated users:
+--
+-- GRANT EXECUTE ON FUNCTION get_tables_by_prefix(TEXT) TO authenticated;
+-- GRANT EXECUTE ON FUNCTION get_tables_by_prefix(TEXT) TO anon;
+--
+-- =====================================================
+
+-- Comment on the function for documentation
+COMMENT ON FUNCTION get_tables_by_prefix(TEXT) IS 
+'Finds all tables in the public schema that match the given prefix pattern. Used for multi-table category analysis in the finance tracker app.';

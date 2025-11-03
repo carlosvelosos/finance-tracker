@@ -96,8 +96,37 @@ export async function analyzeUploadConflicts(
   autoSkipExactDuplicates: boolean = false,
 ): Promise<ConflictAnalysis> {
   console.log("Starting conflict analysis for table:", tableName);
-  console.log("New transactions:", newTransactions.length);
+  console.log("New transactions (before filtering):", newTransactions.length);
   console.log("Auto-skip enabled:", autoSkipExactDuplicates);
+
+  // Filter out invalid transactions (header rows, N/A rows, etc.)
+  const validTransactions = newTransactions.filter((txn) => {
+    // Skip if both Date and Description are N/A, null, or empty
+    const hasValidDate =
+      txn.Date && txn.Date !== "N/A" && txn.Date.trim() !== "";
+    const hasValidDescription =
+      txn.Description &&
+      txn.Description !== "N/A" &&
+      txn.Description.trim() !== "";
+
+    // Must have at least one valid field
+    if (!hasValidDate && !hasValidDescription) {
+      console.log("Filtering out invalid transaction:", txn);
+      return false;
+    }
+
+    return true;
+  });
+
+  console.log(
+    "Valid transactions (after filtering):",
+    validTransactions.length,
+  );
+  console.log(
+    "Filtered out:",
+    newTransactions.length - validTransactions.length,
+    "invalid rows",
+  );
 
   try {
     // Fetch existing data from Supabase
@@ -112,8 +141,8 @@ export async function analyzeUploadConflicts(
         console.log("Table doesn't exist - all transactions are safe to add");
         return {
           tableName,
-          totalNewTransactions: newTransactions.length,
-          safeToAdd: newTransactions,
+          totalNewTransactions: validTransactions.length,
+          safeToAdd: validTransactions,
           conflicts: [],
           autoSkipped: [],
           existingTransactions: [],
@@ -130,8 +159,8 @@ export async function analyzeUploadConflicts(
       console.log("No existing data - all transactions are safe to add");
       return {
         tableName,
-        totalNewTransactions: newTransactions.length,
-        safeToAdd: newTransactions,
+        totalNewTransactions: validTransactions.length,
+        safeToAdd: validTransactions,
         conflicts: [],
         autoSkipped: [],
         existingTransactions: [],
@@ -143,7 +172,7 @@ export async function analyzeUploadConflicts(
     const conflicts: ConflictMatch[] = [];
     const autoSkipped: Transaction[] = [];
 
-    for (const newTxn of newTransactions) {
+    for (const newTxn of validTransactions) {
       const matchResult = findBestMatch(newTxn, existing);
 
       if (matchResult === null) {
@@ -169,7 +198,7 @@ export async function analyzeUploadConflicts(
 
     return {
       tableName,
-      totalNewTransactions: newTransactions.length,
+      totalNewTransactions: validTransactions.length,
       safeToAdd,
       conflicts,
       autoSkipped,

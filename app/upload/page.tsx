@@ -107,7 +107,12 @@ import {
   ConflictAnalysis,
   Transaction,
 } from "@/app/actions/conflictAnalysis";
+import {
+  analyzeCategoryMatches,
+  CategoryAnalysis,
+} from "@/app/actions/categoryAnalysis";
 import { MergeConflictDialog } from "@/components/MergeConflictDialog";
+import { CategoryAssignmentDialog } from "@/components/CategoryAssignmentDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -152,6 +157,20 @@ export default function UploadPage() {
     useState<ConflictAnalysis | null>(null);
   const [showMergeDialog, setShowMergeDialog] = useState(false);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
+
+  // NEW: Category assignment state (Step 2)
+  const [categoryAnalysis, setCategoryAnalysis] =
+    useState<CategoryAnalysis | null>(null);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+
+  // NEW: Category analysis progress
+  const [categoryProgress, setCategoryProgress] = useState<{
+    show: boolean;
+    stage: string;
+    message: string;
+    current: number;
+    total: number;
+  }>({ show: false, stage: "", message: "", current: 0, total: 0 });
 
   // Final upload summary
   const [uploadSummary, setUploadSummary] = useState<{
@@ -386,43 +405,166 @@ export default function UploadPage() {
     setShowMergeDialog(false);
     setUploading(true);
 
+    const tableName = conflictAnalysis.tableName;
+
     try {
       console.log("Uploading resolved transactions:", transactionsToAdd.length);
 
       // Upload approved transactions
       const result = await uploadToSupabase(
-        conflictAnalysis.tableName,
+        tableName,
         transactionsToAdd,
         false, // Never clear data in merge mode
       );
 
       if (result.success) {
-        setUploadSummary({
-          show: true,
-          success: true,
-          message: "Upload Successful!",
-          details: result.message,
-        });
+        // Step 1 complete! Now check if we should trigger Step 2 (category assignment)
+        console.log("Upload successful, analyzing categories...");
+
+        try {
+          // Show progress UI
+          setCategoryProgress({
+            show: true,
+            stage: "discovering",
+            message: "Starting category analysis...",
+            current: 0,
+            total: 1,
+          });
+
+          // Analyze categories for newly uploaded transactions
+          const analysis = await analyzeCategoryMatches(
+            tableName,
+            transactionsToAdd,
+            (progress) => {
+              // Update progress state
+              setCategoryProgress({
+                show: true,
+                stage: progress.stage,
+                message: progress.message,
+                current: progress.current,
+                total: progress.total,
+              });
+            },
+          );
+
+          // Hide progress UI
+          setCategoryProgress({
+            show: false,
+            stage: "",
+            message: "",
+            current: 0,
+            total: 0,
+          });
+
+          if (analysis.matches.length > 0) {
+            // Show category assignment dialog (Step 2)
+            setCategoryAnalysis(analysis);
+            setShowCategoryDialog(true);
+          } else {
+            // No transactions need categorization
+            setUploadSummary({
+              show: true,
+              success: true,
+              message: "Upload Successful!",
+              details: `${result.message} All transactions already categorized.`,
+            });
+          }
+        } catch (categoryError) {
+          console.error("Category analysis failed:", categoryError);
+          // Hide progress UI
+          setCategoryProgress({
+            show: false,
+            stage: "",
+            message: "",
+            current: 0,
+            total: 0,
+          });
+          // Don't fail the upload if category analysis fails
+          setUploadSummary({
+            show: true,
+            success: true,
+            message: "Upload Successful!",
+            details: `${result.message} (Category analysis skipped due to error)`,
+          });
+        }
       } else {
         // Handle table creation if needed
         if ("error" in result && result.error === "TABLE_NOT_EXISTS") {
-          const createResult = await executeTableCreation(
-            conflictAnalysis.tableName,
-          );
+          const createResult = await executeTableCreation(tableName);
           if (createResult.success) {
             const retryResult = await uploadToSupabase(
-              conflictAnalysis.tableName,
+              tableName,
               transactionsToAdd,
               false,
             );
-            setUploadSummary({
-              show: true,
-              success: retryResult.success,
-              message: retryResult.success
-                ? "Upload Successful!"
-                : "Upload Failed",
-              details: retryResult.message,
-            });
+
+            if (retryResult.success) {
+              // Try category analysis after retry
+              try {
+                setCategoryProgress({
+                  show: true,
+                  stage: "discovering",
+                  message: "Starting category analysis...",
+                  current: 0,
+                  total: 1,
+                });
+
+                const analysis = await analyzeCategoryMatches(
+                  tableName,
+                  transactionsToAdd,
+                  (progress) => {
+                    setCategoryProgress({
+                      show: true,
+                      stage: progress.stage,
+                      message: progress.message,
+                      current: progress.current,
+                      total: progress.total,
+                    });
+                  },
+                );
+
+                setCategoryProgress({
+                  show: false,
+                  stage: "",
+                  message: "",
+                  current: 0,
+                  total: 0,
+                });
+
+                if (analysis.matches.length > 0) {
+                  setCategoryAnalysis(analysis);
+                  setShowCategoryDialog(true);
+                } else {
+                  setUploadSummary({
+                    show: true,
+                    success: true,
+                    message: "Upload Successful!",
+                    details: `${retryResult.message} All transactions already categorized.`,
+                  });
+                }
+              } catch {
+                setCategoryProgress({
+                  show: false,
+                  stage: "",
+                  message: "",
+                  current: 0,
+                  total: 0,
+                });
+                setUploadSummary({
+                  show: true,
+                  success: true,
+                  message: "Upload Successful!",
+                  details: retryResult.message,
+                });
+              }
+            } else {
+              setUploadSummary({
+                show: true,
+                success: false,
+                message: "Upload Failed",
+                details: retryResult.message,
+              });
+            }
           } else {
             setUploadSummary({
               show: true,
@@ -460,6 +602,31 @@ export default function UploadPage() {
     setShowMergeDialog(false);
     setConflictAnalysis(null);
     setUploading(false);
+  };
+
+  // NEW: Handle category assignment completion (Step 2)
+  const handleCategoryComplete = () => {
+    setShowCategoryDialog(false);
+    setCategoryAnalysis(null);
+    setUploadSummary({
+      show: true,
+      success: true,
+      message: "Categories Applied Successfully!",
+      details: "All transactions have been categorized and saved.",
+    });
+  };
+
+  // NEW: Handle skip categorization (Step 2)
+  const handleCategorySkip = () => {
+    setShowCategoryDialog(false);
+    setCategoryAnalysis(null);
+    setUploadSummary({
+      show: true,
+      success: true,
+      message: "Upload Complete - Categorization Skipped",
+      details:
+        'Transactions remain as "Unknown" category. You can categorize them later in the app.',
+    });
   };
 
   // OLD UPLOAD FUNCTION REPLACED - Now using conflict resolution flow above
@@ -1214,6 +1381,82 @@ export default function UploadPage() {
               onResolve={handleResolveConflicts}
               onCancel={handleCancelMerge}
               open={showMergeDialog}
+            />
+          )}
+
+          {/* NEW: Category Analysis Progress Dialog */}
+          {categoryProgress.show && (
+            <Dialog open={true} onOpenChange={() => {}}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                    Analyzing Categories
+                  </DialogTitle>
+                  <DialogDescription>
+                    Learning from your historical transaction data across all
+                    banks...
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  {/* Stage indicator */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {categoryProgress.stage === "discovering" &&
+                          "🔍 Discovering Tables"}
+                        {categoryProgress.stage === "fetching" &&
+                          "📥 Fetching Historical Data"}
+                        {categoryProgress.stage === "analyzing" &&
+                          "🤖 Analyzing Transactions"}
+                        {categoryProgress.stage === "complete" && "✅ Complete"}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {categoryProgress.message}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  {categoryProgress.total > 0 && (
+                    <div>
+                      <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        <span>Progress</span>
+                        <span>
+                          {categoryProgress.current} / {categoryProgress.total}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                        <div
+                          className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${(categoryProgress.current / categoryProgress.total) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Info message */}
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-800">
+                    💡 <strong>Tip:</strong> The system is searching through all
+                    your transaction tables to find similar expenses and suggest
+                    categories. This provides the most accurate suggestions
+                    based on your complete transaction history.
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {/* NEW: Category Assignment Dialog (Step 2) */}
+          {categoryAnalysis && (
+            <CategoryAssignmentDialog
+              analysis={categoryAnalysis}
+              onComplete={handleCategoryComplete}
+              onSkip={handleCategorySkip}
+              open={showCategoryDialog}
             />
           )}
         </div>

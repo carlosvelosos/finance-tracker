@@ -18,8 +18,14 @@ interface MonthlyData {
   total: number;
 }
 
-// Generate random data for demonstration
-const generateRandomData = (): MonthlyData[] => {
+// Seeded random number generator for consistent results
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
+
+// Generate realistic data with growth trends and variations
+const generateRandomData = (seed: number = 12345): MonthlyData[] => {
   const months = [
     "Jan",
     "Feb",
@@ -35,18 +41,70 @@ const generateRandomData = (): MonthlyData[] => {
     "Dec",
   ];
 
-  return months.map((month) => {
-    const interAcc = 1000;
-    const interCreditCard = 1000;
-    const interInvest = 1000;
-    const ricoCreditCard = -500;
-    const ricoInvest = 1000;
-    const fgts = 1000;
-    const mae = 1000;
-    const handelsbankenAcc = 1000;
-    const handelsbankenInvest = 1000;
-    const amexCreditCard = 1000;
-    const sjPrioCreditCard = 1000;
+  // Base values and growth rates
+  let interAccBase = 5200;
+  let interInvestBase = 12500;
+  let ricoInvestBase = 8300;
+  let handelsbankenAccBase = 3800;
+  let handelsbankenInvestBase = 15600;
+  let fgtsBase = 22000;
+  let maeBase = 4500;
+  let seedCounter = seed;
+
+  return months.map((month, index) => {
+    // Simulate account growth/variations
+    const interAcc = Math.round(
+      interAccBase + (seededRandom(seedCounter++) - 0.3) * 800,
+    );
+    interAccBase += 150 + seededRandom(seedCounter++) * 100;
+
+    // Credit cards with realistic variations (all negative - debt)
+    const interCreditCard = -Math.round(
+      800 + (seededRandom(seedCounter++) - 0.5) * 600 + Math.sin(index) * 200,
+    );
+    const ricoCreditCard = -Math.round(
+      1200 + (seededRandom(seedCounter++) - 0.4) * 800 + Math.cos(index) * 300,
+    );
+    const amexCreditCard = -Math.round(
+      1500 +
+        (seededRandom(seedCounter++) - 0.5) * 900 +
+        Math.sin(index * 0.7) * 400,
+    );
+    const sjPrioCreditCard = -Math.round(
+      600 +
+        (seededRandom(seedCounter++) - 0.5) * 400 +
+        Math.cos(index * 0.8) * 200,
+    );
+
+    // Investments with growth trends
+    const interInvest = Math.round(
+      interInvestBase + (seededRandom(seedCounter++) - 0.3) * 600,
+    );
+    interInvestBase += 180 + seededRandom(seedCounter++) * 150;
+
+    const ricoInvest = Math.round(
+      ricoInvestBase + (seededRandom(seedCounter++) - 0.3) * 500,
+    );
+    ricoInvestBase += 120 + seededRandom(seedCounter++) * 120;
+
+    const handelsbankenAcc = Math.round(
+      handelsbankenAccBase + (seededRandom(seedCounter++) - 0.4) * 400,
+    );
+    handelsbankenAccBase += 80 + seededRandom(seedCounter++) * 80;
+
+    const handelsbankenInvest = Math.round(
+      handelsbankenInvestBase + (seededRandom(seedCounter++) - 0.25) * 800,
+    );
+    handelsbankenInvestBase += 220 + seededRandom(seedCounter++) * 180;
+
+    // FGTS grows steadily (government fund)
+    const fgts = Math.round(
+      fgtsBase + index * 85 + seededRandom(seedCounter++) * 50,
+    );
+
+    // Mae account with small variations
+    const mae = Math.round(maeBase + (seededRandom(seedCounter++) - 0.5) * 300);
+    maeBase += 50 + seededRandom(seedCounter++) * 40;
 
     const total =
       interAcc +

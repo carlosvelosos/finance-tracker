@@ -268,7 +268,11 @@ const FinancialDashboard = () => {
 
   // Calculate aligned domains to ensure zero lines match vertically
   const leftAxisMin = -3000;
-  const leftAxisMax = maxCumulative * 1.1; // Add 10% padding
+  // Round up to a "nice" number (nearest 1,000) so axis ticks are clean
+  function roundUpToNice(n: number, step = 1000) {
+    return Math.ceil(n / step) * step;
+  }
+  const leftAxisMax = roundUpToNice(maxCumulative * 1.1, 1000); // Add 10% padding and round
 
   const rightAxisMin = -3000;
   const rightAxisMax = maxMonthly * 1.1; // Add 10% padding to positive values  // Calculate portfolio distribution for pie chart
@@ -326,8 +330,16 @@ const FinancialDashboard = () => {
     },
   ];
 
+  // Use a consistent en-US currency formatter for chart ticks and labels
+  const currencyFormatter = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+  });
+
   const formatCurrency = (value: number) => {
-    return `${value >= 0 ? "" : "-"}$${Math.abs(value).toLocaleString()}`;
+    if (!Number.isFinite(value)) return "$0";
+    const abs = Math.abs(Math.round(value));
+    const formatted = currencyFormatter.format(abs);
+    return `${value < 0 ? "-" : ""}$${formatted}`;
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -443,7 +455,11 @@ const FinancialDashboard = () => {
               Cumulative Values
             </h4>
             <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={chartData} margin={{ bottom: 0, top: 10 }}>
+              <ComposedChart
+                data={chartData}
+                // increase top margin so top axis ticks/labels are not clipped
+                margin={{ bottom: 0, top: 36, left: 16, right: 16 }}
+              >
                 <CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-gray-200 dark:stroke-gray-700"
@@ -461,6 +477,8 @@ const FinancialDashboard = () => {
                   tick={{ fill: "currentColor", fontSize: 12 }}
                   tickFormatter={formatCurrency}
                   axisLine={{ stroke: "#9ca3af" }}
+                  // add padding so the topmost tick has breathing room and won't be clipped
+                  padding={{ top: 20, bottom: 8 }}
                   domain={[0, leftAxisMax]}
                 />
                 <Tooltip
@@ -556,7 +574,11 @@ const FinancialDashboard = () => {
               Monthly Values
             </h4>
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData} margin={{ top: 0 }}>
+              <BarChart
+                data={chartData}
+                // match the top chart margins so both charts align horizontally
+                margin={{ bottom: 0, top: 36, left: 16, right: 16 }}
+              >
                 <CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-gray-200 dark:stroke-gray-700"
@@ -573,6 +595,8 @@ const FinancialDashboard = () => {
                   tick={{ fill: "currentColor", fontSize: 12 }}
                   tickFormatter={formatCurrency}
                   axisLine={{ stroke: "#9ca3af" }}
+                  // add padding to match the top chart and avoid clipping
+                  padding={{ top: 20, bottom: 8 }}
                   domain={[rightAxisMin, rightAxisMax]}
                 />
                 <Tooltip

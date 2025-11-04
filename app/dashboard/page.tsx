@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { loadFinancialData, MonthlyData } from "../../lib/csvLoader";
 import {
   LineChart,
   Line,
@@ -20,141 +21,6 @@ import {
   ComposedChart,
 } from "recharts";
 
-interface MonthlyData {
-  month: string;
-  interAcc: number;
-  interCreditCard: number;
-  interInvest: number;
-  ricoCreditCard: number;
-  ricoInvest: number;
-  fgts: number;
-  mae: number;
-  handelsbankenAcc: number;
-  handelsbankenInvest: number;
-  amexCreditCard: number;
-  sjPrioCreditCard: number;
-  total: number;
-}
-
-// Seeded random number generator for consistent results
-const seededRandom = (seed: number) => {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-};
-
-// Generate realistic data with growth trends and variations
-const generateRandomData = (seed: number = 12345): MonthlyData[] => {
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // Base values and growth rates
-  let interAccBase = 5200;
-  let interInvestBase = 12500;
-  let ricoInvestBase = 8300;
-  let handelsbankenAccBase = 3800;
-  let handelsbankenInvestBase = 15600;
-  let fgtsBase = 22000;
-  let maeBase = 4500;
-  let seedCounter = seed;
-
-  return months.map((month, index) => {
-    // Simulate account growth/variations
-    const interAcc = Math.round(
-      interAccBase + (seededRandom(seedCounter++) - 0.3) * 800,
-    );
-    interAccBase += 150 + seededRandom(seedCounter++) * 100;
-
-    // Credit cards with realistic variations (all negative - debt)
-    const interCreditCard = -Math.round(
-      800 + (seededRandom(seedCounter++) - 0.5) * 600 + Math.sin(index) * 200,
-    );
-    const ricoCreditCard = -Math.round(
-      1200 + (seededRandom(seedCounter++) - 0.4) * 800 + Math.cos(index) * 300,
-    );
-    const amexCreditCard = -Math.round(
-      1500 +
-        (seededRandom(seedCounter++) - 0.5) * 900 +
-        Math.sin(index * 0.7) * 400,
-    );
-    const sjPrioCreditCard = -Math.round(
-      600 +
-        (seededRandom(seedCounter++) - 0.5) * 400 +
-        Math.cos(index * 0.8) * 200,
-    );
-
-    // Investments with growth trends
-    const interInvest = Math.round(
-      interInvestBase + (seededRandom(seedCounter++) - 0.3) * 600,
-    );
-    interInvestBase += 180 + seededRandom(seedCounter++) * 150;
-
-    const ricoInvest = Math.round(
-      ricoInvestBase + (seededRandom(seedCounter++) - 0.3) * 500,
-    );
-    ricoInvestBase += 120 + seededRandom(seedCounter++) * 120;
-
-    const handelsbankenAcc = Math.round(
-      handelsbankenAccBase + (seededRandom(seedCounter++) - 0.4) * 400,
-    );
-    handelsbankenAccBase += 80 + seededRandom(seedCounter++) * 80;
-
-    const handelsbankenInvest = Math.round(
-      handelsbankenInvestBase + (seededRandom(seedCounter++) - 0.25) * 800,
-    );
-    handelsbankenInvestBase += 220 + seededRandom(seedCounter++) * 180;
-
-    // FGTS grows steadily (government fund)
-    const fgts = Math.round(
-      fgtsBase + index * 85 + seededRandom(seedCounter++) * 50,
-    );
-
-    // Mae account with small variations
-    const mae = Math.round(maeBase + (seededRandom(seedCounter++) - 0.5) * 300);
-    maeBase += 50 + seededRandom(seedCounter++) * 40;
-
-    const total =
-      interAcc +
-      interCreditCard +
-      interInvest +
-      ricoCreditCard +
-      ricoInvest +
-      fgts +
-      mae +
-      handelsbankenAcc +
-      handelsbankenInvest +
-      amexCreditCard +
-      sjPrioCreditCard;
-
-    return {
-      month,
-      interAcc,
-      interCreditCard,
-      interInvest,
-      ricoCreditCard,
-      ricoInvest,
-      fgts,
-      mae,
-      handelsbankenAcc,
-      handelsbankenInvest,
-      amexCreditCard,
-      sjPrioCreditCard,
-      total,
-    };
-  });
-};
-
 const COLORS = {
   primary: "#3b82f6",
   secondary: "#8b5cf6",
@@ -171,13 +37,52 @@ const COLORS = {
 };
 
 const FinancialDashboard = () => {
-  const data = generateRandomData();
+  const [data, setData] = useState<MonthlyData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<"3M" | "6M" | "1Y">(
     "1Y",
   );
 
-  // Get latest month data for current values
-  const latestMonth = data[data.length - 1];
+  useEffect(() => {
+    loadFinancialData()
+      .then((csvData) => {
+        setData(csvData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error loading CSV data:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  // Get latest month data for current values (safe fallback if data not loaded yet)
+  const defaultRow = {
+    month: "",
+    interAcc: 0,
+    interCreditCard: 0,
+    interInvest: 0,
+    ricoCreditCard: 0,
+    ricoInvest: 0,
+    fgts: 0,
+    mae: 0,
+    handelsbankenAcc: 0,
+    handelsbankenInvest: 0,
+    amexCreditCard: 0,
+    sjPrioCreditCard: 0,
+    total: 0,
+  } as MonthlyData;
+
+  const latestMonth = data && data.length ? data[data.length - 1] : defaultRow;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-gray-900 dark:text-white">
+          Loading financial data...
+        </div>
+      </div>
+    );
+  }
 
   // Calculate data for the chart with cumulative values
   const chartData = data.map((item, index) => {
@@ -236,35 +141,27 @@ const FinancialDashboard = () => {
   });
 
   // Calculate max cumulative value for left axis
-  const maxCumulative = Math.max(
-    ...chartData.map(
-      (d) => d.cumulativeAccountsTotal + d.cumulativeTotalInvestments,
-    ),
-  );
+  const maxCumulative = chartData.length
+    ? Math.max(
+        ...chartData.map(
+          (d) => d.cumulativeAccountsTotal + d.cumulativeTotalInvestments,
+        ),
+      )
+    : 0;
 
   // Calculate min and max for right axis (bars)
-  const minMonthly = Math.min(
-    ...chartData.flatMap((d) => [
-      d.interInvest,
-      d.ricoInvest,
-      d.handelsbankenInvest,
-      d.interCreditCard,
-      d.ricoCreditCard,
-      d.amexCreditCard,
-      d.sjPrioCreditCard,
-    ]),
-  );
-  const maxMonthly = Math.max(
-    ...chartData.flatMap((d) => [
-      d.interInvest,
-      d.ricoInvest,
-      d.handelsbankenInvest,
-      d.interCreditCard,
-      d.ricoCreditCard,
-      d.amexCreditCard,
-      d.sjPrioCreditCard,
-    ]),
-  );
+  const monthlyValues = chartData.flatMap((d) => [
+    d.interInvest,
+    d.ricoInvest,
+    d.handelsbankenInvest,
+    d.interCreditCard,
+    d.ricoCreditCard,
+    d.amexCreditCard,
+    d.sjPrioCreditCard,
+  ]);
+
+  const minMonthly = monthlyValues.length ? Math.min(...monthlyValues) : 0;
+  const maxMonthly = monthlyValues.length ? Math.max(...monthlyValues) : 0;
 
   // Calculate aligned domains to ensure zero lines match vertically
   const leftAxisMin = -3000;

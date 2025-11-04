@@ -1,144 +1,23 @@
 "use client";
 
-import React from "react";
-
-interface MonthlyData {
-  month: string;
-  interAcc: number;
-  interCreditCard: number;
-  interInvest: number;
-  ricoCreditCard: number;
-  ricoInvest: number;
-  fgts: number;
-  mae: number;
-  handelsbankenAcc: number;
-  handelsbankenInvest: number;
-  amexCreditCard: number;
-  sjPrioCreditCard: number;
-  total: number;
-}
-
-// Seeded random number generator for consistent results
-const seededRandom = (seed: number) => {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-};
-
-// Generate realistic data with growth trends and variations
-const generateRandomData = (seed: number = 12345): MonthlyData[] => {
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // Base values and growth rates
-  let interAccBase = 5200;
-  let interInvestBase = 12500;
-  let ricoInvestBase = 8300;
-  let handelsbankenAccBase = 3800;
-  let handelsbankenInvestBase = 15600;
-  let fgtsBase = 22000;
-  let maeBase = 4500;
-  let seedCounter = seed;
-
-  return months.map((month, index) => {
-    // Simulate account growth/variations
-    const interAcc = Math.round(
-      interAccBase + (seededRandom(seedCounter++) - 0.3) * 800,
-    );
-    interAccBase += 150 + seededRandom(seedCounter++) * 100;
-
-    // Credit cards with realistic variations (all negative - debt)
-    const interCreditCard = -Math.round(
-      800 + (seededRandom(seedCounter++) - 0.5) * 600 + Math.sin(index) * 200,
-    );
-    const ricoCreditCard = -Math.round(
-      1200 + (seededRandom(seedCounter++) - 0.4) * 800 + Math.cos(index) * 300,
-    );
-    const amexCreditCard = -Math.round(
-      1500 +
-        (seededRandom(seedCounter++) - 0.5) * 900 +
-        Math.sin(index * 0.7) * 400,
-    );
-    const sjPrioCreditCard = -Math.round(
-      600 +
-        (seededRandom(seedCounter++) - 0.5) * 400 +
-        Math.cos(index * 0.8) * 200,
-    );
-
-    // Investments with growth trends
-    const interInvest = Math.round(
-      interInvestBase + (seededRandom(seedCounter++) - 0.3) * 600,
-    );
-    interInvestBase += 180 + seededRandom(seedCounter++) * 150;
-
-    const ricoInvest = Math.round(
-      ricoInvestBase + (seededRandom(seedCounter++) - 0.3) * 500,
-    );
-    ricoInvestBase += 120 + seededRandom(seedCounter++) * 120;
-
-    const handelsbankenAcc = Math.round(
-      handelsbankenAccBase + (seededRandom(seedCounter++) - 0.4) * 400,
-    );
-    handelsbankenAccBase += 80 + seededRandom(seedCounter++) * 80;
-
-    const handelsbankenInvest = Math.round(
-      handelsbankenInvestBase + (seededRandom(seedCounter++) - 0.25) * 800,
-    );
-    handelsbankenInvestBase += 220 + seededRandom(seedCounter++) * 180;
-
-    // FGTS grows steadily (government fund)
-    const fgts = Math.round(
-      fgtsBase + index * 85 + seededRandom(seedCounter++) * 50,
-    );
-
-    // Mae account with small variations
-    const mae = Math.round(maeBase + (seededRandom(seedCounter++) - 0.5) * 300);
-    maeBase += 50 + seededRandom(seedCounter++) * 40;
-
-    const total =
-      interAcc +
-      interCreditCard +
-      interInvest +
-      ricoCreditCard +
-      ricoInvest +
-      fgts +
-      mae +
-      handelsbankenAcc +
-      handelsbankenInvest +
-      amexCreditCard +
-      sjPrioCreditCard;
-
-    return {
-      month,
-      interAcc,
-      interCreditCard,
-      interInvest,
-      ricoCreditCard,
-      ricoInvest,
-      fgts,
-      mae,
-      handelsbankenAcc,
-      handelsbankenInvest,
-      amexCreditCard,
-      sjPrioCreditCard,
-      total,
-    };
-  });
-};
+import React, { useState, useEffect } from "react";
+import { loadFinancialData, MonthlyData } from "../../lib/csvLoader";
 
 const MonthlySummaryPage = () => {
-  const data = generateRandomData();
+  const [data, setData] = useState<MonthlyData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadFinancialData()
+      .then((csvData) => {
+        setData(csvData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error loading CSV data:", error);
+        setLoading(false);
+      });
+  }, []);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString("en-US", {
@@ -151,6 +30,16 @@ const MonthlySummaryPage = () => {
     if (value < 0) return "text-red-600";
     return "text-gray-900 dark:text-gray-100";
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-gray-900 dark:text-white">
+          Loading financial data...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
@@ -279,6 +168,83 @@ const MonthlySummaryPage = () => {
                     </td>
                   </tr>
                 ))}
+                {/* Totals Row */}
+                <tr className="bg-gray-100 dark:bg-gray-700 font-semibold border-t-2 border-gray-300 dark:border-gray-600">
+                  <td className="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
+                    TOTAL
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.interAcc, 0),
+                    )}
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
+                  >
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.interCreditCard, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.interInvest, 0),
+                    )}
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.ricoCreditCard, 0))}`}
+                  >
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.ricoCreditCard, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.ricoInvest, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.fgts, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.mae, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.handelsbankenAcc, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                    {formatCurrency(
+                      data.reduce(
+                        (sum, row) => sum + row.handelsbankenInvest,
+                        0,
+                      ),
+                    )}
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.amexCreditCard, 0))}`}
+                  >
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.amexCreditCard, 0),
+                    )}
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0))}`}
+                  >
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0),
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600">
+                    {formatCurrency(
+                      data.reduce((sum, row) => sum + row.total, 0),
+                    )}
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

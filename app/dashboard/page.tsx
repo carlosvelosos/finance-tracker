@@ -216,6 +216,10 @@ const FinancialDashboard = () => {
       cumulativeRicoInvest +
       cumulativeHandelsbankenInvest;
 
+    // Calculate grand total (accounts + investments)
+    const cumulativeGrandTotal =
+      cumulativeAccountsTotal + cumulativeTotalInvestments;
+
     return {
       ...item,
       cumulativeInterAcc,
@@ -227,6 +231,7 @@ const FinancialDashboard = () => {
       cumulativeRicoInvest,
       cumulativeHandelsbankenInvest,
       cumulativeTotalInvestments,
+      cumulativeGrandTotal,
     };
   });
 
@@ -271,30 +276,30 @@ const FinancialDashboard = () => {
     {
       name: "Inter Account",
       value: latestMonth.interAcc,
-      color: COLORS.primary,
+      color: "#1a1a1a",
     },
     {
       name: "Inter Invest",
       value: latestMonth.interInvest,
-      color: COLORS.secondary,
+      color: "#404040",
     },
     {
       name: "Rico Invest",
       value: latestMonth.ricoInvest,
-      color: COLORS.success,
+      color: "#525252",
     },
     {
       name: "Handelsbanken Acc",
       value: latestMonth.handelsbankenAcc,
-      color: COLORS.info,
+      color: "#737373",
     },
     {
       name: "Handelsbanken Invest",
       value: latestMonth.handelsbankenInvest,
-      color: COLORS.purple,
+      color: "#8c8c8c",
     },
-    { name: "FGTS", value: latestMonth.fgts, color: COLORS.teal },
-    { name: "Mae", value: latestMonth.mae, color: COLORS.orange },
+    { name: "FGTS", value: latestMonth.fgts, color: "#a3a3a3" },
+    { name: "Mae", value: latestMonth.mae, color: "#bfbfbf" },
   ];
 
   // Calculate credit card data
@@ -302,7 +307,7 @@ const FinancialDashboard = () => {
     {
       name: "Inter CC",
       value: latestMonth.interCreditCard,
-      color: COLORS.primary,
+      color: COLORS.danger,
     },
     {
       name: "Rico CC",
@@ -312,12 +317,12 @@ const FinancialDashboard = () => {
     {
       name: "Amex CC",
       value: latestMonth.amexCreditCard,
-      color: COLORS.indigo,
+      color: COLORS.danger,
     },
     {
       name: "SJ Prio CC",
       value: latestMonth.sjPrioCreditCard,
-      color: COLORS.emerald,
+      color: COLORS.danger,
     },
   ];
 
@@ -376,8 +381,8 @@ const FinancialDashboard = () => {
                   onClick={() => setSelectedPeriod(period)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     selectedPeriod === period
-                      ? "bg-blue-600 text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                   }`}
                 >
                   {period}
@@ -432,13 +437,13 @@ const FinancialDashboard = () => {
             </h3>
           </div>
 
-          {/* Top Chart: Cumulative Lines */}
+          {/* Top Chart: Cumulative Stacked Areas with Total Line */}
           <div className="mb-1">
             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Cumulative Values
             </h4>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData} margin={{ bottom: 0, top: 10 }}>
+              <ComposedChart data={chartData} margin={{ bottom: 0, top: 10 }}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-gray-200 dark:stroke-gray-700"
@@ -462,65 +467,86 @@ const FinancialDashboard = () => {
                   content={<CustomTooltip />}
                   cursor={{ fill: "rgba(156, 163, 175, 0.1)" }}
                 />
-                <Legend wrapperStyle={{ paddingTop: "10px" }} iconType="line" />
+                <Legend wrapperStyle={{ paddingTop: "10px" }} />
 
-                {/* Line charts for cumulative account values */}
-                <Line
-                  type="monotone"
-                  dataKey="cumulativeAccountsTotal"
-                  stroke="#06b6d4"
-                  strokeWidth={3}
-                  name="Accounts Total"
-                  dot={false}
-                  activeDot={{ r: 6 }}
-                />
-                <Line
+                {/* Stacked area charts for individual accounts */}
+                <Area
                   type="monotone"
                   dataKey="cumulativeInterAcc"
-                  stroke={COLORS.primary}
-                  strokeWidth={2}
+                  stackId="1"
+                  stroke="#404040"
+                  fill="#404040"
+                  fillOpacity={0.6}
                   name="Inter Acc"
-                  dot={false}
-                  activeDot={{ r: 4 }}
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="cumulativeHandelsbankenAcc"
-                  stroke={COLORS.teal}
-                  strokeWidth={2}
-                  name="Handelsbanken"
-                  dot={false}
-                  activeDot={{ r: 4 }}
+                  stackId="1"
+                  stroke="#525252"
+                  fill="#525252"
+                  fillOpacity={0.6}
+                  name="Handelsbanken Acc"
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="cumulativeFgts"
-                  stroke={COLORS.orange}
-                  strokeWidth={2}
+                  stackId="1"
+                  stroke="#737373"
+                  fill="#737373"
+                  fillOpacity={0.6}
                   name="FGTS"
-                  dot={false}
-                  activeDot={{ r: 4 }}
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="cumulativeMae"
-                  stroke={COLORS.purple}
-                  strokeWidth={2}
+                  stackId="1"
+                  stroke="#a3a3a3"
+                  fill="#a3a3a3"
+                  fillOpacity={0.6}
                   name="Mae"
-                  dot={false}
-                  activeDot={{ r: 4 }}
                 />
+
+                {/* Stacked area charts for individual investments */}
+                <Area
+                  type="monotone"
+                  dataKey="cumulativeInterInvest"
+                  stackId="1"
+                  stroke="#8c8c8c"
+                  fill="#8c8c8c"
+                  fillOpacity={0.5}
+                  name="Inter Invest"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="cumulativeRicoInvest"
+                  stackId="1"
+                  stroke="#bfbfbf"
+                  fill="#bfbfbf"
+                  fillOpacity={0.5}
+                  name="Rico Invest"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="cumulativeHandelsbankenInvest"
+                  stackId="1"
+                  stroke="#d4d4d4"
+                  fill="#d4d4d4"
+                  fillOpacity={0.5}
+                  name="Handelsbanken Invest"
+                />
+
+                {/* Line overlay for grand total only */}
                 <Line
                   type="monotone"
-                  dataKey="cumulativeTotalInvestments"
-                  stroke={COLORS.success}
+                  dataKey="cumulativeGrandTotal"
+                  stroke="#000000"
                   strokeWidth={3}
-                  name="Total Investments"
+                  name="Total (Accounts + Investments)"
                   dot={false}
                   activeDot={{ r: 6 }}
-                  strokeDasharray="5 5"
                 />
-              </LineChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
 
@@ -555,27 +581,27 @@ const FinancialDashboard = () => {
                 />
                 <Legend wrapperStyle={{ paddingTop: "10px" }} iconType="rect" />
 
-                {/* Monthly bars for individual investments - green for positive */}
+                {/* Monthly bars for individual investments - dark gray for positive */}
                 <Bar
                   dataKey="interInvest"
-                  fill={COLORS.success}
+                  fill="#404040"
                   name="Inter Invest"
                   radius={[4, 4, 0, 0]}
-                  opacity={0.7}
+                  opacity={0.8}
                 />
                 <Bar
                   dataKey="ricoInvest"
-                  fill={COLORS.success}
+                  fill="#525252"
                   name="Rico Invest"
                   radius={[4, 4, 0, 0]}
-                  opacity={0.7}
+                  opacity={0.8}
                 />
                 <Bar
                   dataKey="handelsbankenInvest"
-                  fill={COLORS.success}
+                  fill="#737373"
                   name="Handelsbanken Invest"
                   radius={[4, 4, 0, 0]}
-                  opacity={0.7}
+                  opacity={0.8}
                 />
 
                 {/* Individual bars for each credit card - red for negative */}
@@ -668,7 +694,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="interInvest"
-                  stroke={COLORS.primary}
+                  stroke="#404040"
                   strokeWidth={2}
                   name="Inter Invest"
                   dot={{ r: 3 }}
@@ -676,7 +702,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="ricoInvest"
-                  stroke={COLORS.success}
+                  stroke="#525252"
                   strokeWidth={2}
                   name="Rico Invest"
                   dot={{ r: 3 }}
@@ -684,7 +710,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="handelsbankenInvest"
-                  stroke={COLORS.purple}
+                  stroke="#737373"
                   strokeWidth={2}
                   name="Handelsbanken Invest"
                   dot={{ r: 3 }}
@@ -753,7 +779,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="interCreditCard"
-                  stroke={COLORS.primary}
+                  stroke="#404040"
                   strokeWidth={2}
                   name="Inter CC"
                   dot={{ r: 3 }}
@@ -761,7 +787,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="ricoCreditCard"
-                  stroke={COLORS.danger}
+                  stroke="#525252"
                   strokeWidth={2}
                   name="Rico CC"
                   dot={{ r: 3 }}
@@ -769,7 +795,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="amexCreditCard"
-                  stroke={COLORS.indigo}
+                  stroke="#737373"
                   strokeWidth={2}
                   name="Amex CC"
                   dot={{ r: 3 }}
@@ -777,7 +803,7 @@ const FinancialDashboard = () => {
                 <Line
                   type="monotone"
                   dataKey="sjPrioCreditCard"
-                  stroke={COLORS.emerald}
+                  stroke="#8c8c8c"
                   strokeWidth={2}
                   name="SJ Prio CC"
                   dot={{ r: 3 }}
@@ -864,10 +890,10 @@ const FinancialDashboard = () => {
                 yAxisId="right"
                 type="monotone"
                 dataKey="cumulative"
-                stroke={COLORS.warning}
+                stroke="#404040"
                 strokeWidth={3}
                 name="Cumulative Debt"
-                dot={{ r: 4, fill: COLORS.warning }}
+                dot={{ r: 4, fill: "#404040" }}
               />
             </BarChart>
           </ResponsiveContainer>

@@ -179,7 +179,7 @@ export async function analyzeCategoryMatches(
       },
     });
 
-    let allCategorizedTransactions: Transaction[] = [];
+    const allCategorizedTransactions: Transaction[] = [];
     let tableIndex = 0;
 
     for (const table of allTables) {

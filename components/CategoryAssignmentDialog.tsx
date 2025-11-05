@@ -17,7 +17,6 @@ import {
   CategoryAnalysis,
   CategoryMatch,
   CategoryDecision,
-  Transaction,
   initializeCategoryDecisions,
   applyCategoryDecisions,
 } from "@/app/actions/categoryAnalysis";
@@ -38,12 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import {
-  CheckCircleIcon,
-  XCircleIcon,
-  AlertCircleIcon,
-  Edit2Icon,
-} from "lucide-react";
+import { CheckCircleIcon, XCircleIcon, AlertCircleIcon } from "lucide-react";
 
 interface CategoryAssignmentDialogProps {
   analysis: CategoryAnalysis;

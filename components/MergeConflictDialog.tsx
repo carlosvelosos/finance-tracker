@@ -18,10 +18,7 @@ import {
   ConflictMatch,
   Transaction,
   initializeDefaultDecisions,
-  applyUserDecisions,
 } from "@/app/actions/conflictAnalysis";
-import { ConflictRow } from "@/components/ConflictRow";
-import { TransactionRow } from "@/components/TransactionRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -167,47 +164,7 @@ export function MergeConflictDialog({
     setDecisions(defaultDecisions);
   };
 
-  // Filter and sort conflicts
-  const filteredConflicts = useMemo(() => {
-    let filtered = [...analysis.conflicts];
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (c) =>
-          c.newTransaction.Description.toLowerCase().includes(query) ||
-          (c.newTransaction.Date && c.newTransaction.Date.includes(query)) ||
-          c.newTransaction.Amount.toString().includes(query),
-      );
-    }
-
-    // Apply filter type
-    if (filter === "conflicts") {
-      // Already showing only conflicts
-    }
-
-    // Apply sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "date":
-          const dateA = a.newTransaction.Date || "";
-          const dateB = b.newTransaction.Date || "";
-          return dateA.localeCompare(dateB); // Oldest first
-        case "amount":
-          return (
-            Math.abs(b.newTransaction.Amount) -
-            Math.abs(a.newTransaction.Amount)
-          );
-        case "matchScore":
-          return b.matchScore - a.matchScore;
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [analysis.conflicts, filter, sortBy, searchQuery]);
+  // ...existing code...
 
   // Handle commit
   const handleCommit = () => {
@@ -490,7 +447,7 @@ export function MergeConflictDialog({
                       });
 
                       // Render rows
-                      return allNewTransactions.map((item, index) => {
+                      return allNewTransactions.map((item) => {
                         if (item.type === "conflict" && item.conflict) {
                           return (
                             <ConflictTransactionRow
@@ -507,7 +464,7 @@ export function MergeConflictDialog({
                             <NewTransactionRow
                               key={item.transaction.id}
                               transaction={item.transaction}
-                              status={item.type === "safe" ? "safe" : "skipped"}
+                              // status prop removed
                               decision={decisions.get(item.transaction.id)}
                               onDecide={(action) =>
                                 handleDecision(item.transaction.id, action)
@@ -656,14 +613,12 @@ function ExistingTransactionRow({
 // New transaction row for safe/skipped items in RIGHT panel
 interface NewTransactionRowProps {
   transaction: Transaction;
-  status: "safe" | "skipped";
   decision: "add" | "skip" | undefined;
   onDecide: (action: "add" | "skip") => void;
 }
 
 function NewTransactionRow({
   transaction,
-  status,
   decision,
   onDecide,
 }: NewTransactionRowProps) {

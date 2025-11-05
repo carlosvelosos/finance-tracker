@@ -100,7 +100,7 @@ const MonthlySummaryPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {data.map((row, index) => (
+                {data.map((row) => (
                   <tr
                     key={row.month}
                     className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"

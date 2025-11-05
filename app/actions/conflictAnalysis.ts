@@ -223,22 +223,22 @@ function findBestMatch(
   existingTxns: Transaction[],
 ): ConflictMatch | null {
   // Try each match level in order of strictness
-  let level1Matches = checkLevel1Match(newTxn, existingTxns);
+  const level1Matches = checkLevel1Match(newTxn, existingTxns);
   if (level1Matches.length > 0) {
     return createConflictMatch(newTxn, level1Matches, 1);
   }
 
-  let level2Matches = checkLevel2Match(newTxn, existingTxns);
+  const level2Matches = checkLevel2Match(newTxn, existingTxns);
   if (level2Matches.length > 0) {
     return createConflictMatch(newTxn, level2Matches, 2);
   }
 
-  let level3Matches = checkLevel3Match(newTxn, existingTxns);
+  const level3Matches = checkLevel3Match(newTxn, existingTxns);
   if (level3Matches.length > 0) {
     return createConflictMatch(newTxn, level3Matches, 3);
   }
 
-  let level4Matches = checkLevel4Match(newTxn, existingTxns);
+  const level4Matches = checkLevel4Match(newTxn, existingTxns);
   if (level4Matches.length > 0) {
     return createConflictMatch(newTxn, level4Matches, 4);
   }

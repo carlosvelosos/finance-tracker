@@ -156,7 +156,7 @@ export default function UploadPage() {
   const [conflictAnalysis, setConflictAnalysis] =
     useState<ConflictAnalysis | null>(null);
   const [showMergeDialog, setShowMergeDialog] = useState(false);
-  const [currentFileIndex, setCurrentFileIndex] = useState(0);
+  // Removed unused currentFileIndex state
 
   // NEW: Category assignment state (Step 2)
   const [categoryAnalysis, setCategoryAnalysis] =
@@ -245,7 +245,6 @@ export default function UploadPage() {
     }
 
     // Start with first file
-    setCurrentFileIndex(0);
     await processNextFile(0);
   };
 
@@ -625,300 +624,11 @@ export default function UploadPage() {
       success: true,
       message: "Upload Complete - Categorization Skipped",
       details:
-        'Transactions remain as "Unknown" category. You can categorize them later in the app.',
+        "Transactions remain as &quot;Unknown&quot; category. You can categorize them later in the app.",
     });
   };
 
-  // OLD UPLOAD FUNCTION REPLACED - Now using conflict resolution flow above
-  const handleUploadOld = async () => {
-    if (!files.length || !selectedBank) {
-      setUploadSummary({
-        show: true,
-        success: false,
-        message: "Upload Requirements Missing",
-        details: "Please select a bank and upload at least one valid file.",
-      });
-      return;
-    }
-
-    setUploading(true);
-
-    // Initialize progress
-    setUploadProgress((prev) => ({
-      ...prev,
-      currentFile: 0,
-      totalFiles: files.length,
-      status: "Starting upload process...",
-      results: files.map((file) => ({
-        fileName: file.name,
-        status: "pending",
-        message: "Waiting to process...",
-      })),
-    }));
-
-    try {
-      // Process files sequentially
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-
-        // Update progress
-        setUploadProgress((prev) => ({
-          ...prev,
-          currentFile: i + 1,
-          currentFileName: file.name,
-          status: `Processing file ${i + 1} of ${files.length}: ${file.name}`,
-          results: prev.results.map((result, idx) =>
-            idx === i
-              ? { ...result, status: "pending", message: "Processing..." }
-              : result,
-          ),
-        }));
-
-        console.log(
-          `Processing file ${i + 1}/${files.length}:`,
-          selectedBank,
-          "with file:",
-          file.name,
-          "clearData:",
-          clearData,
-        );
-
-        try {
-          // Process file data once
-          console.log("Processing file data...");
-          const processResult = await processFileData(file, selectedBank);
-
-          if (!processResult.success) {
-            // File processing failed
-            setUploadProgress((prev) => ({
-              ...prev,
-              results: prev.results.map((res, idx) =>
-                idx === i
-                  ? {
-                      ...res,
-                      status: "error",
-                      message:
-                        processResult.message || "File processing failed",
-                    }
-                  : res,
-              ),
-            }));
-
-            continue;
-          }
-
-          const processedData = processResult.data!;
-          console.log("File processed successfully, attempting upload...");
-
-          // Attempt upload
-          const result = await uploadToSupabase(
-            processedData.tableName,
-            processedData.transactions,
-            clearData,
-          );
-
-          console.log(`Upload result for ${file.name}:`, result);
-
-          if (result.success) {
-            console.log(`Upload successful for ${file.name}:`, result.message);
-
-            // Update progress - success
-            setUploadProgress((prev) => ({
-              ...prev,
-              results: prev.results.map((res, idx) =>
-                idx === i
-                  ? { ...res, status: "success", message: result.message }
-                  : res,
-              ),
-            }));
-
-            // Success is already displayed in the progress, no toast needed
-          } else {
-            // Handle different error types gracefully
-            if ("error" in result && result.error === "TABLE_NOT_EXISTS") {
-              console.log(`Detected TABLE_NOT_EXISTS error for ${file.name}`);
-              // Use the tableName from the result if available, otherwise from processed data
-              const tableName =
-                (result as { tableName?: string }).tableName ||
-                processedData.tableName;
-              console.log(
-                "Attempting automatic table creation for:",
-                tableName,
-              );
-
-              // Try automatic table creation without showing manual instructions
-              const createResult = await executeTableCreation(tableName);
-
-              if (createResult.success) {
-                console.log("Table created automatically, retrying upload...");
-
-                // Retry ONLY the upload part (no file reprocessing!)
-                const retryResult = await uploadToSupabase(
-                  processedData.tableName,
-                  processedData.transactions,
-                  clearData,
-                );
-
-                console.log(
-                  `Retry upload result for ${file.name}:`,
-                  retryResult,
-                );
-
-                if (retryResult.success) {
-                  // Update progress - success after auto-creation (don't increment currentFile, we're still on the same file)
-                  setUploadProgress((prev) => ({
-                    ...prev,
-                    status: `File ${i + 1}/${files.length} uploaded (table auto-created)`,
-                    results: prev.results.map((res, idx) =>
-                      idx === i
-                        ? {
-                            ...res,
-                            status: "success",
-                            message: `Uploaded successfully (table created automatically)`,
-                          }
-                        : res,
-                    ),
-                  }));
-
-                  // Success is already shown in progress, no toast needed
-                } else {
-                  // Update progress - still failed after table creation
-                  setUploadProgress((prev) => ({
-                    ...prev,
-                    results: prev.results.map((res, idx) =>
-                      idx === i
-                        ? {
-                            ...res,
-                            status: "error",
-                            message: `Upload failed after table creation: ${retryResult.message}`,
-                          }
-                        : res,
-                    ),
-                  }));
-
-                  // Error is already shown in progress, no toast needed
-                }
-              } else {
-                // Table creation failed - just show error without manual instructions
-                console.log(
-                  "Automatic table creation failed:",
-                  createResult.message,
-                );
-
-                setUploadProgress((prev) => ({
-                  ...prev,
-                  results: prev.results.map((res, idx) =>
-                    idx === i
-                      ? {
-                          ...res,
-                          status: "error",
-                          message: `Table creation failed: ${createResult.message}`,
-                        }
-                      : res,
-                  ),
-                }));
-
-                // Error is already shown in progress, no toast needed
-              }
-            } else {
-              // Handle other error types
-              console.log(
-                `Showing error for ${file.name}:`,
-                "error" in result ? result.error : "No error field",
-              );
-
-              // Update progress - error
-              setUploadProgress((prev) => ({
-                ...prev,
-                results: prev.results.map((res, idx) =>
-                  idx === i
-                    ? { ...res, status: "error", message: result.message }
-                    : res,
-                ),
-              }));
-
-              // Error is already shown in progress, no toast needed
-            }
-          }
-        } catch (fileError) {
-          console.error(`Error processing file ${file.name}:`, fileError);
-
-          // Update progress - error
-          setUploadProgress((prev) => ({
-            ...prev,
-            results: prev.results.map((res, idx) =>
-              idx === i
-                ? { ...res, status: "error", message: "Processing failed" }
-                : res,
-            ),
-          }));
-
-          // Error is already shown in progress, no toast needed
-        }
-      }
-
-      // Final summary - use setTimeout to ensure all state updates are complete
-      setTimeout(() => {
-        setUploadProgress((currentProgress) => {
-          console.log(
-            "Final upload progress results:",
-            currentProgress.results,
-          );
-          const successCount = currentProgress.results.filter(
-            (r) => r.status === "success",
-          ).length;
-          const errorCount = currentProgress.results.filter(
-            (r) => r.status === "error",
-          ).length;
-          console.log(
-            `Success count: ${successCount}, Error count: ${errorCount}, Total files: ${files.length}`,
-          );
-
-          // Set the final summary based on current results
-          if (successCount === files.length) {
-            setUploadSummary({
-              show: true,
-              success: true,
-              message: "All Files Uploaded Successfully!",
-              details: `${successCount} files processed successfully.`,
-            });
-          } else if (successCount > 0) {
-            setUploadSummary({
-              show: true,
-              success: true,
-              message: "Upload Complete with Mixed Results",
-              details: `${successCount} successful, ${errorCount} failed.`,
-            });
-          } else {
-            setUploadSummary({
-              show: true,
-              success: false,
-              message: "All Uploads Failed",
-              details: "Please check the errors and try again.",
-            });
-          }
-
-          return currentProgress; // Return unchanged state
-        });
-      }, 100); // Small delay to ensure all state updates are complete
-    } catch (error) {
-      // This should rarely happen now since we're returning structured results
-      console.error("Unexpected error in handleUpload:", error);
-      setUploadSummary({
-        show: true,
-        success: false,
-        message: "Upload Failed",
-        details: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      setUploading(false);
-      setUploadProgress((prev) => ({
-        ...prev,
-        status: "Complete",
-        currentFileName: "",
-      }));
-    }
-  };
+  // ...existing code...
 
   const handleClearDataChange = (checked: boolean) => {
     if (checked) {
@@ -1186,7 +896,8 @@ export default function UploadPage() {
                   </div>
                   <div className="ml-6 text-xs text-gray-400">
                     Automatically skip transactions that already exist in the
-                    database. You'll still review conflicts for partial matches.
+                    database. You&apos;ll still review conflicts for partial
+                    matches.
                   </div>
                 </div>
               )}

@@ -5,7 +5,6 @@ import { loadFinancialData, MonthlyData } from "../../lib/csvLoader";
 import {
   LineChart,
   Line,
-  AreaChart,
   Area,
   BarChart,
   Bar,
@@ -160,11 +159,11 @@ const FinancialDashboard = () => {
     d.sjPrioCreditCard,
   ]);
 
-  const minMonthly = monthlyValues.length ? Math.min(...monthlyValues) : 0;
+  // Removed unused minMonthly
   const maxMonthly = monthlyValues.length ? Math.max(...monthlyValues) : 0;
 
   // Calculate aligned domains to ensure zero lines match vertically
-  const leftAxisMin = -3000;
+  // Removed unused leftAxisMin
   // Round up to a "nice" number (nearest 1,000) so axis ticks are clean
   function roundUpToNice(n: number, step = 1000) {
     return Math.ceil(n / step) * step;
@@ -239,14 +238,31 @@ const FinancialDashboard = () => {
     return `${value < 0 ? "-" : ""}$${formatted}`;
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+  interface TooltipEntry {
+    name: string;
+    value: number;
+    color?: string;
+  }
+  type CustomTooltipProps = {
+    active?: boolean;
+    payload?: TooltipEntry[];
+    label?: string;
+  };
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    interface TooltipEntry {
+      name: string;
+      value: number;
+      color?: string;
+    }
+    // Use destructured props with correct types, no explicit 'any'
+    const typedPayload = payload as TooltipEntry[] | undefined;
+    if (active && typedPayload && typedPayload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
           <p className="font-semibold text-gray-900 dark:text-white mb-2">
             {label}
           </p>
-          {payload.map((entry: any, index: number) => (
+          {typedPayload.map((entry, index) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {formatCurrency(entry.value)}
             </p>

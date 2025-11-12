@@ -1917,8 +1917,54 @@ const EmailClient = () => {
       // Update each monthly file
       for (const [month, monthEmails] of grouped) {
         try {
+          // CRITICAL FIX: Read existing monthly file first to preserve emails not in current state
+          console.log(`[Export] Reading existing monthly file for ${month}...`);
+          const readResponse = await fetch(
+            `/api/smart-fetch/read?month=${month}`,
+          );
+          const existingMonthData = readResponse.ok
+            ? await readResponse.json()
+            : null;
+
+          // Create a map of current emails by ID for quick lookup
+          const currentEmailsMap = new Map<string, EmailData>();
+          monthEmails.forEach((email) => currentEmailsMap.set(email.id, email));
+
+          // Start with existing emails from file, or empty array if no file exists
+          let allMonthEmails: EmailData[] = existingMonthData?.emails || [];
+
+          // Update emails that are in current state with their ignored status
+          allMonthEmails = allMonthEmails.map((existingEmail) => {
+            const currentEmail = currentEmailsMap.get(existingEmail.id);
+            if (currentEmail) {
+              // This email is in current state - update it with current data and ignored flag
+              return {
+                ...existingEmail,
+                ...currentEmail,
+                ignored: ignoredEmails.has(currentEmail.id),
+              };
+            }
+            // This email is NOT in current state - keep it as-is from file
+            return existingEmail;
+          });
+
+          // Add any new emails that are in current state but not in existing file
+          const existingIds = new Set(allMonthEmails.map((e) => e.id));
+          monthEmails.forEach((email) => {
+            if (!existingIds.has(email.id)) {
+              allMonthEmails.push({
+                ...email,
+                ignored: ignoredEmails.has(email.id),
+              });
+            }
+          });
+
+          console.log(
+            `[Export] Month ${month}: ${allMonthEmails.length} total emails (${monthEmails.length} in current state, ${allMonthEmails.length - monthEmails.length} preserved from file)`,
+          );
+
           // Sort emails by date
-          const sortedEmails = [...monthEmails].sort((a, b) => {
+          const sortedEmails = [...allMonthEmails].sort((a, b) => {
             const dateA = getEmailDate(a);
             const dateB = getEmailDate(b);
             if (!dateA && !dateB) return 0;
@@ -1956,7 +2002,7 @@ const EmailClient = () => {
               const dateStr = emailDate
                 ? emailDate.toISOString().split("T")[0]
                 : null;
-              const isIgnored = ignoredEmails.has(email.id);
+              const isIgnored = email.ignored || false; // Use email's ignored property
 
               return {
                 id: email.id,
@@ -1982,7 +2028,8 @@ const EmailClient = () => {
                     : undefined,
               };
             }),
-            exportDate: new Date().toISOString(),
+            exportDate:
+              existingMonthData?.exportDate || new Date().toISOString(),
             fetchedBy: userInfo?.email || "offline_user",
             lastUpdated: new Date().toISOString(),
           };
@@ -2017,14 +2064,18 @@ const EmailClient = () => {
           console.log(`[Export] Write API response for ${month}:`, writeResult);
 
           // Delete full data files for ignored emails to save space
-          // (in case they were previously saved when not ignored)
-          if (ignoredInMonth.length > 0) {
+          // Check all emails in the month (not just currently loaded ones)
+          const allIgnoredInMonth = sortedEmails.filter(
+            (email) => email.ignored,
+          );
+
+          if (allIgnoredInMonth.length > 0) {
             console.log(
-              `[Export] Deleting full data for ${ignoredInMonth.length} ignored email(s) in ${month}`,
+              `[Export] Deleting full data for ${allIgnoredInMonth.length} ignored email(s) in ${month}`,
             );
             let deletedCount = 0;
             let notFoundCount = 0;
-            for (const email of ignoredInMonth) {
+            for (const email of allIgnoredInMonth) {
               const emailDate = getEmailDate(email);
               if (emailDate) {
                 const dateStr = emailDate.toISOString().split("T")[0];
@@ -2132,14 +2183,23 @@ const EmailClient = () => {
         console.log(`  - Files not found: ${totalNotFoundFiles}`);
         console.log(`  - Errors: ${totalDeleteErrors}`);
 
+        const totalIgnored = [...grouped.values()].reduce(
+          (count, monthEmails) => {
+            return (
+              count + monthEmails.filter((e) => ignoredEmails.has(e.id)).length
+            );
+          },
+          0,
+        );
+
         setSuccess(
           `Successfully updated ${filesUpdated} monthly file${filesUpdated > 1 ? "s" : ""} ` +
             `with ${totalEmailsUpdated} email${totalEmailsUpdated > 1 ? "s" : ""} ` +
-            `(${ignoredEmails.size} marked as ignored, ${totalDeletedFiles} full data files deleted)`,
+            `(${totalIgnored} marked as ignored, ${totalDeletedFiles} full data files deleted, all other emails preserved)`,
         );
         console.log(
-          `Export complete: ${filesUpdated} files updated, ${totalEmailsUpdated} emails processed, ` +
-            `${ignoredEmails.size} ignored, ${totalDeletedFiles} files deleted`,
+          `Export complete: ${filesUpdated} files updated, ${totalEmailsUpdated} emails in files, ` +
+            `${totalIgnored} marked as ignored, ${totalDeletedFiles} full data files deleted`,
         );
 
         // Rescan cache to update UI

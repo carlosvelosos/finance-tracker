@@ -82,6 +82,9 @@ interface EmailData {
   to?: string; // To field (in stored files)
   ignored?: boolean; // Optional flag to mark emails as ignored
   sourceFile?: string; // Track which file this email came from
+  hasAttachments?: boolean; // v2.0 format: pre-calculated attachment flag
+  attachmentCount?: number; // v2.0 format: pre-calculated attachment count
+  fullDataPath?: string; // v2.0 format: path to full email data file
 }
 
 interface EmailPart {
@@ -1913,6 +1916,8 @@ const EmailClient = () => {
 
       let filesUpdated = 0;
       let totalEmailsUpdated = 0;
+      let totalDeletedFullDataFiles = 0; // Track deletions across all months
+      let totalNotFoundFullDataFiles = 0; // Track 404s across all months
 
       // Update each monthly file
       for (const [month, monthEmails] of grouped) {
@@ -1937,10 +1942,12 @@ const EmailClient = () => {
           allMonthEmails = allMonthEmails.map((existingEmail) => {
             const currentEmail = currentEmailsMap.get(existingEmail.id);
             if (currentEmail) {
-              // This email is in current state - update it with current data and ignored flag
+              // IMPORTANT: Only update the ignored flag, preserve all other existing data
+              // This prevents overwriting complete email data from the file
+              // with potentially incomplete data from the current browser state
+              // (e.g., emails loaded from monthly JSON without payload)
               return {
                 ...existingEmail,
-                ...currentEmail,
                 ignored: ignoredEmails.has(currentEmail.id),
               };
             }
@@ -1962,6 +1969,16 @@ const EmailClient = () => {
           console.log(
             `[Export] Month ${month}: ${allMonthEmails.length} total emails (${monthEmails.length} in current state, ${allMonthEmails.length - monthEmails.length} preserved from file)`,
           );
+
+          // Log preservation stats
+          const preservedWithPayload = allMonthEmails.filter(
+            (email) => email.payload && currentEmailsMap.has(email.id),
+          ).length;
+          if (preservedWithPayload > 0) {
+            console.log(
+              `[Export] Month ${month}: Preserved full data (payload) for ${preservedWithPayload} email(s)`,
+            );
+          }
 
           // Sort emails by date
           const sortedEmails = [...allMonthEmails].sort((a, b) => {
@@ -1998,11 +2015,41 @@ const EmailClient = () => {
             emails: sortedEmails.map((email) => {
               const headers = getEmailHeaders(email);
               const emailDate = getEmailDate(email);
-              const attachmentInfo = getAttachmentInfo(email);
               const dateStr = emailDate
                 ? emailDate.toISOString().split("T")[0]
                 : null;
               const isIgnored = email.ignored || false; // Use email's ignored property
+
+              // Preserve existing attachment info if available (v2.0 format),
+              // otherwise calculate from payload (if email has payload loaded)
+              let hasAttachments = false;
+              let attachmentCount = 0;
+              if (
+                typeof email.hasAttachments === "boolean" &&
+                typeof email.attachmentCount === "number"
+              ) {
+                // Email already has v2.0 attachment metadata - preserve it
+                hasAttachments = email.hasAttachments;
+                attachmentCount = email.attachmentCount;
+              } else {
+                // Need to calculate from payload (if available in current state)
+                const attachmentInfo = getAttachmentInfo(email);
+                hasAttachments = attachmentInfo.hasAttachments;
+                attachmentCount = attachmentInfo.count;
+              }
+
+              // Preserve existing fullDataPath if available and email is not ignored
+              let fullDataPath: string | undefined = undefined;
+              if (!isIgnored) {
+                if (email.fullDataPath) {
+                  // Email already has fullDataPath - preserve it
+                  fullDataPath = email.fullDataPath;
+                } else if (dateStr) {
+                  // Generate new fullDataPath
+                  const [emailYear, emailMonth, emailDay] = dateStr.split("-");
+                  fullDataPath = `full/${emailYear}/${emailMonth}/${emailDay}/${email.id}.json`;
+                }
+              }
 
               return {
                 id: email.id,
@@ -2015,17 +2062,9 @@ const EmailClient = () => {
                   ?.value,
                 to: headers.find((h) => h.name.toLowerCase() === "to")?.value,
                 ignored: isIgnored,
-                hasAttachments: attachmentInfo.hasAttachments,
-                attachmentCount: attachmentInfo.count,
-                // Don't include fullDataPath for ignored emails - we'll delete their full data
-                fullDataPath:
-                  !isIgnored && dateStr
-                    ? (() => {
-                        const [emailYear, emailMonth, emailDay] =
-                          dateStr.split("-");
-                        return `full/${emailYear}/${emailMonth}/${emailDay}/${email.id}.json`;
-                      })()
-                    : undefined,
+                hasAttachments: hasAttachments,
+                attachmentCount: attachmentCount,
+                fullDataPath: fullDataPath,
               };
             }),
             exportDate:
@@ -2092,7 +2131,7 @@ const EmailClient = () => {
                     }
                   } else if (deleteResponse.status === 404) {
                     notFoundCount++;
-                    // File doesn't exist - normal for smart-fetched emails
+                    // File doesn't exist - normal for emails without full data stored
                   } else {
                     const errorData = await deleteResponse.json();
                     console.warn(
@@ -2109,8 +2148,11 @@ const EmailClient = () => {
               }
             }
             console.log(
-              `[Export] Month ${month} cleanup: ${deletedCount} deleted, ${notFoundCount} not found (smart-fetched or already removed)`,
+              `[Export] Month ${month} cleanup: ${deletedCount} deleted, ${notFoundCount} not found (never stored or already removed)`,
             );
+            // Accumulate to totals
+            totalDeletedFullDataFiles += deletedCount;
+            totalNotFoundFullDataFiles += notFoundCount;
           }
 
           filesUpdated++;
@@ -2127,70 +2169,7 @@ const EmailClient = () => {
       }
 
       if (filesUpdated > 0) {
-        // Collect all ignored emails across all months for final cleanup
-        console.log(
-          "\n=== [Export] Final cleanup: Removing full data for ALL ignored emails ===",
-        );
-        let totalDeletedFiles = 0;
-        let totalNotFoundFiles = 0;
-        let totalDeleteErrors = 0;
-
-        for (const email of emails) {
-          if (ignoredEmails.has(email.id)) {
-            const emailDate = getEmailDate(email);
-            if (emailDate) {
-              const dateStr = emailDate.toISOString().split("T")[0];
-
-              try {
-                const deleteResponse = await fetch(
-                  `/api/smart-fetch/full-data?emailId=${encodeURIComponent(email.id)}&date=${encodeURIComponent(dateStr)}`,
-                  { method: "DELETE" },
-                );
-
-                if (deleteResponse.ok) {
-                  const deleteResult = await deleteResponse.json();
-                  if (deleteResult.success) {
-                    totalDeletedFiles++;
-                    console.log(
-                      `[Export Final Cleanup] Deleted: ${email.id} (${dateStr})`,
-                    );
-                  }
-                } else if (deleteResponse.status === 404) {
-                  totalNotFoundFiles++;
-                  // File doesn't exist, already removed or never created
-                } else {
-                  totalDeleteErrors++;
-                  const errorData = await deleteResponse.json();
-                  console.error(
-                    `[Export Final Cleanup] Failed to delete ${email.id}:`,
-                    errorData.error,
-                  );
-                }
-              } catch (error) {
-                totalDeleteErrors++;
-                console.error(
-                  `[Export Final Cleanup] Error deleting ${email.id}:`,
-                  error,
-                );
-              }
-            }
-          }
-        }
-
-        console.log("=== [Export Final Cleanup] Summary ===");
-        console.log(`  ✓ Full data files deleted: ${totalDeletedFiles}`);
-        console.log(
-          `  ⓘ Files not found (never stored or already deleted): ${totalNotFoundFiles}`,
-        );
-        console.log(`  ✗ Errors: ${totalDeleteErrors}`);
-        console.log(
-          `\n  Note: 404 "not found" responses are normal for emails that were:`,
-        );
-        console.log(`    - Fetched with smart-fetch (only headers stored)`);
-        console.log(`    - Already deleted in a previous export`);
-        console.log(`    - Never had full data stored`);
-        console.log("======================================");
-
+        // Calculate total ignored emails across all months
         const totalIgnored = [...grouped.values()].reduce(
           (count, monthEmails) => {
             return (
@@ -2200,14 +2179,29 @@ const EmailClient = () => {
           0,
         );
 
+        // Log summary
+        console.log("\n=== [Export] Final Summary ===");
+        console.log(`  ✓ Files updated: ${filesUpdated}`);
+        console.log(`  ✓ Total emails: ${totalEmailsUpdated}`);
+        console.log(`  ⚠️  Emails marked as ignored: ${totalIgnored}`);
+        console.log(
+          `  🗑️  Full data files deleted: ${totalDeletedFullDataFiles}`,
+        );
+        if (totalNotFoundFullDataFiles > 0) {
+          console.log(
+            `  ⓘ  Full data files not found (already deleted or never stored): ${totalNotFoundFullDataFiles}`,
+          );
+        }
+        console.log("======================================");
+
         setSuccess(
           `Successfully updated ${filesUpdated} monthly file${filesUpdated > 1 ? "s" : ""} ` +
             `with ${totalEmailsUpdated} email${totalEmailsUpdated > 1 ? "s" : ""} ` +
-            `(${totalIgnored} marked as ignored, ${totalDeletedFiles} full data files deleted, all other emails preserved)`,
+            `(${totalIgnored} marked as ignored, ${totalDeletedFullDataFiles} full data files deleted, all other emails preserved)`,
         );
         console.log(
           `Export complete: ${filesUpdated} files updated, ${totalEmailsUpdated} emails in files, ` +
-            `${totalIgnored} marked as ignored, ${totalDeletedFiles} full data files deleted`,
+            `${totalIgnored} marked as ignored, ${totalDeletedFullDataFiles} full data files deleted`,
         );
 
         // Rescan cache to update UI

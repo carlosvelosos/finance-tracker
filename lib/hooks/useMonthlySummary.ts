@@ -56,8 +56,9 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
     try {
       console.log("Fetching monthly summary data from Supabase...");
 
-      // Filter for INACC tables for the specified year
+      // Discover INACC and INMCPDF tables for the specified year
       let inaccTables: string[] = [];
+      let inmcpdfTables: string[] = [];
 
       try {
         const { data: rpcTables, error: rpcError } = await supabase.rpc(
@@ -70,11 +71,22 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             .filter((tableName: string) =>
               tableName.startsWith(`INACC_${year}`),
             );
+          inmcpdfTables = (rpcTables || [])
+            .map((table: { table_name: string }) => table.table_name)
+            .filter((tableName: string) =>
+              tableName.startsWith(`INMCPDF_${year}`),
+            );
           console.log(
             "Found INACC tables via RPC for year",
             year,
             ":",
             inaccTables,
+          );
+          console.log(
+            "Found INMCPDF tables via RPC for year",
+            year,
+            ":",
+            inmcpdfTables,
           );
         } else {
           console.warn("RPC function not available:", rpcError?.message);
@@ -83,19 +95,20 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       } catch (rpcErr) {
         console.warn("RPC approach failed, trying fallback approach:", rpcErr);
 
-        // Fallback: Try known table patterns (generate table names for recent months)
-        const currentDate = new Date();
-        const knownTableNames: string[] = [];
+        // Fallback: Try known table patterns (generate table names for the year)
+        const knownInaccTableNames: string[] = [];
+        const knownInmcpdfTableNames: string[] = [];
 
         // Generate table names for the specified year (all 12 months)
         for (let i = 1; i <= 12; i++) {
           const month = String(i).padStart(2, "0");
-          knownTableNames.push(`INACC_${year}${month}`);
+          knownInaccTableNames.push(`INACC_${year}${month}`);
+          knownInmcpdfTableNames.push(`INMCPDF_${year}${month}`);
         }
 
-        // Test which tables actually exist
-        const tableExistenceTests = await Promise.all(
-          knownTableNames.map(async (tableName) => {
+        // Test which INACC tables actually exist
+        const inaccExistenceTests = await Promise.all(
+          knownInaccTableNames.map(async (tableName) => {
             try {
               const { error } = await supabase
                 .from(tableName)
@@ -109,23 +122,46 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           }),
         );
 
-        inaccTables = tableExistenceTests.filter(
+        inaccTables = inaccExistenceTests.filter(
           (table): table is string => table !== null,
         );
-        console.log("Fallback approach found tables:", inaccTables);
+
+        // Test which INMCPDF tables actually exist
+        const inmcpdfExistenceTests = await Promise.all(
+          knownInmcpdfTableNames.map(async (tableName) => {
+            try {
+              const { error } = await supabase
+                .from(tableName)
+                .select("*", { count: "exact", head: true })
+                .limit(0);
+
+              return error ? null : tableName;
+            } catch (err) {
+              return null;
+            }
+          }),
+        );
+
+        inmcpdfTables = inmcpdfExistenceTests.filter(
+          (table): table is string => table !== null,
+        );
+
+        console.log("Fallback approach found INACC tables:", inaccTables);
+        console.log("Fallback approach found INMCPDF tables:", inmcpdfTables);
       }
 
       console.log("Found INACC tables:", inaccTables);
+      console.log("Found INMCPDF tables:", inmcpdfTables);
 
-      if (inaccTables.length === 0) {
-        console.warn("No INACC tables found");
+      if (inaccTables.length === 0 && inmcpdfTables.length === 0) {
+        console.warn("No INACC or INMCPDF tables found");
         setData([]);
         setLoading(false);
         return;
       }
 
       // Fetch data from each INACC table
-      const tableDataPromises = inaccTables.map(async (tableName: string) => {
+      const inaccDataPromises = inaccTables.map(async (tableName: string) => {
         try {
           const { data: transactions, error } = await supabase
             .from(tableName)
@@ -144,12 +180,42 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
-      const tableResults = await Promise.all(tableDataPromises);
+      // Fetch data from each INMCPDF table
+      const inmcpdfDataPromises = inmcpdfTables.map(
+        async (tableName: string) => {
+          try {
+            const { data: transactions, error } = await supabase
+              .from(tableName)
+              .select('"Date", "Amount"')
+              .eq("user_id", user.id);
+
+            if (error) {
+              console.error(`Error fetching from ${tableName}:`, error);
+              return { tableName, transactions: [], error };
+            }
+
+            return {
+              tableName,
+              transactions: transactions || [],
+              error: null,
+            };
+          } catch (err) {
+            console.error(`Error fetching from table ${tableName}:`, err);
+            return { tableName, transactions: [], error: err };
+          }
+        },
+      );
+
+      const [inaccResults, inmcpdfResults] = await Promise.all([
+        Promise.all(inaccDataPromises),
+        Promise.all(inmcpdfDataPromises),
+      ]);
 
       // Group transactions by month and calculate totals
-      const monthlyTotals: Record<string, number> = {};
+      const monthlyInaccTotals: Record<string, number> = {};
+      const monthlyInmcpdfTotals: Record<string, number> = {};
 
-      tableResults.forEach((result) => {
+      inaccResults.forEach((result) => {
         if (result.transactions && result.transactions.length > 0) {
           // Extract year-month from table name (INACC_YYYYMM)
           const match = result.tableName.match(/INACC_(\d{4})(\d{2})/);
@@ -164,14 +230,42 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
               0,
             );
 
-            monthlyTotals[monthKey] = total;
+            monthlyInaccTotals[monthKey] = total;
           }
         }
       });
 
-      // Convert to MonthlyData format
-      const monthlyDataArray: MonthlyData[] = Object.entries(monthlyTotals)
-        .map(([monthKey, interAccTotal]) => {
+      inmcpdfResults.forEach((result) => {
+        if (result.transactions && result.transactions.length > 0) {
+          // Extract year-month from table name (INMCPDF_YYYYMM)
+          const match = result.tableName.match(/INMCPDF_(\d{4})(\d{2})/);
+          if (match) {
+            const year = match[1];
+            const month = match[2];
+            const monthKey = `${year}-${month}`;
+
+            // Calculate total for this month
+            const total = (result.transactions as Transaction[]).reduce(
+              (sum, transaction) => sum + (transaction.Amount || 0),
+              0,
+            );
+
+            monthlyInmcpdfTotals[monthKey] = total;
+          }
+        }
+      });
+
+      // Combine all months and convert to MonthlyData format
+      const allMonthKeys = new Set([
+        ...Object.keys(monthlyInaccTotals),
+        ...Object.keys(monthlyInmcpdfTotals),
+      ]);
+
+      const monthlyDataArray: MonthlyData[] = Array.from(allMonthKeys)
+        .map((monthKey) => {
+          const interAccTotal = monthlyInaccTotals[monthKey] || 0;
+          const interCreditCardTotal = monthlyInmcpdfTotals[monthKey] || 0;
+
           // Parse the month key to create a readable month string (only month name)
           const [yearStr, month] = monthKey.split("-");
           const monthDate = new Date(parseInt(yearStr), parseInt(month) - 1);
@@ -182,7 +276,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           return {
             month: monthName,
             interAcc: interAccTotal,
-            interCreditCard: 0, // TODO: Add other account types when available
+            interCreditCard: interCreditCardTotal,
             interInvest: 0,
             ricoCreditCard: 0,
             ricoInvest: 0,
@@ -192,7 +286,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             handelsbankenInvest: 0,
             amexCreditCard: 0,
             sjPrioCreditCard: 0,
-            total: interAccTotal, // For now, total equals interAcc
+            total: interAccTotal + interCreditCardTotal,
           };
         })
         .sort((a, b) => {
@@ -215,7 +309,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         });
 
       console.log(
-        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} tables`,
+        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables and ${inmcpdfTables.length} INMCPDF tables`,
       );
 
       setData(monthlyDataArray);

@@ -2102,19 +2102,31 @@ const EmailClient = () => {
           const writeResult = await writeResponse.json();
           console.log(`[Export] Write API response for ${month}:`, writeResult);
 
-          // Delete full data files for ignored emails to save space
-          // Check all emails in the month (not just currently loaded ones)
-          const allIgnoredInMonth = sortedEmails.filter(
-            (email) => email.ignored,
+          // Delete full data files for NEWLY ignored emails only (to save space)
+          // Compare current ignored status with what was in the existing file
+          const previouslyIgnoredIds = new Set(
+            (existingMonthData?.emails || [])
+              .filter((e: EmailData) => e.ignored)
+              .map((e: EmailData) => e.id),
           );
 
-          if (allIgnoredInMonth.length > 0) {
+          // Find emails that are NOW ignored but were NOT ignored before
+          const newlyIgnoredInMonth = sortedEmails.filter(
+            (email) => email.ignored && !previouslyIgnoredIds.has(email.id),
+          );
+
+          if (newlyIgnoredInMonth.length > 0) {
             console.log(
-              `[Export] Deleting full data for ${allIgnoredInMonth.length} ignored email(s) in ${month}...`,
+              `[Export] Deleting full data for ${newlyIgnoredInMonth.length} NEWLY ignored email(s) in ${month}...`,
             );
+            if (previouslyIgnoredIds.size > 0) {
+              console.log(
+                `[Export] Skipping ${previouslyIgnoredIds.size} email(s) that were already ignored`,
+              );
+            }
             let deletedCount = 0;
             let notFoundCount = 0;
-            for (const email of allIgnoredInMonth) {
+            for (const email of newlyIgnoredInMonth) {
               const emailDate = getEmailDate(email);
               if (emailDate) {
                 const dateStr = emailDate.toISOString().split("T")[0];
@@ -2148,11 +2160,15 @@ const EmailClient = () => {
               }
             }
             console.log(
-              `[Export] Month ${month} cleanup: ${deletedCount} deleted, ${notFoundCount} not found (never stored or already removed)`,
+              `[Export] Month ${month} cleanup: ${deletedCount} deleted, ${notFoundCount} not found`,
             );
             // Accumulate to totals
             totalDeletedFullDataFiles += deletedCount;
             totalNotFoundFullDataFiles += notFoundCount;
+          } else if (previouslyIgnoredIds.size > 0) {
+            console.log(
+              `[Export] Month ${month}: No newly ignored emails (${previouslyIgnoredIds.size} already ignored)`,
+            );
           }
 
           filesUpdated++;

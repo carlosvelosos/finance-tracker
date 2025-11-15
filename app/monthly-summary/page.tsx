@@ -1,23 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { loadFinancialData, MonthlyData } from "../../lib/csvLoader";
+import React, { useState } from "react";
+import { useMonthlySummary } from "../../lib/hooks/useMonthlySummary";
+import { Button } from "@/components/ui/button";
 
 const MonthlySummaryPage = () => {
-  const [data, setData] = useState<MonthlyData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const { data, loading, error, refetch } = useMonthlySummary({
+    year: selectedYear,
+  });
 
-  useEffect(() => {
-    loadFinancialData()
-      .then((csvData) => {
-        setData(csvData);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error loading CSV data:", error);
-        setLoading(false);
-      });
-  }, []);
+  // Generate year options (2024 to current year)
+  const yearOptions = Array.from(
+    { length: currentYear - 2023 },
+    (_, i) => 2024 + i,
+  );
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString("en-US", {
@@ -35,7 +33,22 @@ const MonthlySummaryPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-gray-900 dark:text-white">
-          Loading financial data...
+          Loading financial data from Supabase...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 dark:text-red-400 mb-4">
+            Error loading financial data: {error.message}
+          </div>
+          <Button onClick={refetch} variant="outline">
+            Retry
+          </Button>
         </div>
       </div>
     );
@@ -45,12 +58,42 @@ const MonthlySummaryPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
       <div className="max-w-[1600px] mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Monthly Financial Summary
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Overview of all accounts, credit cards, and investments by month
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
+                Monthly Financial Summary
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Overview of all accounts, credit cards, and investments by month
+                (Data from Supabase)
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="year-select"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Year:
+                </label>
+                <select
+                  id="year-select"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button onClick={refetch} variant="outline">
+                Refresh Data
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">

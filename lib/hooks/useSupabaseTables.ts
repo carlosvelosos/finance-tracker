@@ -250,6 +250,100 @@ export function useSupabaseTables() {
           description:
             "Inter MasterCard PDF-converted transactions for October 2025",
         },
+        // INACC Monthly Tables - 2024 (Inter Account)
+        INACC_202401: {
+          displayName: "INACC Jan 2024",
+          description: "Inter Account transactions for January 2024",
+        },
+        INACC_202402: {
+          displayName: "INACC Feb 2024",
+          description: "Inter Account transactions for February 2024",
+        },
+        INACC_202403: {
+          displayName: "INACC Mar 2024",
+          description: "Inter Account transactions for March 2024",
+        },
+        INACC_202404: {
+          displayName: "INACC Apr 2024",
+          description: "Inter Account transactions for April 2024",
+        },
+        INACC_202405: {
+          displayName: "INACC May 2024",
+          description: "Inter Account transactions for May 2024",
+        },
+        INACC_202406: {
+          displayName: "INACC Jun 2024",
+          description: "Inter Account transactions for June 2024",
+        },
+        INACC_202407: {
+          displayName: "INACC Jul 2024",
+          description: "Inter Account transactions for July 2024",
+        },
+        INACC_202408: {
+          displayName: "INACC Aug 2024",
+          description: "Inter Account transactions for August 2024",
+        },
+        INACC_202409: {
+          displayName: "INACC Sep 2024",
+          description: "Inter Account transactions for September 2024",
+        },
+        INACC_202410: {
+          displayName: "INACC Oct 2024",
+          description: "Inter Account transactions for October 2024",
+        },
+        INACC_202411: {
+          displayName: "INACC Nov 2024",
+          description: "Inter Account transactions for November 2024",
+        },
+        INACC_202412: {
+          displayName: "INACC Dec 2024",
+          description: "Inter Account transactions for December 2024",
+        },
+        // INACC Monthly Tables - 2025 (Inter Account)
+        INACC_202501: {
+          displayName: "INACC Jan 2025",
+          description: "Inter Account transactions for January 2025",
+        },
+        INACC_202502: {
+          displayName: "INACC Feb 2025",
+          description: "Inter Account transactions for February 2025",
+        },
+        INACC_202503: {
+          displayName: "INACC Mar 2025",
+          description: "Inter Account transactions for March 2025",
+        },
+        INACC_202504: {
+          displayName: "INACC Apr 2025",
+          description: "Inter Account transactions for April 2025",
+        },
+        INACC_202505: {
+          displayName: "INACC May 2025",
+          description: "Inter Account transactions for May 2025",
+        },
+        INACC_202506: {
+          displayName: "INACC Jun 2025",
+          description: "Inter Account transactions for June 2025",
+        },
+        INACC_202507: {
+          displayName: "INACC Jul 2025",
+          description: "Inter Account transactions for July 2025",
+        },
+        INACC_202508: {
+          displayName: "INACC Aug 2025",
+          description: "Inter Account transactions for August 2025",
+        },
+        INACC_202509: {
+          displayName: "INACC Sep 2025",
+          description: "Inter Account transactions for September 2025",
+        },
+        INACC_202510: {
+          displayName: "INACC Oct 2025",
+          description: "Inter Account transactions for October 2025",
+        },
+        INACC_202511: {
+          displayName: "INACC Nov 2025",
+          description: "Inter Account transactions for November 2025",
+        },
       }) as Record<string, { displayName: string; description: string }>,
     [],
   );

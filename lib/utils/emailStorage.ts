@@ -202,17 +202,20 @@ export async function deleteFullEmail(
     const filePath = getFullEmailPath(emailId, date);
     await fs.unlink(filePath);
 
-    console.log(`[EmailStorage] Deleted full email: ${emailId}`);
+    console.log(`[EmailStorage] ✓ Deleted full email: ${emailId} (${date})`);
     return true;
   } catch (error) {
     const err = error as { code?: string };
     if (err.code === "ENOENT") {
       console.log(
-        `[EmailStorage] Full email not found for deletion: ${emailId}`,
+        `[EmailStorage] ✗ Full data not found: ${emailId} (${date}) - file doesn't exist (likely never stored as full data)`,
       );
       return false;
     }
-    console.error(`[EmailStorage] Error deleting email ${emailId}:`, error);
+    console.error(
+      `[EmailStorage] Error deleting email ${emailId} (${date}):`,
+      error,
+    );
     throw error;
   }
 }

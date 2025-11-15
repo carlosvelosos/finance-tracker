@@ -2071,7 +2071,7 @@ const EmailClient = () => {
 
           if (allIgnoredInMonth.length > 0) {
             console.log(
-              `[Export] Deleting full data for ${allIgnoredInMonth.length} ignored email(s) in ${month}`,
+              `[Export] Deleting full data for ${allIgnoredInMonth.length} ignored email(s) in ${month}...`,
             );
             let deletedCount = 0;
             let notFoundCount = 0;
@@ -2089,11 +2089,10 @@ const EmailClient = () => {
                     const deleteResult = await deleteResponse.json();
                     if (deleteResult.success) {
                       deletedCount++;
-                      console.log(`[Export] Deleted full data for ${email.id}`);
                     }
                   } else if (deleteResponse.status === 404) {
                     notFoundCount++;
-                    // File doesn't exist, which is fine for ignored emails
+                    // File doesn't exist - normal for smart-fetched emails
                   } else {
                     const errorData = await deleteResponse.json();
                     console.warn(
@@ -2110,7 +2109,7 @@ const EmailClient = () => {
               }
             }
             console.log(
-              `[Export] Deleted ${deletedCount} full data file(s), ${notFoundCount} already removed`,
+              `[Export] Month ${month} cleanup: ${deletedCount} deleted, ${notFoundCount} not found (smart-fetched or already removed)`,
             );
           }
 
@@ -2130,7 +2129,7 @@ const EmailClient = () => {
       if (filesUpdated > 0) {
         // Collect all ignored emails across all months for final cleanup
         console.log(
-          "[Export] Starting final cleanup of all ignored emails' full data files...",
+          "\n=== [Export] Final cleanup: Removing full data for ALL ignored emails ===",
         );
         let totalDeletedFiles = 0;
         let totalNotFoundFiles = 0;
@@ -2178,10 +2177,19 @@ const EmailClient = () => {
           }
         }
 
-        console.log("[Export Final Cleanup] Summary:");
-        console.log(`  - Files deleted: ${totalDeletedFiles}`);
-        console.log(`  - Files not found: ${totalNotFoundFiles}`);
-        console.log(`  - Errors: ${totalDeleteErrors}`);
+        console.log("=== [Export Final Cleanup] Summary ===");
+        console.log(`  ✓ Full data files deleted: ${totalDeletedFiles}`);
+        console.log(
+          `  ⓘ Files not found (never stored or already deleted): ${totalNotFoundFiles}`,
+        );
+        console.log(`  ✗ Errors: ${totalDeleteErrors}`);
+        console.log(
+          `\n  Note: 404 "not found" responses are normal for emails that were:`,
+        );
+        console.log(`    - Fetched with smart-fetch (only headers stored)`);
+        console.log(`    - Already deleted in a previous export`);
+        console.log(`    - Never had full data stored`);
+        console.log("======================================");
 
         const totalIgnored = [...grouped.values()].reduce(
           (count, monthEmails) => {

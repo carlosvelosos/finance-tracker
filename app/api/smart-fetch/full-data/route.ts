@@ -147,12 +147,26 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Check if file exists first
+    const exists = await fullEmailExists(emailId, date);
+
     // Delete full email data
     const deleted = await deleteFullEmail(emailId, date);
 
     if (!deleted) {
+      // Log more detail about why deletion failed
+      console.log(
+        `[API Delete] Email ${emailId} (${date}) not found - likely never had full data stored`,
+      );
       return NextResponse.json(
-        { error: "Email not found", emailId, date },
+        {
+          error: "Email full data not found",
+          emailId,
+          date,
+          reason: exists
+            ? "File exists but deletion failed"
+            : "Full data was never stored for this email",
+        },
         { status: 404 },
       );
     }

@@ -414,7 +414,13 @@ const MonthlySummaryPage = () => {
                   const bancoDoBrasil = 0;
                   const caixaFGTS = 0;
                   const mae = 40000;
-                  const b3 = 0;
+                  // Calculate B3 yearly total from monthly data for the current selected year only
+                  const b3 =
+                    year === selectedYear
+                      ? data
+                          .filter((row) => row.month) // Ensure we have valid months
+                          .reduce((sum, row) => sum + row.b3, 0)
+                      : 0;
                   const ricoXP = 0;
                   const handelsbanken = yearlyBalances[year] || 0;
                   const swPension = 0;

@@ -405,6 +405,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       // Fetch data from each B3 table
       const b3DataPromises = b3Tables.map(async (tableName: string) => {
         try {
+          // B3 tables have Amount column (which is the net dividend value)
           const { data: transactions, error } = await supabase
             .from(tableName)
             .select('"Date", "Amount"')

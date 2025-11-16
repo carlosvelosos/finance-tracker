@@ -57,9 +57,11 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
     try {
       console.log("Fetching monthly summary data from Supabase...");
 
-      // Discover INACC and INMCPDF tables for the specified year
+      // Discover INACC, INMCPDF, AM, and SJ tables for the specified year
       let inaccTables: string[] = [];
       let inmcpdfTables: string[] = [];
+      let amTables: string[] = [];
+      let sjTables: string[] = [];
 
       try {
         const { data: rpcTables, error: rpcError } = await supabase.rpc(
@@ -77,6 +79,12 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             .filter((tableName: string) =>
               tableName.startsWith(`INMCPDF_${year}`),
             );
+          amTables = (rpcTables || [])
+            .map((table: { table_name: string }) => table.table_name)
+            .filter((tableName: string) => tableName.startsWith(`AM_${year}`));
+          sjTables = (rpcTables || [])
+            .map((table: { table_name: string }) => table.table_name)
+            .filter((tableName: string) => tableName.startsWith(`SJ_${year}`));
           console.log(
             "Found INACC tables via RPC for year",
             year,
@@ -89,6 +97,8 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             ":",
             inmcpdfTables,
           );
+          console.log("Found AM tables via RPC for year", year, ":", amTables);
+          console.log("Found SJ tables via RPC for year", year, ":", sjTables);
         } else {
           console.warn("RPC function not available:", rpcError?.message);
           throw new Error("RPC not available");
@@ -99,12 +109,16 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         // Fallback: Try known table patterns (generate table names for the year)
         const knownInaccTableNames: string[] = [];
         const knownInmcpdfTableNames: string[] = [];
+        const knownAmTableNames: string[] = [];
+        const knownSjTableNames: string[] = [];
 
         // Generate table names for the specified year (all 12 months)
         for (let i = 1; i <= 12; i++) {
           const month = String(i).padStart(2, "0");
           knownInaccTableNames.push(`INACC_${year}${month}`);
           knownInmcpdfTableNames.push(`INMCPDF_${year}${month}`);
+          knownAmTableNames.push(`AM_${year}${month}`);
+          knownSjTableNames.push(`SJ_${year}${month}`);
         }
 
         // Test which INACC tables actually exist
@@ -147,15 +161,62 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           (table): table is string => table !== null,
         );
 
+        // Test which AM tables actually exist
+        const amExistenceTests = await Promise.all(
+          knownAmTableNames.map(async (tableName) => {
+            try {
+              const { error } = await supabase
+                .from(tableName)
+                .select("*", { count: "exact", head: true })
+                .limit(0);
+
+              return error ? null : tableName;
+            } catch (err) {
+              return null;
+            }
+          }),
+        );
+
+        amTables = amExistenceTests.filter(
+          (table): table is string => table !== null,
+        );
+
+        // Test which SJ tables actually exist
+        const sjExistenceTests = await Promise.all(
+          knownSjTableNames.map(async (tableName) => {
+            try {
+              const { error } = await supabase
+                .from(tableName)
+                .select("*", { count: "exact", head: true })
+                .limit(0);
+
+              return error ? null : tableName;
+            } catch (err) {
+              return null;
+            }
+          }),
+        );
+
+        sjTables = sjExistenceTests.filter(
+          (table): table is string => table !== null,
+        );
+
         console.log("Fallback approach found INACC tables:", inaccTables);
         console.log("Fallback approach found INMCPDF tables:", inmcpdfTables);
+        console.log("Fallback approach found AM tables:", amTables);
+        console.log("Fallback approach found SJ tables:", sjTables);
       }
 
       console.log("Found INACC tables:", inaccTables);
       console.log("Found INMCPDF tables:", inmcpdfTables);
+      console.log("Found AM tables:", amTables);
 
-      if (inaccTables.length === 0 && inmcpdfTables.length === 0) {
-        console.warn("No INACC or INMCPDF tables found");
+      if (
+        inaccTables.length === 0 &&
+        inmcpdfTables.length === 0 &&
+        amTables.length === 0
+      ) {
+        console.warn("No INACC, INMCPDF, or AM tables found");
         setData([]);
         setLoading(false);
         return;
@@ -207,14 +268,67 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         },
       );
 
-      const [inaccResults, inmcpdfResults] = await Promise.all([
-        Promise.all(inaccDataPromises),
-        Promise.all(inmcpdfDataPromises),
-      ]);
+      // Fetch data from each AM table
+      const amDataPromises = amTables.map(async (tableName: string) => {
+        try {
+          const { data: transactions, error } = await supabase
+            .from(tableName)
+            .select('"Date", "Amount", "Category"')
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error(`Error fetching from ${tableName}:`, error);
+            return { tableName, transactions: [], error };
+          }
+
+          return {
+            tableName,
+            transactions: transactions || [],
+            error: null,
+          };
+        } catch (err) {
+          console.error(`Error fetching from table ${tableName}:`, err);
+          return { tableName, transactions: [], error: err };
+        }
+      });
+
+      // Fetch data from each SJ table
+      const sjDataPromises = sjTables.map(async (tableName: string) => {
+        try {
+          const { data: transactions, error } = await supabase
+            .from(tableName)
+            .select('"Date", "Amount", "Category"')
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error(`Error fetching from ${tableName}:`, error);
+            return { tableName, transactions: [], error };
+          }
+
+          return {
+            tableName,
+            transactions: transactions || [],
+            error: null,
+          };
+        } catch (err) {
+          console.error(`Error fetching from table ${tableName}:`, err);
+          return { tableName, transactions: [], error: err };
+        }
+      });
+
+      const [inaccResults, inmcpdfResults, amResults, sjResults] =
+        await Promise.all([
+          Promise.all(inaccDataPromises),
+          Promise.all(inmcpdfDataPromises),
+          Promise.all(amDataPromises),
+          Promise.all(sjDataPromises),
+        ]);
 
       // Group transactions by month and calculate totals
       const monthlyInaccTotals: Record<string, number> = {};
       const monthlyInmcpdfTotals: Record<string, number> = {};
+      const monthlyAmTotals: Record<string, number> = {};
+      const monthlySjTotals: Record<string, number> = {};
 
       inaccResults.forEach((result) => {
         if (result.transactions && result.transactions.length > 0) {
@@ -258,6 +372,52 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
+      amResults.forEach((result) => {
+        if (result.transactions && result.transactions.length > 0) {
+          // Extract year-month from table name (AM_YYYYMM)
+          const match = result.tableName.match(/AM_(\d{4})(\d{2})/);
+          if (match) {
+            const year = match[1];
+            const month = match[2];
+            const monthKey = `${year}-${month}`;
+
+            // Calculate total for this month, excluding "Pagamento fatura anterior"
+            // Invert the sign since expenses show as positive in invoices
+            const total = -(result.transactions as Transaction[])
+              .filter(
+                (transaction) =>
+                  transaction.Category !== "Pagamento fatura anterior",
+              )
+              .reduce((sum, transaction) => sum + (transaction.Amount || 0), 0);
+
+            monthlyAmTotals[monthKey] = total;
+          }
+        }
+      });
+
+      sjResults.forEach((result) => {
+        if (result.transactions && result.transactions.length > 0) {
+          // Extract year-month from table name (SJ_YYYYMM)
+          const match = result.tableName.match(/SJ_(\d{4})(\d{2})/);
+          if (match) {
+            const year = match[1];
+            const month = match[2];
+            const monthKey = `${year}-${month}`;
+
+            // Calculate total for this month, excluding "Pagamento fatura anterior"
+            // Invert the sign since expenses show as positive in invoices
+            const total = -(result.transactions as Transaction[])
+              .filter(
+                (transaction) =>
+                  transaction.Category !== "Pagamento fatura anterior",
+              )
+              .reduce((sum, transaction) => sum + (transaction.Amount || 0), 0);
+
+            monthlySjTotals[monthKey] = total;
+          }
+        }
+      });
+
       // Create entries for all 12 months
       const allMonths = [
         "Jan",
@@ -282,6 +442,8 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
           const interAccTotal = monthlyInaccTotals[monthKey] || 0;
           const interCreditCardTotal = monthlyInmcpdfTotals[monthKey] || 0;
+          const amexCreditCardTotal = monthlyAmTotals[monthKey] || 0;
+          const sjPrioCreditCardTotal = monthlySjTotals[monthKey] || 0;
 
           return {
             month: monthName,
@@ -294,15 +456,19 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             mae: 0,
             handelsbankenAcc: 0,
             handelsbankenInvest: 0,
-            amexCreditCard: 0,
-            sjPrioCreditCard: 0,
-            total: interAccTotal + interCreditCardTotal,
+            amexCreditCard: amexCreditCardTotal,
+            sjPrioCreditCard: sjPrioCreditCardTotal,
+            total:
+              interAccTotal +
+              interCreditCardTotal +
+              amexCreditCardTotal +
+              sjPrioCreditCardTotal,
           };
         },
       );
 
       console.log(
-        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables and ${inmcpdfTables.length} INMCPDF tables`,
+        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables, ${inmcpdfTables.length} INMCPDF tables, ${amTables.length} AM tables, and ${sjTables.length} SJ tables`,
       );
 
       setData(monthlyDataArray);

@@ -138,6 +138,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
               return error ? null : tableName;
             } catch (err) {
+              console.error(`Error checking INACC table ${tableName}:`, err);
               return null;
             }
           }),
@@ -158,6 +159,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
               return error ? null : tableName;
             } catch (err) {
+              console.error(`Error checking INMCPDF table ${tableName}:`, err);
               return null;
             }
           }),
@@ -178,6 +180,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
               return error ? null : tableName;
             } catch (err) {
+              console.error(`Error checking AM table ${tableName}:`, err);
               return null;
             }
           }),
@@ -198,6 +201,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
               return error ? null : tableName;
             } catch (err) {
+              console.error(`Error checking SJ table ${tableName}:`, err);
               return null;
             }
           }),
@@ -218,6 +222,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
               return error ? null : tableName;
             } catch (err) {
+              console.error(`Error checking B3 table ${tableName}:`, err);
               return null;
             }
           }),

@@ -256,7 +256,7 @@ const BANK_INSTRUCTIONS: Record<
     ],
   },
   "SEB_SJ_Prio-SE": {
-    format: "Excel (.xls)",
+    format: "Excel (.xls or .xlsx)",
     columns: [
       "Datum",
       "Bokfört",
@@ -266,13 +266,13 @@ const BANK_INSTRUCTIONS: Record<
       "...",
       "Belopp",
     ],
-    fileNamePattern: "SEB_YYYYMM.xls",
-    example: "SEB_202503.xls",
+    fileNamePattern: "SEB_YYYYMM.xls or SJ_YYYYMM.xlsx",
+    example: "SEB_202503.xls or SJ_202507.xlsx",
     notes: [
       "Table name taken directly from filename (without extension)",
       "First 17 rows contain metadata (will be skipped)",
       "Row 3 contains year: 'Månad: [Month] YYYY'",
-      "Datum column: Excel serial date or MM-DD format",
+      "Datum column supports: Excel serial date, MM-DD, or YYYY-MM-DD formats",
       "Amount (Belopp) in column 7: Swedish format with comma",
     ],
   },

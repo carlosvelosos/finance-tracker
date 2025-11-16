@@ -320,74 +320,112 @@ export function processAmex(data: string[][], fileName: string) {
 }
 
 export function processSEB(data: string[][], fileName: string) {
-  // Extract the table name from the file name (e.g., "SEB_202503.csv" -> "SEB_202503")
-  const tableName = fileName.replace(".xls", "");
+  // Extract the table name from the file name (e.g., "SEB_202503.xls" or "SJ_202507.xlsx" -> "SEB_202503" or "SJ_202507")
+  const tableName = fileName.replace(/\.(xls|xlsx)$/i, "");
 
   // Extract the year from row 3 (e.g., "Månad:", <3 empty slots>, "Februari 2025")
   const yearRow = data[3]?.[4] || ""; // The year is in the last column of row 3
   const yearMatch = yearRow.match(/\d{4}/); // Match the 4-digit year
-  const year = yearMatch ? yearMatch[0] : new Date().getFullYear(); // Default to current year if missing
+  const year = yearMatch ? yearMatch[0] : new Date().getFullYear().toString(); // Default to current year if missing
+
+  console.log("SEB Processing - Year extracted:", year, "from row:", yearRow);
 
   // Helper function to convert Excel serial dates to YYYY-MM-DD
-  const excelToDate = (serial: number): string => {
-    const startDate = new Date(1900, 0, 1); // January 1, 1900
-    const excelDate = new Date(
-      startDate.setDate(startDate.getDate() + serial - 2),
-    ); // Adjust for the 1900 leap year bug
-    return excelDate.toISOString().split("T")[0]; // Return date in YYYY-MM-DD format
+  const excelToDate = (serial: number): string | null => {
+    try {
+      if (!serial || serial < 1 || serial > 100000) {
+        console.log("Invalid Excel serial date:", serial);
+        return null;
+      }
+      const startDate = new Date(1900, 0, 1); // January 1, 1900
+      const excelDate = new Date(
+        startDate.getTime() + (serial - 2) * 24 * 60 * 60 * 1000,
+      ); // Adjust for the 1900 leap year bug
+      return excelDate.toISOString().split("T")[0]; // Return date in YYYY-MM-DD format
+    } catch (error) {
+      console.error("Error converting Excel date:", serial, error);
+      return null;
+    }
   };
 
   // Start processing transactions from row 17 (index 16 is the header)
   const transactions = data
     .slice(17) // Skip metadata and header rows
-    .filter((row) => row.length >= 7) // Ensure the row has enough columns
+    .filter((row) => row.length >= 7 && row[0]) // Ensure the row has enough columns and a date
     .map((row, index) => {
-      // Handle the Datum column (Excel serial date or MM-DD format)
+      // Handle the Datum column (Excel serial date, MM-DD format, or YYYY-MM-DD format)
       let formattedDate: string | null = null;
-      if (!isNaN(Number(row[0]))) {
-        // If Datum is an Excel serial date
-        formattedDate = excelToDate(Number(row[0]));
-      } else if (typeof row[0] === "string") {
-        // If Datum is in MM-DD format
-        const [month, day] = row[0].split("-");
-        formattedDate =
-          month && day
-            ? `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
-            : null;
-      }
 
-      // // Handle the Bokfört column (Excel serial date or MM-DD format)
-      // let formattedBookedDate: string | null = null;
-      // if (!isNaN(row[1])) {
-      //   // If Bokfört is an Excel serial date
-      //   formattedBookedDate = excelToDate(Number(row[1]));
-      // } else if (typeof row[1] === "string") {
-      //   // If Bokfört is in MM-DD format
-      //   const [bookedMonth, bookedDay] = row[1].split("-");
-      //   formattedBookedDate = bookedMonth && bookedDay
-      //     ? `${year}-${bookedMonth.padStart(2, "0")}-${bookedDay.padStart(2, "0")}`
-      //     : null;
-      // }
+      console.log(
+        `Row ${index + 1} - Datum value:`,
+        row[0],
+        "Type:",
+        typeof row[0],
+      );
+
+      if (row[0] && !isNaN(Number(row[0]))) {
+        // If Datum is an Excel serial date (numeric)
+        formattedDate = excelToDate(Number(row[0]));
+        console.log(
+          `Row ${index + 1} - Excel serial date converted to:`,
+          formattedDate,
+        );
+      } else if (typeof row[0] === "string" && row[0].includes("-")) {
+        // If Datum contains dashes, determine format
+        const parts = row[0].split("-");
+
+        if (parts.length === 3 && parts[0].length === 4) {
+          // YYYY-MM-DD format (new format)
+          formattedDate = row[0]; // Already in correct format
+          console.log(
+            `Row ${index + 1} - YYYY-MM-DD format (already correct):`,
+            formattedDate,
+          );
+        } else if (parts.length === 2) {
+          // MM-DD format (old format)
+          const [month, day] = parts;
+          if (month && day) {
+            formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+            console.log(
+              `Row ${index + 1} - MM-DD format converted to:`,
+              formattedDate,
+            );
+          }
+        }
+      }
 
       // Parse the Belopp column (convert to float)
       const rawAmount = row[6] ? String(row[6]).replace(",", ".").trim() : "0"; // Replace commas with dots
       const amount = parseFloat(rawAmount) || 0; // Convert to float, default to 0 if invalid
 
+      // Calculate final date (add 1 day if valid)
+      let finalDate: string | null = null;
+      if (formattedDate) {
+        try {
+          const dateObj = new Date(formattedDate);
+          if (!isNaN(dateObj.getTime())) {
+            dateObj.setDate(dateObj.getDate() + 1);
+            finalDate = dateObj.toISOString().split("T")[0];
+          } else {
+            console.warn(`Row ${index + 1} - Invalid date:`, formattedDate);
+          }
+        } catch (error) {
+          console.error(
+            `Row ${index + 1} - Error processing date:`,
+            formattedDate,
+            error,
+          );
+        }
+      }
+
       return {
         id: index + 1, // Sequential ID
-        Date: formattedDate
-          ? new Date(
-              new Date(formattedDate).setDate(
-                new Date(formattedDate).getDate() + 1,
-              ),
-            )
-              .toISOString()
-              .split("T")[0]
-          : null, // Formatted Datum column with 1 day added
+        Date: finalDate, // Formatted Datum column with 1 day added
         Description: row[2]?.trim() || "", // Specifikation column
         Amount: amount, // Belopp column
       };
-    });
+    })
+    .filter((t) => t.Date !== null); // Filter out transactions with invalid dates
 
   if (transactions.length === 0) {
     throw new Error("No transactions found in the file.");

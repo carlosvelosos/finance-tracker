@@ -111,13 +111,10 @@ const MonthlySummaryPage = () => {
                     Inter Credit Card
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Inter Invest
+                    B3
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Rico Credit Card
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Rico Invest
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     FGTS
@@ -162,19 +159,14 @@ const MonthlySummaryPage = () => {
                       {formatCurrency(row.interCreditCard)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.interInvest)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.b3)} border-r border-gray-200 dark:border-gray-700`}
                     >
-                      {formatCurrency(row.interInvest)}
+                      {formatCurrency(row.b3)}
                     </td>
                     <td
                       className={`px-4 py-3 text-sm text-right ${getCellColor(row.ricoCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.ricoCreditCard)}
-                    </td>
-                    <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.ricoInvest)} border-r border-gray-200 dark:border-gray-700`}
-                    >
-                      {formatCurrency(row.ricoInvest)}
                     </td>
                     <td
                       className={`px-4 py-3 text-sm text-right ${getCellColor(row.fgts)} border-r border-gray-200 dark:border-gray-700`}
@@ -229,20 +221,13 @@ const MonthlySummaryPage = () => {
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
-                    {formatCurrency(
-                      data.reduce((sum, row) => sum + row.interInvest, 0),
-                    )}
+                    {formatCurrency(data.reduce((sum, row) => sum + row.b3, 0))}
                   </td>
                   <td
                     className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.ricoCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.ricoCreditCard, 0),
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
-                    {formatCurrency(
-                      data.reduce((sum, row) => sum + row.ricoInvest, 0),
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">

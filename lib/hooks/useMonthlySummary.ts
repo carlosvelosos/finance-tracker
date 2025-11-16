@@ -6,9 +6,8 @@ export interface MonthlyData {
   month: string;
   interAcc: number;
   interCreditCard: number;
-  interInvest: number;
+  b3: number;
   ricoCreditCard: number;
-  ricoInvest: number;
   fgts: number;
   mae: number;
   handelsbankenAcc: number;
@@ -57,11 +56,12 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
     try {
       console.log("Fetching monthly summary data from Supabase...");
 
-      // Discover INACC, INMCPDF, AM, and SJ tables for the specified year
+      // Discover INACC, INMCPDF, AM, SJ, and B3 tables for the specified year
       let inaccTables: string[] = [];
       let inmcpdfTables: string[] = [];
       let amTables: string[] = [];
       let sjTables: string[] = [];
+      let b3Tables: string[] = [];
 
       try {
         const { data: rpcTables, error: rpcError } = await supabase.rpc(
@@ -85,6 +85,9 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           sjTables = (rpcTables || [])
             .map((table: { table_name: string }) => table.table_name)
             .filter((tableName: string) => tableName.startsWith(`SJ_${year}`));
+          b3Tables = (rpcTables || [])
+            .map((table: { table_name: string }) => table.table_name)
+            .filter((tableName: string) => tableName.startsWith(`B3_${year}`));
           console.log(
             "Found INACC tables via RPC for year",
             year,
@@ -99,6 +102,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           );
           console.log("Found AM tables via RPC for year", year, ":", amTables);
           console.log("Found SJ tables via RPC for year", year, ":", sjTables);
+          console.log("Found B3 tables via RPC for year", year, ":", b3Tables);
         } else {
           console.warn("RPC function not available:", rpcError?.message);
           throw new Error("RPC not available");
@@ -111,6 +115,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         const knownInmcpdfTableNames: string[] = [];
         const knownAmTableNames: string[] = [];
         const knownSjTableNames: string[] = [];
+        const knownB3TableNames: string[] = [];
 
         // Generate table names for the specified year (all 12 months)
         for (let i = 1; i <= 12; i++) {
@@ -119,6 +124,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           knownInmcpdfTableNames.push(`INMCPDF_${year}${month}`);
           knownAmTableNames.push(`AM_${year}${month}`);
           knownSjTableNames.push(`SJ_${year}${month}`);
+          knownB3TableNames.push(`B3_${year}${month}`);
         }
 
         // Test which INACC tables actually exist
@@ -201,10 +207,31 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           (table): table is string => table !== null,
         );
 
+        // Test which B3 tables actually exist
+        const b3ExistenceTests = await Promise.all(
+          knownB3TableNames.map(async (tableName) => {
+            try {
+              const { error } = await supabase
+                .from(tableName)
+                .select("*", { count: "exact", head: true })
+                .limit(0);
+
+              return error ? null : tableName;
+            } catch (err) {
+              return null;
+            }
+          }),
+        );
+
+        b3Tables = b3ExistenceTests.filter(
+          (table): table is string => table !== null,
+        );
+
         console.log("Fallback approach found INACC tables:", inaccTables);
         console.log("Fallback approach found INMCPDF tables:", inmcpdfTables);
         console.log("Fallback approach found AM tables:", amTables);
         console.log("Fallback approach found SJ tables:", sjTables);
+        console.log("Fallback approach found B3 tables:", b3Tables);
       }
 
       console.log("Found INACC tables:", inaccTables);
@@ -316,12 +343,37 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
-      const [inaccResults, inmcpdfResults, amResults, sjResults] =
+      // Fetch data from each B3 table
+      const b3DataPromises = b3Tables.map(async (tableName: string) => {
+        try {
+          const { data: transactions, error } = await supabase
+            .from(tableName)
+            .select('"Date", "Amount"')
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error(`Error fetching from ${tableName}:`, error);
+            return { tableName, transactions: [], error };
+          }
+
+          return {
+            tableName,
+            transactions: transactions || [],
+            error: null,
+          };
+        } catch (err) {
+          console.error(`Error fetching from table ${tableName}:`, err);
+          return { tableName, transactions: [], error: err };
+        }
+      });
+
+      const [inaccResults, inmcpdfResults, amResults, sjResults, b3Results] =
         await Promise.all([
           Promise.all(inaccDataPromises),
           Promise.all(inmcpdfDataPromises),
           Promise.all(amDataPromises),
           Promise.all(sjDataPromises),
+          Promise.all(b3DataPromises),
         ]);
 
       // Group transactions by month and calculate totals
@@ -329,6 +381,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       const monthlyInmcpdfTotals: Record<string, number> = {};
       const monthlyAmTotals: Record<string, number> = {};
       const monthlySjTotals: Record<string, number> = {};
+      const monthlyB3Totals: Record<string, number> = {};
 
       inaccResults.forEach((result) => {
         if (result.transactions && result.transactions.length > 0) {
@@ -418,6 +471,26 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
+      b3Results.forEach((result) => {
+        if (result.transactions && result.transactions.length > 0) {
+          // Extract year-month from table name (B3_YYYYMM)
+          const match = result.tableName.match(/B3_(\d{4})(\d{2})/);
+          if (match) {
+            const year = match[1];
+            const month = match[2];
+            const monthKey = `${year}-${month}`;
+
+            // Calculate total for this month
+            const total = (result.transactions as Transaction[]).reduce(
+              (sum, transaction) => sum + (transaction.Amount || 0),
+              0,
+            );
+
+            monthlyB3Totals[monthKey] = total;
+          }
+        }
+      });
+
       // Create entries for all 12 months
       const allMonths = [
         "Jan",
@@ -444,14 +517,14 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           const interCreditCardTotal = monthlyInmcpdfTotals[monthKey] || 0;
           const amexCreditCardTotal = monthlyAmTotals[monthKey] || 0;
           const sjPrioCreditCardTotal = monthlySjTotals[monthKey] || 0;
+          const b3Total = monthlyB3Totals[monthKey] || 0;
 
           return {
             month: monthName,
             interAcc: interAccTotal,
             interCreditCard: interCreditCardTotal,
-            interInvest: 0,
+            b3: b3Total,
             ricoCreditCard: 0,
-            ricoInvest: 0,
             fgts: 0,
             mae: 0,
             handelsbankenAcc: 0,
@@ -462,13 +535,14 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
               interAccTotal +
               interCreditCardTotal +
               amexCreditCardTotal +
-              sjPrioCreditCardTotal,
+              sjPrioCreditCardTotal +
+              b3Total,
           };
         },
       );
 
       console.log(
-        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables, ${inmcpdfTables.length} INMCPDF tables, ${amTables.length} AM tables, and ${sjTables.length} SJ tables`,
+        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables, ${inmcpdfTables.length} INMCPDF tables, ${amTables.length} AM tables, ${sjTables.length} SJ tables, and ${b3Tables.length} B3 tables`,
       );
 
       setData(monthlyDataArray);

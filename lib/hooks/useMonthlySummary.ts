@@ -21,6 +21,7 @@ interface Transaction {
   Date?: string;
   Amount?: number;
   Category?: string;
+  Balance?: number;
 }
 
 interface UseMonthlySummaryOptions {
@@ -31,6 +32,9 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
   const { user } = useAuth();
   const { year = new Date().getFullYear() } = options;
   const [data, setData] = useState<MonthlyData[]>([]);
+  const [yearlyBalances, setYearlyBalances] = useState<Record<number, number>>(
+    {},
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const hasFetchedRef = useRef(false);
@@ -424,8 +428,9 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         try {
           const { data: transactions, error } = await supabase
             .from(tableName)
-            .select('"Date", "Amount", "Category"')
-            .eq("user_id", user.id);
+            .select('"Date", "Amount", "Category", "Balance"')
+            .eq("user_id", user.id)
+            .order('"Date"', { ascending: false });
 
           if (error) {
             console.error(`Error fetching from ${tableName}:`, error);
@@ -577,12 +582,23 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       });
 
       // Process HB (Handelsbanken) results - yearly table with transactions
+      const yearlyHbBalances: Record<number, number> = {};
+
       hbResults.forEach((result) => {
         console.log(
           `Processing HB table: ${result.tableName}, transactions count: ${result.transactions?.length || 0}`,
         );
 
         if (result.transactions && result.transactions.length > 0) {
+          // Extract year from table name and get latest balance (first transaction since ordered by date desc)
+          const yearMatch = result.tableName.match(/HB_(\d{4})/);
+          if (yearMatch && result.transactions[0]?.Balance !== undefined) {
+            const tableYear = parseInt(yearMatch[1]);
+            yearlyHbBalances[tableYear] = result.transactions[0].Balance;
+            console.log(
+              `Latest balance for ${result.tableName}: ${result.transactions[0].Balance}`,
+            );
+          }
           // HB tables are yearly (HB_YYYY), so we need to group by month from Date field
           (result.transactions as Transaction[]).forEach(
             (transaction, index) => {
@@ -721,8 +737,10 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       console.log(
         `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables, ${inmcpdfTables.length} INMCPDF tables, ${amTables.length} AM tables, ${sjTables.length} SJ tables, ${b3Tables.length} B3 tables, and ${hbTables.length} HB tables`,
       );
+      console.log("Yearly HB Balances:", yearlyHbBalances);
 
       setData(monthlyDataArray);
+      setYearlyBalances(yearlyHbBalances);
       hasFetchedRef.current = true;
       lastYearRef.current = year;
     } catch (err) {
@@ -756,6 +774,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
 
   return {
     data,
+    yearlyBalances,
     loading,
     error,
     refetch,

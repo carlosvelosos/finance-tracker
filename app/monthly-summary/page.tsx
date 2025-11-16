@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 const MonthlySummaryPage = () => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const { data, loading, error, refetch } = useMonthlySummary({
+  const { data, yearlyBalances, loading, error, refetch } = useMonthlySummary({
     year: selectedYear,
   });
 
@@ -348,7 +348,7 @@ const MonthlySummaryPage = () => {
                   const mae = 40000;
                   const b3 = 0;
                   const ricoXP = 0;
-                  const handelsbanken = 0;
+                  const handelsbanken = yearlyBalances[year] || 0;
                   const swPension = 0;
                   const handelsbankenInvest = 0;
                   const total =

@@ -56,12 +56,13 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
     try {
       console.log("Fetching monthly summary data from Supabase...");
 
-      // Discover INACC, INMCPDF, AM, SJ, and B3 tables for the specified year
+      // Discover INACC, INMCPDF, AM, SJ, B3, and HB tables for the specified year
       let inaccTables: string[] = [];
       let inmcpdfTables: string[] = [];
       let amTables: string[] = [];
       let sjTables: string[] = [];
       let b3Tables: string[] = [];
+      let hbTables: string[] = [];
 
       try {
         const { data: rpcTables, error: rpcError } = await supabase.rpc(
@@ -88,6 +89,15 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           b3Tables = (rpcTables || [])
             .map((table: { table_name: string }) => table.table_name)
             .filter((tableName: string) => tableName.startsWith(`B3_${year}`));
+          hbTables = (rpcTables || [])
+            .map((table: { table_name: string }) => table.table_name)
+            .filter((tableName: string) => {
+              // Only include yearly HB tables (HB_YYYY), not monthly ones (HB_YYYYMM)
+              const match = tableName.match(/^HB_(\d+)$/);
+              return (
+                match && match[1] === String(year) && match[1].length === 4
+              );
+            });
           console.log(
             "Found INACC tables via RPC for year",
             year,
@@ -103,6 +113,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           console.log("Found AM tables via RPC for year", year, ":", amTables);
           console.log("Found SJ tables via RPC for year", year, ":", sjTables);
           console.log("Found B3 tables via RPC for year", year, ":", b3Tables);
+          console.log("Found HB tables via RPC for year", year, ":", hbTables);
         } else {
           console.warn("RPC function not available:", rpcError?.message);
           throw new Error("RPC not available");
@@ -116,6 +127,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         const knownAmTableNames: string[] = [];
         const knownSjTableNames: string[] = [];
         const knownB3TableNames: string[] = [];
+        const knownHbTableNames: string[] = [`HB_${year}`]; // HB tables are per year
 
         // Generate table names for the specified year (all 12 months)
         for (let i = 1; i <= 12; i++) {
@@ -232,16 +244,51 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           (table): table is string => table !== null,
         );
 
+        // Test which HB tables actually exist
+        const hbExistenceTests = await Promise.all(
+          knownHbTableNames.map(async (tableName) => {
+            try {
+              const { error } = await supabase
+                .from(tableName)
+                .select("*", { count: "exact", head: true })
+                .limit(0);
+
+              return error ? null : tableName;
+            } catch (err) {
+              console.error(`Error checking HB table ${tableName}:`, err);
+              return null;
+            }
+          }),
+        );
+
+        hbTables = hbExistenceTests.filter(
+          (table): table is string => table !== null,
+        );
+
         console.log("Fallback approach found INACC tables:", inaccTables);
         console.log("Fallback approach found INMCPDF tables:", inmcpdfTables);
         console.log("Fallback approach found AM tables:", amTables);
         console.log("Fallback approach found SJ tables:", sjTables);
         console.log("Fallback approach found B3 tables:", b3Tables);
+        console.log("Fallback approach found HB tables:", hbTables);
       }
 
       console.log("Found INACC tables:", inaccTables);
       console.log("Found INMCPDF tables:", inmcpdfTables);
       console.log("Found AM tables:", amTables);
+      console.log("Found HB tables (before filtering):", hbTables);
+
+      // Additional safety filter: ensure HB tables are yearly format only (HB_YYYY)
+      hbTables = hbTables.filter((tableName) => {
+        const match = tableName.match(/^HB_(\d+)$/);
+        const isYearlyFormat = match && match[1].length === 4;
+        if (!isYearlyFormat) {
+          console.log(`Filtering out non-yearly HB table: ${tableName}`);
+        }
+        return isYearlyFormat;
+      });
+
+      console.log("Found HB tables (after filtering):", hbTables);
 
       if (
         inaccTables.length === 0 &&
@@ -372,14 +419,45 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
-      const [inaccResults, inmcpdfResults, amResults, sjResults, b3Results] =
-        await Promise.all([
-          Promise.all(inaccDataPromises),
-          Promise.all(inmcpdfDataPromises),
-          Promise.all(amDataPromises),
-          Promise.all(sjDataPromises),
-          Promise.all(b3DataPromises),
-        ]);
+      // Fetch data from each HB table (yearly tables)
+      const hbDataPromises = hbTables.map(async (tableName: string) => {
+        try {
+          const { data: transactions, error } = await supabase
+            .from(tableName)
+            .select('"Date", "Amount"')
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error(`Error fetching from ${tableName}:`, error);
+            return { tableName, transactions: [], error };
+          }
+
+          return {
+            tableName,
+            transactions: transactions || [],
+            error: null,
+          };
+        } catch (err) {
+          console.error(`Error fetching from table ${tableName}:`, err);
+          return { tableName, transactions: [], error: err };
+        }
+      });
+
+      const [
+        inaccResults,
+        inmcpdfResults,
+        amResults,
+        sjResults,
+        b3Results,
+        hbResults,
+      ] = await Promise.all([
+        Promise.all(inaccDataPromises),
+        Promise.all(inmcpdfDataPromises),
+        Promise.all(amDataPromises),
+        Promise.all(sjDataPromises),
+        Promise.all(b3DataPromises),
+        Promise.all(hbDataPromises),
+      ]);
 
       // Group transactions by month and calculate totals
       const monthlyInaccTotals: Record<string, number> = {};
@@ -387,6 +465,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       const monthlyAmTotals: Record<string, number> = {};
       const monthlySjTotals: Record<string, number> = {};
       const monthlyB3Totals: Record<string, number> = {};
+      const monthlyHbTotals: Record<string, number> = {};
 
       inaccResults.forEach((result) => {
         if (result.transactions && result.transactions.length > 0) {
@@ -496,6 +575,54 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
+      // Process HB (Handelsbanken) results - yearly table with transactions
+      hbResults.forEach((result) => {
+        console.log(
+          `Processing HB table: ${result.tableName}, transactions count: ${result.transactions?.length || 0}`,
+        );
+
+        if (result.transactions && result.transactions.length > 0) {
+          // HB tables are yearly (HB_YYYY), so we need to group by month from Date field
+          (result.transactions as Transaction[]).forEach(
+            (transaction, index) => {
+              if (transaction.Date) {
+                // Extract year-month from the Date field (YYYY-MM-DD)
+                const dateMatch = transaction.Date.match(/^(\d{4})-(\d{2})/);
+                if (dateMatch) {
+                  const transYear = dateMatch[1];
+                  const transMonth = dateMatch[2];
+                  const monthKey = `${transYear}-${transMonth}`;
+
+                  // Add to monthly total
+                  if (!monthlyHbTotals[monthKey]) {
+                    monthlyHbTotals[monthKey] = 0;
+                  }
+                  monthlyHbTotals[monthKey] += transaction.Amount || 0;
+
+                  // Log first 5 transactions and last 5 for each month
+                  if (index < 5 || index >= result.transactions!.length - 5) {
+                    console.log(
+                      `  HB Transaction [${index}]: Date=${transaction.Date}, Amount=${transaction.Amount}, MonthKey=${monthKey}, RunningTotal=${monthlyHbTotals[monthKey]}`,
+                    );
+                  }
+                } else {
+                  console.warn(
+                    `  HB Transaction date format invalid: ${transaction.Date}`,
+                  );
+                }
+              } else {
+                console.warn(`  HB Transaction missing date at index ${index}`);
+              }
+            },
+          );
+
+          console.log(
+            `HB Monthly Totals after processing ${result.tableName}:`,
+            monthlyHbTotals,
+          );
+        }
+      });
+
       // Create entries for all 12 months
       const allMonths = [
         "Jan",
@@ -512,6 +639,11 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         "Dec",
       ];
 
+      console.log(
+        "Final monthly HB totals before creating data array:",
+        monthlyHbTotals,
+      );
+
       const monthlyDataArray: MonthlyData[] = allMonths.map(
         (monthName, index) => {
           // Create month key in format YYYY-MM
@@ -523,6 +655,11 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           const amexCreditCardTotal = monthlyAmTotals[monthKey] || 0;
           const sjPrioCreditCardTotal = monthlySjTotals[monthKey] || 0;
           const b3Total = monthlyB3Totals[monthKey] || 0;
+          const hbAccTotal = monthlyHbTotals[monthKey] || 0;
+
+          console.log(
+            `Month ${monthName} (${monthKey}): HB Total = ${hbAccTotal}`,
+          );
 
           return {
             month: monthName,
@@ -532,7 +669,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             ricoCreditCard: 0,
             fgts: 0,
             mae: 0,
-            handelsbankenAcc: 0,
+            handelsbankenAcc: hbAccTotal,
             handelsbankenInvest: 0,
             amexCreditCard: amexCreditCardTotal,
             sjPrioCreditCard: sjPrioCreditCardTotal,
@@ -541,13 +678,14 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
               interCreditCardTotal +
               amexCreditCardTotal +
               sjPrioCreditCardTotal +
-              b3Total,
+              b3Total +
+              hbAccTotal,
           };
         },
       );
 
       console.log(
-        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables, ${inmcpdfTables.length} INMCPDF tables, ${amTables.length} AM tables, ${sjTables.length} SJ tables, and ${b3Tables.length} B3 tables`,
+        `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables, ${inmcpdfTables.length} INMCPDF tables, ${amTables.length} AM tables, ${sjTables.length} SJ tables, ${b3Tables.length} B3 tables, and ${hbTables.length} HB tables`,
       );
 
       setData(monthlyDataArray);

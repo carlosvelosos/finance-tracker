@@ -424,7 +424,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         try {
           const { data: transactions, error } = await supabase
             .from(tableName)
-            .select('"Date", "Amount"')
+            .select('"Date", "Amount", "Category"')
             .eq("user_id", user.id);
 
           if (error) {
@@ -466,6 +466,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       const monthlySjTotals: Record<string, number> = {};
       const monthlyB3Totals: Record<string, number> = {};
       const monthlyHbTotals: Record<string, number> = {};
+      const monthlyHbInvestTotals: Record<string, number> = {};
 
       inaccResults.forEach((result) => {
         if (result.transactions && result.transactions.length > 0) {
@@ -592,18 +593,41 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
                   const transYear = dateMatch[1];
                   const transMonth = dateMatch[2];
                   const monthKey = `${transYear}-${transMonth}`;
+                  const amount = transaction.Amount || 0;
 
-                  // Add to monthly total
-                  if (!monthlyHbTotals[monthKey]) {
-                    monthlyHbTotals[monthKey] = 0;
-                  }
-                  monthlyHbTotals[monthKey] += transaction.Amount || 0;
+                  // Check if this is an Investment transaction
+                  if (transaction.Category === "Investment") {
+                    // Add to Investment totals (as positive value)
+                    if (!monthlyHbInvestTotals[monthKey]) {
+                      monthlyHbInvestTotals[monthKey] = 0;
+                    }
+                    monthlyHbInvestTotals[monthKey] += Math.abs(amount);
 
-                  // Log first 5 transactions and last 5 for each month
-                  if (index < 5 || index >= result.transactions!.length - 5) {
-                    console.log(
-                      `  HB Transaction [${index}]: Date=${transaction.Date}, Amount=${transaction.Amount}, MonthKey=${monthKey}, RunningTotal=${monthlyHbTotals[monthKey]}`,
-                    );
+                    // Also add to account totals (as negative - money leaving account)
+                    if (!monthlyHbTotals[monthKey]) {
+                      monthlyHbTotals[monthKey] = 0;
+                    }
+                    monthlyHbTotals[monthKey] += amount; // Keep as negative
+
+                    // Log investment transactions
+                    if (index < 5 || index >= result.transactions!.length - 5) {
+                      console.log(
+                        `  HB Investment [${index}]: Date=${transaction.Date}, Amount=${amount}, Category=${transaction.Category}, MonthKey=${monthKey}, AccTotal=${monthlyHbTotals[monthKey]}, InvestTotal=${monthlyHbInvestTotals[monthKey]}`,
+                      );
+                    }
+                  } else {
+                    // Add to regular account totals
+                    if (!monthlyHbTotals[monthKey]) {
+                      monthlyHbTotals[monthKey] = 0;
+                    }
+                    monthlyHbTotals[monthKey] += amount;
+
+                    // Log first 5 and last 5 regular transactions
+                    if (index < 5 || index >= result.transactions!.length - 5) {
+                      console.log(
+                        `  HB Account [${index}]: Date=${transaction.Date}, Amount=${amount}, Category=${transaction.Category || "None"}, MonthKey=${monthKey}, AccTotal=${monthlyHbTotals[monthKey]}`,
+                      );
+                    }
                   }
                 } else {
                   console.warn(
@@ -617,8 +641,12 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           );
 
           console.log(
-            `HB Monthly Totals after processing ${result.tableName}:`,
+            `HB Monthly Account Totals after processing ${result.tableName}:`,
             monthlyHbTotals,
+          );
+          console.log(
+            `HB Monthly Investment Totals after processing ${result.tableName}:`,
+            monthlyHbInvestTotals,
           );
         }
       });
@@ -640,8 +668,12 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       ];
 
       console.log(
-        "Final monthly HB totals before creating data array:",
+        "Final monthly HB Account totals before creating data array:",
         monthlyHbTotals,
+      );
+      console.log(
+        "Final monthly HB Investment totals before creating data array:",
+        monthlyHbInvestTotals,
       );
 
       const monthlyDataArray: MonthlyData[] = allMonths.map(
@@ -656,9 +688,10 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           const sjPrioCreditCardTotal = monthlySjTotals[monthKey] || 0;
           const b3Total = monthlyB3Totals[monthKey] || 0;
           const hbAccTotal = monthlyHbTotals[monthKey] || 0;
+          const hbInvestTotal = monthlyHbInvestTotals[monthKey] || 0;
 
           console.log(
-            `Month ${monthName} (${monthKey}): HB Total = ${hbAccTotal}`,
+            `Month ${monthName} (${monthKey}): HB Acc = ${hbAccTotal}, HB Invest = ${hbInvestTotal}`,
           );
 
           return {
@@ -670,7 +703,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             fgts: 0,
             mae: 0,
             handelsbankenAcc: hbAccTotal,
-            handelsbankenInvest: 0,
+            handelsbankenInvest: hbInvestTotal,
             amexCreditCard: amexCreditCardTotal,
             sjPrioCreditCard: sjPrioCreditCardTotal,
             total:
@@ -679,7 +712,8 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
               amexCreditCardTotal +
               sjPrioCreditCardTotal +
               b3Total +
-              hbAccTotal,
+              hbAccTotal +
+              hbInvestTotal,
           };
         },
       );

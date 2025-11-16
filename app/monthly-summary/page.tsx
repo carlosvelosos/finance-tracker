@@ -214,7 +214,7 @@ const MonthlySummaryPage = () => {
                     TOTAL
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.interAcc, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.interAcc, 0),
@@ -227,7 +227,9 @@ const MonthlySummaryPage = () => {
                       data.reduce((sum, row) => sum + row.interCreditCard, 0),
                     )}
                   </td>
-                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.b3, 0))}`}
+                  >
                     {formatCurrency(data.reduce((sum, row) => sum + row.b3, 0))}
                   </td>
                   <td
@@ -237,12 +239,16 @@ const MonthlySummaryPage = () => {
                       data.reduce((sum, row) => sum + row.ricoCreditCard, 0),
                     )}
                   </td>
-                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenAcc, 0))}`}
+                  >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.handelsbankenAcc, 0),
                     )}
                   </td>
-                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenInvest, 0))}`}
+                  >
                     {formatCurrency(
                       data.reduce(
                         (sum, row) => sum + row.handelsbankenInvest,

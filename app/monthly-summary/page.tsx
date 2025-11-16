@@ -407,7 +407,7 @@ const MonthlySummaryPage = () => {
                   const inter = 0;
                   const santander = 0;
                   const bancoDoBrasil = 0;
-                  const caixaFGTS = 0;
+                  const caixaFGTS = 20000;
                   const mae = 40000;
                   // Calculate B3 yearly total from monthly data for the current selected year only
                   const b3 =

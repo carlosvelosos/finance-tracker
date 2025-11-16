@@ -98,6 +98,11 @@ const transactionLinks: { title: string; href: string; description: string }[] =
       href: "/recurrent",
       description: "Track and manage your recurring bills and subscriptions.",
     },
+    {
+      title: "Monthly Summary",
+      href: "/monthly-summary",
+      description: "View a detailed summary of your monthly financial data.",
+    },
     // {
     //   title: "Family",
     //   href: "/family",

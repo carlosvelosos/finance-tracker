@@ -11,7 +11,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -86,17 +85,18 @@ export default function BillItem({
     try {
       setIsSaving(true);
 
+      const monthAbbr = month.toLowerCase().substring(0, 3);
+      const paymentMethodField = `${monthAbbr}_payment_method` as keyof Bill;
+
       // Update record in Supabase
       const { error } = await supabase
-        .from("recurrent_2025") // Using 2025 as it appears to be the current year based on your context
+        .from("recurrent_2025")
         .update({
           description: editBill.description,
           due_day: editBill.due_day,
-          payment_method: editBill.payment_method,
           country: editBill.country,
           base_value: editBill.base_value,
-          is_credit_card: editBill.is_credit_card,
-          credit_card_name: editBill.credit_card_name,
+          [paymentMethodField]: editBill[paymentMethodField],
           [valueField]: editBill[valueField],
           updated_at: new Date().toISOString(),
         })
@@ -241,9 +241,16 @@ export default function BillItem({
                     </Label>
                     <Input
                       id="payment_method"
-                      value={editBill.payment_method}
+                      value={
+                        (editBill[
+                          `${monthAbbr}_payment_method` as keyof Bill
+                        ] ?? "") as string
+                      }
                       onChange={(e) =>
-                        handleInputChange("payment_method", e.target.value)
+                        handleInputChange(
+                          `${monthAbbr}_payment_method` as keyof Bill,
+                          e.target.value,
+                        )
                       }
                       className="col-span-3"
                     />
@@ -264,66 +271,6 @@ export default function BillItem({
                       className="col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label
-                      htmlFor="is_credit_card"
-                      className="text-right font-medium text-gray-300"
-                    >
-                      Credit Card
-                    </Label>
-                    <div className="col-span-3 flex items-center">
-                      <Checkbox
-                        id="is_credit_card"
-                        checked={editBill.is_credit_card}
-                        onCheckedChange={(checked) => {
-                          setEditBill((prev) => ({
-                            ...prev,
-                            is_credit_card: checked === true,
-                            credit_card_name:
-                              checked === true ? prev.credit_card_name : null,
-                          }));
-                        }}
-                      />
-                    </div>
-                  </div>
-                  {editBill.is_credit_card && (
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label
-                        htmlFor="credit_card_name"
-                        className="text-right font-medium text-gray-300"
-                      >
-                        Card Name
-                      </Label>
-                      <Select
-                        value={editBill.credit_card_name || ""}
-                        onValueChange={(value) =>
-                          setEditBill((prev) => ({
-                            ...prev,
-                            credit_card_name: value,
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="col-span-3">
-                          <SelectValue placeholder="Select a credit card" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {editBill.country === "Sweden" ? (
-                            <>
-                              <SelectItem value="Amex">Amex</SelectItem>
-                              <SelectItem value="SJ Prio">SJ Prio</SelectItem>
-                            </>
-                          ) : (
-                            <>
-                              <SelectItem value="Inter MC">Inter MC</SelectItem>
-                              <SelectItem value="Rico Visa">
-                                Rico Visa
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label
                       htmlFor="base_value"
@@ -396,17 +343,7 @@ export default function BillItem({
             <div>{bill.due_day}</div>
 
             <div className="font-medium text-gray-300">Payment Method:</div>
-            <div>{bill.payment_method}</div>
-
-            <div className="font-medium text-gray-300">Credit Card:</div>
-            <div>{bill.is_credit_card ? "Yes" : "No"}</div>
-
-            {bill.is_credit_card && bill.credit_card_name && (
-              <>
-                <div className="font-medium text-gray-300">Card Name:</div>
-                <div>{bill.credit_card_name}</div>
-              </>
-            )}
+            <div>{bill[`${monthAbbr}_payment_method` as keyof Bill]}</div>
 
             <div className="font-medium text-gray-300">Base Value:</div>
             <div>{formatCurrency(bill.base_value, bill.country)}</div>

@@ -86,8 +86,6 @@ export default function BillsPage() {
     payment_method: "",
     country: "Sweden",
     base_value: 0,
-    is_credit_card: false,
-    credit_card_name: null as string | null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -200,8 +198,6 @@ export default function BillsPage() {
           payment_method: newExpense.payment_method,
           country: newExpense.country,
           base_value: newExpense.base_value,
-          is_credit_card: newExpense.is_credit_card,
-          credit_card_name: newExpense.credit_card_name,
           ...statusFields,
         })
         .select();
@@ -234,8 +230,6 @@ export default function BillsPage() {
         payment_method: "",
         country: "Sweden",
         base_value: 0,
-        is_credit_card: false,
-        credit_card_name: null,
       });
     } catch (error) {
       console.error("Error adding expense:", error);
@@ -367,27 +361,32 @@ export default function BillsPage() {
   };
 
   // Calculate cumulative totals per country (from January to current month)
-  // Excludes credit card expenses to avoid double-counting
+  // Excludes bills paid by credit card (Amex, SJ Prio, Inter MC, Rico) to avoid double-counting
   const cumulativeTotalsPerCountry = bills.reduce(
     (acc, bill) => {
-      // Skip bills marked as credit card to avoid double-counting
-      if (bill.is_credit_card) return acc;
-
-      // Create an array of month abbreviations from January to the current month
       const relevantMonths = MONTHS.slice(0, currentMonthIndex + 1).map(
         (month) => month.toLowerCase().substring(0, 3),
       );
 
       let totalForBill = 0;
 
-      // Sum up values for all MONTHS from January to current month
       relevantMonths.forEach((monthAbbr) => {
         const valueField = `${monthAbbr}_value` as keyof Bill;
+        const paymentMethodField = `${monthAbbr}_payment_method` as keyof Bill;
         const monthValue =
           typeof bill[valueField] === "number"
             ? (bill[valueField] as number)
             : bill.base_value;
-
+        const paymentMethod = bill[paymentMethodField];
+        // If paid by credit card for this month, skip this bill for that month
+        if (
+          typeof paymentMethod === "string" &&
+          ["amex", "sj prio", "inter mc", "rico"].some((card) =>
+            paymentMethod.toLowerCase().includes(card),
+          )
+        ) {
+          return; // skip this month for this bill
+        }
         totalForBill += monthValue;
       });
 
@@ -790,7 +789,7 @@ export default function BillsPage() {
                       })
                     }
                     className="col-span-3 text-black"
-                    placeholder="e.g. Credit Card, Bank Transfer"
+                    placeholder="e.g. Amex, SJ Prio, Inter MC, Rico Visa, Bank Transfer"
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -834,63 +833,6 @@ export default function BillsPage() {
                     }`}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label
-                    htmlFor="is_credit_card"
-                    className="text-right text-black"
-                  >
-                    Credit Card
-                  </Label>
-                  <div className="col-span-3 flex items-center">
-                    <Checkbox
-                      id="is_credit_card"
-                      checked={newExpense.is_credit_card}
-                      onCheckedChange={(checked) => {
-                        setNewExpense({
-                          ...newExpense,
-                          is_credit_card: checked === true,
-                          credit_card_name: checked === true ? null : null,
-                        });
-                      }}
-                    />
-                  </div>
-                </div>
-                {newExpense.is_credit_card && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label
-                      htmlFor="credit_card_name"
-                      className="text-right text-black"
-                    >
-                      Card Name
-                    </Label>
-                    <Select
-                      value={newExpense.credit_card_name || ""}
-                      onValueChange={(value) =>
-                        setNewExpense({
-                          ...newExpense,
-                          credit_card_name: value,
-                        })
-                      }
-                    >
-                      <SelectTrigger className="col-span-3 text-black">
-                        <SelectValue placeholder="Select a credit card" />
-                      </SelectTrigger>
-                      <SelectContent className="text-black">
-                        {newExpense.country === "Sweden" ? (
-                          <>
-                            <SelectItem value="Amex">Amex</SelectItem>
-                            <SelectItem value="SJ Prio">SJ Prio</SelectItem>
-                          </>
-                        ) : (
-                          <>
-                            <SelectItem value="Inter MC">Inter MC</SelectItem>
-                            <SelectItem value="Rico Visa">Rico Visa</SelectItem>
-                          </>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
               </div>
               <SheetFooter>
                 <SheetClose asChild>

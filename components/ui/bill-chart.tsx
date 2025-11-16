@@ -171,13 +171,25 @@ export function BillChart({
     return months.map((month, monthIndex) => {
       const monthAbbr = month.toLowerCase().substring(0, 3);
       const valueField = `${monthAbbr}_value` as keyof Bill;
+      const paymentMethodField = `${monthAbbr}_payment_method` as keyof Bill;
 
       // Calculate monthly total for selected country
-      // Excludes credit card expenses to avoid double-counting
+      // Excludes credit card expenses and grouped payment-method bills (Amex, SJ PRIO, Inter MC, Rico)
+      // to avoid double-counting
+      const skipKeywords = ["amex", "sj prio", "inter mc", "rico"];
+
       const monthlyTotal = bills
         .filter((bill) => bill.country === country)
-        .filter((bill) => !bill.is_credit_card) // Skip credit card expenses
         .reduce((sum, bill) => {
+          const paymentMethod =
+            (bill[paymentMethodField] as unknown as string) || "";
+          const pmLower = paymentMethod.toLowerCase();
+
+          // Skip bills whose monthly payment method matches any grouped payment method
+          if (paymentMethod && skipKeywords.some((k) => pmLower.includes(k))) {
+            return sum;
+          }
+
           const monthValue = bill[valueField];
           return (
             sum +

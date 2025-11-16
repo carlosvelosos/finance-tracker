@@ -123,11 +123,12 @@ export default function BillCard({
     onNextMonth();
   }, [carouselApi, onNextMonth]);
 
-  // Function to get bill details for a specific month
+  // Updated to use monthly-specific payment method in calculations
   const getBillDetailsForMonth = (monthName: string) => {
     const monthAbbr = monthName.toLowerCase().substring(0, 3);
     const statusField = `${monthAbbr}_status` as keyof Bill;
     const valueField = `${monthAbbr}_value` as keyof Bill;
+    const paymentMethodField = `${monthAbbr}_payment_method` as keyof Bill;
 
     const countryBills = bills.filter((bill) => bill.country === country);
 
@@ -135,25 +136,39 @@ export default function BillCard({
     const sortedBills = [...countryBills].sort((a, b) => a.due_day - b.due_day);
 
     // Calculate total for all bills (paid and unpaid)
-    // Excludes credit card expenses to avoid double-counting
-    const totalValue = sortedBills
-      .filter((bill) => !bill.is_credit_card) // Skip credit card expenses
-      .reduce((sum, bill) => {
-        const monthValue = bill[valueField];
-        return (
-          sum + (typeof monthValue === "number" ? monthValue : bill.base_value)
-        );
-      }, 0);
+    // Skip bills whose payment method for this month involves certain grouped methods
+    // to avoid duplication (e.g. "Amex", "SJ PRIO", "Inter MC", "Rico").
+    const totalValue = sortedBills.reduce((sum, bill) => {
+      const paymentMethod =
+        (bill[paymentMethodField] as unknown as string) || "";
+
+      const skipKeywords = ["amex", "sj prio", "inter mc", "rico"];
+      const pmLower = paymentMethod.toLowerCase();
+
+      // If the payment method contains any of the skip keywords, exclude it
+      if (paymentMethod && skipKeywords.some((k) => pmLower.includes(k))) {
+        return sum;
+      }
+
+      const monthValue = bill[valueField];
+      const validValue =
+        typeof monthValue === "number" && monthValue >= 0
+          ? monthValue
+          : bill.base_value;
+
+      return sum + validValue;
+    }, 0);
 
     // Calculate total for unpaid bills only
-    // Includes credit card expenses when unpaid (so you know what needs to be paid)
     const unpaidTotalValue = sortedBills
       .filter((bill) => !bill[statusField])
       .reduce((sum, bill) => {
         const monthValue = bill[valueField];
-        return (
-          sum + (typeof monthValue === "number" ? monthValue : bill.base_value)
-        );
+        const validValue =
+          typeof monthValue === "number" && monthValue >= 0
+            ? monthValue
+            : bill.base_value;
+        return sum + validValue;
       }, 0);
 
     const unpaidBillsCount = sortedBills.filter(
@@ -164,7 +179,10 @@ export default function BillCard({
       totalValue,
       unpaidTotalValue,
       unpaidBillsCount,
-      countryBills: sortedBills,
+      countryBills: sortedBills.map((bill) => ({
+        ...bill,
+        paymentMethod: bill[paymentMethodField],
+      })),
     };
   };
 

@@ -344,6 +344,9 @@ const MonthlySummaryPage = () => {
         <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
           <p>* Negative values are displayed in red</p>
           <p>* All values are in your default currency</p>
+          <p>
+            * Total includes: Inter Acc, Handelsbanken Acc, Handelsbanken Invest
+          </p>
         </div>
 
         <div className="mt-12 p-4 border-b border-gray-200 dark:border-gray-700">

@@ -105,16 +105,25 @@ const MonthlySummaryPage = () => {
                     Month
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Inter Acc
+                    <div className="text-right">
+                      <div>Inter</div>
+                      <div>Acc</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Inter Credit Card
+                    <div className="text-right">
+                      <div>Inter</div>
+                      <div>Credit Card</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     B3
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Rico Credit Card
+                    <div className="text-right">
+                      <div>Rico</div>
+                      <div>Credit Card</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     FGTS
@@ -123,16 +132,28 @@ const MonthlySummaryPage = () => {
                     Mae
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Handelsbanken Acc
+                    <div className="text-right">
+                      <div>Handelsbanken</div>
+                      <div>Acc</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Handelsbanken Invest
+                    <div className="text-right">
+                      <div>Handelsbanken</div>
+                      <div>Invest</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Amex Credit Card
+                    <div className="text-right">
+                      <div>Amex</div>
+                      <div>Credit Card</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    SJ Prio Credit Card
+                    <div className="text-right">
+                      <div>SJ Prio</div>
+                      <div>Credit Card</div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider bg-gray-200 dark:bg-gray-600">
                     Total

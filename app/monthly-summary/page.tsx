@@ -126,12 +126,6 @@ const MonthlySummaryPage = () => {
                     </div>
                   </th>
                   <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    FGTS
-                  </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
-                    Mae
-                  </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Handelsbanken</div>
                       <div>Acc</div>
@@ -190,16 +184,6 @@ const MonthlySummaryPage = () => {
                       {formatCurrency(row.ricoCreditCard)}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.fgts)} border-r border-gray-200 dark:border-gray-700`}
-                    >
-                      {formatCurrency(row.fgts)}
-                    </td>
-                    <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.mae)} border-r border-gray-200 dark:border-gray-700`}
-                    >
-                      {formatCurrency(row.mae)}
-                    </td>
-                    <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.handelsbankenAcc)}
@@ -251,16 +235,6 @@ const MonthlySummaryPage = () => {
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.ricoCreditCard, 0),
-                    )}
-                  </td>
-                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
-                    {formatCurrency(
-                      data.reduce((sum, row) => sum + row.fgts, 0),
-                    )}
-                  </td>
-                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
-                    {formatCurrency(
-                      data.reduce((sum, row) => sum + row.mae, 0),
                     )}
                   </td>
                   <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">

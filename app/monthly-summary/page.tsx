@@ -101,16 +101,16 @@ const MonthlySummaryPage = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100 dark:bg-gray-700">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
                     Month
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Inter</div>
                       <div>Acc</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Inter</div>
                       <div>Credit Card</div>
@@ -119,37 +119,37 @@ const MonthlySummaryPage = () => {
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     B3
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Rico</div>
                       <div>Credit Card</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     FGTS
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Mae
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Handelsbanken</div>
                       <div>Acc</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Handelsbanken</div>
                       <div>Invest</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>Amex</div>
                       <div>Credit Card</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     <div className="text-right">
                       <div>SJ Prio</div>
                       <div>Credit Card</div>
@@ -166,107 +166,109 @@ const MonthlySummaryPage = () => {
                     key={row.month}
                     className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-800 z-10">
+                    <td className="w-32 px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-800 z-10">
                       {row.month}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.interAcc)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.interAcc)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.interAcc)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.interCreditCard)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.interCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.interCreditCard)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.b3)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.b3)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.b3)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.ricoCreditCard)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.ricoCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.ricoCreditCard)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.fgts)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.fgts)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.fgts)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.mae)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.mae)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.mae)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.handelsbankenAcc)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenInvest)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenInvest)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.handelsbankenInvest)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.amexCreditCard)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.amexCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.amexCreditCard)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right ${getCellColor(row.sjPrioCreditCard)} border-r border-gray-200 dark:border-gray-700`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.sjPrioCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
                       {formatCurrency(row.sjPrioCreditCard)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
+                    <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
                       {formatCurrency(row.total)}
                     </td>
                   </tr>
                 ))}
                 {/* Totals Row */}
                 <tr className="bg-gray-100 dark:bg-gray-700 font-semibold border-t-2 border-gray-300 dark:border-gray-600">
-                  <td className="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
+                  <td className="w-32 px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
                     TOTAL
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
+                  >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.interAcc, 0),
                     )}
                   </td>
                   <td
-                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.interCreditCard, 0),
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
                     {formatCurrency(data.reduce((sum, row) => sum + row.b3, 0))}
                   </td>
                   <td
-                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.ricoCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.ricoCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.ricoCreditCard, 0),
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.fgts, 0),
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.mae, 0),
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.handelsbankenAcc, 0),
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                  <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
                     {formatCurrency(
                       data.reduce(
                         (sum, row) => sum + row.handelsbankenInvest,
@@ -275,20 +277,20 @@ const MonthlySummaryPage = () => {
                     )}
                   </td>
                   <td
-                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.amexCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.amexCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.amexCreditCard, 0),
                     )}
                   </td>
                   <td
-                    className={`px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0),
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600">
+                  <td className="w-32 px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600">
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.total, 0),
                     )}
@@ -319,37 +321,37 @@ const MonthlySummaryPage = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100 dark:bg-gray-700">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Year
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Inter
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Santander
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Banco do Brasil
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Caixa (FGTS)
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Mãe
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     B3
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Rico (XP)
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Handelsbanken
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     SW Pension
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
                     Handelsbanken Invest
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider bg-gray-200 dark:bg-gray-600">
@@ -358,49 +360,73 @@ const MonthlySummaryPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {yearOptions.map((year) => (
-                  <tr
-                    key={year}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
-                  >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
-                      {year}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                      0
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-750">
-                      0
-                    </td>
-                  </tr>
-                ))}
+                {yearOptions.map((year) => {
+                  const inter = 0;
+                  const santander = 0;
+                  const bancoDoBrasil = 0;
+                  const caixaFGTS = 0;
+                  const mae = 40000;
+                  const b3 = 0;
+                  const ricoXP = 0;
+                  const handelsbanken = 0;
+                  const swPension = 0;
+                  const handelsbankenInvest = 0;
+                  const total =
+                    inter +
+                    santander +
+                    bancoDoBrasil +
+                    caixaFGTS +
+                    mae +
+                    b3 +
+                    ricoXP +
+                    handelsbanken +
+                    swPension +
+                    handelsbankenInvest;
+
+                  return (
+                    <tr
+                      key={year}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                    >
+                      <td className="w-32 px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                        {year}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(inter)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(santander)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(bancoDoBrasil)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(caixaFGTS)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(mae)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(b3)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(ricoXP)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(handelsbanken)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(swPension)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                        {formatCurrency(handelsbankenInvest)}
+                      </td>
+                      <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
+                        {formatCurrency(total)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

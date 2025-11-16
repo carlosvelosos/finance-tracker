@@ -282,6 +282,108 @@ const MonthlySummaryPage = () => {
           <p>* Negative values are displayed in red</p>
           <p>* All values are in your default currency</p>
         </div>
+
+        <div className="mt-12 p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Yearly Summary
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Overview by year
+          </p>
+        </div>
+
+        {/* Yearly Summary Table */}
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100 dark:bg-gray-700">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Year
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Inter
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Santander
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Banco do Brasil
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Caixa (FGTS)
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Mãe
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    B3
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Rico (XP)
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Handelsbanken
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    SW Pension
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-r border-gray-300 dark:border-gray-600">
+                    Handelsbanken Invest
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider bg-gray-200 dark:bg-gray-600">
+                    Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {yearOptions.map((year) => (
+                  <tr
+                    key={year}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+                      {year}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
+                      0
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-750">
+                      0
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

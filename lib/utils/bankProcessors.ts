@@ -642,3 +642,153 @@ export function processInterBRAccountMonthly(
 
   return { tableName, transactions };
 }
+
+export function processB3(data: string[][], fileName: string) {
+  // Extract year and month from filename (e.g., "relatorio-consolidado-mensal-2025-setembro.xlsx")
+  const match = fileName.match(
+    /relatorio-consolidado-mensal-(\d{4})-(\w+)\.xlsx/i,
+  );
+
+  if (!match) {
+    throw new Error(
+      "Invalid B3 filename format. Expected: relatorio-consolidado-mensal-YYYY-<month>.xlsx (e.g., relatorio-consolidado-mensal-2025-setembro.xlsx)",
+    );
+  }
+
+  const year = match[1];
+  const monthName = match[2].toLowerCase();
+
+  // Map Portuguese month names to numbers
+  const monthMap: { [key: string]: string } = {
+    janeiro: "01",
+    fevereiro: "02",
+    março: "03",
+    marco: "03", // Alternative spelling without accent
+    abril: "04",
+    maio: "05",
+    junho: "06",
+    julho: "07",
+    agosto: "08",
+    setembro: "09",
+    outubro: "10",
+    novembro: "11",
+    dezembro: "12",
+  };
+
+  const month = monthMap[monthName];
+  if (!month) {
+    throw new Error(
+      `Invalid month name in filename: "${monthName}". Expected Portuguese month names (e.g., janeiro, fevereiro, março, etc.)`,
+    );
+  }
+
+  // Construct table name in format B3_YYYYMM
+  const tableName = `B3_${year}${month}`;
+
+  // Expected columns in "Proventos Recebidos" tab:
+  // Column 0 (A): Produto (Product/Stock name)
+  // Column 1 (B): Pagamento (Payment date - DD/MM/YYYY)
+  // Column 2 (C): Tipo de Evento (Event type - Rendimento, Dividendo, JCP, etc.)
+  // Column 3 (D): Instituição (Institution)
+  // Column 4 (E): Quantidade (Quantity)
+  // Column 5 (F): Preço unitário (Unit price)
+  // Column 6 (G): Valor líquido (Net value)
+
+  const transactions = data
+    .slice(1) // Skip header row
+    .filter((row) => row.length >= 7 && row[0] && String(row[0]).trim()) // Ensure row has data and product name
+    .map((row, index) => {
+      // Parse date from Pagamento column (DD/MM/YYYY)
+      const rawDate = String(row[1] || "").trim();
+      let formattedDate: string | null = null;
+      if (rawDate) {
+        const dateParts = rawDate.split("/");
+        if (dateParts.length === 3) {
+          // Convert from DD/MM/YYYY to YYYY-MM-DD
+          formattedDate = `${dateParts[2]}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
+        }
+      }
+
+      // Extract product name and event type
+      const produto = String(row[0] || "").trim();
+      const tipoEvento = String(row[2] || "").trim();
+      const instituicao = String(row[3] || "").trim();
+
+      // Build description combining product and event type
+      const description = `${produto} - ${tipoEvento}`;
+
+      // Parse quantity
+      const rawQuantidade = String(row[4] || "0").trim();
+      let quantidade: number;
+      if (typeof row[4] === "number") {
+        quantidade = row[4];
+      } else {
+        quantidade =
+          parseFloat(rawQuantidade.replace(/\./g, "").replace(",", ".")) || 0;
+      }
+
+      // Parse unit price (Brazilian format: R$ 1.234,56 or already numeric)
+      const rawPreco = String(row[5] || "0").trim();
+      let precoUnitario: number;
+      if (typeof row[5] === "number") {
+        precoUnitario = row[5];
+      } else {
+        precoUnitario =
+          parseFloat(
+            rawPreco
+              .replace("R$", "")
+              .replace(/\s/g, "") // Remove spaces
+              .replace(/\./g, "") // Remove thousand separators (dots)
+              .replace(",", ".") // Replace decimal comma with dot
+              .trim(),
+          ) || 0;
+      }
+
+      // Parse net value (Brazilian format: R$ 1.234,56)
+      // Note: Excel may have already converted to numeric format (7.11) or kept as string ("7,11")
+      const rawValor = String(row[6] || "0").trim();
+
+      let valorLiquido: number;
+      // Check if it's already a number (Excel numeric cell)
+      if (typeof row[6] === "number") {
+        valorLiquido = row[6];
+      } else {
+        // It's a string with Brazilian format: R$ 1.234,56
+        valorLiquido =
+          parseFloat(
+            rawValor
+              .replace("R$", "")
+              .replace(/\s/g, "") // Remove spaces
+              .replace(/\./g, "") // Remove thousand separators (dots)
+              .replace(",", ".") // Replace decimal comma with dot
+              .trim(),
+          ) || 0;
+      }
+
+      return {
+        id: index + 1,
+        Date: formattedDate,
+        Description: description,
+        Amount: valorLiquido, // Net dividend value (main transaction amount)
+        Quantity: quantidade,
+        UnitPrice: precoUnitario,
+        Institution: instituicao,
+        EventType: tipoEvento,
+        Product: produto,
+        Bank: "B3",
+        Category: "Investment Income",
+        Comment: `Qty: ${quantidade} @ R$ ${precoUnitario.toFixed(2)} | ${instituicao}`,
+      };
+    });
+
+  if (transactions.length === 0) {
+    throw new Error(
+      "No dividend transactions found in 'Proventos Recebidos' tab. Please check if the file has the correct format and data.",
+    );
+  }
+
+  console.log(
+    `Processed ${transactions.length} B3 dividend transactions for table ${tableName}`,
+  );
+  return { tableName, transactions };
+}

@@ -142,6 +142,7 @@ const BANK_OPTIONS = [
   "Handelsbanken-SE",
   "AmericanExpress-SE",
   "SEB_SJ_Prio-SE",
+  "B3",
 ];
 
 // Bank-specific upload instructions
@@ -274,6 +275,30 @@ const BANK_INSTRUCTIONS: Record<
       "Row 3 contains year: 'Månad: [Month] YYYY'",
       "Datum column supports: Excel serial date, MM-DD, or YYYY-MM-DD formats",
       "Amount (Belopp) in column 7: Swedish format with comma",
+    ],
+  },
+  B3: {
+    format: "Excel (.xlsx)",
+    columns: [
+      "Produto",
+      "Pagamento (DD/MM/YYYY)",
+      "Tipo de Evento",
+      "Instituição",
+      "Quantidade",
+      "Preço unitário",
+      "Valor líquido",
+    ],
+    fileNamePattern: "relatorio-consolidado-mensal-YYYY-<month>.xlsx",
+    example: "relatorio-consolidado-mensal-2025-setembro.xlsx",
+    notes: [
+      "Brazilian stock exchange (B3) dividend statements",
+      "Uses 'Proventos Recebidos' tab only (other tabs ignored)",
+      "Creates table: B3_YYYYMM (e.g., B3_202509 for September 2025)",
+      "Year and month extracted from filename (Portuguese month names supported)",
+      "Date format: DD/MM/YYYY in 'Pagamento' column",
+      "Amount format: Brazilian format (R$ 1.234,56)",
+      "Tracks dividends, interest on equity (JCP), and other distributions",
+      "Supported months: janeiro, fevereiro, março, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro",
     ],
   },
 };
@@ -864,6 +889,44 @@ export default function UploadPage() {
       case "SEB_SJ_Prio-SE":
         // Extract table name from filename (e.g., "SEB_202503.xls" -> "SEB_202503")
         return fileName.replace(/\.(csv|xlsx|xls)$/i, "");
+      case "B3":
+        // Extract year and month from filename (e.g., "relatorio-consolidado-mensal-2025-setembro.xlsx")
+        const b3Match = fileName.match(
+          /relatorio-consolidado-mensal-(\d{4})-(\w+)\.xlsx/i,
+        );
+        if (b3Match) {
+          const year = b3Match[1];
+          const monthName = b3Match[2].toLowerCase();
+
+          // Map Portuguese month names to numbers
+          const monthMap: { [key: string]: string } = {
+            janeiro: "01",
+            fevereiro: "02",
+            março: "03",
+            marco: "03", // Alternative spelling
+            abril: "04",
+            maio: "05",
+            junho: "06",
+            julho: "07",
+            agosto: "08",
+            setembro: "09",
+            outubro: "10",
+            novembro: "11",
+            dezembro: "12",
+          };
+
+          const month = monthMap[monthName];
+          if (month) {
+            return `B3_${year}${month}`;
+          }
+        }
+
+        // Fallback: warn and return a default or throw error
+        console.warn(
+          "Invalid B3 filename format. Expected relatorio-consolidado-mensal-YYYY-<month>.xlsx, got:",
+          fileName,
+        );
+        return null;
       default:
         return null;
     }

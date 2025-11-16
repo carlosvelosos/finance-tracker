@@ -258,23 +258,30 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
-      // Combine all months and convert to MonthlyData format
-      const allMonthKeys = new Set([
-        ...Object.keys(monthlyInaccTotals),
-        ...Object.keys(monthlyInmcpdfTotals),
-      ]);
+      // Create entries for all 12 months
+      const allMonths = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
 
-      const monthlyDataArray: MonthlyData[] = Array.from(allMonthKeys)
-        .map((monthKey) => {
+      const monthlyDataArray: MonthlyData[] = allMonths.map(
+        (monthName, index) => {
+          // Create month key in format YYYY-MM
+          const monthNumber = String(index + 1).padStart(2, "0");
+          const monthKey = `${year}-${monthNumber}`;
+
           const interAccTotal = monthlyInaccTotals[monthKey] || 0;
           const interCreditCardTotal = monthlyInmcpdfTotals[monthKey] || 0;
-
-          // Parse the month key to create a readable month string (only month name)
-          const [yearStr, month] = monthKey.split("-");
-          const monthDate = new Date(parseInt(yearStr), parseInt(month) - 1);
-          const monthName = monthDate.toLocaleDateString("en-US", {
-            month: "short",
-          });
 
           return {
             month: monthName,
@@ -291,25 +298,8 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             sjPrioCreditCard: 0,
             total: interAccTotal + interCreditCardTotal,
           };
-        })
-        .sort((a, b) => {
-          // Sort by month order (January to December)
-          const months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ];
-          return months.indexOf(a.month) - months.indexOf(b.month);
-        });
+        },
+      );
 
       console.log(
         `Processed ${monthlyDataArray.length} months of data from ${inaccTables.length} INACC tables and ${inmcpdfTables.length} INMCPDF tables`,

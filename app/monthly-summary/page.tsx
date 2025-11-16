@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 const MonthlySummaryPage = () => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [convertToReais, setConvertToReais] = useState(false);
+  const [conversionRate, setConversionRate] = useState(0.56);
   const { data, yearlyBalances, loading, error, refetch } = useMonthlySummary({
     year: selectedYear,
   });
@@ -27,6 +29,11 @@ const MonthlySummaryPage = () => {
   const getCellColor = (value: number) => {
     if (value < 0) return "text-red-600";
     return "text-gray-900 dark:text-gray-100";
+  };
+
+  // Convert SEK to BRL if conversion is enabled
+  const convertValue = (value: number) => {
+    return convertToReais ? value * conversionRate : value;
   };
 
   if (loading) {
@@ -89,6 +96,31 @@ const MonthlySummaryPage = () => {
                   ))}
                 </select>
               </div>
+              <Button
+                onClick={() => setConvertToReais(!convertToReais)}
+                variant={convertToReais ? "default" : "outline"}
+              >
+                {convertToReais ? "Show SEK" : "Convert to BRL"}
+              </Button>
+              {convertToReais && (
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="rate-input"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Rate:
+                  </label>
+                  <input
+                    id="rate-input"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={conversionRate}
+                    onChange={(e) => setConversionRate(Number(e.target.value))}
+                    className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
               <Button onClick={refetch} variant="outline">
                 Refresh Data
               </Button>
@@ -186,25 +218,34 @@ const MonthlySummaryPage = () => {
                     <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:border-gray-700`}
                     >
-                      {formatCurrency(row.handelsbankenAcc)}
+                      {formatCurrency(convertValue(row.handelsbankenAcc))}
                     </td>
                     <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenInvest)} border-r border-gray-200 dark:border-gray-700`}
                     >
-                      {formatCurrency(row.handelsbankenInvest)}
+                      {formatCurrency(convertValue(row.handelsbankenInvest))}
                     </td>
                     <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.amexCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
-                      {formatCurrency(row.amexCreditCard)}
+                      {formatCurrency(convertValue(row.amexCreditCard))}
                     </td>
                     <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.sjPrioCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
-                      {formatCurrency(row.sjPrioCreditCard)}
+                      {formatCurrency(convertValue(row.sjPrioCreditCard))}
                     </td>
                     <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
-                      {formatCurrency(row.total)}
+                      {formatCurrency(
+                        row.interAcc +
+                          row.interCreditCard +
+                          row.b3 +
+                          row.ricoCreditCard +
+                          convertValue(row.handelsbankenAcc) +
+                          convertValue(row.handelsbankenInvest) +
+                          convertValue(row.amexCreditCard) +
+                          convertValue(row.sjPrioCreditCard),
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -243,16 +284,23 @@ const MonthlySummaryPage = () => {
                     className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenAcc, 0))}`}
                   >
                     {formatCurrency(
-                      data.reduce((sum, row) => sum + row.handelsbankenAcc, 0),
+                      convertValue(
+                        data.reduce(
+                          (sum, row) => sum + row.handelsbankenAcc,
+                          0,
+                        ),
+                      ),
                     )}
                   </td>
                   <td
                     className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenInvest, 0))}`}
                   >
                     {formatCurrency(
-                      data.reduce(
-                        (sum, row) => sum + row.handelsbankenInvest,
-                        0,
+                      convertValue(
+                        data.reduce(
+                          (sum, row) => sum + row.handelsbankenInvest,
+                          0,
+                        ),
                       ),
                     )}
                   </td>
@@ -260,19 +308,38 @@ const MonthlySummaryPage = () => {
                     className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.amexCreditCard, 0))}`}
                   >
                     {formatCurrency(
-                      data.reduce((sum, row) => sum + row.amexCreditCard, 0),
+                      convertValue(
+                        data.reduce((sum, row) => sum + row.amexCreditCard, 0),
+                      ),
                     )}
                   </td>
                   <td
                     className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-700 ${getCellColor(data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0))}`}
                   >
                     {formatCurrency(
-                      data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0),
+                      convertValue(
+                        data.reduce(
+                          (sum, row) => sum + row.sjPrioCreditCard,
+                          0,
+                        ),
+                      ),
                     )}
                   </td>
                   <td className="w-32 px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600">
                     {formatCurrency(
-                      data.reduce((sum, row) => sum + row.total, 0),
+                      data.reduce(
+                        (sum, row) =>
+                          sum +
+                          row.interAcc +
+                          row.interCreditCard +
+                          row.b3 +
+                          row.ricoCreditCard +
+                          convertValue(row.handelsbankenAcc) +
+                          convertValue(row.handelsbankenInvest) +
+                          convertValue(row.amexCreditCard) +
+                          convertValue(row.sjPrioCreditCard),
+                        0,
+                      ),
                     )}
                   </td>
                 </tr>
@@ -359,9 +426,9 @@ const MonthlySummaryPage = () => {
                     mae +
                     b3 +
                     ricoXP +
-                    handelsbanken +
+                    convertValue(handelsbanken) +
                     swPension +
-                    handelsbankenInvest;
+                    convertValue(handelsbankenInvest);
 
                   return (
                     <tr
@@ -393,13 +460,13 @@ const MonthlySummaryPage = () => {
                         {formatCurrency(ricoXP)}
                       </td>
                       <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                        {formatCurrency(handelsbanken)}
+                        {formatCurrency(convertValue(handelsbanken))}
                       </td>
                       <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
                         {formatCurrency(swPension)}
                       </td>
                       <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
-                        {formatCurrency(handelsbankenInvest)}
+                        {formatCurrency(convertValue(handelsbankenInvest))}
                       </td>
                       <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
                         {formatCurrency(total)}

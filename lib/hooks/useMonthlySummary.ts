@@ -21,6 +21,7 @@ export interface MonthlyData {
 interface Transaction {
   Date?: string;
   Amount?: number;
+  Category?: string;
 }
 
 interface UseMonthlySummaryOptions {
@@ -186,7 +187,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           try {
             const { data: transactions, error } = await supabase
               .from(tableName)
-              .select('"Date", "Amount"')
+              .select('"Date", "Amount", "Category"')
               .eq("user_id", user.id);
 
             if (error) {
@@ -244,11 +245,13 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             const month = match[2];
             const monthKey = `${year}-${month}`;
 
-            // Calculate total for this month
-            const total = (result.transactions as Transaction[]).reduce(
-              (sum, transaction) => sum + (transaction.Amount || 0),
-              0,
-            );
+            // Calculate total for this month, excluding "Pagamento fatura anterior"
+            const total = (result.transactions as Transaction[])
+              .filter(
+                (transaction) =>
+                  transaction.Category !== "Pagamento fatura anterior",
+              )
+              .reduce((sum, transaction) => sum + (transaction.Amount || 0), 0);
 
             monthlyInmcpdfTotals[monthKey] = total;
           }

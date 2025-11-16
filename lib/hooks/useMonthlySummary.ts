@@ -35,6 +35,9 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
   const [yearlyBalances, setYearlyBalances] = useState<Record<number, number>>(
     {},
   );
+  const [yearlyInvestTotals, setYearlyInvestTotals] = useState<
+    Record<number, number>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const hasFetchedRef = useRef(false);
@@ -739,8 +742,19 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       );
       console.log("Yearly HB Balances:", yearlyHbBalances);
 
+      // Calculate yearly investment total from monthly data
+      const yearlyInvestTotal = monthlyDataArray.reduce(
+        (sum, month) => sum + month.handelsbankenInvest,
+        0,
+      );
+      const yearlyInvestTotalsObj: Record<number, number> = {
+        [year]: yearlyInvestTotal,
+      };
+      console.log("Yearly HB Investment Total:", yearlyInvestTotalsObj);
+
       setData(monthlyDataArray);
       setYearlyBalances(yearlyHbBalances);
+      setYearlyInvestTotals(yearlyInvestTotalsObj);
       hasFetchedRef.current = true;
       lastYearRef.current = year;
     } catch (err) {
@@ -775,6 +789,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
   return {
     data,
     yearlyBalances,
+    yearlyInvestTotals,
     loading,
     error,
     refetch,

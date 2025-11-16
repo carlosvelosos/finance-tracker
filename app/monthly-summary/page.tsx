@@ -9,9 +9,10 @@ const MonthlySummaryPage = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [convertToReais, setConvertToReais] = useState(false);
   const [conversionRate, setConversionRate] = useState(0.56);
-  const { data, yearlyBalances, loading, error, refetch } = useMonthlySummary({
-    year: selectedYear,
-  });
+  const { data, yearlyBalances, yearlyInvestTotals, loading, error, refetch } =
+    useMonthlySummary({
+      year: selectedYear,
+    });
 
   // Generate year options (2024 to current year)
   const yearOptions = Array.from(
@@ -417,7 +418,7 @@ const MonthlySummaryPage = () => {
                   const ricoXP = 0;
                   const handelsbanken = yearlyBalances[year] || 0;
                   const swPension = 0;
-                  const handelsbankenInvest = 0;
+                  const handelsbankenInvest = yearlyInvestTotals[year] || 0;
                   const total =
                     inter +
                     santander +

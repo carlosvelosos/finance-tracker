@@ -238,14 +238,10 @@ const MonthlySummaryPage = () => {
                     </td>
                     <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
                       {formatCurrency(
+                        // Total now only includes: Inter Acc, Handelsbanken Acc, Handelsbanken Invest
                         row.interAcc +
-                          row.interCreditCard +
-                          row.b3 +
-                          row.ricoCreditCard +
                           convertValue(row.handelsbankenAcc) +
-                          convertValue(row.handelsbankenInvest) +
-                          convertValue(row.amexCreditCard) +
-                          convertValue(row.sjPrioCreditCard),
+                          convertValue(row.handelsbankenInvest),
                       )}
                     </td>
                   </tr>
@@ -328,17 +324,13 @@ const MonthlySummaryPage = () => {
                   </td>
                   <td className="w-32 px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600">
                     {formatCurrency(
+                      // Totals now only include: Inter Acc, Handelsbanken Acc, Handelsbanken Invest
                       data.reduce(
                         (sum, row) =>
                           sum +
                           row.interAcc +
-                          row.interCreditCard +
-                          row.b3 +
-                          row.ricoCreditCard +
                           convertValue(row.handelsbankenAcc) +
-                          convertValue(row.handelsbankenInvest) +
-                          convertValue(row.amexCreditCard) +
-                          convertValue(row.sjPrioCreditCard),
+                          convertValue(row.handelsbankenInvest),
                         0,
                       ),
                     )}

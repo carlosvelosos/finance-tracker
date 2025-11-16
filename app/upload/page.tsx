@@ -144,6 +144,140 @@ const BANK_OPTIONS = [
   "SEB_SJ_Prio-SE",
 ];
 
+// Bank-specific upload instructions
+const BANK_INSTRUCTIONS: Record<
+  string,
+  {
+    format: string;
+    columns: string[];
+    fileNamePattern: string;
+    example: string;
+    notes?: string[];
+  }
+> = {
+  DEV: {
+    format: "CSV",
+    columns: [
+      "Date (DD/MM/YYYY)",
+      "Description",
+      "[Empty]",
+      "Comment",
+      "Amount (R$ format)",
+    ],
+    fileNamePattern: "Any .csv or .xlsx file",
+    example: "test-transactions.csv",
+    notes: [
+      "Development/testing environment",
+      "Amount format: R$ 1.234,56 (Brazilian format with R$ prefix)",
+    ],
+  },
+  "Inter-BR-Mastercard": {
+    format: "CSV",
+    columns: [
+      "Date (DD/MM/YYYY)",
+      "Description",
+      "[Empty]",
+      "Outcome",
+      "Amount (R$ format)",
+    ],
+    fileNamePattern: "fatura-inter-YYYY-MM.csv",
+    example: "fatura-inter-2025-03.csv",
+    notes: [
+      "Month and year are extracted from filename",
+      "Creates table: INMC_YYYYMM",
+      "Amount format: R$ 1.234,56 (Brazilian format)",
+    ],
+  },
+  "Inter-BR-Mastercard-from-PDF": {
+    format: "CSV (converted from PDF)",
+    columns: [
+      "Date (Portuguese format)",
+      "Movimentação",
+      "Tipo",
+      "Valor",
+      "Beneficiário",
+    ],
+    fileNamePattern: "fatura-inter-YYYY-MM_fromPDF.csv",
+    example: "fatura-inter-2025-03_fromPDF.csv",
+    notes: [
+      "For PDF-converted bank statements",
+      "Creates table: INMCPDF_YYYYMM",
+      "Date format: Portuguese month names (e.g., '15 de janeiro de 2025')",
+      "Amount column (Valor): Brazilian format",
+    ],
+  },
+  "Inter-BR-Account": {
+    format: "CSV (semicolon-delimited)",
+    columns: ["Data Lançamento (DD/MM/YYYY)", "Descrição", "Valor", "Saldo"],
+    fileNamePattern: "Any file containing YYYY in name",
+    example: "extrato-2025.csv",
+    notes: [
+      "Year extracted from filename or first transaction date",
+      "Creates table: IN_YYYY",
+      "Uses semicolon (;) as delimiter",
+      "Amount and Balance in Brazilian format (1.234,56)",
+    ],
+  },
+  "Inter-BR-Account-Monthly": {
+    format: "CSV (semicolon-delimited)",
+    columns: ["Data Lançamento (DD/MM/YYYY)", "Descrição", "Valor", "Saldo"],
+    fileNamePattern: "Extrato-DD-MM-YYYY-a-DD-MM-YYYY-CSV.csv",
+    example: "Extrato-01-03-2025-a-31-03-2025-CSV.csv",
+    notes: [
+      "Year and month extracted from filename pattern",
+      "Creates table: INACC_YYYYMM",
+      "Uses semicolon (;) as delimiter",
+      "Amount and Balance in Brazilian format",
+    ],
+  },
+  "Handelsbanken-SE": {
+    format: "CSV or Excel",
+    columns: ["[Metadata]", "Transaktionsdatum", "Text", "Belopp", "Saldo"],
+    fileNamePattern: "Any file containing YYYY in name",
+    example: "transactions-2025.csv",
+    notes: [
+      "First 9 rows contain metadata (will be skipped)",
+      "Row 6 format: 'Period: YYYY-MM-DD - YYYY-MM-DD'",
+      "Year extracted from Period row",
+      "Creates table: HB_YYYY",
+      "Transactions start from row 9",
+      "Amount format: Swedish (comma as decimal separator)",
+    ],
+  },
+  "AmericanExpress-SE": {
+    format: "CSV",
+    columns: ["Date (MM/DD/YYYY)", "Description", "Amount (Swedish format)"],
+    fileNamePattern: "AM_YYYYMM.csv",
+    example: "AM_202503.csv",
+    notes: [
+      "Table name taken directly from filename (without extension)",
+      "Date format: MM/DD/YYYY (American format)",
+      "Amount format: Swedish (comma as decimal, dot as thousands)",
+    ],
+  },
+  "SEB_SJ_Prio-SE": {
+    format: "Excel (.xls)",
+    columns: [
+      "Datum",
+      "Bokfört",
+      "Specifikation",
+      "...",
+      "...",
+      "...",
+      "Belopp",
+    ],
+    fileNamePattern: "SEB_YYYYMM.xls",
+    example: "SEB_202503.xls",
+    notes: [
+      "Table name taken directly from filename (without extension)",
+      "First 17 rows contain metadata (will be skipped)",
+      "Row 3 contains year: 'Månad: [Month] YYYY'",
+      "Datum column: Excel serial date or MM-DD format",
+      "Amount (Belopp) in column 7: Swedish format with comma",
+    ],
+  },
+};
+
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
@@ -784,6 +918,87 @@ export default function UploadPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Bank-specific upload instructions */}
+              {selectedBank && BANK_INSTRUCTIONS[selectedBank] && (
+                <div className="space-y-3 p-4 bg-blue-900/20 border border-blue-700 rounded-md animate-in slide-in-from-top duration-300">
+                  <div className="flex items-start gap-2">
+                    <div className="text-blue-400 text-xl mt-0.5">📋</div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-blue-300 mb-2">
+                        Expected File Format for {selectedBank}
+                      </h3>
+
+                      <div className="space-y-2 text-xs">
+                        {/* File format */}
+                        <div>
+                          <span className="text-gray-400">File Format: </span>
+                          <code className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-blue-300">
+                            {BANK_INSTRUCTIONS[selectedBank].format}
+                          </code>
+                        </div>
+
+                        {/* Expected columns */}
+                        <div>
+                          <span className="text-gray-400">
+                            Expected Columns:
+                          </span>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {BANK_INSTRUCTIONS[selectedBank].columns.map(
+                              (col, idx) => (
+                                <code
+                                  key={idx}
+                                  className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-green-300 text-[10px]"
+                                >
+                                  {col}
+                                </code>
+                              ),
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Filename pattern */}
+                        <div>
+                          <span className="text-gray-400">
+                            Filename Pattern:{" "}
+                          </span>
+                          <code className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-yellow-300">
+                            {BANK_INSTRUCTIONS[selectedBank].fileNamePattern}
+                          </code>
+                        </div>
+
+                        {/* Example */}
+                        <div>
+                          <span className="text-gray-400">Example: </span>
+                          <code className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-gray-300">
+                            {BANK_INSTRUCTIONS[selectedBank].example}
+                          </code>
+                        </div>
+
+                        {/* Additional notes */}
+                        {BANK_INSTRUCTIONS[selectedBank].notes &&
+                          BANK_INSTRUCTIONS[selectedBank].notes!.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-blue-800">
+                              <span className="text-gray-400 block mb-1">
+                                ⚠️ Important Notes:
+                              </span>
+                              <ul className="list-disc list-inside space-y-0.5 text-gray-300">
+                                {BANK_INSTRUCTIONS[selectedBank].notes!.map(
+                                  (note, idx) => (
+                                    <li key={idx} className="text-[10px]">
+                                      {note}
+                                    </li>
+                                  ),
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* File input field - now supports multiple files */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-300 mb-2">

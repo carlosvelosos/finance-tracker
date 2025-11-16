@@ -19,7 +19,7 @@ import { Label } from "../../components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+// Checkbox deprecated: monthly payment method field is used instead
 import { toast } from "sonner";
 import {
   Select,

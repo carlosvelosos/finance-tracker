@@ -75,14 +75,14 @@ export default function InvestmentsPage() {
     "Handelsbanken Asien Tema (A1 SEK)": "0P00000F83.ST",
     "Handelsbanken Amerika Tema (A1 SEK)": "0P00000F82.ST",
     // add the rest (leave empty string to keep using mock values)
-    "Handelsbanken AstraZeneca Allemansfond": "",
-    "Handelsbanken Emerging M. Index (A1 SEK)": "",
-    "Handelsbanken Global Digital (A1 SEK)": "",
-    "Handelsbanken Global Index (A1 SEK)": "",
-    "Handelsbanken Global Momentum (A1 SEK)": "",
+    "Handelsbanken AstraZeneca Allemansfond": "0P000083RV.ST",
+    "Handelsbanken Emerging M. Index (A1 SEK)": "0P0001F3XG.ST",
+    "Handelsbanken Global Digital (A1 SEK)": "0P0001QDLJ.ST",
+    "Handelsbanken Global Index (A1 SEK)": "0P0001F3XN.ST",
+    "Handelsbanken Global Momentum (A1 SEK)": "0P0001LS8Q.ST",
     "Handelsbanken Hälsovård Tema (A1 SEK)": "",
-    "Handelsbanken Norden Selektiv (A1 SEK)": "",
-    "Handelsbanken Sverige Selektiv (A1 SEK)": "",
+    "Handelsbanken Norden Selektiv (A1 SEK)": "0P000146XC.ST",
+    "Handelsbanken Sverige Selektiv (A1 SEK)": "0P000148YN.ST",
   };
 
   const [data, setData] = React.useState(

@@ -187,7 +187,6 @@ export async function loadFullEmail(
     throw error;
   }
 }
-
 /**
  * Delete full email data file
  * @param emailId - Email ID
@@ -250,31 +249,47 @@ export async function batchSaveFullEmails(
   getEmailDate: (
     email: Partial<FullEmailData> & { id: string },
   ) => string | null,
-): Promise<{ saved: number; errors: string[] }> {
+): Promise<{
+  saved: number;
+  savedIds: string[];
+  skippedIds: string[];
+  errors: string[];
+}> {
   console.log(
     `[EmailStorage] batchSaveFullEmails called with ${emails.length} emails`,
   );
-  const result = { saved: 0, errors: [] as string[] };
+
+  const savedIds: string[] = [];
+  const skippedIds: string[] = [];
+  const errors: string[] = [];
 
   for (const email of emails) {
     try {
       const date = getEmailDate(email);
       if (!date) {
-        result.errors.push(`Email ${email.id}: No valid date`);
+        const msg = `Email ${email.id}: No valid date`;
+        errors.push(msg);
         console.log(`[EmailStorage] Skipping email ${email.id}: no valid date`);
         continue;
       }
 
+      // Skip if the full data file already exists
+      const exists = await fullEmailExists(email.id, date);
+      if (exists) {
+        skippedIds.push(email.id);
+        console.log(`[EmailStorage] Skipping existing full email: ${email.id}`);
+        continue;
+      }
+
       await saveFullEmail(email, date);
-      result.saved++;
+      savedIds.push(email.id);
     } catch (error) {
-      result.errors.push(
-        `Email ${email.id}: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      const msg = `Email ${email.id}: ${error instanceof Error ? error.message : "Unknown error"}`;
+      errors.push(msg);
     }
   }
 
-  return result;
+  return { saved: savedIds.length, savedIds, skippedIds, errors };
 }
 
 /**

@@ -7,7 +7,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as fs from "fs/promises";
 import * as path from "path";
-import { batchSaveFullEmails } from "@/lib/utils/emailStorage";
+import {
+  batchSaveFullEmails,
+  fullEmailExists,
+  getFullEmailRelativePath,
+} from "@/lib/utils/emailStorage";
 
 const EMAIL_DIR_PATH =
   "C:\\Users\\carlo\\GITHUB\\finance-tracker\\privat\\data\\email";
@@ -45,16 +49,19 @@ export async function POST(request: NextRequest) {
     const filename = `gmail-export-${month}.json`;
     const filePath = path.join(EMAIL_DIR_PATH, filename);
 
-    // Save monthly index file
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
-
     const result: {
       success: boolean;
       filename: string;
-      fullData?: { saved: number; errors: string[] };
+      fullData?: {
+        saved: number;
+        savedIds: string[];
+        skippedIds: string[];
+        errors: string[];
+      };
     } = { success: true, filename };
 
-    // Optionally save full email data
+    // Optionally save full email data first (so existing files are preserved and
+    // newly provided full emails are available on disk when we reconcile the index)
     if (saveFullData && fullEmails && Array.isArray(fullEmails)) {
       console.log(
         `[Write API] Saving full data for ${fullEmails.length} emails...`,
@@ -91,13 +98,74 @@ export async function POST(request: NextRequest) {
 
       result.fullData = {
         saved: fullDataResult.saved,
+        savedIds: fullDataResult.savedIds,
+        skippedIds: fullDataResult.skippedIds,
         errors: fullDataResult.errors,
       };
 
       console.log(
-        `[Write API] Full data saved: ${fullDataResult.saved} success, ${fullDataResult.errors.length} errors`,
+        `[Write API] Full data: saved=${fullDataResult.saved}, skipped=${fullDataResult.skippedIds.length}, errors=${fullDataResult.errors.length}`,
       );
+
+      if (fullDataResult.skippedIds.length > 0) {
+        console.log(
+          `[Write API] Skipped (existing) IDs: ${fullDataResult.skippedIds
+            .slice(0, 20)
+            .join(", ")}${
+            fullDataResult.skippedIds.length > 20 ? ", ..." : ""
+          }`,
+        );
+      }
     }
+
+    // Reconcile index file: only include fullDataPath entries for emails that
+    // actually have full data on disk (either previously existing or just saved).
+    try {
+      if (data && Array.isArray(data.emails)) {
+        for (const emailMeta of data.emails) {
+          try {
+            const dateStr =
+              emailMeta.date ||
+              (emailMeta.headers &&
+                Array.isArray(emailMeta.headers) &&
+                (() => {
+                  const found = emailMeta.headers.find(
+                    (h: { name: string; value: string }) =>
+                      h.name.toLowerCase() === "date",
+                  );
+                  return found
+                    ? new Date(found.value).toISOString().split("T")[0]
+                    : null;
+                })());
+
+            if (!dateStr) {
+              // No reliable date -> cannot have full data file
+              delete emailMeta.fullDataPath;
+              continue;
+            }
+
+            const exists = await fullEmailExists(emailMeta.id, dateStr);
+            if (exists) {
+              // Ensure relative path is consistent
+              emailMeta.fullDataPath = getFullEmailRelativePath(
+                emailMeta.id,
+                dateStr,
+              );
+            } else {
+              delete emailMeta.fullDataPath;
+            }
+          } catch {
+            // If any error occurs while checking, be conservative and remove path
+            delete emailMeta.fullDataPath;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[Write API] Error reconciling fullDataPath entries:", err);
+    }
+
+    // Write the reconciled monthly index file
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
 
     return NextResponse.json(result);
   } catch (error) {

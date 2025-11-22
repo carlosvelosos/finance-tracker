@@ -434,7 +434,17 @@ const MonthlySummaryPage = () => {
 
         <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
           <p>* Negative values are displayed in red</p>
-          <p>* All values are in your default currency</p>
+          <p>
+            *{" "}
+            {convertToReais ? (
+              <>
+                All values are converted to BRL (rate:{" "}
+                {conversionRate.toFixed(2)})
+              </>
+            ) : (
+              <>All values are in your default currency</>
+            )}
+          </p>
           <p>
             * Total includes: Inter Acc, B3, Handelsbanken Acc, Handelsbanken
             Invest

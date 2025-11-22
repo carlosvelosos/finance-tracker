@@ -327,8 +327,9 @@ const MonthlySummaryPage = () => {
                     </td>
                     <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-750">
                       {formatCurrency(
-                        // Total now only includes: Inter Acc, Handelsbanken Acc, Handelsbanken Invest
+                        // Total now includes: Inter Acc, B3, Handelsbanken Acc, Handelsbanken Invest
                         row.interAcc +
+                          row.b3 +
                           convertValue(row.handelsbankenAcc) +
                           convertValue(row.handelsbankenInvest),
                       )}
@@ -413,11 +414,12 @@ const MonthlySummaryPage = () => {
                   </td>
                   <td className="w-32 px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600">
                     {formatCurrency(
-                      // Totals now only include: Inter Acc, Handelsbanken Acc, Handelsbanken Invest
+                      // Totals now include: Inter Acc, B3, Handelsbanken Acc, Handelsbanken Invest
                       data.reduce(
                         (sum, row) =>
                           sum +
                           row.interAcc +
+                          row.b3 +
                           convertValue(row.handelsbankenAcc) +
                           convertValue(row.handelsbankenInvest),
                         0,
@@ -434,7 +436,8 @@ const MonthlySummaryPage = () => {
           <p>* Negative values are displayed in red</p>
           <p>* All values are in your default currency</p>
           <p>
-            * Total includes: Inter Acc, Handelsbanken Acc, Handelsbanken Invest
+            * Total includes: Inter Acc, B3, Handelsbanken Acc, Handelsbanken
+            Invest
           </p>
         </div>
 

@@ -9,6 +9,7 @@ const MonthlySummaryPage = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [convertToReais, setConvertToReais] = useState(false);
   const [conversionRate, setConversionRate] = useState(0.56);
+  const [showSources, setShowSources] = useState(false);
   const { data, yearlyBalances, yearlyInvestTotals, loading, error, refetch } =
     useMonthlySummary({
       year: selectedYear,
@@ -68,9 +69,16 @@ const MonthlySummaryPage = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-                Monthly Financial Summary
-              </h1>
+              <button
+                onClick={() => setShowSources((s) => !s)}
+                aria-expanded={showSources}
+                aria-controls="data-sources"
+                className="text-left"
+              >
+                <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                  Monthly Financial Summary
+                </h1>
+              </button>
               <p className="text-gray-600 dark:text-gray-400">
                 Overview of all accounts, credit cards, and investments by month
                 (Data from Supabase)
@@ -128,6 +136,87 @@ const MonthlySummaryPage = () => {
             </div>
           </div>
         </div>
+
+        {showSources && (
+          <div
+            id="data-sources"
+            className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700"
+          >
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              Column data sources
+            </h3>
+            <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc pl-5">
+              <li>
+                <strong>Inter Acc (`row.interAcc`):</strong> Aggregated
+                `&quot;Date&quot;,&quot;Amount&quot;` from tables named
+                `INACC_YYYYMM` (selected via `INACC_*` discovery).
+              </li>
+              <li>
+                <strong>Inter Credit Card (`row.interCreditCard`):</strong>{" "}
+                Aggregated
+                `&quot;Date&quot;,&quot;Amount&quot;,&quot;Category&quot;` from
+                tables named `INMCPDF_YYYYMM` (credit-card invoices; excludes
+                Category = &quot;Pagamento fatura anterior&quot;).
+              </li>
+              <li>
+                <strong>B3 (`row.b3`):</strong> Aggregated
+                `&quot;Date&quot;,&quot;Amount&quot;` from tables named
+                `B3_YYYYMM` (net dividend values).
+              </li>
+              <li>
+                <strong>Rico Credit Card (`row.ricoCreditCard`):</strong>{" "}
+                (placeholder) Aggregated
+                `&quot;Date&quot;,&quot;Amount&quot;,&quot;Category&quot;` from
+                `AM_YYYYMM` or similar tables when available.
+              </li>
+              <li>
+                <strong>Handelsbanken Acc (`row.handelsbankenAcc`):</strong>{" "}
+                Monthly account totals derived from yearly `HB_YYYY` tables
+                (selected columns
+                `&quot;Date&quot;,&quot;Amount&quot;,&quot;Category&quot;,&quot;Balance&quot;`;
+                non-&quot;Investment&quot; rows contribute to account totals).
+                Latest `Balance` is used for yearly balance.
+              </li>
+              <li>
+                <strong>
+                  Handelsbanken Invest (`row.handelsbankenInvest`):
+                </strong>{" "}
+                Monthly investment totals derived from yearly `HB_YYYY` tables
+                where `Category === &quot;Investment&quot;` (uses
+                `&quot;Amount&quot;` as absolute values).
+              </li>
+              <li>
+                <strong>Amex Credit Card (`row.amexCreditCard`):</strong>{" "}
+                Aggregated
+                `&quot;Date&quot;,&quot;Amount&quot;,&quot;Category&quot;` from
+                tables named `AM_YYYYMM` (credit invoices; excludes Category =
+                &quot;Pagamento fatura anterior&quot; and sign is inverted for
+                expenses).
+              </li>
+              <li>
+                <strong>SJ Prio Credit Card (`row.sjPrioCreditCard`):</strong>{" "}
+                Aggregated
+                `&quot;Date&quot;,&quot;Amount&quot;,&quot;Category&quot;` from
+                tables named `SJ_YYYYMM` (credit invoices; excludes Category =
+                &quot;Pagamento fatura anterior&quot; and sign is inverted for
+                expenses).
+              </li>
+              <li>
+                <strong>Total:</strong> Per-row total is computed in the hook
+                from the aggregated values (e.g. includes `interAcc`,
+                Handelsbanken account & invest totals, B3, Amex, SJ where
+                applicable). Handelsbanken fields are converted to BRL when
+                &quot;Convert to BRL&quot; is enabled.
+              </li>
+              <li>
+                <strong>Table discovery:</strong> Hook attempts to call RPC
+                `get_user_accessible_tables` and falls back to probing
+                `INACC_YYYYMM`, `INMCPDF_YYYYMM`, `AM_YYYYMM`, `SJ_YYYYMM`,
+                `B3_YYYYMM`, and `HB_YYYY` patterns.
+              </li>
+            </ul>
+          </div>
+        )}
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">

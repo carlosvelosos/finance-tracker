@@ -7,7 +7,6 @@ import React, {
   useCallback,
   Suspense,
 } from "react";
-import { useTheme } from "next-themes";
 // ClientThemeWrapper is provided globally from layout (client-only dynamic import)
 import Image from "next/image";
 import Link from "next/link";
@@ -47,8 +46,6 @@ import {
   Paperclip,
   ExternalLink,
   Database,
-  Moon,
-  Sun,
 } from "lucide-react";
 import { hasAttachments, countAttachments } from "@/lib/utils/emailParser";
 import {
@@ -181,21 +178,7 @@ const EmailClient = () => {
   const [cacheAge, setCacheAge] = useState<Date | null>(null);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { setTheme, resolvedTheme: nextResolvedTheme } = useTheme();
-
-  // Avoid rendering theme-dependent UI until the client mounts to prevent
-  // hydration mismatches between server and client output.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  // Prefer next-themes' resolvedTheme when available. If it's not available
-  // yet, fall back to a sensible value (use matchMedia on the client).
-  const resolvedTheme =
-    (nextResolvedTheme as "light" | "dark") ||
-    (typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light");
+  // Theme handled globally in the navbar; local component no longer manages theme.
   const [storageInfo, setStorageInfo] = useState<{
     size: number;
     quota: number;
@@ -307,11 +290,7 @@ const EmailClient = () => {
   const [offlineMode, setOfflineMode] = useState(false);
 
   // Theme toggle using next-themes' setTheme
-  const toggleTheme = useCallback(() => {
-    const current = resolvedTheme;
-    const newTheme = current === "light" ? "dark" : "light";
-    setTheme(newTheme);
-  }, [resolvedTheme, setTheme]);
+  // Theme handled globally in the navbar; local toggle removed.
 
   // Initialize offline mode from URL parameter
   useEffect(() => {
@@ -3424,27 +3403,7 @@ const EmailClient = () => {
               : "Connect to your Gmail account to view your emails"}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={toggleTheme}
-          className="ml-4"
-          title={
-            mounted
-              ? `Switch to ${resolvedTheme === "light" ? "dark" : "light"} mode`
-              : "Switch theme"
-          }
-        >
-          {mounted ? (
-            resolvedTheme === "light" ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )
-          ) : (
-            <Moon className="h-5 w-5 opacity-0" />
-          )}
-        </Button>
+        {/* Theme toggle moved to Navbar user menu */}
       </div>{" "}
       {error && (
         <div className="mb-6 p-4 border border-red-200 bg-red-50 rounded-lg text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">

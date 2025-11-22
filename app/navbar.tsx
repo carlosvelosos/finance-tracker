@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Menu, X, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { DarkNavigationMenuDemo } from "@/components/DarkNavigationMenuDemo";
 
 // Define user types or roles
@@ -128,6 +129,24 @@ export default function Navbar() {
   const handleLinkClick = () => {
     setIsMenuOpen(false); // Close the menu
   };
+
+  // Theme toggle (moved into navbar user menu)
+  const { setTheme, resolvedTheme: nextResolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const resolvedTheme =
+    (nextResolvedTheme as "light" | "dark") ||
+    (typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
+
+  const toggleTheme = useCallback(() => {
+    const current = resolvedTheme;
+    const newTheme = current === "light" ? "dark" : "light";
+    setTheme(newTheme);
+  }, [resolvedTheme, setTheme]);
 
   return (
     <nav
@@ -298,6 +317,37 @@ export default function Navbar() {
                   >
                     Profile
                   </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem className="flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-[#2A2A2A]">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleTheme();
+                    }}
+                    className="w-full text-left flex items-center gap-2"
+                    title={
+                      mounted
+                        ? `Switch to ${resolvedTheme === "light" ? "dark" : "light"} mode`
+                        : "Switch theme"
+                    }
+                  >
+                    {mounted ? (
+                      resolvedTheme === "light" ? (
+                        <Moon className="h-4 w-4" />
+                      ) : (
+                        <Sun className="h-4 w-4" />
+                      )
+                    ) : (
+                      <Moon className="h-4 w-4 opacity-0" />
+                    )}
+                    <span className="font-medium text-gray-300">
+                      {mounted
+                        ? `Switch to ${resolvedTheme === "light" ? "dark" : "light"}`
+                        : "Switch theme"}
+                    </span>
+                  </button>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem

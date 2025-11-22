@@ -7,6 +7,7 @@ import React, {
   useCallback,
   Suspense,
 } from "react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -179,7 +180,20 @@ const EmailClient = () => {
   const [cacheAge, setCacheAge] = useState<Date | null>(null);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme: themeValue, setTheme } = useTheme();
+
+  // Resolve themeValue into a simple 'light' | 'dark' value for local UI logic
+  const resolvedTheme = (() => {
+    if (!themeValue || themeValue === "system") {
+      if (typeof window !== "undefined") {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      }
+      return "light";
+    }
+    return themeValue as "light" | "dark";
+  })();
   const [storageInfo, setStorageInfo] = useState<{
     size: number;
     quota: number;
@@ -290,45 +304,23 @@ const EmailClient = () => {
   >([]);
   const [offlineMode, setOfflineMode] = useState(false);
 
-  // Theme toggle function
+  // Theme toggle using next-themes' setTheme
   const toggleTheme = useCallback(() => {
-    setTheme((prevTheme) => {
-      const newTheme = prevTheme === "light" ? "dark" : "light";
-      localStorage.setItem("email-client-theme", newTheme);
-
-      // Apply theme to document
-      if (newTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-
-      // Dispatch custom event for same-tab theme updates
+    const current = resolvedTheme;
+    const newTheme = current === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    // Keep backwards-compatible event for any listeners
+    if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("themechange"));
-
-      return newTheme;
-    });
-  }, []);
-
-  // Initialize theme from localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("email-client-theme") as
-      | "light"
-      | "dark"
-      | null;
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
-
-    setTheme(initialTheme);
-
-    if (initialTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
     }
-  }, []);
+  }, [resolvedTheme, setTheme]);
+
+  // Dispatch themechange whenever next-themes value changes (compat)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("themechange"));
+    }
+  }, [themeValue]);
 
   // Initialize offline mode from URL parameter
   useEffect(() => {
@@ -3446,9 +3438,9 @@ const EmailClient = () => {
           size="icon"
           onClick={toggleTheme}
           className="ml-4"
-          title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          title={`Switch to ${resolvedTheme === "light" ? "dark" : "light"} mode`}
         >
-          {theme === "light" ? (
+          {resolvedTheme === "light" ? (
             <Moon className="h-5 w-5" />
           ) : (
             <Sun className="h-5 w-5" />

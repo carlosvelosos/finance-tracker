@@ -1,8 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useTheme } from "next-themes";
+import { useEffect, useState, useRef } from "react";
 import { Calendar, Mail, Paperclip, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,22 +48,6 @@ export default function EmailDetailPage() {
   const [emailBody, setEmailBody] = useState<ParsedEmailBody | null>(null);
   const [attachments, setAttachments] = useState<AttachmentInfo[]>([]);
   const hasLoadedRef = useRef(false);
-
-  // Use next-themes provider value instead of manual localStorage-based theme handling
-  const { theme: themeValue } = useTheme();
-
-  // If you need a resolved 'light'|'dark' value here, derive it:
-  const resolvedTheme = (() => {
-    if (!themeValue || themeValue === "system") {
-      if (typeof window !== "undefined") {
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
-      }
-      return "light";
-    }
-    return themeValue as "light" | "dark";
-  })();
 
   useEffect(() => {
     // Prevent double-loading in React 18 Strict Mode

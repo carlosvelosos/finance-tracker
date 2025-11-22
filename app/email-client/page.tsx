@@ -181,11 +181,7 @@ const EmailClient = () => {
   const [cacheAge, setCacheAge] = useState<Date | null>(null);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const {
-    theme: themeValue,
-    setTheme,
-    resolvedTheme: nextResolvedTheme,
-  } = useTheme();
+  const { setTheme, resolvedTheme: nextResolvedTheme } = useTheme();
 
   // Avoid rendering theme-dependent UI until the client mounts to prevent
   // hydration mismatches between server and client output.

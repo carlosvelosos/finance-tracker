@@ -79,6 +79,27 @@ export async function POST(req: Request) {
       }
     }
 
+    // Also refresh any brazilFunds if present
+    if (Array.isArray(doc.brazilFunds)) {
+      for (const fund of doc.brazilFunds) {
+        const ticker = fund.ticker;
+        if (!ticker) continue;
+        try {
+          const value = await fetchCurrentMonthValueForTicker(ticker);
+          if (value != null) {
+            if (!Array.isArray(fund.months) || fund.months.length < 12) {
+              fund.months = Array(12).fill(null);
+            }
+            if (currentMonth <= new Date().getMonth()) {
+              fund.months[currentMonth] = value;
+            }
+          }
+        } catch (err) {
+          fund._lastRefreshError = String(err);
+        }
+      }
+    }
+
     // write back the file (pretty-printed)
     fs.writeFileSync(filePath, JSON.stringify(doc, null, 2), "utf8");
 

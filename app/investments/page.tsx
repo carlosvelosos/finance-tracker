@@ -33,7 +33,8 @@ export default function InvestmentsPage() {
     new Date(currentYear, i, 1).toLocaleString("sv-SE", { month: "short" }),
   );
   // We'll load initial data from the public JSON file. The file also stores tickers.
-  const [data, setData] = React.useState<any[]>([]);
+  const [swedishData, setSwedishData] = React.useState<any[]>([]);
+  const [brazilData, setBrazilData] = React.useState<any[]>([]);
   const [fileYear, setFileYear] = React.useState<number | null>(null);
   const [loadingAll, setLoadingAll] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -47,15 +48,16 @@ export default function InvestmentsPage() {
         const json = await res.json();
         setFileYear(json.year || new Date().getFullYear());
         // Normalize funds structure
-        setData((json.funds || []).map((f: any) => ({ ...f })));
+        setSwedishData((json.funds || []).map((f: any) => ({ ...f })));
+        setBrazilData((json.brazilFunds || []).map((f: any) => ({ ...f })));
       } catch (err) {
         console.error("Failed to load investments json", err);
         // fallback: initialize empty rows from FUNDS list
-        setData(
+        setSwedishData(
           FUNDS.map((f) => ({
             name: f,
             ticker: "",
-            series: Array(12).fill(null),
+            months: Array(12).fill(null),
             error: "failed to load",
           })),
         );
@@ -77,7 +79,8 @@ export default function InvestmentsPage() {
       const updated = json.updated;
       if (updated) {
         setFileYear(updated.year || currentYear);
-        setData((updated.funds || []).map((f: any) => ({ ...f })));
+        setSwedishData((updated.funds || []).map((f: any) => ({ ...f })));
+        setBrazilData((updated.brazilFunds || []).map((f: any) => ({ ...f })));
       }
     } catch (err) {
       console.error("Refresh failed", err);
@@ -130,10 +133,16 @@ export default function InvestmentsPage() {
       </div>
 
       <div style={{ overflowX: "auto" }}>
-        <table style={{ borderCollapse: "collapse", width: "100%" }}>
+        <table
+          style={{
+            borderCollapse: "collapse",
+            width: "100%",
+            tableLayout: "fixed" as const,
+          }}
+        >
           <thead>
             <tr>
-              <th style={thStyle}>Fund</th>
+              <th style={{ ...thStyle, width: "360px" }}>Fund</th>
               <th style={thStyle}>Current ({months[currentMonth]})</th>
               {months.map((m) => (
                 <th key={m} style={thStyle} title={m}>
@@ -143,9 +152,63 @@ export default function InvestmentsPage() {
             </tr>
           </thead>
           <tbody>
-            {data.map((row) => (
+            {swedishData.map((row: any) => (
               <tr key={row.name}>
-                <td style={tdStyle}>
+                <td style={{ ...tdStyle, width: "360px" }}>
+                  <div style={{ fontWeight: 600 }}>{row.name}</div>
+                  <div style={{ fontSize: 12, color: "#666" }}>
+                    ticker: {row.ticker || "(not set)"}
+                  </div>
+                  {row.error && (
+                    <div style={{ color: "crimson", fontSize: 12 }}>
+                      {row.error}
+                    </div>
+                  )}
+                </td>
+                <td style={tdStyleBold}>
+                  {row.months && row.months[currentMonth] != null
+                    ? formatSEK(row.months[currentMonth] as number)
+                    : ""}
+                </td>
+                {(row.months && row.months.length === 12
+                  ? row.months
+                  : Array(12).fill(null)
+                ).map((v: number | null, i: number) => (
+                  <td key={i} style={tdStyle}>
+                    {v != null ? formatSEK(v as number) : ""}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Brazil table */}
+      <h2 style={{ marginTop: 28 }}>Investments — Brazil</h2>
+      <div style={{ overflowX: "auto" }}>
+        <table
+          style={{
+            borderCollapse: "collapse",
+            width: "100%",
+            tableLayout: "fixed" as const,
+          }}
+        >
+          <thead>
+            <tr>
+              <th style={{ ...thStyle, width: "360px" }}>Fund</th>
+              <th style={thStyle}>Current ({months[currentMonth]})</th>
+              {months.map((m) => (
+                <th key={m} style={thStyle} title={m}>
+                  {m}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {brazilData.map((row: any) => (
+              <tr key={row.name}>
+                <td style={{ ...tdStyle, width: "360px" }}>
                   <div style={{ fontWeight: 600 }}>{row.name}</div>
                   <div style={{ fontSize: 12, color: "#666" }}>
                     ticker: {row.ticker || "(not set)"}

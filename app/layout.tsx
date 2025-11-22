@@ -2,7 +2,7 @@ import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 import NavbarWrapper from "./NavbarWrapper"; // We'll create this component
 import { Toaster } from "@/components/ui/sonner";
-import ThemeProvider from "@/components/ThemeProvider";
+import ClientThemeLoader from "@/components/ClientThemeLoader";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -26,14 +26,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <ClientThemeLoader>
             <NavbarWrapper />{" "}
             {/* Wrapper that conditionally renders the navbar */}
             <Toaster />
             <main>{children}</main>
-          </AuthProvider>
-        </ThemeProvider>
+          </ClientThemeLoader>
+        </AuthProvider>
       </body>
     </html>
   );

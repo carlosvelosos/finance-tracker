@@ -12,6 +12,8 @@ export default function ThemeProvider({
     <NextThemeProvider
       attribute="class"
       defaultTheme="system"
+      enableSystem={true}
+      enableColorScheme={false}
       storageKey="email-client-theme"
     >
       {children}

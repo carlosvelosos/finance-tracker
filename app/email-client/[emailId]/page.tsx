@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useTheme } from "next-themes";
 import { Calendar, Mail, Paperclip, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,46 +50,21 @@ export default function EmailDetailPage() {
   const [attachments, setAttachments] = useState<AttachmentInfo[]>([]);
   const hasLoadedRef = useRef(false);
 
-  // Apply theme from localStorage (synced with email client page)
-  const applyTheme = useCallback(() => {
-    const savedTheme = localStorage.getItem("email-client-theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    const theme = savedTheme || (prefersDark ? "dark" : "light");
+  // Use next-themes provider value instead of manual localStorage-based theme handling
+  const { theme: themeValue } = useTheme();
 
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-
-  // Initialize theme on mount and listen for storage changes
-  useEffect(() => {
-    // Apply theme immediately
-    applyTheme();
-
-    // Listen for theme changes from the main email client page
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "email-client-theme") {
-        applyTheme();
+  // If you need a resolved 'light'|'dark' value here, derive it:
+  const resolvedTheme = (() => {
+    if (!themeValue || themeValue === "system") {
+      if (typeof window !== "undefined") {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
       }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    // Also listen for changes within the same tab (for immediate updates)
-    const handleThemeChange = () => {
-      applyTheme();
-    };
-    window.addEventListener("themechange", handleThemeChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("themechange", handleThemeChange);
-    };
-  }, [applyTheme]);
+      return "light";
+    }
+    return themeValue as "light" | "dark";
+  })();
 
   useEffect(() => {
     // Prevent double-loading in React 18 Strict Mode

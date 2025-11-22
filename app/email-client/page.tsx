@@ -8,6 +8,7 @@ import React, {
   Suspense,
 } from "react";
 import { useTheme } from "next-themes";
+// ClientThemeWrapper is provided globally from layout (client-only dynamic import)
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -180,20 +181,25 @@ const EmailClient = () => {
   const [cacheAge, setCacheAge] = useState<Date | null>(null);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { theme: themeValue, setTheme } = useTheme();
+  const {
+    theme: themeValue,
+    setTheme,
+    resolvedTheme: nextResolvedTheme,
+  } = useTheme();
 
-  // Resolve themeValue into a simple 'light' | 'dark' value for local UI logic
-  const resolvedTheme = (() => {
-    if (!themeValue || themeValue === "system") {
-      if (typeof window !== "undefined") {
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
-      }
-      return "light";
-    }
-    return themeValue as "light" | "dark";
-  })();
+  // Avoid rendering theme-dependent UI until the client mounts to prevent
+  // hydration mismatches between server and client output.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Prefer next-themes' resolvedTheme when available. If it's not available
+  // yet, fall back to a sensible value (use matchMedia on the client).
+  const resolvedTheme =
+    (nextResolvedTheme as "light" | "dark") ||
+    (typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
   const [storageInfo, setStorageInfo] = useState<{
     size: number;
     quota: number;
@@ -309,18 +315,7 @@ const EmailClient = () => {
     const current = resolvedTheme;
     const newTheme = current === "light" ? "dark" : "light";
     setTheme(newTheme);
-    // Keep backwards-compatible event for any listeners
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("themechange"));
-    }
   }, [resolvedTheme, setTheme]);
-
-  // Dispatch themechange whenever next-themes value changes (compat)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("themechange"));
-    }
-  }, [themeValue]);
 
   // Initialize offline mode from URL parameter
   useEffect(() => {
@@ -3438,12 +3433,20 @@ const EmailClient = () => {
           size="icon"
           onClick={toggleTheme}
           className="ml-4"
-          title={`Switch to ${resolvedTheme === "light" ? "dark" : "light"} mode`}
+          title={
+            mounted
+              ? `Switch to ${resolvedTheme === "light" ? "dark" : "light"} mode`
+              : "Switch theme"
+          }
         >
-          {resolvedTheme === "light" ? (
-            <Moon className="h-5 w-5" />
+          {mounted ? (
+            resolvedTheme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )
           ) : (
-            <Sun className="h-5 w-5" />
+            <Moon className="h-5 w-5 opacity-0" />
           )}
         </Button>
       </div>{" "}

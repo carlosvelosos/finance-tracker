@@ -15,43 +15,7 @@ const FUNDS = [
   "Handelsbanken Sverige Selektiv (A1 SEK)",
 ];
 
-function hashStringToSeed(s: string) {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619) >>> 0;
-  }
-  return h;
-}
-
-function seededRandom(seed: number) {
-  // Simple xorshift32-like generator returning function that yields [0,1)
-  let x = seed >>> 0;
-  return () => {
-    x ^= x << 13;
-    x ^= x >>> 17;
-    x ^= x << 5;
-    return ((x >>> 0) % 100000) / 100000;
-  };
-}
-
-function generateMonthlySeries(name: string) {
-  const seed = hashStringToSeed(name);
-  const rnd = seededRandom(seed);
-  // base NAV between 100 and 1000 SEK per unit (scaled)
-  const base = 200 + Math.floor(rnd() * 800);
-  const series: number[] = [];
-  // generate 12 months for current year
-  for (let m = 0; m < 12; m++) {
-    // small monthly variation -10% .. +10%
-    const pct = (rnd() - 0.5) * 0.2;
-    const prev = m === 0 ? base : series[m - 1];
-    const next = Math.max(1, prev * (1 + pct));
-    series.push(Number(next.toFixed(2)));
-  }
-  return series;
-}
-// Mock NAV generator removed — page now only shows values fetched from Yahoo.
+// Mock NAV generator removed — page now only shows values from the JSON file and server refresh.
 
 function formatSEK(v: number) {
   return new Intl.NumberFormat("sv-SE", {
@@ -63,101 +27,64 @@ function formatSEK(v: number) {
 export default function InvestmentsPage() {
   const now = new Date();
   const currentMonth = now.getMonth();
-  const year = now.getFullYear();
+  const currentYear = now.getFullYear();
 
   const months = Array.from({ length: 12 }, (_, i) =>
-    new Date(year, i, 1).toLocaleString("sv-SE", { month: "short" }),
+    new Date(currentYear, i, 1).toLocaleString("sv-SE", { month: "short" }),
   );
-  // Provide tickers for funds. Fill in tickers you know (example entries included).
-  // You can add the Yahoo tickers (like `0P00000F82.ST`) for each fund here.
-  const FUND_TICKERS: Record<string, string> = {
-    // example mappings (you provided these two):
-    "Handelsbanken Asien Tema (A1 SEK)": "0P00000F83.ST",
-    "Handelsbanken Amerika Tema (A1 SEK)": "0P00000F82.ST",
-    // add the rest (leave empty string to keep using mock values)
-    "Handelsbanken AstraZeneca Allemansfond": "0P000083RV.ST",
-    "Handelsbanken Emerging M. Index (A1 SEK)": "0P0001F3XG.ST",
-    "Handelsbanken Global Digital (A1 SEK)": "0P0001QDLJ.ST",
-    "Handelsbanken Global Index (A1 SEK)": "0P0001F3XN.ST",
-    "Handelsbanken Global Momentum (A1 SEK)": "0P0001LS8Q.ST",
-    "Handelsbanken Hälsovård Tema (A1 SEK)": "",
-    "Handelsbanken Norden Selektiv (A1 SEK)": "0P000146XC.ST",
-    "Handelsbanken Sverige Selektiv (A1 SEK)": "0P000148YN.ST",
-  };
-
-  const [data, setData] = React.useState(
-    FUNDS.map((f) => ({
-      name: f,
-      series: Array(12).fill(null as number | null),
-      loading: false,
-      error: "",
-    })),
-  );
-
+  // We'll load initial data from the public JSON file. The file also stores tickers.
+  const [data, setData] = React.useState<any[]>([]);
+  const [fileYear, setFileYear] = React.useState<number | null>(null);
   const [loadingAll, setLoadingAll] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  async function fetchMonthlyFromYahoo(ticker: string) {
-    // Use local proxy to avoid client-side CORS issues
-    const url = `/api/yahoo/chart?ticker=${encodeURIComponent(ticker)}&range=1y&interval=1mo`;
-
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-
-    const result = json?.chart?.result?.[0];
-    if (!result) throw new Error("No chart result");
-    const timestamps: number[] = result.timestamp || [];
-    const closes: (number | null)[] = (
-      result.indicators?.quote?.[0]?.close || []
-    ).map((v: any) => (v === null ? null : Number(v)));
-
-    const map = new Map<number, number>();
-    for (let i = 0; i < timestamps.length; i++) {
-      const ts = timestamps[i] * 1000;
-      const d = new Date(ts);
-      const v = closes[i];
-      // Only consider points that belong to the current calendar year
-      if (d.getFullYear() !== year) continue;
-      const m = d.getMonth();
-      if (v != null) map.set(m, Number(v.toFixed(2)));
-    }
-
-    const series = Array.from({ length: 12 }, (_, i) => {
-      const val = map.get(i);
-      return val != null ? val : null;
-    });
-
-    return series;
-  }
-
+  // Load initial JSON from public folder
   React.useEffect(() => {
-    let mounted = true;
-    async function loadAll() {
-      setLoadingAll(true);
-      const promises = data.map(async (row) => {
-        const ticker = FUND_TICKERS[row.name];
-        if (!ticker) return row;
-        try {
-          const series = await fetchMonthlyFromYahoo(ticker);
-          // Only use fetched values; leave other months null
-          return { ...row, series: series, loading: false, error: "" };
-        } catch (err: any) {
-          return { ...row, loading: false, error: String(err) };
-        }
-      });
-
-      const results = await Promise.all(promises);
-      if (!mounted) return;
-      setData(results);
-      setLoadingAll(false);
+    async function load() {
+      try {
+        const res = await fetch("/data/investiments-page/investments.json");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setFileYear(json.year || new Date().getFullYear());
+        // Normalize funds structure
+        setData((json.funds || []).map((f: any) => ({ ...f })));
+      } catch (err) {
+        console.error("Failed to load investments json", err);
+        // fallback: initialize empty rows from FUNDS list
+        setData(
+          FUNDS.map((f) => ({
+            name: f,
+            ticker: "",
+            series: Array(12).fill(null),
+            error: "failed to load",
+          })),
+        );
+      }
     }
-
-    loadAll();
-    return () => {
-      mounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    load();
   }, []);
+
+  // No automatic Yahoo fetching; user must click Refresh to update current month
+  // No automatic Yahoo fetching; user must click Refresh to update current month
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      const res = await fetch("/api/investments/refresh", { method: "POST" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      // updated doc returned under json.updated
+      const updated = json.updated;
+      if (updated) {
+        setFileYear(updated.year || currentYear);
+        setData((updated.funds || []).map((f: any) => ({ ...f })));
+      }
+    } catch (err) {
+      console.error("Refresh failed", err);
+      // preserve existing data
+    }
+    setRefreshing(false);
+  }
 
   return (
     <div style={{ padding: 16 }}>
@@ -175,16 +102,31 @@ export default function InvestmentsPage() {
         <strong>How to use:</strong>
         <ul>
           <li>
-            Fill `FUND_TICKERS` above with the Yahoo tickers (e.g.
-            `0P00000F82.ST`).
+            Make sure each fund in the JSON file has the correct `ticker` (Yahoo
+            symbol).
           </li>
           <li>
-            The page will try to fetch monthly closes for the past 12 months.
+            Click <strong>Refresh data</strong> to fetch the current month's
+            value from Yahoo and update the local JSON file.
           </li>
           <li>
-            If fetch fails due to CORS, run a server proxy or fetch server-side.
+            If fetch fails due to network/Yahoo changes, check the server logs
+            and retry.
           </li>
         </ul>
+      </div>
+
+      <div style={{ marginBottom: 12 }}>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          style={{ padding: "8px 12px", fontSize: 14 }}
+        >
+          {refreshing ? "Refreshing..." : "Refresh data"}
+        </button>
+        {fileYear && (
+          <span style={{ marginLeft: 12 }}>Data year: {fileYear}</span>
+        )}
       </div>
 
       <div style={{ overflowX: "auto" }}>
@@ -206,7 +148,7 @@ export default function InvestmentsPage() {
                 <td style={tdStyle}>
                   <div style={{ fontWeight: 600 }}>{row.name}</div>
                   <div style={{ fontSize: 12, color: "#666" }}>
-                    ticker: {FUND_TICKERS[row.name] || "(not set)"}
+                    ticker: {row.ticker || "(not set)"}
                   </div>
                   {row.error && (
                     <div style={{ color: "crimson", fontSize: 12 }}>
@@ -215,11 +157,14 @@ export default function InvestmentsPage() {
                   )}
                 </td>
                 <td style={tdStyleBold}>
-                  {row.series[currentMonth] != null
-                    ? formatSEK(row.series[currentMonth] as number)
+                  {row.months && row.months[currentMonth] != null
+                    ? formatSEK(row.months[currentMonth] as number)
                     : ""}
                 </td>
-                {row.series.map((v, i) => (
+                {(row.months && row.months.length === 12
+                  ? row.months
+                  : Array(12).fill(null)
+                ).map((v: number | null, i: number) => (
                   <td key={i} style={tdStyle}>
                     {v != null ? formatSEK(v as number) : ""}
                   </td>
@@ -241,7 +186,7 @@ export default function InvestmentsPage() {
           <li>
             Yahoo's chart API returns monthly data with timestamps; the
             prototype aligns results by month index (Jan=0..Dec=11). Missing
-            months fall back to the mock generator values.
+            months will be empty in the table until you refresh.
           </li>
         </ul>
       </div>

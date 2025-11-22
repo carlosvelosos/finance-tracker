@@ -1,0 +1,185 @@
+{
+  "year": 2025,
+  "funds": [
+    {
+      "name": "Handelsbanken Amerika Tema (A1 SEK)",
+      "ticker": "0P00000F82.ST",
+      "months": [
+        2680.14,
+        2446.12,
+        2140.71,
+        2065.8,
+        2217.5,
+        2314.68,
+        2487.24,
+        2390.83,
+        2384.63,
+        2489.37,
+        2391.38,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Asien Tema (A1 SEK)",
+      "ticker": "0P00000F83.ST",
+      "months": [
+        965.1,
+        961.5,
+        897.19,
+        859.08,
+        900.32,
+        934.1,
+        991.11,
+        986.32,
+        1040.11,
+        1093.5,
+        1047.1,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken AstraZeneca Allemansfond",
+      "ticker": "0P000083RV.ST",
+      "months": [
+        4173.9,
+        4315.17,
+        3930.2,
+        3796.06,
+        3818.99,
+        3772.72,
+        4053.77,
+        4112.6,
+        3945.41,
+        4184.26,
+        4302.02,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Emerging M. Index (A1 SEK)",
+      "ticker": "0P0001F3XG.ST",
+      "months": [
+        218.62,
+        217.08,
+        201.71,
+        195.59,
+        204.68,
+        214.13,
+        225.85,
+        224.08,
+        236.77,
+        248.04,
+        237.53,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Global Digital (A1 SEK)",
+      "ticker": "0P0001QDLJ.ST",
+      "months": [
+        192.24,
+        175.85,
+        152.88,
+        151.24,
+        168.29,
+        178.98,
+        187.02,
+        178.6,
+        182.7,
+        191.42,
+        177.38,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Global Index (A1 SEK)",
+      "ticker": "0P0001F3XN.ST",
+      "months": [
+        612.88,
+        583.13,
+        521.14,
+        503.12,
+        534.21,
+        553.91,
+        584.3,
+        577.9,
+        593.05,
+        613.71,
+        595.58,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Global Momentum (A1 SEK)",
+      "ticker": "0P0001LS8Q.ST",
+      "months": [
+        171.09,
+        160.92,
+        142.91,
+        139.48,
+        151.42,
+        158.59,
+        166.98,
+        163.95,
+        169.79,
+        169.7,
+        164.97,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Hälsovård Tema (A1 SEK)",
+      "ticker": "",
+      "months": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Norden Selektiv (A1 SEK)",
+      "ticker": "0P000146XC.ST",
+      "months": [
+        761.07,
+        765.97,
+        703.08,
+        701.02,
+        715.81,
+        712.63,
+        704.14,
+        711.09,
+        699.85,
+        731.92,
+        714.64,
+        null
+      ]
+    },
+    {
+      "name": "Handelsbanken Sverige Selektiv (A1 SEK)",
+      "ticker": "0P000148YN.ST",
+      "months": [
+        917.57,
+        932.01,
+        857.16,
+        841.26,
+        864.69,
+        862.7,
+        892.7,
+        897.1,
+        879.75,
+        902.05,
+        877.52,
+        null
+      ]
+    }
+  ]
+}

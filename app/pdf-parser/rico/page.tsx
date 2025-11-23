@@ -683,6 +683,89 @@ export default function Page() {
     return txns;
   }
 
+  // Parse Rico PDF filename and extract year/month for table naming
+  function parseRicoFilename(
+    filename: string | null,
+  ): { year: string; month: string } | null {
+    if (!filename) return null;
+    const name = filename.replace(/\.[^.]+$/, "").trim();
+
+    // Pattern 1: USERID(7-dig)-Rico-DD-MM-YYYY.pdf
+    const p1 =
+      /(?:^|\b)(\d{7})[-_ ]+Rico[-_ ]+(\d{2})[-_ ]+(\d{2})[-_ ]+(\d{4})(?:\b|$)/i;
+    const m1 = name.match(p1);
+    if (m1) {
+      // m1[2] = DD, m1[3] = MM, m1[4] = YYYY
+      const mon = m1[3].padStart(2, "0");
+      const yr = m1[4];
+      return { year: yr, month: mon };
+    }
+
+    // Pattern 2: Fatura-Rico-MMM-YY-USERID(7-dig).pdf (e.g., Fatura-Rico-Abr-25-1198922.pdf)
+    // Accept 3-letter or full month names (Portuguese and English common abbreviations)
+    const p2 =
+      /Fatura[-_ ]+Rico[-_ ]+([A-Za-zÀ-ú]{3,9})[-_ ]+(\d{2})[-_ ]+(\d{7})/i;
+    const m2 = name.match(p2);
+    if (m2) {
+      const monToken = m2[1].toLowerCase();
+      const yy = m2[2];
+      // Map common Portuguese and English month abbreviations/full names to month numbers
+      const monthMap: Record<string, string> = {
+        jan: "01",
+        janeiro: "01",
+        fev: "02",
+        fevereiro: "02",
+        mar: "03",
+        março: "03",
+        abr: "04",
+        abril: "04",
+        mai: "05",
+        maio: "05",
+        jun: "06",
+        junho: "06",
+        jul: "07",
+        julho: "07",
+        ago: "08",
+        agosto: "08",
+        set: "09",
+        setembro: "09",
+        out: "10",
+        outubro: "10",
+        nov: "11",
+        novembro: "11",
+        dez: "12",
+        dezembro: "12",
+        // English
+        feb: "02",
+        apr: "04",
+        aug: "08",
+        sep: "09",
+        sept: "09",
+        oct: "10",
+        dec: "12",
+      };
+      // normalize token (strip accents and to ascii where possible)
+      const normalize = (s: string) =>
+        s
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      const monNorm = normalize(monToken);
+      const mon = monthMap[monNorm] || monthMap[monToken] || "";
+      if (mon) {
+        const year = yy.length === 2 ? `20${yy}` : yy;
+        return { year, month: mon };
+      }
+    }
+
+    // Fallback: try to find a YYYY and MM somewhere in the filename (YYYY[sep]MM)
+    const p3 = /(\d{4})[-_ ]?(0[1-9]|1[0-2])/;
+    const m3 = name.match(p3);
+    if (m3) return { year: m3[1], month: m3[2] };
+
+    return null;
+  }
+
   function onSubmitPassword(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const pw = pwInputRef.current ? pwInputRef.current.value : "";
@@ -900,12 +983,11 @@ export default function Page() {
                     const now = new Date();
                     let year = String(now.getFullYear());
                     let month = String(now.getMonth() + 1).padStart(2, "0");
-                    if (pendingFilename) {
-                      const m = pendingFilename.match(/(\d{4})[-_ ]?(\d{2})/);
-                      if (m) {
-                        year = m[1];
-                        month = m[2];
-                      }
+                    // Try to derive year/month from the uploaded filename (supports two Rico patterns)
+                    const fileDateInfo = parseRicoFilename(pendingFilename);
+                    if (fileDateInfo) {
+                      year = fileDateInfo.year;
+                      month = fileDateInfo.month.padStart(2, "0");
                     }
                     const tableName = `RICO_${year}${month}`;
 

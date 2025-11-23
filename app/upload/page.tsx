@@ -97,6 +97,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { savePendingPdf } from "@/lib/pendingPdfStore";
 import {
   executeTableCreation,
   processFileData,
@@ -143,6 +145,7 @@ const BANK_OPTIONS = [
   "AmericanExpress-SE",
   "SEB_SJ_Prio-SE",
   "B3",
+  "Rico",
 ];
 
 // Bank-specific upload instructions
@@ -301,6 +304,16 @@ const BANK_INSTRUCTIONS: Record<
       "Supported months: janeiro, fevereiro, março, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro",
     ],
   },
+  Rico: {
+    format: "PDF",
+    columns: ["See Rico parser"],
+    fileNamePattern: "Single PDF file",
+    example: "fatura-rico-2025-03.pdf",
+    notes: [
+      "Selecting Rico will redirect you to the Rico PDF parser for extraction and review.",
+      "Upload a single PDF file. You will confirm parsed JSON before upload.",
+    ],
+  },
 };
 
 export default function UploadPage() {
@@ -358,39 +371,76 @@ export default function UploadPage() {
     results: [],
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
-      const selectedFiles = Array.from(e.target.files);
+  const router = useRouter();
 
-      // Validate all files
-      const invalidFiles = selectedFiles.filter(
-        (file) => !file.name.match(/\.(xlsx|xls|csv)$/i),
-      );
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    const selectedFiles = Array.from(e.target.files);
 
-      if (invalidFiles.length > 0) {
+    // Choose allowed extensions depending on bank selection
+    const allowedExts =
+      selectedBank === "Rico" ? /\.(xlsx|xls|csv|pdf)$/i : /\.(xlsx|xls|csv)$/i;
+    const invalidFiles = selectedFiles.filter(
+      (file) => !file.name.match(allowedExts),
+    );
+
+    if (invalidFiles.length > 0) {
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Invalid Files Selected",
+        details: `Please upload valid files. Invalid files: ${invalidFiles.map((f) => f.name).join(", ")}`,
+      });
+      return;
+    }
+
+    // If Rico flow: accept only a single PDF and redirect to the Rico parser
+    if (selectedBank === "Rico") {
+      const file = selectedFiles[0];
+      if (!file) return;
+      if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
         setUploadSummary({
           show: true,
           success: false,
-          message: "Invalid Files Selected",
-          details: `Please upload only Excel or CSV files. Invalid files: ${invalidFiles.map((f) => f.name).join(", ")}`,
+          message: "Invalid File for Rico",
+          details: "Please upload a single PDF file for Rico bank.",
         });
         return;
       }
 
-      setFiles(selectedFiles);
-      // Reset progress when new files are selected
-      setUploadProgress({
-        currentFile: 0,
-        totalFiles: selectedFiles.length,
-        currentFileName: "",
-        status: "",
-        results: selectedFiles.map((file) => ({
-          fileName: file.name,
-          status: "pending",
-          message: "Waiting to process...",
-        })),
-      });
+      try {
+        const key = await savePendingPdf(file);
+        // Redirect to rico parser with key
+        router.push(
+          `/pdf-parser/rico?fromUpload=1&key=${encodeURIComponent(key)}`,
+        );
+        return;
+      } catch (err) {
+        console.error("Failed saving pending PDF", err);
+        setUploadSummary({
+          show: true,
+          success: false,
+          message: "Save Failed",
+          details: "Unable to save PDF for Rico parsing. Please try again.",
+        });
+        return;
+      }
     }
+
+    // Default flow for CSV/XLSX files
+    setFiles(selectedFiles);
+    // Reset progress when new files are selected
+    setUploadProgress({
+      currentFile: 0,
+      totalFiles: selectedFiles.length,
+      currentFileName: "",
+      status: "",
+      results: selectedFiles.map((file) => ({
+        fileName: file.name,
+        status: "pending",
+        message: "Waiting to process...",
+      })),
+    });
   };
   const handleUpload = async () => {
     if (!files.length || !selectedBank) {
@@ -1069,7 +1119,7 @@ export default function UploadPage() {
                 </label>
                 <Input
                   type="file"
-                  accept=".xlsx,.xls,.csv"
+                  accept=".xlsx,.xls,.csv,.pdf"
                   onChange={handleFileChange}
                   multiple
                   className="cursor-pointer bg-[#121212] border-gray-600 text-white file:bg-green-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 file:inline-flex file:items-center hover:border-green-500"

@@ -1,6 +1,20 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { loadPendingPdf, deletePendingPdf } from "@/lib/pendingPdfStore";
+import {
+  analyzeUploadConflicts,
+  ConflictAnalysis,
+  Transaction,
+} from "@/app/actions/conflictAnalysis";
+import {
+  uploadToSupabase,
+  executeTableCreation,
+} from "@/app/actions/fileActions";
+import { analyzeCategoryMatches } from "@/app/actions/categoryAnalysis";
+import { MergeConflictDialog } from "@/components/MergeConflictDialog";
+import { CategoryAssignmentDialog } from "@/components/CategoryAssignmentDialog";
 
 declare global {
   interface Window {
@@ -24,6 +38,31 @@ export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [pwMessage, setPwMessage] = useState("");
   const pwInputRef = useRef<HTMLInputElement | null>(null);
+  const [reviewMode, setReviewMode] = useState(false);
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [pendingFilename, setPendingFilename] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Upload/conflict state for confirm flow
+  const [conflictAnalysis, setConflictAnalysis] =
+    useState<ConflictAnalysis | null>(null);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [uploadingFlow, setUploadingFlow] = useState(false);
+  const [categoryAnalysis, setCategoryAnalysis] = useState<any | null>(null);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [categoryProgress, setCategoryProgress] = useState<any>({
+    show: false,
+    stage: "",
+    message: "",
+    current: 0,
+    total: 0,
+  });
+  const [uploadSummary, setUploadSummary] = useState<{
+    show: boolean;
+    success: boolean;
+    message: string;
+    details?: string;
+  }>({ show: false, success: false, message: "", details: "" });
 
   // tolerant 'Subtotal' regex
   const SUBTOTAL_REGEX = /S\s*u\s*b\s*t\s*o\s*t\s*a\s*l/i;
@@ -78,6 +117,42 @@ export default function Page() {
       console.error("pdf.js load failed", err);
       setProgress("Failed loading pdf.js");
     });
+  }, []);
+
+  // Auto-load pending PDF when redirected from upload page
+  useEffect(() => {
+    const fromUpload = searchParams.get("fromUpload");
+    const key = searchParams.get("key");
+    if (fromUpload === "1" && key) {
+      (async () => {
+        setProgress("Loading pending PDF...");
+        try {
+          const rec = await loadPendingPdf(key);
+          if (!rec) {
+            setProgress("Pending PDF not found");
+            return;
+          }
+          setPendingKey(key);
+          setPendingFilename(rec.filename || null);
+          setLatestArrayBuffer(rec.arrayBuffer);
+          // Run extraction and get cards
+          const cards = await tryOpenAndExtract(rec.arrayBuffer as ArrayBuffer);
+          // Prefill editable editors with extracted snippets (if present)
+          const key2091 = "CARLOS A S VELOSO - 4998********2091";
+          const key7102 = "CARLOS A S VELOSO - 4998********7102";
+          const s1 = (cards && cards[key2091]) || page3Snippet2091 || "";
+          const s2 = (cards && cards[key7102]) || page3Snippet7102 || "";
+          setEditableSnippet2091(s1);
+          setEditableSnippet7102(s2);
+          setReviewMode(true);
+          setProgress("Pending PDF loaded — review parsed snippets");
+        } catch (e) {
+          console.error("Failed loading pending PDF", e);
+          setProgress("Failed to load pending PDF");
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Wait for the pdf.js script to be available (with timeout)
@@ -164,9 +239,9 @@ export default function Page() {
     try {
       const pdf = await loadingTask.promise;
       setProgress(`PDF opened — ${pdf.numPages} page(s). Extracting text...`);
-      await extractAllText(pdf);
+      const cards = await extractAllText(pdf);
       setProgress("Extraction complete");
-      return;
+      return cards;
     } catch (err: any) {
       const msg = (err && (err.message || err.toString())) || "";
       const needsPassword =
@@ -217,8 +292,10 @@ export default function Page() {
       setPage3Snippet2091(s1);
       setPage3Snippet7102(s2);
       buildStructuredJSON(s1, s2);
+      return cards;
     } catch (e) {
       console.error("post-page extraction failed", e);
+      return {} as Record<string, string>;
     }
   }
 
@@ -555,6 +632,57 @@ export default function Page() {
     return obj;
   }
 
+  // Adapter: convert parsed JSON ({ cardKey: [{Data, Descrição, R$, US$}] })
+  // into Transaction[] expected by analyzeUploadConflicts
+  function ricoAdapter(parsed: Record<string, any[]>): Transaction[] {
+    const txns: Transaction[] = [];
+    let idCounter = -1;
+
+    const parseDate = (d: string) => {
+      if (!d) return null;
+      const m = (d || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if (m) {
+        let day = m[1].padStart(2, "0");
+        let month = m[2].padStart(2, "0");
+        let year = m[3];
+        if (year.length === 2) year = `20${year}`;
+        return `${year}-${month}-${day}`;
+      }
+      return d || null;
+    };
+
+    const parseAmount = (a: string) => {
+      if (!a) return 0;
+      const s = String(a)
+        .replace(/\s/g, "")
+        .replace(/\./g, "")
+        .replace(/,/g, ".")
+        .replace(/[^0-9.\-]/g, "");
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    };
+
+    for (const cardKey of Object.keys(parsed)) {
+      const rows = parsed[cardKey] || [];
+      for (const r of rows) {
+        const dateRaw = r.Data || r.Date || "";
+        const descRaw = r.Descrição || r.Description || "";
+        const rVal = r["R$"] || r.R || r.r || "";
+        const usVal = r["US$"] || r.US || "";
+        const amountStr = rVal || usVal || "";
+        const amount = parseAmount(amountStr);
+        const txn: Transaction = {
+          id: idCounter--,
+          Date: parseDate(dateRaw),
+          Description: `${descRaw} ${cardKey}`.trim(),
+          Amount: amount,
+        } as Transaction;
+        txns.push(txn);
+      }
+    }
+    return txns;
+  }
+
   function onSubmitPassword(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const pw = pwInputRef.current ? pwInputRef.current.value : "";
@@ -568,6 +696,173 @@ export default function Page() {
     }
   }
 
+  // Handle resolved conflicts (called by MergeConflictDialog)
+  const handleResolveConflicts = async (transactionsToAdd: Transaction[]) => {
+    if (!conflictAnalysis) return;
+
+    setShowMergeDialog(false);
+    setUploadingFlow(true);
+
+    const tableName = conflictAnalysis.tableName;
+
+    try {
+      const result = await uploadToSupabase(
+        tableName,
+        transactionsToAdd,
+        false,
+      );
+
+      if (result.success) {
+        // Category analysis
+        try {
+          setCategoryProgress({
+            show: true,
+            stage: "discovering",
+            message: "Starting category analysis...",
+            current: 0,
+            total: 1,
+          });
+          const analysis = await analyzeCategoryMatches(
+            tableName,
+            transactionsToAdd,
+            (progress: any) => {
+              setCategoryProgress({
+                show: true,
+                stage: progress.stage,
+                message: progress.message,
+                current: progress.current,
+                total: progress.total,
+              });
+            },
+          );
+          setCategoryProgress({
+            show: false,
+            stage: "",
+            message: "",
+            current: 0,
+            total: 0,
+          });
+          if (analysis.matches && analysis.matches.length > 0) {
+            setCategoryAnalysis(analysis);
+            setShowCategoryDialog(true);
+          } else {
+            setUploadSummary({
+              show: true,
+              success: true,
+              message: "Upload Successful!",
+              details: result.message,
+            });
+            if (pendingKey) await deletePendingPdf(pendingKey);
+            router.push("/upload");
+          }
+        } catch (catErr) {
+          console.error("Category analysis failed", catErr);
+          setCategoryProgress({
+            show: false,
+            stage: "",
+            message: "",
+            current: 0,
+            total: 0,
+          });
+          setUploadSummary({
+            show: true,
+            success: true,
+            message: "Upload Successful!",
+            details: `${result.message} (Category analysis skipped)`,
+          });
+          if (pendingKey) await deletePendingPdf(pendingKey);
+          router.push("/upload");
+        }
+      } else {
+        if ("error" in result && result.error === "TABLE_NOT_EXISTS") {
+          const createResult = await executeTableCreation(tableName);
+          if (createResult.success) {
+            const retry = await uploadToSupabase(
+              tableName,
+              transactionsToAdd,
+              false,
+            );
+            if (retry.success) {
+              setUploadSummary({
+                show: true,
+                success: true,
+                message: "Upload Successful!",
+                details: retry.message,
+              });
+              if (pendingKey) await deletePendingPdf(pendingKey);
+              router.push("/upload");
+            } else {
+              setUploadSummary({
+                show: true,
+                success: false,
+                message: "Upload Failed",
+                details: retry.message,
+              });
+            }
+          } else {
+            setUploadSummary({
+              show: true,
+              success: false,
+              message: "Table Creation Failed",
+              details: createResult.message,
+            });
+          }
+        } else {
+          setUploadSummary({
+            show: true,
+            success: false,
+            message: "Upload Failed",
+            details: result.message,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error uploading transactions:", err);
+      setUploadSummary({
+        show: true,
+        success: false,
+        message: "Upload Error",
+        details: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      setUploadingFlow(false);
+      setConflictAnalysis(null);
+    }
+  };
+
+  const handleCancelMerge = () => {
+    setShowMergeDialog(false);
+    setConflictAnalysis(null);
+    setUploadingFlow(false);
+  };
+
+  const handleCategoryComplete = () => {
+    setShowCategoryDialog(false);
+    setCategoryAnalysis(null);
+    setUploadSummary({
+      show: true,
+      success: true,
+      message: "Categories Applied Successfully!",
+      details: "All transactions have been categorized and saved.",
+    });
+    if (pendingKey) deletePendingPdf(pendingKey).catch(() => {});
+    router.push("/upload");
+  };
+
+  const handleCategorySkip = () => {
+    setShowCategoryDialog(false);
+    setCategoryAnalysis(null);
+    setUploadSummary({
+      show: true,
+      success: true,
+      message: "Upload Complete - Categorization Skipped",
+      details:
+        "Transactions remain as 'Unknown' category. You can categorize them later in the app.",
+    });
+    if (pendingKey) deletePendingPdf(pendingKey).catch(() => {});
+    router.push("/upload");
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <h1>PDF Text Extractor (pdf.js) — Next.js page</h1>
@@ -579,6 +874,76 @@ export default function Page() {
           marginBottom: 12,
         }}
       >
+        {reviewMode && (
+          <div
+            style={{
+              padding: 8,
+              background: "#063",
+              color: "#cfff",
+              borderRadius: 6,
+            }}
+          >
+            Redirected from Upload
+            {pendingFilename ? `: ${pendingFilename}` : ""}
+            <div style={{ marginTop: 6 }}>
+              <button
+                onClick={async () => {
+                  // Confirm: build JSON, adapt to transactions, analyze conflicts and open merge dialog
+                  try {
+                    setUploadingFlow(true);
+                    const s1 = editableSnippet2091 || page3Snippet2091 || "";
+                    const s2 = editableSnippet7102 || page3Snippet7102 || "";
+                    const parsed = buildStructuredJSON(s1, s2);
+                    const transactions = ricoAdapter(parsed);
+
+                    // Determine a table name (simple convention: RICO_YYYYMM)
+                    const now = new Date();
+                    let year = String(now.getFullYear());
+                    let month = String(now.getMonth() + 1).padStart(2, "0");
+                    if (pendingFilename) {
+                      const m = pendingFilename.match(/(\d{4})[-_ ]?(\d{2})/);
+                      if (m) {
+                        year = m[1];
+                        month = m[2];
+                      }
+                    }
+                    const tableName = `RICO_${year}${month}`;
+
+                    const analysis = await analyzeUploadConflicts(
+                      tableName,
+                      transactions,
+                      false,
+                    );
+                    setConflictAnalysis(analysis);
+                    setShowMergeDialog(true);
+                  } catch (e) {
+                    console.error("Confirm flow failed", e);
+                    setUploadSummary({
+                      show: true,
+                      success: false,
+                      message: "Confirm failed",
+                      details: (e as any)?.message || String(e),
+                    });
+                  } finally {
+                    setUploadingFlow(false);
+                  }
+                }}
+                style={{ marginRight: 8 }}
+              >
+                Confirm JSON and Upload
+              </button>
+              <button
+                onClick={async () => {
+                  // Cancel: remove pending PDF and go back to upload
+                  if (pendingKey) await deletePendingPdf(pendingKey);
+                  router.push("/upload");
+                }}
+              >
+                Cancel & Back
+              </button>
+            </div>
+          </div>
+        )}
         <input
           ref={fileRef}
           id="file-input"
@@ -764,6 +1129,42 @@ export default function Page() {
       >
         {jsonOut || "No JSON yet."}
       </pre>
+
+      {/* Merge dialog for confirmed uploads */}
+      {conflictAnalysis && (
+        <MergeConflictDialog
+          analysis={conflictAnalysis}
+          onResolve={handleResolveConflicts}
+          onCancel={handleCancelMerge}
+          open={showMergeDialog}
+        />
+      )}
+
+      {/* Category assignment dialog (optional) */}
+      {categoryAnalysis && (
+        <CategoryAssignmentDialog
+          analysis={categoryAnalysis}
+          onComplete={handleCategoryComplete}
+          onSkip={handleCategorySkip}
+          open={showCategoryDialog}
+        />
+      )}
+
+      {/* Simple upload summary */}
+      {uploadSummary.show && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: 12,
+            borderRadius: 6,
+            background: uploadSummary.success ? "#073" : "#600",
+            color: "#fff",
+          }}
+        >
+          <strong>{uploadSummary.message}</strong>
+          <div style={{ fontSize: 12 }}>{uploadSummary.details}</div>
+        </div>
+      )}
 
       {/* Password modal */}
       {showPassword && (

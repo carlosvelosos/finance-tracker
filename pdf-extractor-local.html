@@ -91,6 +91,9 @@
       <button id="download-btn" class="btn" disabled>Download .txt</button>
       <button id="show-page3-btn" class="btn" disabled>Show Page 3</button>
       <span id="progress">Ready</span>
+      <button id="extract-page3-btn" class="btn" disabled>
+        Extract from Page 3
+      </button>
     </div>
 
     <div id="output" aria-live="polite">No text extracted yet.</div>
@@ -111,6 +114,22 @@
       "
     >
       No page 3 content yet.
+    </div>
+    <h4>Extracted snippet from Page 3</h4>
+    <div
+      id="page3-extract-output"
+      aria-live="polite"
+      style="
+        white-space: pre-wrap;
+        background: #f6f9ff;
+        color: #072;
+        padding: 12px;
+        border-radius: 6px;
+        min-height: 80px;
+        border: 1px solid #cde;
+      "
+    >
+      No snippet extracted yet.
     </div>
 
     <!-- Password prompt overlay (hidden until needed) -->
@@ -182,6 +201,10 @@
       let pageTexts = [];
       const showPage3Btn = document.getElementById("show-page3-btn");
       const page3Output = document.getElementById("page3-output");
+      const extractPage3Btn = document.getElementById("extract-page3-btn");
+      const page3ExtractOutput = document.getElementById(
+        "page3-extract-output",
+      );
 
       function setProgress(text) {
         progressEl.textContent = text;
@@ -192,7 +215,10 @@
         pageTexts = [];
         downloadBtn.disabled = true;
         showPage3Btn.disabled = true;
+        if (extractPage3Btn) extractPage3Btn.disabled = true;
         page3Output.textContent = "No page 3 content yet.";
+        if (page3ExtractOutput)
+          page3ExtractOutput.textContent = "No snippet extracted yet.";
         output.textContent = "No text extracted yet.";
         const f = e.target.files && e.target.files[0];
         if (!f) return;
@@ -225,6 +251,7 @@
         extractedText = "";
         pageTexts = [];
         showPage3Btn.disabled = true;
+        if (extractPage3Btn) extractPage3Btn.disabled = true;
         output.textContent = "Extracting...";
         setProgress("Starting extraction...");
 
@@ -262,6 +289,47 @@
           page3Output.textContent = "[no extracted pages yet]";
         }
       });
+
+      // Extract snippet from page 3: find the name + card pattern and capture until 'Subtotal' (exclusive)
+      if (extractPage3Btn) {
+        extractPage3Btn.addEventListener("click", () => {
+          const text = (pageTexts && pageTexts[2]) || "";
+          if (!text) {
+            if (page3ExtractOutput)
+              page3ExtractOutput.textContent = "[no text available for page 3]";
+            return;
+          }
+
+          // Normalize CR chars and prepare for case-insensitive searches
+          const normalized = text.replace(/\r/gi, "");
+          const nameRegex = /CARLOS\s+A\s+S\s+VELOSO/i;
+          const nameMatch = nameRegex.exec(normalized);
+          if (!nameMatch) {
+            if (page3ExtractOutput)
+              page3ExtractOutput.textContent = "[pattern not found on page 3]";
+            return;
+          }
+
+          const startIndex = nameMatch.index;
+          // Search for 'Subtotal' after the match (case-insensitive)
+          const afterMatch = normalized.substring(
+            startIndex + nameMatch[0].length,
+          );
+          const subtotalRegex = /Subtotal/i;
+          const subtotalMatch = subtotalRegex.exec(afterMatch);
+          let endIndex;
+          if (subtotalMatch) {
+            endIndex = startIndex + nameMatch[0].length + subtotalMatch.index;
+          } else {
+            endIndex = normalized.length;
+          }
+
+          const snippet = normalized.substring(startIndex, endIndex).trim();
+          if (page3ExtractOutput)
+            page3ExtractOutput.textContent =
+              snippet || "[extracted snippet empty]";
+        });
+      }
 
       // Core flow: try opening with no password, if password required show prompt and retry.
       async function tryOpenAndExtract(arrayBuffer, providedPassword) {
@@ -377,6 +445,9 @@
               // update page 3 area as soon as it's available
               page3Output.textContent = pageText || "[page 3 has no text]";
               showPage3Btn.disabled = false;
+              if (extractPage3Btn) extractPage3Btn.disabled = false;
+              if (page3ExtractOutput)
+                page3ExtractOutput.textContent = "No snippet extracted yet.";
             }
             extractedText += `\n\n--- Page ${i} ---\n\n` + pageText;
             // write partial results to UI so user sees progress
@@ -389,6 +460,7 @@
         // enable page 3 button if PDF has at least 3 pages
         if (num >= 3) {
           showPage3Btn.disabled = false;
+          if (extractPage3Btn) extractPage3Btn.disabled = false;
           // if pageTexts[2] exists, copy it to the display; otherwise show placeholder
           page3Output.textContent =
             pageTexts[2] || "Page 3 will appear here when extracted.";

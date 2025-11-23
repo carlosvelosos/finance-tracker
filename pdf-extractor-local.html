@@ -94,6 +94,9 @@
       <button id="extract-page3-btn" class="btn" disabled>
         Extract from Page 3
       </button>
+      <button id="extract-page3-7102-btn" class="btn" disabled>
+        Extract from Page 3 (7102)
+      </button>
     </div>
 
     <div id="output" aria-live="polite">No text extracted yet.</div>
@@ -127,6 +130,22 @@
         border-radius: 6px;
         min-height: 80px;
         border: 1px solid #cde;
+      "
+    >
+      No snippet extracted yet.
+    </div>
+    <h4>Extracted snippet from Page 3 (card ...7102)</h4>
+    <div
+      id="page3-extract-output-7102"
+      aria-live="polite"
+      style="
+        white-space: pre-wrap;
+        background: #fff7f0;
+        color: #572;
+        padding: 12px;
+        border-radius: 6px;
+        min-height: 80px;
+        border: 1px solid #f0d;
       "
     >
       No snippet extracted yet.
@@ -205,6 +224,12 @@
       const page3ExtractOutput = document.getElementById(
         "page3-extract-output",
       );
+      const extractPage3Btn7102 = document.getElementById(
+        "extract-page3-7102-btn",
+      );
+      const page3ExtractOutput7102 = document.getElementById(
+        "page3-extract-output-7102",
+      );
 
       function setProgress(text) {
         progressEl.textContent = text;
@@ -216,6 +241,7 @@
         downloadBtn.disabled = true;
         showPage3Btn.disabled = true;
         if (extractPage3Btn) extractPage3Btn.disabled = true;
+        if (extractPage3Btn7102) extractPage3Btn7102.disabled = true;
         page3Output.textContent = "No page 3 content yet.";
         if (page3ExtractOutput)
           page3ExtractOutput.textContent = "No snippet extracted yet.";
@@ -252,6 +278,7 @@
         pageTexts = [];
         showPage3Btn.disabled = true;
         if (extractPage3Btn) extractPage3Btn.disabled = true;
+        if (extractPage3Btn7102) extractPage3Btn7102.disabled = true;
         output.textContent = "Extracting...";
         setProgress("Starting extraction...");
 
@@ -289,6 +316,72 @@
           page3Output.textContent = "[no extracted pages yet]";
         }
       });
+
+      // Helper: extract default snippet from provided page text (name -> until 'Subtotal')
+      function extractSnippetDefaultFromText(text) {
+        if (!text) {
+          if (page3ExtractOutput)
+            page3ExtractOutput.textContent = "[no text available for page 3]";
+          return;
+        }
+        const normalized = text.replace(/\r/gi, "");
+        const nameRegex = /CARLOS\s+A\s+S\s+VELOSO/i;
+        const nameMatch = nameRegex.exec(normalized);
+        if (!nameMatch) {
+          if (page3ExtractOutput)
+            page3ExtractOutput.textContent = "[pattern not found on page 3]";
+          return;
+        }
+        const startIndex = nameMatch.index;
+        const afterMatch = normalized.substring(
+          startIndex + nameMatch[0].length,
+        );
+        const subtotalRegex = /Subtotal/i;
+        const subtotalMatch = subtotalRegex.exec(afterMatch);
+        let endIndex;
+        if (subtotalMatch) {
+          endIndex = startIndex + nameMatch[0].length + subtotalMatch.index;
+        } else {
+          endIndex = normalized.length;
+        }
+        const snippet = normalized.substring(startIndex, endIndex).trim();
+        if (page3ExtractOutput)
+          page3ExtractOutput.textContent =
+            snippet || "[extracted snippet empty]";
+      }
+
+      // Helper: extract snippet for 4998****7102 pattern
+      function extractSnippet7102FromText(text) {
+        if (!text) {
+          if (page3ExtractOutput7102)
+            page3ExtractOutput7102.textContent =
+              "[no text available for page 3]";
+          return;
+        }
+        const normalized = text.replace(/\r/gi, "");
+        const specificRegex = /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+7102/i;
+        const match = specificRegex.exec(normalized);
+        if (!match) {
+          if (page3ExtractOutput7102)
+            page3ExtractOutput7102.textContent =
+              "[pattern 4998****7102 not found on page 3]";
+          return;
+        }
+        const startIndex = match.index;
+        const afterMatch = normalized.substring(startIndex + match[0].length);
+        const subtotalRegex = /Subtotal/i;
+        const subtotalMatch = subtotalRegex.exec(afterMatch);
+        let endIndex;
+        if (subtotalMatch) {
+          endIndex = startIndex + match[0].length + subtotalMatch.index;
+        } else {
+          endIndex = normalized.length;
+        }
+        const snippet = normalized.substring(startIndex, endIndex).trim();
+        if (page3ExtractOutput7102)
+          page3ExtractOutput7102.textContent =
+            snippet || "[extracted snippet empty]";
+      }
 
       // Extract snippet from page 3: find the name + card pattern and capture until 'Subtotal' (exclusive)
       if (extractPage3Btn) {
@@ -376,6 +469,47 @@
         }
       }
 
+      // Extract snippet for the specific card pattern ending with 7102
+      if (extractPage3Btn7102) {
+        extractPage3Btn7102.addEventListener("click", () => {
+          const text = (pageTexts && pageTexts[2]) || "";
+          if (!text) {
+            if (page3ExtractOutput7102)
+              page3ExtractOutput7102.textContent =
+                "[no text available for page 3]";
+            return;
+          }
+
+          // Normalize CR chars and prepare for case-insensitive searches
+          const normalized = text.replace(/\r/gi, "");
+          // match the exact structure: name, dash, 4998, asterisks, ending 7102
+          const specificRegex = /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+7102/i;
+          const match = specificRegex.exec(normalized);
+          if (!match) {
+            if (page3ExtractOutput7102)
+              page3ExtractOutput7102.textContent =
+                "[pattern 4998****7102 not found on page 3]";
+            return;
+          }
+
+          const startIndex = match.index;
+          const afterMatch = normalized.substring(startIndex + match[0].length);
+          const subtotalRegex = /Subtotal/i;
+          const subtotalMatch = subtotalRegex.exec(afterMatch);
+          let endIndex;
+          if (subtotalMatch) {
+            endIndex = startIndex + match[0].length + subtotalMatch.index;
+          } else {
+            endIndex = normalized.length;
+          }
+
+          const snippet = normalized.substring(startIndex, endIndex).trim();
+          if (page3ExtractOutput7102)
+            page3ExtractOutput7102.textContent =
+              snippet || "[extracted snippet empty]";
+        });
+      }
+
       // Prompt password overlay. Returns a promise that resolves when user submits or cancels.
       function promptPassword(message) {
         return new Promise((resolve, reject) => {
@@ -448,6 +582,17 @@
               if (extractPage3Btn) extractPage3Btn.disabled = false;
               if (page3ExtractOutput)
                 page3ExtractOutput.textContent = "No snippet extracted yet.";
+              // automatically run the snippet extractions for page 3
+              try {
+                extractSnippetDefaultFromText(pageText);
+              } catch (e) {
+                console.error("auto extract default failed", e);
+              }
+              try {
+                extractSnippet7102FromText(pageText);
+              } catch (e) {
+                console.error("auto extract 7102 failed", e);
+              }
             }
             extractedText += `\n\n--- Page ${i} ---\n\n` + pageText;
             // write partial results to UI so user sees progress

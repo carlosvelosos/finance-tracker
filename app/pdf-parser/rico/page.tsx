@@ -19,6 +19,8 @@ export default function Page() {
   const [page3Snippet2091, setPage3Snippet2091] = useState("");
   const [page3Snippet7102, setPage3Snippet7102] = useState("");
   const [jsonOut, setJsonOut] = useState("");
+  const [editableSnippet2091, setEditableSnippet2091] = useState("");
+  const [editableSnippet7102, setEditableSnippet7102] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [pwMessage, setPwMessage] = useState("");
   const pwInputRef = useRef<HTMLInputElement | null>(null);
@@ -321,15 +323,54 @@ export default function Page() {
       const thisCard = cardMatches[i];
       const nextIdx =
         i + 1 < cardMatches.length ? cardMatches[i + 1].idx : concat.length;
-      // prefer the last subtotal between thisCard.idx and nextIdx
-      let endIdx = findLastSubtotalBetween(thisCard.idx, nextIdx);
-      if (endIdx === null) {
-        // fallback: look for first subtotal after thisCard.idx
-        const re = new RegExp(SUBTOTAL_REGEX.source, "i");
-        const sm = re.exec(concat.substring(thisCard.idx));
-        if (sm) endIdx = thisCard.idx + sm.index;
+      // We want to include continuation tables that may appear after a
+      // SUBTOTAL if the next page contains a column header + rows that belong
+      // to this card. Strategy:
+      // 1. Look for any column header 'Data Descrição R$ US$' within this span.
+      // 2. If one exists, prefer the last SUBTOTAL that appears after the
+      //    last column header (so that rows following the header are captured
+      //    up to that subtotal). If none found, fall back to last subtotal
+      //    between thisCard and next card, or to nextIdx.
+      let endIdx: number | null = null;
+      // find last column header in span
+      const colRe = /Data\s+Descri[cç][aã]o\s+R\$\s+US\$/gi;
+      let lastColIdx: number | null = null;
+      let cm2: RegExpExecArray | null;
+      // reset lastIndex for safety
+      colRe.lastIndex = 0;
+      while ((cm2 = colRe.exec(concat)) !== null) {
+        if (cm2.index > thisCard.idx && cm2.index < nextIdx)
+          lastColIdx = cm2.index;
+        if (cm2.index >= nextIdx) break;
       }
-      if (endIdx === null) endIdx = nextIdx; // last resort
+
+      if (lastColIdx !== null) {
+        // find last SUBTOTAL after lastColIdx but before nextIdx
+        const subRe = new RegExp(SUBTOTAL_REGEX.source, "gi");
+        let lastSub: number | null = null;
+        subRe.lastIndex = 0;
+        let sm2: RegExpExecArray | null;
+        while ((sm2 = subRe.exec(concat)) !== null) {
+          if (sm2.index >= lastColIdx && sm2.index < nextIdx)
+            lastSub = sm2.index;
+          if (sm2.index >= nextIdx) break;
+        }
+        if (lastSub !== null) {
+          endIdx = lastSub;
+        } else {
+          // fallback to last subtotal in whole span
+          endIdx = findLastSubtotalBetween(thisCard.idx, nextIdx) ?? nextIdx;
+        }
+      } else {
+        // no column header found — use previous logic: prefer the last subtotal
+        endIdx = findLastSubtotalBetween(thisCard.idx, nextIdx);
+        if (endIdx === null) {
+          const re = new RegExp(SUBTOTAL_REGEX.source, "i");
+          const sm = re.exec(concat.substring(thisCard.idx));
+          if (sm) endIdx = thisCard.idx + sm.index;
+        }
+        if (endIdx === null) endIdx = nextIdx;
+      }
 
       const snippet = concat.substring(thisCard.idx, endIdx).trim();
       result[thisCard.key] = snippet;
@@ -378,10 +419,31 @@ export default function Page() {
       .replace(/\t/g, " ")
       .replace(/\n+/g, "\n")
       .trim();
+    // Don't trim at the first SUBTOTAL globally — that removed continuation
+    // rows that appear after the page footer. Instead, remove the footer block
+    // between SUBTOTAL and the next column header if present, and strip page
+    // header blocks like 'Titular ... Vencimento <date>'. This preserves table
+    // rows that continue after a page break.
+    let working = norm;
+    try {
+      // remove SUBTOTAL + footer up to the next 'Data   Descrição' header
+      working = working.replace(
+        /Subtotal[\s\S]*?(?=Data\s+Descri[cç][aã]o)/i,
+        "",
+      );
+    } catch (e) {
+      /* ignore */
+    }
+    // Remove page-level header/footer noise
+    working = working
+      .replace(/Titular[\s\S]*?Vencimento\s*\d{1,2}\/\d{1,2}\/\d{2,4}/gi, "")
+      .replace(/Resumo da sua fatura/gi, "")
+      .replace(/Limite de cr[eé]dito[\s\S]*?Limite utilizado/gi, "")
+      .trim();
     const dateRegex = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g;
     const dates: { idx: number; text: string }[] = [];
     let m: RegExpExecArray | null;
-    while ((m = dateRegex.exec(norm)) !== null)
+    while ((m = dateRegex.exec(working)) !== null)
       dates.push({ idx: m.index, text: m[0] });
     const records: any[] = [];
 
@@ -392,8 +454,11 @@ export default function Page() {
     if (dates.length > 0) {
       for (let i = 0; i < dates.length; i++) {
         const start = dates[i].idx;
-        const end = i + 1 < dates.length ? dates[i + 1].idx : norm.length;
-        const segment = norm.substring(start, end).trim();
+        const end = i + 1 < dates.length ? dates[i + 1].idx : working.length;
+        let segment = working.substring(start, end).trim();
+        // Strip any trailing SUBTOTAL/footer that accidentally attached to this segment
+        // (for instance: '... 149,48 Subtotal  +55 ...'). Keep the transaction only.
+        segment = segment.replace(/Subtotal[\s\S]*/i, "");
         const dateMatch = segment.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
         const date = dateMatch ? dateMatch[0] : "";
         const amountRegex =
@@ -410,6 +475,11 @@ export default function Page() {
           .replace(/^[-–—\s]+/, "")
           .replace(/\s+[-–—]$/, "")
           .trim();
+        // Remove stray header/footer tokens from the description
+        desc = desc.replace(
+          /Titular|Endere[cç]o|Vencimento|Resumo da sua fatura|As informa[cç][oõ]es deste demonstrativo/gi,
+          "",
+        );
         let rVal = "";
         let usVal = "";
         if (amounts.length >= 2) {
@@ -418,13 +488,20 @@ export default function Page() {
         } else if (amounts.length === 1) {
           rVal = amounts[0];
         }
-        records.push({ Data: date, Descrição: desc, R$: rVal, US$: usVal });
+        // filter out header-like or empty rows
+        const isHeaderLike =
+          /Data\s+Descri[cç][aã]o|Titular|Endere[cç]o|Vencimento|Resumo da sua fatura|As informa[cç][oõ]es deste demonstrativo/i.test(
+            desc,
+          );
+        if (!isHeaderLike && (rVal || usVal || desc)) {
+          records.push({ Data: date, Descrição: desc, R$: rVal, US$: usVal });
+        }
       }
       return records;
     }
 
     // Fallback: line-based parsing when no dates were detected
-    const lines = norm
+    const lines = working
       .split(/\n|\r\n|\r/)
       .map((l) => l.trim())
       .filter(Boolean);
@@ -453,7 +530,13 @@ export default function Page() {
       } else if (amounts.length === 1) {
         rVal = amounts[0];
       }
-      records.push({ Data: date, Descrição: desc, R$: rVal, US$: usVal });
+      const isHeaderLike =
+        /Data\s+Descri[cç][aã]o|Titular|Endere[cç]o|Vencimento|Resumo da sua fatura/i.test(
+          desc,
+        ) ||
+        (!rVal && !usVal && !date);
+      if (!isHeaderLike)
+        records.push({ Data: date, Descrição: desc, R$: rVal, US$: usVal });
     }
     return records;
   }
@@ -593,6 +676,26 @@ export default function Page() {
         {page3Snippet2091 || "No snippet extracted yet."}
       </div>
 
+      <h4>Editable snippet for 2091 (paste/trim here before converting)</h4>
+      <div style={{ marginBottom: 8 }}>
+        <textarea
+          value={editableSnippet2091}
+          onChange={(e) => setEditableSnippet2091(e.target.value)}
+          placeholder="Paste or edit the snippet for 2091 here"
+          rows={6}
+          style={{ width: "100%", padding: 8, fontFamily: "monospace" }}
+        />
+        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+          <button
+            onClick={() => setEditableSnippet2091(page3Snippet2091)}
+            title="Copy auto-extracted snippet into editor"
+          >
+            Use extracted
+          </button>
+          <button onClick={() => setEditableSnippet2091("")}>Clear</button>
+        </div>
+      </div>
+
       <h4>Extracted snippet from Page 3 (7102)</h4>
       <div
         style={{
@@ -605,6 +708,48 @@ export default function Page() {
         }}
       >
         {page3Snippet7102 || "No snippet extracted yet."}
+      </div>
+
+      <h4>Editable snippet for 7102 (paste/trim here before converting)</h4>
+      <div style={{ marginBottom: 8 }}>
+        <textarea
+          value={editableSnippet7102}
+          onChange={(e) => setEditableSnippet7102(e.target.value)}
+          placeholder="Paste or edit the snippet for 7102 here"
+          rows={6}
+          style={{ width: "100%", padding: 8, fontFamily: "monospace" }}
+        />
+        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+          <button
+            onClick={() => setEditableSnippet7102(page3Snippet7102)}
+            title="Copy auto-extracted snippet into editor"
+          >
+            Use extracted
+          </button>
+          <button onClick={() => setEditableSnippet7102("")}>Clear</button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+        <button
+          onClick={() => {
+            // Prefer edited snippets if present, otherwise fall back to auto snippets
+            const s1 = editableSnippet2091 || page3Snippet2091 || "";
+            const s2 = editableSnippet7102 || page3Snippet7102 || "";
+            buildStructuredJSON(s1, s2);
+          }}
+          style={{ padding: "8px 12px" }}
+        >
+          Convert Edited to JSON
+        </button>
+        <button
+          onClick={() => {
+            // quick fallback: build from auto snippets
+            buildStructuredJSON(page3Snippet2091, page3Snippet7102);
+          }}
+        >
+          Convert Auto to JSON
+        </button>
       </div>
 
       <h4>Structured JSON</h4>

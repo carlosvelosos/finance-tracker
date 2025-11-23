@@ -150,6 +150,20 @@
     >
       No snippet extracted yet.
     </div>
+    <h4>Structured JSON</h4>
+    <pre
+      id="page3-json-output"
+      style="
+        white-space: pre-wrap;
+        background: #f0f0f3;
+        padding: 12px;
+        border-radius: 6px;
+        min-height: 120px;
+        border: 1px solid #ddd;
+      "
+    >
+No JSON yet.</pre
+    >
 
     <!-- Password prompt overlay (hidden until needed) -->
     <div
@@ -245,6 +259,10 @@
         page3Output.textContent = "No page 3 content yet.";
         if (page3ExtractOutput)
           page3ExtractOutput.textContent = "No snippet extracted yet.";
+        if (page3ExtractOutput7102)
+          page3ExtractOutput7102.textContent = "No snippet extracted yet.";
+        const jsonOut = document.getElementById("page3-json-output");
+        if (jsonOut) jsonOut.textContent = "No JSON yet.";
         output.textContent = "No text extracted yet.";
         const f = e.target.files && e.target.files[0];
         if (!f) return;
@@ -383,6 +401,72 @@
             snippet || "[extracted snippet empty]";
       }
 
+      // Parse a snippet into records: find segments starting with a date and extract Data, Descrição, R$, US$
+      function parseSnippetToRecords(snippet) {
+        if (!snippet) return [];
+        // Normalize whitespace and line breaks
+        const norm = snippet
+          .replace(/\r/g, "")
+          .replace(/\t/g, " ")
+          .replace(/\n+/g, "\n")
+          .trim();
+        // Find positions of date tokens (dd/mm/yy or dd/mm/yyyy)
+        const dateRegex = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g;
+        const dates = [];
+        let m;
+        while ((m = dateRegex.exec(norm)) !== null) {
+          dates.push({ idx: m.index, text: m[0] });
+        }
+        const records = [];
+        if (dates.length === 0) return records;
+        for (let i = 0; i < dates.length; i++) {
+          const start = dates[i].idx;
+          const end = i + 1 < dates.length ? dates[i + 1].idx : norm.length;
+          const segment = norm.substring(start, end).trim();
+          const dateMatch = segment.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+          const date = dateMatch ? dateMatch[0] : "";
+          // amounts like 1.234,56 or 123,45 or -123,45
+          const amountRegex = /-?\d{1,3}(?:[\.\s]\d{3})*[,\.]\d{2}/g;
+          const amounts = (segment.match(amountRegex) || []).map((a) =>
+            a.replace(/\s/g, ""),
+          );
+          // description = segment minus date and amounts
+          let desc = segment.replace(date, "").trim();
+          for (const a of amounts) desc = desc.replace(a, "").trim();
+          desc = desc
+            .replace(/^[-–—\s]+/, "")
+            .replace(/\s+[-–—]$/, "")
+            .trim();
+          let rVal = "";
+          let usVal = "";
+          if (amounts.length >= 2) {
+            rVal = amounts[0];
+            usVal = amounts[1];
+          } else if (amounts.length === 1) {
+            rVal = amounts[0];
+          }
+          records.push({ Data: date, Descrição: desc, R$: rVal, US$: usVal });
+        }
+        return records;
+      }
+
+      // Build structured JSON object for both card snippets and render into the JSON output area
+      function buildStructuredJSON() {
+        const keyDefault = "CARLOS A S VELOSO - 4998********2091";
+        const key7102 = "CARLOS A S VELOSO - 4998********7102";
+        const snipDefault =
+          (page3ExtractOutput && page3ExtractOutput.textContent) || "";
+        const snip7102 =
+          (page3ExtractOutput7102 && page3ExtractOutput7102.textContent) || "";
+        const obj = {};
+        obj[keyDefault] = parseSnippetToRecords(snipDefault);
+        obj[key7102] = parseSnippetToRecords(snip7102);
+        const pretty = JSON.stringify(obj, null, 2);
+        const jsonOut = document.getElementById("page3-json-output");
+        if (jsonOut) jsonOut.textContent = pretty;
+        return obj;
+      }
+
       // Extract snippet from page 3: find the name + card pattern and capture until 'Subtotal' (exclusive)
       if (extractPage3Btn) {
         extractPage3Btn.addEventListener("click", () => {
@@ -421,6 +505,11 @@
           if (page3ExtractOutput)
             page3ExtractOutput.textContent =
               snippet || "[extracted snippet empty]";
+          try {
+            buildStructuredJSON();
+          } catch (e) {
+            console.error("buildStructuredJSON failed", e);
+          }
         });
       }
 
@@ -507,6 +596,11 @@
           if (page3ExtractOutput7102)
             page3ExtractOutput7102.textContent =
               snippet || "[extracted snippet empty]";
+          try {
+            buildStructuredJSON();
+          } catch (e) {
+            console.error("buildStructuredJSON failed", e);
+          }
         });
       }
 
@@ -592,6 +686,11 @@
                 extractSnippet7102FromText(pageText);
               } catch (e) {
                 console.error("auto extract 7102 failed", e);
+              }
+              try {
+                buildStructuredJSON();
+              } catch (e) {
+                console.error("buildStructuredJSON failed", e);
               }
             }
             extractedText += `\n\n--- Page ${i} ---\n\n` + pageText;

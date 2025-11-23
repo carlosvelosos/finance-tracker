@@ -303,7 +303,13 @@ const MonthlySummaryPage = () => {
                     <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.ricoCreditCard)} border-r border-gray-200 dark:border-gray-700`}
                     >
-                      {formatCurrency(row.ricoCreditCard)}
+                      <div>{formatCurrency(row.ricoCreditCard)}</div>
+                      {/** Show discovered RICO table name under the amount when available */}
+                      {/* {row.ricoTable && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {row.ricoTable}
+                        </div>
+                      )} */}
                     </td>
                     <td
                       className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:border-gray-700`}

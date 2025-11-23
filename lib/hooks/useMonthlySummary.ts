@@ -8,6 +8,8 @@ export interface MonthlyData {
   interCreditCard: number;
   b3: number;
   ricoCreditCard: number;
+  // optional name of the RICO table that contributed to this month (e.g. RICO_202508)
+  ricoTable?: string | null;
   fgts: number;
   mae: number;
   handelsbankenAcc: number;
@@ -66,6 +68,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       // Discover INACC, INMCPDF, AM, SJ, B3, and HB tables for the specified year
       let inaccTables: string[] = [];
       let inmcpdfTables: string[] = [];
+      let ricoTables: string[] = [];
       let amTables: string[] = [];
       let sjTables: string[] = [];
       let b3Tables: string[] = [];
@@ -90,6 +93,11 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           amTables = (rpcTables || [])
             .map((table: { table_name: string }) => table.table_name)
             .filter((tableName: string) => tableName.startsWith(`AM_${year}`));
+          ricoTables = (rpcTables || [])
+            .map((table: { table_name: string }) => table.table_name)
+            .filter((tableName: string) =>
+              tableName.startsWith(`RICO_${year}`),
+            );
           sjTables = (rpcTables || [])
             .map((table: { table_name: string }) => table.table_name)
             .filter((tableName: string) => tableName.startsWith(`SJ_${year}`));
@@ -132,6 +140,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         const knownInaccTableNames: string[] = [];
         const knownInmcpdfTableNames: string[] = [];
         const knownAmTableNames: string[] = [];
+        const knownRicoTableNames: string[] = [];
         const knownSjTableNames: string[] = [];
         const knownB3TableNames: string[] = [];
         const knownHbTableNames: string[] = [`HB_${year}`]; // HB tables are per year
@@ -142,6 +151,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
           knownInaccTableNames.push(`INACC_${year}${month}`);
           knownInmcpdfTableNames.push(`INMCPDF_${year}${month}`);
           knownAmTableNames.push(`AM_${year}${month}`);
+          knownRicoTableNames.push(`RICO_${year}${month}`);
           knownSjTableNames.push(`SJ_${year}${month}`);
           knownB3TableNames.push(`B3_${year}${month}`);
         }
@@ -206,6 +216,27 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         );
 
         amTables = amExistenceTests.filter(
+          (table): table is string => table !== null,
+        );
+
+        // Test which RICO tables actually exist
+        const ricoExistenceTests = await Promise.all(
+          knownRicoTableNames.map(async (tableName) => {
+            try {
+              const { error } = await supabase
+                .from(tableName)
+                .select("*", { count: "exact", head: true })
+                .limit(0);
+
+              return error ? null : tableName;
+            } catch (err) {
+              console.error(`Error checking RICO table ${tableName}:`, err);
+              return null;
+            }
+          }),
+        );
+
+        ricoTables = ricoExistenceTests.filter(
           (table): table is string => table !== null,
         );
 
@@ -427,6 +458,30 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         }
       });
 
+      // Fetch data from each RICO table
+      const ricoDataPromises = ricoTables.map(async (tableName: string) => {
+        try {
+          const { data: transactions, error } = await supabase
+            .from(tableName)
+            .select('"Date", "Amount", "Category"')
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error(`Error fetching from ${tableName}:`, error);
+            return { tableName, transactions: [], error };
+          }
+
+          return {
+            tableName,
+            transactions: transactions || [],
+            error: null,
+          };
+        } catch (err) {
+          console.error(`Error fetching from table ${tableName}:`, err);
+          return { tableName, transactions: [], error: err };
+        }
+      });
+
       // Fetch data from each HB table (yearly tables)
       const hbDataPromises = hbTables.map(async (tableName: string) => {
         try {
@@ -458,6 +513,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         amResults,
         sjResults,
         b3Results,
+        ricoResults,
         hbResults,
       ] = await Promise.all([
         Promise.all(inaccDataPromises),
@@ -465,6 +521,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         Promise.all(amDataPromises),
         Promise.all(sjDataPromises),
         Promise.all(b3DataPromises),
+        Promise.all(ricoDataPromises),
         Promise.all(hbDataPromises),
       ]);
 
@@ -476,6 +533,8 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
       const monthlyB3Totals: Record<string, number> = {};
       const monthlyHbTotals: Record<string, number> = {};
       const monthlyHbInvestTotals: Record<string, number> = {};
+      const monthlyRicoTotals: Record<string, number> = {};
+      const ricoTableByMonth: Record<string, string> = {};
 
       inaccResults.forEach((result) => {
         if (result.transactions && result.transactions.length > 0) {
@@ -575,12 +634,86 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             const monthKey = `${year}-${month}`;
 
             // Calculate total for this month
-            const total = (result.transactions as Transaction[]).reduce(
+            // Exclude transactions categorized as 'Rico Visa Credit card' (case-insensitive)
+            const total = (result.transactions as Transaction[])
+              .filter(
+                (transaction) =>
+                  !(
+                    (transaction.Category || "").toLowerCase().trim() ===
+                    "rico visa credit card"
+                  ),
+              )
+              .reduce((sum, transaction) => sum + (transaction.Amount || 0), 0);
+
+            monthlyB3Totals[monthKey] = total;
+          }
+        }
+      });
+
+      // RICO tables processing (with diagnostic logging)
+      ricoResults.forEach((result) => {
+        if (result.transactions && result.transactions.length > 0) {
+          const match = result.tableName.match(/RICO_(\d{4})(\d{2})/);
+          if (match) {
+            const year = match[1];
+            const month = match[2];
+            const monthKey = `${year}-${month}`;
+
+            // Diagnostic logs to help debugging
+            try {
+              console.log(
+                `Processing RICO table ${result.tableName} for month ${monthKey} - rows=${result.transactions.length}`,
+              );
+              const sampleCats = Array.from(
+                new Set(
+                  (result.transactions as Transaction[])
+                    .map((t) => (t.Category || "").toString().trim())
+                    .filter(Boolean)
+                    .slice(0, 20),
+                ),
+              ).slice(0, 8);
+              console.log("  sample categories:", sampleCats);
+            } catch (logErr) {
+              console.warn("Error logging RICO samples:", logErr);
+            }
+
+            // Exclude transactions categorized as 'Rico Visa Credit card' (case-insensitive)
+            const filteredTx = (result.transactions as Transaction[]).filter(
+              (transaction) =>
+                !(
+                  (transaction.Category || "").toLowerCase().trim() ===
+                  "rico visa credit card"
+                ),
+            );
+
+            const rawTotal = (result.transactions as Transaction[]).reduce(
+              (sum, transaction) => sum + (transaction.Amount || 0),
+              0,
+            );
+            const total = filteredTx.reduce(
               (sum, transaction) => sum + (transaction.Amount || 0),
               0,
             );
 
-            monthlyB3Totals[monthKey] = total;
+            console.log(
+              `  RICO table ${result.tableName}: rawTotal=${rawTotal} filteredCount=${filteredTx.length} filteredTotal=${total}`,
+            );
+
+            // If multiple RICO tables for a month exist, prefer the one with larger total or latest discovered
+            if (
+              !monthlyRicoTotals[monthKey] ||
+              Math.abs(total) > Math.abs(monthlyRicoTotals[monthKey])
+            ) {
+              monthlyRicoTotals[monthKey] = total;
+              ricoTableByMonth[monthKey] = result.tableName;
+              console.log(
+                `  assigned ${result.tableName} -> ${monthKey} (total=${total})`,
+              );
+            } else {
+              console.log(
+                `  skipped ${result.tableName} for ${monthKey} (existing=${monthlyRicoTotals[monthKey]})`,
+              );
+            }
           }
         }
       });
@@ -719,7 +852,8 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             interAcc: interAccTotal,
             interCreditCard: interCreditCardTotal,
             b3: b3Total,
-            ricoCreditCard: 0,
+            ricoCreditCard: monthlyRicoTotals[monthKey] || 0,
+            ricoTable: ricoTableByMonth[monthKey] || null,
             fgts: 0,
             mae: 0,
             handelsbankenAcc: hbAccTotal,

@@ -200,20 +200,16 @@ export default function Page() {
           try {
             const s1 = extractSnippet2091FromText(pageText);
             setPage3Snippet2091(s1);
-          } catch (e) {
-            console.error("auto extract default failed", e);
-          }
-          try {
             const s2 = extractSnippet7102FromText(pageText);
             setPage3Snippet7102(s2);
+            // Build JSON immediately from the snippet strings to avoid state-update race
+            try {
+              buildStructuredJSON(s1, s2);
+            } catch (e) {
+              console.error("buildStructuredJSON failed", e);
+            }
           } catch (e) {
-            console.error("auto extract 7102 failed", e);
-          }
-          try {
-            const obj = buildStructuredJSON();
-            setJsonOut(JSON.stringify(obj, null, 2));
-          } catch (e) {
-            console.error("buildStructuredJSON failed", e);
+            console.error("auto extract failed", e);
           }
         }
         accum += `\n\n--- Page ${i} ---\n\n` + pageText;
@@ -273,19 +269,63 @@ export default function Page() {
     while ((m = dateRegex.exec(norm)) !== null)
       dates.push({ idx: m.index, text: m[0] });
     const records: any[] = [];
-    if (dates.length === 0) return records;
-    for (let i = 0; i < dates.length; i++) {
-      const start = dates[i].idx;
-      const end = i + 1 < dates.length ? dates[i + 1].idx : norm.length;
-      const segment = norm.substring(start, end).trim();
-      const dateMatch = segment.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
-      const date = dateMatch ? dateMatch[0] : "";
-      const amountRegex = /-?\d{1,3}(?:[\.\s]\d{3})*[,\.]\d{2}/g;
-      const amounts = (segment.match(amountRegex) || []).map((a) =>
-        a.replace(/\s/g, ""),
-      );
-      let desc = segment.replace(date, "").trim();
-      for (const a of amounts) desc = desc.replace(a, "").trim();
+
+    const normalizeAmount = (a: string) =>
+      a.replace(/\s/g, "").replace(/[^0-9,\.\-]/g, "");
+
+    // Primary parsing: segments anchored by date tokens
+    if (dates.length > 0) {
+      for (let i = 0; i < dates.length; i++) {
+        const start = dates[i].idx;
+        const end = i + 1 < dates.length ? dates[i + 1].idx : norm.length;
+        const segment = norm.substring(start, end).trim();
+        const dateMatch = segment.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+        const date = dateMatch ? dateMatch[0] : "";
+        const amountRegex =
+          /(?:R\$|US\$)?\s*-?\d{1,3}(?:[\.\s]\d{3})*[,\.]\d{2}/g;
+        const amountsRaw = segment.match(amountRegex) || [];
+        const amounts = amountsRaw.map((a) => normalizeAmount(a));
+        let desc = segment.replace(date, "").trim();
+        for (const a of amountsRaw)
+          desc = desc
+            .replace(a, "")
+            .replace(/R\$|US\$/g, "")
+            .trim();
+        desc = desc
+          .replace(/^[-–—\s]+/, "")
+          .replace(/\s+[-–—]$/, "")
+          .trim();
+        let rVal = "";
+        let usVal = "";
+        if (amounts.length >= 2) {
+          rVal = amounts[0];
+          usVal = amounts[1];
+        } else if (amounts.length === 1) {
+          rVal = amounts[0];
+        }
+        records.push({ Data: date, Descrição: desc, R$: rVal, US$: usVal });
+      }
+      return records;
+    }
+
+    // Fallback: line-based parsing when no dates were detected
+    const lines = norm
+      .split(/\n|\r\n|\r/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const amountRegexFallback =
+      /(?:R\$|US\$)?\s*-?\d{1,3}(?:[\.\s]\d{3})*[,\.]\d{2}/g;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const matches = line.match(amountRegexFallback);
+      if (!matches) continue;
+      const amounts = matches.map((a) => normalizeAmount(a));
+      const dateMatch = (line.match(dateRegex) || []) as string[];
+      const prevDateMatch =
+        i > 0 ? ((lines[i - 1].match(dateRegex) || []) as string[]) : [];
+      const date = (dateMatch[0] || prevDateMatch[0] || "").toString();
+      let desc = line;
+      for (const a of matches) desc = desc.replace(a, "");
       desc = desc
         .replace(/^[-–—\s]+/, "")
         .replace(/\s+[-–—]$/, "")
@@ -303,13 +343,17 @@ export default function Page() {
     return records;
   }
 
-  function buildStructuredJSON() {
+  function buildStructuredJSON(snipDefault?: string, snip7102?: string) {
     const keyDefault = "CARLOS A S VELOSO - 4998********2091";
     const key7102 = "CARLOS A S VELOSO - 4998********7102";
     const obj: any = {};
-    obj[keyDefault] = parseSnippetToRecords(page3Snippet2091 || "");
-    obj[key7102] = parseSnippetToRecords(page3Snippet7102 || "");
-    setJsonOut(JSON.stringify(obj, null, 2));
+    const sd =
+      typeof snipDefault === "string" ? snipDefault : page3Snippet2091 || "";
+    const s7 = typeof snip7102 === "string" ? snip7102 : page3Snippet7102 || "";
+    obj[keyDefault] = parseSnippetToRecords(sd);
+    obj[key7102] = parseSnippetToRecords(s7);
+    const pretty = JSON.stringify(obj, null, 2);
+    setJsonOut(pretty);
     return obj;
   }
 

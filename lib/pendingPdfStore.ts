@@ -34,7 +34,7 @@ export async function savePendingPdf(file: File): Promise<string> {
     createdAt: Date.now(),
   };
   return await new Promise<string>((resolve, reject) => {
-    const req = store.put(record, key as any);
+    const req = store.put(record, key as IDBValidKey);
     req.onsuccess = () => {
       resolve(key);
     };
@@ -49,7 +49,7 @@ export async function loadPendingPdf(
   const tx = db.transaction("pending", "readonly");
   const store = tx.objectStore("pending");
   return await new Promise((resolve, reject) => {
-    const req = store.get(key as any);
+    const req = store.get(key as IDBValidKey);
     req.onsuccess = async () => {
       const rec = req.result as PendingRecord | undefined;
       if (!rec) return resolve(null);
@@ -69,7 +69,7 @@ export async function deletePendingPdf(key: string): Promise<void> {
   const tx = db.transaction("pending", "readwrite");
   const store = tx.objectStore("pending");
   return await new Promise((resolve, reject) => {
-    const req = store.delete(key as any);
+    const req = store.delete(key as IDBValidKey);
     req.onsuccess = () => resolve();
     req.onerror = () => reject(req.error);
   });
@@ -97,9 +97,11 @@ export async function cleanupOldPendingPdfs(maxAgeMs = 1000 * 60 * 60 * 24) {
   }
 }
 
-export default {
+const pendingPdfStore = {
   savePendingPdf,
   loadPendingPdf,
   deletePendingPdf,
   cleanupOldPendingPdfs,
 };
+
+export default pendingPdfStore;

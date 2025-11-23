@@ -12,13 +12,32 @@ import {
   uploadToSupabase,
   executeTableCreation,
 } from "@/app/actions/fileActions";
-import { analyzeCategoryMatches } from "@/app/actions/categoryAnalysis";
+import {
+  analyzeCategoryMatches,
+  CategoryAnalysis,
+  CategoryAnalysisProgress,
+} from "@/app/actions/categoryAnalysis";
 import { MergeConflictDialog } from "@/components/MergeConflictDialog";
 import { CategoryAssignmentDialog } from "@/components/CategoryAssignmentDialog";
 
+// Minimal types for the portions of pdf.js we use here
+type PDFTextItem = { str?: string };
+interface PDFPageProxy {
+  getTextContent(): Promise<{ items: PDFTextItem[] }>;
+}
+interface PDFDocumentProxy {
+  numPages: number;
+  getPage(pageNumber: number): Promise<PDFPageProxy>;
+}
+
 declare global {
   interface Window {
-    pdfjsLib: any;
+    pdfjsLib?: {
+      GlobalWorkerOptions?: { workerSrc?: string };
+      getDocument: (opts: { data: ArrayBuffer; password?: string }) => {
+        promise: Promise<PDFDocumentProxy>;
+      };
+    };
   }
 }
 
@@ -47,10 +66,18 @@ export default function Page() {
   const [conflictAnalysis, setConflictAnalysis] =
     useState<ConflictAnalysis | null>(null);
   const [showMergeDialog, setShowMergeDialog] = useState(false);
-  const [uploadingFlow, setUploadingFlow] = useState(false);
-  const [categoryAnalysis, setCategoryAnalysis] = useState<any | null>(null);
+  const [, setUploadingFlow] = useState(false);
+  const [categoryAnalysis, setCategoryAnalysis] =
+    useState<CategoryAnalysis | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [categoryProgress, setCategoryProgress] = useState<any>({
+  type CategoryProgress = {
+    show: boolean;
+    stage: string;
+    message: string;
+    current: number;
+    total: number;
+  };
+  const [, setCategoryProgress] = useState<CategoryProgress>({
     show: false,
     stage: "",
     message: "",
@@ -76,7 +103,7 @@ export default function Page() {
 
   // Load pdf.js by injecting a script tag (more reliable than Next's Script in some dev setups)
   function loadPdfJsFromCdn(): Promise<void> {
-    if ((window as any).pdfjsLib) {
+    if (window.pdfjsLib) {
       setPdfLoaded(true);
       return Promise.resolve();
     }
@@ -86,7 +113,7 @@ export default function Page() {
         // Poll for availability
         const t0 = Date.now();
         const id = setInterval(() => {
-          if ((window as any).pdfjsLib) {
+          if (window.pdfjsLib) {
             clearInterval(id);
             setPdfLoaded(true);
             resolve();
@@ -106,7 +133,7 @@ export default function Page() {
         setPdfLoaded(true);
         resolve();
       };
-      s.onerror = (e) => reject(new Error("Failed to load pdf.js script"));
+      s.onerror = () => reject(new Error("Failed to load pdf.js script"));
       document.head.appendChild(s);
     });
   }
@@ -157,16 +184,16 @@ export default function Page() {
 
   // Wait for the pdf.js script to be available (with timeout)
   async function ensurePdfJsLoaded(timeout = 8000) {
-    if ((window as any).pdfjsLib) return;
+    if (window.pdfjsLib) return;
     try {
       await loadPdfJsFromCdn();
-    } catch (e) {
+    } catch {
       // fallback to polling if injection didn't initialize the global
     }
     const start = Date.now();
     return new Promise<void>((resolve, reject) => {
       const id = setInterval(() => {
-        if ((window as any).pdfjsLib) {
+        if (window.pdfjsLib) {
           clearInterval(id);
           resolve();
           return;
@@ -204,11 +231,11 @@ export default function Page() {
     setProgress("Starting extraction...");
     try {
       await tryOpenAndExtract(latestArrayBuffer);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setProgress("Extraction failed");
       setExtractedText(
-        "Error: " + (err && err.message ? err.message : String(err)),
+        "Error: " + (err instanceof Error ? err.message : String(err)),
       );
     }
   }
@@ -220,7 +247,7 @@ export default function Page() {
     setProgress("Opening PDF...");
     try {
       await ensurePdfJsLoaded(8000);
-    } catch (err) {
+    } catch {
       throw new Error(
         "pdfjsLib not available — make sure the pdf.js script is loaded",
       );
@@ -242,10 +269,11 @@ export default function Page() {
       const cards = await extractAllText(pdf);
       setProgress("Extraction complete");
       return cards;
-    } catch (err: any) {
-      const msg = (err && (err.message || err.toString())) || "";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
       const needsPassword =
-        /password/i.test(msg) || (err && err.name === "PasswordException");
+        /password/i.test(msg) ||
+        (err instanceof Error && err.name === "PasswordException");
       if (needsPassword) {
         if (providedPassword) {
           setPwMessage("Incorrect password — please try again");
@@ -260,7 +288,7 @@ export default function Page() {
     }
   }
 
-  async function extractAllText(pdf: any) {
+  async function extractAllText(pdf: PDFDocumentProxy) {
     let accum = "";
     const num = pdf.numPages;
     const pages: string[] = [];
@@ -269,7 +297,9 @@ export default function Page() {
       try {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        const strings = content.items.map((item: any) => item.str);
+        const strings = content.items.map(
+          (item: PDFTextItem) => item.str || "",
+        );
         const pageText = strings.join(" ");
         pages[i - 1] = pageText;
         // keep filling pages; we'll compute cross-page snippets after loop
@@ -299,6 +329,7 @@ export default function Page() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function extractSnippet2091FromText(text: string) {
     if (!text) return "";
     const normalized = text.replace(/\r/gi, "");
@@ -308,7 +339,7 @@ export default function Page() {
     const startIndex = match.index;
     const afterMatch = normalized.substring(startIndex + match[0].length);
     const subtotalMatch = SUBTOTAL_REGEX.exec(afterMatch);
-    let endIndex = subtotalMatch
+    const endIndex = subtotalMatch
       ? startIndex + match[0].length + subtotalMatch.index
       : normalized.length;
     const snippet = normalized.substring(startIndex, endIndex).trim();
@@ -316,6 +347,7 @@ export default function Page() {
     return snippet;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function extractSnippet7102FromText(text: string) {
     if (!text) return "";
     const normalized = text.replace(/\r/gi, "");
@@ -325,7 +357,7 @@ export default function Page() {
     const startIndex = match.index;
     const afterMatch = normalized.substring(startIndex + match[0].length);
     const subtotalMatch = SUBTOTAL_REGEX.exec(afterMatch);
-    let endIndex = subtotalMatch
+    const endIndex = subtotalMatch
       ? startIndex + match[0].length + subtotalMatch.index
       : normalized.length;
     const snippet = normalized.substring(startIndex, endIndex).trim();
@@ -335,6 +367,7 @@ export default function Page() {
 
   // Search for a card match starting at a given page index and continue across
   // subsequent pages until SUBTOTAL is found (useful when tables split across pages)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function extractSnippetAcrossPages(
     pages: string[],
     startPageIndex: number,
@@ -490,7 +523,7 @@ export default function Page() {
   }
 
   function parseSnippetToRecords(snippet: string) {
-    if (!snippet) return [] as any[];
+    if (!snippet) return [] as Record<string, string>[];
     const norm = snippet
       .replace(/\r/g, "")
       .replace(/\t/g, " ")
@@ -508,7 +541,7 @@ export default function Page() {
         /Subtotal[\s\S]*?(?=Data\s+Descri[cç][aã]o)/i,
         "",
       );
-    } catch (e) {
+    } catch {
       /* ignore */
     }
     // Remove page-level header/footer noise
@@ -522,7 +555,7 @@ export default function Page() {
     let m: RegExpExecArray | null;
     while ((m = dateRegex.exec(working)) !== null)
       dates.push({ idx: m.index, text: m[0] });
-    const records: any[] = [];
+    const records: Record<string, string>[] = [];
 
     const normalizeAmount = (a: string) =>
       a.replace(/\s/g, "").replace(/[^0-9,\.\-]/g, "");
@@ -621,7 +654,7 @@ export default function Page() {
   function buildStructuredJSON(snipDefault?: string, snip7102?: string) {
     const keyDefault = "CARLOS A S VELOSO - 4998********2091";
     const key7102 = "CARLOS A S VELOSO - 4998********7102";
-    const obj: any = {};
+    const obj: Record<string, Record<string, string>[]> = {};
     const sd =
       typeof snipDefault === "string" ? snipDefault : page3Snippet2091 || "";
     const s7 = typeof snip7102 === "string" ? snip7102 : page3Snippet7102 || "";
@@ -634,7 +667,9 @@ export default function Page() {
 
   // Adapter: convert parsed JSON ({ cardKey: [{Data, Descrição, R$, US$}] })
   // into Transaction[] expected by analyzeUploadConflicts
-  function ricoAdapter(parsed: Record<string, any[]>): Transaction[] {
+  function ricoAdapter(
+    parsed: Record<string, Record<string, string>[]>,
+  ): Transaction[] {
     const txns: Transaction[] = [];
     let idCounter = -1;
 
@@ -642,8 +677,8 @@ export default function Page() {
       if (!d) return null;
       const m = (d || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
       if (m) {
-        let day = m[1].padStart(2, "0");
-        let month = m[2].padStart(2, "0");
+        const day = m[1].padStart(2, "0");
+        const month = m[2].padStart(2, "0");
         let year = m[3];
         if (year.length === 2) year = `20${year}`;
         return `${year}-${month}-${day}`;
@@ -665,10 +700,11 @@ export default function Page() {
     for (const cardKey of Object.keys(parsed)) {
       const rows = parsed[cardKey] || [];
       for (const r of rows) {
-        const dateRaw = r.Data || r.Date || "";
-        const descRaw = r.Descrição || r.Description || "";
-        const rVal = r["R$"] || r.R || r.r || "";
-        const usVal = r["US$"] || r.US || "";
+        const row = r as Record<string, string>;
+        const dateRaw = row.Data || row.Date || "";
+        const descRaw = row["Descrição"] || row.Description || "";
+        const rVal = row["R$"] || row.R || row.r || "";
+        const usVal = row["US$"] || row.US || "";
         const amountStr = rVal || usVal || "";
         const amount = parseAmount(amountStr);
         const txn: Transaction = {
@@ -808,7 +844,7 @@ export default function Page() {
           const analysis = await analyzeCategoryMatches(
             tableName,
             transactionsToAdd,
-            (progress: any) => {
+            (progress: CategoryAnalysisProgress) => {
               setCategoryProgress({
                 show: true,
                 stage: progress.stage,
@@ -998,13 +1034,15 @@ export default function Page() {
                     );
                     setConflictAnalysis(analysis);
                     setShowMergeDialog(true);
-                  } catch (e) {
-                    console.error("Confirm flow failed", e);
+                  } catch (err: unknown) {
+                    console.error("Confirm flow failed", err);
+                    const details =
+                      err instanceof Error ? err.message : String(err);
                     setUploadSummary({
                       show: true,
                       success: false,
                       message: "Confirm failed",
-                      details: (e as any)?.message || String(e),
+                      details,
                     });
                   } finally {
                     setUploadingFlow(false);

@@ -41,7 +41,8 @@ export async function GET(req: Request) {
     res.headers.set("Access-Control-Allow-Origin", "*");
     res.headers.set("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
     return res;
-  } catch (err: any) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

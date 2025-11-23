@@ -852,7 +852,9 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             interAcc: interAccTotal,
             interCreditCard: interCreditCardTotal,
             b3: b3Total,
-            ricoCreditCard: monthlyRicoTotals[monthKey] || 0,
+            // Rico amounts are stored as positive expenses in source tables;
+            // invert sign so they display as negative (expenses) in the summary.
+            ricoCreditCard: -(monthlyRicoTotals[monthKey] || 0),
             ricoTable: ricoTableByMonth[monthKey] || null,
             fgts: 0,
             mae: 0,

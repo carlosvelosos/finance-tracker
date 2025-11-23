@@ -700,21 +700,24 @@ export async function uploadToSupabase(
         const quotedCols = cols.map((c) => `"${c}"`).join(",");
         const valuesSql = transactionsWithCorrectIds
           .map((tx) => {
+            const txRecord = tx as Record<string, unknown>;
             const vals = cols.map((c) => {
-              const v = (tx as any)[c];
+              const v = txRecord[c];
               if (v === null || v === undefined) return "NULL";
               if (typeof v === "number") return String(v);
-              // Escape single quotes
-              return `'${String(v).replace(/'/g, "''")}'`;
+              if (typeof v === "boolean") return v ? "TRUE" : "FALSE";
+              if (v instanceof Date) return `'${v.toISOString()}'`;
+              // Escape single quotes for stringification
+              const s = String(v).replace(/'/g, "''");
+              return `'${s}'`;
             });
             return `(${vals.join(",")})`;
           })
           .join(",\n");
         const insertSql = `INSERT INTO public."${tableName}" (${quotedCols}) VALUES\n${valuesSql};`;
-        const { data: execData, error: execError } = await supabase.rpc(
-          "exec_sql",
-          { sql: insertSql },
-        );
+        const { error: execError } = await supabase.rpc("exec_sql", {
+          sql: insertSql,
+        });
         if (execError) {
           console.error("exec_sql insert failed:", execError);
           return {

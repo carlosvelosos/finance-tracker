@@ -33,10 +33,17 @@ export default function InvestmentsPage() {
     new Date(currentYear, i, 1).toLocaleString("sv-SE", { month: "short" }),
   );
   // We'll load initial data from the public JSON file. The file also stores tickers.
-  const [swedishData, setSwedishData] = React.useState<any[]>([]);
-  const [brazilData, setBrazilData] = React.useState<any[]>([]);
+  type Fund = {
+    name: string;
+    ticker?: string;
+    months?: (number | null)[];
+    error?: string;
+    _lastRefreshError?: string;
+  };
+
+  const [swedishData, setSwedishData] = React.useState<Fund[]>([]);
+  const [brazilData, setBrazilData] = React.useState<Fund[]>([]);
   const [fileYear, setFileYear] = React.useState<number | null>(null);
-  const [loadingAll, setLoadingAll] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
 
   // Load initial JSON from public folder
@@ -48,8 +55,12 @@ export default function InvestmentsPage() {
         const json = await res.json();
         setFileYear(json.year || new Date().getFullYear());
         // Normalize funds structure
-        setSwedishData((json.funds || []).map((f: any) => ({ ...f })));
-        setBrazilData((json.brazilFunds || []).map((f: any) => ({ ...f })));
+        setFileYear(json.year || new Date().getFullYear());
+        // cast incoming JSON to Fund[] conservatively
+        setSwedishData(((json.funds || []) as Fund[]).map((f) => ({ ...f })));
+        setBrazilData(
+          ((json.brazilFunds || []) as Fund[]).map((f) => ({ ...f })),
+        );
       } catch (err) {
         console.error("Failed to load investments json", err);
         // fallback: initialize empty rows from FUNDS list
@@ -79,8 +90,12 @@ export default function InvestmentsPage() {
       const updated = json.updated;
       if (updated) {
         setFileYear(updated.year || currentYear);
-        setSwedishData((updated.funds || []).map((f: any) => ({ ...f })));
-        setBrazilData((updated.brazilFunds || []).map((f: any) => ({ ...f })));
+        setSwedishData(
+          ((updated.funds || []) as Fund[]).map((f) => ({ ...f })),
+        );
+        setBrazilData(
+          ((updated.brazilFunds || []) as Fund[]).map((f) => ({ ...f })),
+        );
       }
     } catch (err) {
       console.error("Refresh failed", err);
@@ -94,11 +109,11 @@ export default function InvestmentsPage() {
       <h1>Investments — Sweden (Yahoo prototype)</h1>
 
       <p>
-        This prototype fetches monthly closing prices from Yahoo Finance's chart
-        endpoint for configured tickers. If a ticker is missing or Yahoo does
-        not return a month, the corresponding cell will be empty. Note: in some
-        environments Yahoo endpoints may block cross-origin requests; if you see
-        CORS errors use a small server proxy (already included).
+        This prototype fetches monthly closing prices from Yahoo Finance&apos;s
+        chart endpoint for configured tickers. If a ticker is missing or Yahoo
+        does not return a month, the corresponding cell will be empty. Note: in
+        some environments Yahoo endpoints may block cross-origin requests; if
+        you see CORS errors use a small server proxy (already included).
       </p>
 
       <div style={{ marginBottom: 8 }}>
@@ -109,8 +124,8 @@ export default function InvestmentsPage() {
             symbol).
           </li>
           <li>
-            Click <strong>Refresh data</strong> to fetch the current month's
-            value from Yahoo and update the local JSON file.
+            Click <strong>Refresh data</strong> to fetch the current
+            month&apos;s value from Yahoo and update the local JSON file.
           </li>
           <li>
             If fetch fails due to network/Yahoo changes, check the server logs
@@ -152,7 +167,7 @@ export default function InvestmentsPage() {
             </tr>
           </thead>
           <tbody>
-            {swedishData.map((row: any) => (
+            {swedishData.map((row) => (
               <tr key={row.name}>
                 <td style={{ ...tdStyle, width: "360px" }}>
                   <div style={{ fontWeight: 600 }}>{row.name}</div>
@@ -206,7 +221,7 @@ export default function InvestmentsPage() {
             </tr>
           </thead>
           <tbody>
-            {brazilData.map((row: any) => (
+            {brazilData.map((row) => (
               <tr key={row.name}>
                 <td style={{ ...tdStyle, width: "360px" }}>
                   <div style={{ fontWeight: 600 }}>{row.name}</div>
@@ -247,7 +262,7 @@ export default function InvestmentsPage() {
             return the JSON to the client.
           </li>
           <li>
-            Yahoo's chart API returns monthly data with timestamps; the
+            Yahoo&apos;s chart API returns monthly data with timestamps; the
             prototype aligns results by month index (Jan=0..Dec=11). Missing
             months will be empty in the table until you refresh.
           </li>

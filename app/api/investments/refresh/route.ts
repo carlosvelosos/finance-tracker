@@ -21,9 +21,10 @@ async function fetchCurrentMonthValueForTicker(ticker: string) {
 
   const result = json?.chart?.result?.[0];
   if (!result) throw new Error("No chart result");
-  const closes: (number | null)[] = (
-    result.indicators?.quote?.[0]?.close || []
-  ).map((v: any) => (v === null ? null : Number(v)));
+  const rawCloses = result.indicators?.quote?.[0]?.close || [];
+  const closes: (number | null)[] = (rawCloses as unknown[]).map(
+    (v: unknown) => (v === null ? null : Number(v as number | string)),
+  );
 
   // find last non-null close
   for (let i = closes.length - 1; i >= 0; i--) {
@@ -33,7 +34,7 @@ async function fetchCurrentMonthValueForTicker(ticker: string) {
   return null;
 }
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const cwd = process.cwd();
     const filePath = path.join(
@@ -53,7 +54,6 @@ export async function POST(req: Request) {
 
     const raw = fs.readFileSync(filePath, "utf8");
     const doc = JSON.parse(raw);
-    const year = doc.year || new Date().getFullYear();
     const now = new Date();
     const currentMonth = now.getMonth();
 
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
             fund.months[currentMonth] = value;
           }
         }
-      } catch (err) {
+      } catch (err: unknown) {
         // continue on errors per-fund; include error field if needed
         fund._lastRefreshError = String(err);
       }
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
               fund.months[currentMonth] = value;
             }
           }
-        } catch (err) {
+        } catch (err: unknown) {
           fund._lastRefreshError = String(err);
         }
       }
@@ -104,7 +104,8 @@ export async function POST(req: Request) {
     fs.writeFileSync(filePath, JSON.stringify(doc, null, 2), "utf8");
 
     return NextResponse.json({ ok: true, updated: doc });
-  } catch (err: any) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

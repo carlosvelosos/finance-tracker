@@ -195,23 +195,7 @@ export default function Page() {
         const strings = content.items.map((item: any) => item.str);
         const pageText = strings.join(" ");
         pages[i - 1] = pageText;
-        if (i === 3) {
-          // auto-extract snippets from page 3
-          try {
-            const s1 = extractSnippet2091FromText(pageText);
-            setPage3Snippet2091(s1);
-            const s2 = extractSnippet7102FromText(pageText);
-            setPage3Snippet7102(s2);
-            // Build JSON immediately from the snippet strings to avoid state-update race
-            try {
-              buildStructuredJSON(s1, s2);
-            } catch (e) {
-              console.error("buildStructuredJSON failed", e);
-            }
-          } catch (e) {
-            console.error("auto extract failed", e);
-          }
-        }
+        // keep filling pages; we'll compute cross-page snippets after loop
         accum += `\n\n--- Page ${i} ---\n\n` + pageText;
       } catch (err) {
         console.error("Error extracting page", i, err);
@@ -220,6 +204,25 @@ export default function Page() {
     }
     setExtractedText(accum);
     setPageTexts(pages);
+
+    // After we've collected all pages, extract snippets that may be split across pages
+    try {
+      const s1 = extractSnippetAcrossPages(
+        pages,
+        2,
+        /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+2091/i,
+      );
+      setPage3Snippet2091(s1);
+      const s2 = extractSnippetAcrossPages(
+        pages,
+        2,
+        /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+7102/i,
+      );
+      setPage3Snippet7102(s2);
+      buildStructuredJSON(s1, s2);
+    } catch (e) {
+      console.error("post-page extraction failed", e);
+    }
   }
 
   function extractSnippet2091FromText(text: string) {
@@ -253,6 +256,27 @@ export default function Page() {
       : normalized.length;
     const snippet = normalized.substring(startIndex, endIndex).trim();
     setPage3Snippet7102(snippet);
+    return snippet;
+  }
+
+  // Search for a card match starting at a given page index and continue across
+  // subsequent pages until SUBTOTAL is found (useful when tables split across pages)
+  function extractSnippetAcrossPages(
+    pages: string[],
+    startPageIndex: number,
+    cardRegex: RegExp,
+  ) {
+    if (!pages || pages.length <= startPageIndex) return "";
+    const concat = pages.slice(startPageIndex).join("\n");
+    const match = cardRegex.exec(concat);
+    if (!match) return "";
+    const startIndex = match.index;
+    const after = concat.substring(startIndex + match[0].length);
+    const subtotalMatch = SUBTOTAL_REGEX.exec(after);
+    const endIndex = subtotalMatch
+      ? startIndex + match[0].length + subtotalMatch.index
+      : concat.length;
+    const snippet = concat.substring(startIndex, endIndex).trim();
     return snippet;
   }
 
@@ -446,6 +470,22 @@ export default function Page() {
         }}
       >
         {pageTexts && pageTexts[2] ? pageTexts[2] : "No page 3 content yet."}
+      </div>
+
+      <h3>Page 4</h3>
+      <div
+        style={{
+          whiteSpace: "pre-wrap",
+          background: "#fff",
+          color: "#111",
+          padding: 12,
+          borderRadius: 6,
+          minHeight: 120,
+          border: "1px solid #ddd",
+          marginTop: 12,
+        }}
+      >
+        {pageTexts && pageTexts[3] ? pageTexts[3] : "No page 4 content yet."}
       </div>
 
       <h4>Extracted snippet from Page 3 (2091)</h4>

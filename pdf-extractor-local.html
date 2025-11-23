@@ -208,6 +208,26 @@ No JSON yet.</pre
       const progressEl = document.getElementById("progress");
       const output = document.getElementById("output");
       const downloadBtn = document.getElementById("download-btn");
+      const showPage3Btn = document.getElementById("show-page3-btn");
+      const extractPage3Btn = document.getElementById("extract-page3-btn");
+      const extractPage3Btn7102 = document.getElementById(
+        "extract-page3-7102-btn",
+      );
+      const page3Output = document.getElementById("page3-output");
+      const page3ExtractOutput = document.getElementById(
+        "page3-extract-output",
+      );
+      const page3ExtractOutput7102 = document.getElementById(
+        "page3-extract-output-7102",
+      );
+      const page3JsonOutput = document.getElementById("page3-json-output");
+
+      function setProgress(msg) {
+        if (progressEl) progressEl.textContent = msg;
+      }
+
+      let pageTexts = [];
+      let extractedText = "";
 
       const pwOverlay = document.getElementById("password-overlay");
       const pwForm = document.getElementById("password-form");
@@ -228,52 +248,14 @@ No JSON yet.</pre
         if (btn) btn.disabled = true;
       }
 
+      // tolerant 'Subtotal' regex: allow optional spaces between letters (e.g. "S u btotal")
+      const SUBTOTAL_REGEX = /S\s*u\s*b\s*t\s*o\s*t\s*a\s*l/i;
+
       let latestArrayBuffer = null;
-      let extractedText = "";
-      // Store text per page so we can show a single page (page 3) on demand
-      let pageTexts = [];
-      const showPage3Btn = document.getElementById("show-page3-btn");
-      const page3Output = document.getElementById("page3-output");
-      const extractPage3Btn = document.getElementById("extract-page3-btn");
-      const page3ExtractOutput = document.getElementById(
-        "page3-extract-output",
-      );
-      const extractPage3Btn7102 = document.getElementById(
-        "extract-page3-7102-btn",
-      );
-      const page3ExtractOutput7102 = document.getElementById(
-        "page3-extract-output-7102",
-      );
 
-      function setProgress(text) {
-        progressEl.textContent = text;
-      }
-
-      fileInput.addEventListener("change", (e) => {
-        extractedText = "";
-        pageTexts = [];
-        downloadBtn.disabled = true;
-        showPage3Btn.disabled = true;
-        if (extractPage3Btn) extractPage3Btn.disabled = true;
-        if (extractPage3Btn7102) extractPage3Btn7102.disabled = true;
-        page3Output.textContent = "No page 3 content yet.";
-        if (page3ExtractOutput)
-          page3ExtractOutput.textContent = "No snippet extracted yet.";
-        if (page3ExtractOutput7102)
-          page3ExtractOutput7102.textContent = "No snippet extracted yet.";
-        const jsonOut = document.getElementById("page3-json-output");
-        if (jsonOut) jsonOut.textContent = "No JSON yet.";
-        output.textContent = "No text extracted yet.";
-        const f = e.target.files && e.target.files[0];
+      fileInput.addEventListener("change", (ev) => {
+        const f = ev.target.files && ev.target.files[0];
         if (!f) return;
-        if (
-          f.type !== "application/pdf" &&
-          !f.name.toLowerCase().endsWith(".pdf")
-        ) {
-          alert("Please select a PDF file.");
-          fileInput.value = "";
-          return;
-        }
         const reader = new FileReader();
         reader.onload = () => {
           latestArrayBuffer = reader.result;
@@ -335,30 +317,29 @@ No JSON yet.</pre
         }
       });
 
-      // Helper: extract default snippet from provided page text (name -> until 'Subtotal')
-      function extractSnippetDefaultFromText(text) {
+      // Helper: extract snippet for specific card 4998****2091 (name - masked card -> until 'Subtotal')
+      function extractSnippet2091FromText(text) {
         if (!text) {
           if (page3ExtractOutput)
             page3ExtractOutput.textContent = "[no text available for page 3]";
           return;
         }
         const normalized = text.replace(/\r/gi, "");
-        const nameRegex = /CARLOS\s+A\s+S\s+VELOSO/i;
-        const nameMatch = nameRegex.exec(normalized);
-        if (!nameMatch) {
+        // match the exact structure: name, dash, 4998, asterisks, ending 2091
+        const specificRegex = /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+2091/i;
+        const match = specificRegex.exec(normalized);
+        if (!match) {
           if (page3ExtractOutput)
-            page3ExtractOutput.textContent = "[pattern not found on page 3]";
+            page3ExtractOutput.textContent =
+              "[pattern 4998****2091 not found on page 3]";
           return;
         }
-        const startIndex = nameMatch.index;
-        const afterMatch = normalized.substring(
-          startIndex + nameMatch[0].length,
-        );
-        const subtotalRegex = /Subtotal/i;
-        const subtotalMatch = subtotalRegex.exec(afterMatch);
+        const startIndex = match.index;
+        const afterMatch = normalized.substring(startIndex + match[0].length);
+        const subtotalMatch = SUBTOTAL_REGEX.exec(afterMatch);
         let endIndex;
         if (subtotalMatch) {
-          endIndex = startIndex + nameMatch[0].length + subtotalMatch.index;
+          endIndex = startIndex + match[0].length + subtotalMatch.index;
         } else {
           endIndex = normalized.length;
         }
@@ -387,8 +368,7 @@ No JSON yet.</pre
         }
         const startIndex = match.index;
         const afterMatch = normalized.substring(startIndex + match[0].length);
-        const subtotalRegex = /Subtotal/i;
-        const subtotalMatch = subtotalRegex.exec(afterMatch);
+        const subtotalMatch = SUBTOTAL_REGEX.exec(afterMatch);
         let endIndex;
         if (subtotalMatch) {
           endIndex = startIndex + match[0].length + subtotalMatch.index;
@@ -492,8 +472,7 @@ No JSON yet.</pre
           const afterMatch = normalized.substring(
             startIndex + nameMatch[0].length,
           );
-          const subtotalRegex = /Subtotal/i;
-          const subtotalMatch = subtotalRegex.exec(afterMatch);
+          const subtotalMatch = SUBTOTAL_REGEX.exec(afterMatch);
           let endIndex;
           if (subtotalMatch) {
             endIndex = startIndex + nameMatch[0].length + subtotalMatch.index;
@@ -583,8 +562,7 @@ No JSON yet.</pre
 
           const startIndex = match.index;
           const afterMatch = normalized.substring(startIndex + match[0].length);
-          const subtotalRegex = /Subtotal/i;
-          const subtotalMatch = subtotalRegex.exec(afterMatch);
+          const subtotalMatch = SUBTOTAL_REGEX.exec(afterMatch);
           let endIndex;
           if (subtotalMatch) {
             endIndex = startIndex + match[0].length + subtotalMatch.index;
@@ -678,7 +656,7 @@ No JSON yet.</pre
                 page3ExtractOutput.textContent = "No snippet extracted yet.";
               // automatically run the snippet extractions for page 3
               try {
-                extractSnippetDefaultFromText(pageText);
+                extractSnippet2091FromText(pageText);
               } catch (e) {
                 console.error("auto extract default failed", e);
               }

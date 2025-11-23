@@ -89,10 +89,29 @@
       <input id="file-input" type="file" accept="application/pdf" />
       <button id="extract-btn" class="btn primary">Extract Text</button>
       <button id="download-btn" class="btn" disabled>Download .txt</button>
+      <button id="show-page3-btn" class="btn" disabled>Show Page 3</button>
       <span id="progress">Ready</span>
     </div>
 
     <div id="output" aria-live="polite">No text extracted yet.</div>
+
+    <!-- Dedicated area to display only the content of page 3 -->
+    <h3>Page 3</h3>
+    <div
+      id="page3-output"
+      aria-live="polite"
+      style="
+        white-space: pre-wrap;
+        background: #fff;
+        color: #111;
+        padding: 12px;
+        border-radius: 6px;
+        min-height: 120px;
+        border: 1px solid #ddd;
+      "
+    >
+      No page 3 content yet.
+    </div>
 
     <!-- Password prompt overlay (hidden until needed) -->
     <div
@@ -159,6 +178,10 @@
 
       let latestArrayBuffer = null;
       let extractedText = "";
+      // Store text per page so we can show a single page (page 3) on demand
+      let pageTexts = [];
+      const showPage3Btn = document.getElementById("show-page3-btn");
+      const page3Output = document.getElementById("page3-output");
 
       function setProgress(text) {
         progressEl.textContent = text;
@@ -166,7 +189,10 @@
 
       fileInput.addEventListener("change", (e) => {
         extractedText = "";
+        pageTexts = [];
         downloadBtn.disabled = true;
+        showPage3Btn.disabled = true;
+        page3Output.textContent = "No page 3 content yet.";
         output.textContent = "No text extracted yet.";
         const f = e.target.files && e.target.files[0];
         if (!f) return;
@@ -197,6 +223,8 @@
           return;
         }
         extractedText = "";
+        pageTexts = [];
+        showPage3Btn.disabled = true;
         output.textContent = "Extracting...";
         setProgress("Starting extraction...");
 
@@ -222,6 +250,17 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+      });
+
+      // Show only page 3 content when clicked
+      showPage3Btn.addEventListener("click", () => {
+        if (pageTexts && pageTexts.length >= 3) {
+          page3Output.textContent = pageTexts[2] || "[page 3 has no text]";
+        } else if (pageTexts && pageTexts.length > 0) {
+          page3Output.textContent = "[page 3 not available in this PDF]";
+        } else {
+          page3Output.textContent = "[no extracted pages yet]";
+        }
       });
 
       // Core flow: try opening with no password, if password required show prompt and retry.
@@ -332,6 +371,13 @@
             const content = await page.getTextContent();
             const strings = content.items.map((item) => item.str);
             const pageText = strings.join(" ");
+            // store per-page text for single-page display
+            pageTexts[i - 1] = pageText;
+            if (i === 3) {
+              // update page 3 area as soon as it's available
+              page3Output.textContent = pageText || "[page 3 has no text]";
+              showPage3Btn.disabled = false;
+            }
             extractedText += `\n\n--- Page ${i} ---\n\n` + pageText;
             // write partial results to UI so user sees progress
             output.textContent = extractedText;
@@ -339,6 +385,13 @@
             console.error("Error extracting page", i, err);
             extractedText += `\n\n--- Page ${i} [error extracting] ---\n\n`;
           }
+        }
+        // enable page 3 button if PDF has at least 3 pages
+        if (num >= 3) {
+          showPage3Btn.disabled = false;
+          // if pageTexts[2] exists, copy it to the display; otherwise show placeholder
+          page3Output.textContent =
+            pageTexts[2] || "Page 3 will appear here when extracted.";
         }
       }
 

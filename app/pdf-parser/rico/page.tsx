@@ -207,17 +207,12 @@ export default function Page() {
 
     // After we've collected all pages, extract snippets that may be split across pages
     try {
-      const s1 = extractSnippetAcrossPages(
-        pages,
-        2,
-        /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+2091/i,
-      );
+      const cards = extractCardsFromPages(pages, 2);
+      const key2091 = "CARLOS A S VELOSO - 4998********2091";
+      const key7102 = "CARLOS A S VELOSO - 4998********7102";
+      const s1 = cards[key2091] || "";
+      const s2 = cards[key7102] || "";
       setPage3Snippet2091(s1);
-      const s2 = extractSnippetAcrossPages(
-        pages,
-        2,
-        /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+7102/i,
-      );
       setPage3Snippet7102(s2);
       buildStructuredJSON(s1, s2);
     } catch (e) {
@@ -278,6 +273,102 @@ export default function Page() {
       : concat.length;
     const snippet = concat.substring(startIndex, endIndex).trim();
     return snippet;
+  }
+
+  // Extract all card snippets from pages starting at startPageIndex.
+  // This is more robust: it finds card headers, looks for column headers and
+  // chooses the last SUBTOTAL between a card header and the next card header
+  // (so continuation rows on following pages are included).
+  function extractCardsFromPages(pages: string[], startPageIndex: number) {
+    const concat = pages.slice(startPageIndex).join("\n");
+    const result: Record<string, string> = {};
+    const cardPatterns = [
+      {
+        key: "CARLOS A S VELOSO - 4998********2091",
+        re: /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+2091/gi,
+      },
+      {
+        key: "CARLOS A S VELOSO - 4998********7102",
+        re: /CARLOS\s+A\s+S\s+VELOSO\s*-\s*4998\*+7102/gi,
+      },
+    ];
+
+    // Find all card header occurrences with positions
+    const cardMatches: { key: string; idx: number }[] = [];
+    for (const p of cardPatterns) {
+      let m: RegExpExecArray | null;
+      while ((m = p.re.exec(concat)) !== null) {
+        cardMatches.push({ key: p.key, idx: m.index });
+      }
+    }
+    // Sort by position
+    cardMatches.sort((a, b) => a.idx - b.idx);
+
+    // Helper to find last subtotal between start..end (relative to concat)
+    const findLastSubtotalBetween = (start: number, end: number) => {
+      const re = new RegExp(SUBTOTAL_REGEX.source, "gi");
+      let last: number | null = null;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(concat)) !== null) {
+        if (m.index >= start && m.index < end) last = m.index;
+        if (m.index >= end) break;
+      }
+      return last;
+    };
+
+    // For each found card header, determine its snippet span
+    for (let i = 0; i < cardMatches.length; i++) {
+      const thisCard = cardMatches[i];
+      const nextIdx =
+        i + 1 < cardMatches.length ? cardMatches[i + 1].idx : concat.length;
+      // prefer the last subtotal between thisCard.idx and nextIdx
+      let endIdx = findLastSubtotalBetween(thisCard.idx, nextIdx);
+      if (endIdx === null) {
+        // fallback: look for first subtotal after thisCard.idx
+        const re = new RegExp(SUBTOTAL_REGEX.source, "i");
+        const sm = re.exec(concat.substring(thisCard.idx));
+        if (sm) endIdx = thisCard.idx + sm.index;
+      }
+      if (endIdx === null) endIdx = nextIdx; // last resort
+
+      const snippet = concat.substring(thisCard.idx, endIdx).trim();
+      result[thisCard.key] = snippet;
+    }
+
+    // Additionally: if there are column header blocks that don't have a preceding
+    // explicit card header in the slice, try to assign them to the nearest prior
+    // card (searching backwards in the full pages array including earlier pages).
+    const columnRe = /Data\s+Descrição\s+R\$\s+US\$/gi;
+    let cm: RegExpExecArray | null;
+    while ((cm = columnRe.exec(concat)) !== null) {
+      const colIdx = cm.index;
+      // if this column header already sits inside an assigned snippet, skip
+      const insideAssigned = Object.values(result).some((snip) => {
+        const si = concat.indexOf(snip);
+        return si >= 0 && colIdx >= si && colIdx < si + snip.length;
+      });
+      if (insideAssigned) continue;
+      // find nearest prior card header before colIdx
+      const prior = cardMatches.filter((c) => c.idx < colIdx).pop();
+      if (prior) {
+        // find subtotal after colIdx but before next card or end
+        const nextIdx = (() => {
+          const next = cardMatches.find((c) => c.idx > prior.idx);
+          return next ? next.idx : concat.length;
+        })();
+        let endIdx = findLastSubtotalBetween(prior.idx, nextIdx);
+        if (endIdx === null) {
+          const re = new RegExp(SUBTOTAL_REGEX.source, "i");
+          const sm = re.exec(concat.substring(colIdx));
+          if (sm) endIdx = colIdx + sm.index;
+        }
+        if (endIdx === null) endIdx = nextIdx;
+        const snippet = concat.substring(prior.idx, endIdx).trim();
+        result[prior.key] = snippet;
+      }
+    }
+
+    return result;
   }
 
   function parseSnippetToRecords(snippet: string) {

@@ -285,12 +285,12 @@ export function CategoryAssignmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto bg-background text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-2xl">
+          <DialogTitle className="text-2xl text-green-600 dark:text-green-500">
             📂 Assign Categories - Step 2 of 2
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             Reviewing {analysis.matches.length} newly added transaction
             {analysis.matches.length !== 1 ? "s" : ""}
           </DialogDescription>
@@ -298,50 +298,58 @@ export function CategoryAssignmentDialog({
 
         {/* Summary Stats */}
         <div className="grid grid-cols-4 gap-3 mb-4">
-          <Card className="p-3 bg-green-900/20 border-green-700">
+          <Card className="p-3 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
             <div className="flex items-center gap-2">
-              <CheckCircleIcon className="h-5 w-5 text-green-500" />
+              <CheckCircleIcon className="h-5 w-5 text-green-600 dark:text-green-500" />
               <div>
-                <div className="text-2xl font-bold text-green-400">
+                <div className="text-2xl font-bold text-green-800 dark:text-green-300">
                   {analysis.stats.highConfidence}
                 </div>
-                <div className="text-xs text-green-300">High Confidence</div>
+                <div className="text-xs text-green-700 dark:text-green-400">
+                  High Confidence
+                </div>
               </div>
             </div>
           </Card>
 
-          <Card className="p-3 bg-yellow-900/20 border-yellow-700">
+          <Card className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
             <div className="flex items-center gap-2">
-              <AlertCircleIcon className="h-5 w-5 text-yellow-500" />
+              <AlertCircleIcon className="h-5 w-5 text-yellow-600 dark:text-yellow-500" />
               <div>
-                <div className="text-2xl font-bold text-yellow-400">
+                <div className="text-2xl font-bold text-yellow-800 dark:text-yellow-300">
                   {analysis.stats.mediumConfidence}
                 </div>
-                <div className="text-xs text-yellow-300">Needs Review</div>
+                <div className="text-xs text-yellow-700 dark:text-yellow-400">
+                  Needs Review
+                </div>
               </div>
             </div>
           </Card>
 
-          <Card className="p-3 bg-red-900/20 border-red-700">
+          <Card className="p-3 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
             <div className="flex items-center gap-2">
-              <XCircleIcon className="h-5 w-5 text-red-500" />
+              <XCircleIcon className="h-5 w-5 text-red-600 dark:text-red-500" />
               <div>
-                <div className="text-2xl font-bold text-red-400">
+                <div className="text-2xl font-bold text-red-800 dark:text-red-300">
                   {analysis.stats.lowConfidence + analysis.stats.noMatch}
                 </div>
-                <div className="text-xs text-red-300">Low/No Match</div>
+                <div className="text-xs text-red-700 dark:text-red-400">
+                  Low/No Match
+                </div>
               </div>
             </div>
           </Card>
 
-          <Card className="p-3 bg-blue-900/20 border-blue-700">
+          <Card className="p-3 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-2">
-              <CheckCircleIcon className="h-5 w-5 text-blue-500" />
+              <CheckCircleIcon className="h-5 w-5 text-blue-600 dark:text-blue-500" />
               <div>
-                <div className="text-2xl font-bold text-blue-400">
+                <div className="text-2xl font-bold text-blue-800 dark:text-blue-300">
                   {counts.accepted + counts.edited}
                 </div>
-                <div className="text-xs text-blue-300">To Apply</div>
+                <div className="text-xs text-blue-700 dark:text-blue-400">
+                  To Apply
+                </div>
               </div>
             </div>
           </Card>
@@ -393,13 +401,13 @@ export function CategoryAssignmentDialog({
             placeholder="Search transactions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1"
+            className="flex-1 bg-background border-input text-foreground"
           />
         </div>
 
         {/* Transactions List - All items, no pagination */}
-        <div className="mb-4 border border-gray-700 rounded-lg p-4 bg-[#1E1E1E] max-h-96 overflow-y-auto">
-          <p className="text-sm text-gray-300 mb-4">
+        <div className="mb-4 border border-border rounded-lg p-4 bg-muted/30 max-h-96 overflow-y-auto">
+          <p className="text-sm text-muted-foreground mb-4">
             Showing {filteredMatches.length} transaction
             {filteredMatches.length !== 1 ? "s" : ""}
           </p>
@@ -408,14 +416,14 @@ export function CategoryAssignmentDialog({
             return (
               <div
                 key={match.newTransaction.id}
-                className="mb-3 p-3 border border-gray-600 rounded bg-[#121212]"
+                className="mb-3 p-3 border border-border rounded bg-card"
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1">
-                    <div className="font-medium text-white">
+                    <div className="font-medium text-foreground">
                       {match.newTransaction.Description}
                     </div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-muted-foreground">
                       {match.newTransaction.Date} |{" "}
                       {match.newTransaction.Amount} kr
                     </div>
@@ -423,9 +431,9 @@ export function CategoryAssignmentDialog({
                   {getConfidenceBadge(match.confidence)}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-sm text-gray-300">
+                  <span className="text-sm text-muted-foreground">
                     Suggested:{" "}
-                    <strong className="text-green-400">
+                    <strong className="text-green-600 dark:text-green-500">
                       {match.suggestedCategory}
                     </strong>
                   </span>

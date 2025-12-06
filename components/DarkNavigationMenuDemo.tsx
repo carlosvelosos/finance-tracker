@@ -173,7 +173,9 @@ export function DarkNavigationMenuDemo() {
           </NavigationMenuContent>
         </NavigationMenuItem>{" "}
         <NavigationMenuItem>
-          <Link href="/upload" legacyBehavior passHref>
+          <Link href="/upload">
+            {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
+            }
             <NavigationMenuLink
               className={cn(
                 navigationMenuTriggerStyle(),
@@ -185,7 +187,9 @@ export function DarkNavigationMenuDemo() {
           </Link>
         </NavigationMenuItem>{" "}
         <NavigationMenuItem>
-          <Link href="/email-client" legacyBehavior passHref>
+          <Link href="/email-client">
+            {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
+            }
             <NavigationMenuLink
               className={cn(
                 navigationMenuTriggerStyle(),

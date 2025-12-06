@@ -140,7 +140,7 @@ const MonthlySummaryPage = () => {
         {showSources && (
           <div
             id="data-sources"
-            className="mb-6 p-4 bg-white dark:bg-card rounded-md border border-gray-200 dark:border-gray-800"
+            className="mb-6 p-4 bg-white dark:bg-card rounded-md border border-gray-200 dark:[border-color:rgb(51,51,51)]"
           >
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
               Column data sources
@@ -223,55 +223,55 @@ const MonthlySummaryPage = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100 dark:bg-muted">
-                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800 sticky left-0 bg-gray-100 dark:bg-muted z-10">
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)] sticky left-0 bg-gray-100 dark:bg-muted z-10">
                     Month
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>Inter</div>
                       <div>Acc</div>
                     </div>
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>Inter</div>
                       <div>Credit Card</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     B3
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>Rico</div>
                       <div>Credit Card</div>
                     </div>
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>Handelsbanken</div>
                       <div>Acc</div>
                     </div>
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>Handelsbanken</div>
                       <div>Invest</div>
                     </div>
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>Amex</div>
                       <div>Credit Card</div>
                     </div>
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     <div className="text-right">
                       <div>SJ Prio</div>
                       <div>Credit Card</div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider bg-gray-200 dark:bg-muted">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider bg-gray-200 dark:bg-[rgb(42,42,42)]">
                     Total
                   </th>
                 </tr>
@@ -282,26 +282,26 @@ const MonthlySummaryPage = () => {
                     key={row.month}
                     className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
                   >
-                    <td className="w-32 px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-800 sticky left-0 bg-white dark:bg-card z-10">
+                    <td className="w-32 px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:[border-color:rgb(51,51,51)] sticky left-0 bg-white dark:bg-card z-10">
                       {row.month}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.interAcc)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.interAcc)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(row.interAcc)}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.interCreditCard)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.interCreditCard)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(row.interCreditCard)}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.b3)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.b3)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(row.b3)}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.ricoCreditCard)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.ricoCreditCard)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       <div>{formatCurrency(row.ricoCreditCard)}</div>
                       {/** Show discovered RICO table name under the amount when available */}
@@ -312,26 +312,26 @@ const MonthlySummaryPage = () => {
                       )} */}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenAcc)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(convertValue(row.handelsbankenAcc))}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenInvest)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.handelsbankenInvest)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(convertValue(row.handelsbankenInvest))}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.amexCreditCard)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.amexCreditCard)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(convertValue(row.amexCreditCard))}
                     </td>
                     <td
-                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.sjPrioCreditCard)} border-r border-gray-200 dark:border-gray-800`}
+                      className={`w-32 px-4 py-3 text-sm text-right ${getCellColor(row.sjPrioCreditCard)} border-r border-gray-200 dark:[border-color:rgb(51,51,51)]`}
                     >
                       {formatCurrency(convertValue(row.sjPrioCreditCard))}
                     </td>
-                    <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-900/50">
+                    <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-[rgb(85,85,85)]">
                       {formatCurrency(
                         // Total now includes: Inter Acc, B3, Handelsbanken Acc, Handelsbanken Invest
                         row.interAcc +
@@ -343,38 +343,38 @@ const MonthlySummaryPage = () => {
                   </tr>
                 ))}
                 {/* Totals Row */}
-                <tr className="bg-gray-100 dark:bg-muted font-semibold border-t-2 border-gray-300 dark:border-gray-800">
-                  <td className="w-32 px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-800 sticky left-0 bg-gray-100 dark:bg-muted z-10">
+                <tr className="bg-gray-100 dark:bg-muted font-semibold border-t-2 border-gray-300 dark:[border-color:rgb(51,51,51)]">
+                  <td className="w-32 px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border-r border-gray-200 dark:[border-color:rgb(51,51,51)] sticky left-0 bg-gray-100 dark:bg-muted z-10">
                     TOTAL
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.interAcc, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.interAcc, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.interAcc, 0),
                     )}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.interCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.interCreditCard, 0),
                     )}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.b3, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.b3, 0))}`}
                   >
                     {formatCurrency(data.reduce((sum, row) => sum + row.b3, 0))}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.ricoCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.ricoCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       data.reduce((sum, row) => sum + row.ricoCreditCard, 0),
                     )}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenAcc, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenAcc, 0))}`}
                   >
                     {formatCurrency(
                       convertValue(
@@ -386,7 +386,7 @@ const MonthlySummaryPage = () => {
                     )}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenInvest, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.handelsbankenInvest, 0))}`}
                   >
                     {formatCurrency(
                       convertValue(
@@ -398,7 +398,7 @@ const MonthlySummaryPage = () => {
                     )}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.amexCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.amexCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       convertValue(
@@ -407,7 +407,7 @@ const MonthlySummaryPage = () => {
                     )}
                   </td>
                   <td
-                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:border-gray-800 ${getCellColor(data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0))}`}
+                    className={`w-32 px-4 py-3 text-sm text-right border-r border-gray-200 dark:[border-color:rgb(51,51,51)] ${getCellColor(data.reduce((sum, row) => sum + row.sjPrioCreditCard, 0))}`}
                   >
                     {formatCurrency(
                       convertValue(
@@ -418,7 +418,7 @@ const MonthlySummaryPage = () => {
                       ),
                     )}
                   </td>
-                  <td className="w-32 px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-muted">
+                  <td className="w-32 px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white bg-gray-200 dark:bg-[rgb(85,85,85)]">
                     {formatCurrency(
                       // Totals now include: Inter Acc, B3, Handelsbanken Acc, Handelsbanken Invest
                       data.reduce(
@@ -457,7 +457,7 @@ const MonthlySummaryPage = () => {
           </p>
         </div>
 
-        <div className="mt-12 p-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="mt-12 p-4 border-b border-gray-200 dark:[border-color:rgb(51,51,51)]">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Yearly Summary
           </h2>
@@ -472,40 +472,40 @@ const MonthlySummaryPage = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100 dark:bg-muted">
-                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Year
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Inter
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Santander
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Banco do Brasil
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Caixa (FGTS)
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Mãe
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     B3
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Rico (XP)
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Handelsbanken
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     SW Pension
                   </th>
-                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:border-gray-800">
+                  <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-r border-gray-300 dark:[border-color:rgb(51,51,51)]">
                     Handelsbanken Invest
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider bg-gray-200 dark:bg-muted">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider bg-gray-200 dark:bg-[rgb(42,42,42)]">
                     Total
                   </th>
                 </tr>
@@ -579,7 +579,7 @@ const MonthlySummaryPage = () => {
                       <td className="w-32 px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-800">
                         {formatCurrency(convertValue(handelsbankenInvest))}
                       </td>
-                      <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-900/50">
+                      <td className="w-32 px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-[rgb(85,85,85)]">
                         {formatCurrency(total)}
                       </td>
                     </tr>

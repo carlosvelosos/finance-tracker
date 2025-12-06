@@ -1,5 +1,6 @@
 "use client";
 
+// #region Imports
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { loadPendingPdf, deletePendingPdf } from "@/lib/pendingPdfStore";
@@ -20,6 +21,30 @@ import {
 import { MergeConflictDialog } from "@/components/MergeConflictDialog";
 import { CategoryAssignmentDialog } from "@/components/CategoryAssignmentDialog";
 
+// #endregion
+// >>> TOC 1: Imports <<<
+// ------------------------------------------------------------------
+// Section: Imports
+// - External libs and application actions/components imported above.
+// - Keep imports grouped by purpose: libs, actions, components.
+// ------------------------------------------------------------------
+
+/**
+ * Table of Contents (this file):
+ * 1. Imports
+ * 2. Types & Declarations
+ * 3. Component (Page)
+ * 4. Component State
+ * 5. Helpers (pdf.js loader & utilities)
+ * 6. Handlers (file selection & extraction entry points)
+ * 7. Extraction (page-level text extraction)
+ * 8. Parsing (snippet -> records)
+ * 9. Adapters & Filename parsing
+ * 10. Upload/confirm handlers
+ * 11. Render / UI
+ */
+
+// #region Types & Declarations
 // Minimal types for the portions of pdf.js we use here
 type PDFTextItem = { str?: string };
 interface PDFPageProxy {
@@ -40,7 +65,22 @@ declare global {
     };
   }
 }
+// #endregion
+// >>> TOC 2: Types & Declarations <<<
+// ------------------------------------------------------------------
+// Section: Types & Declarations
+// - Minimal PDF-related types and global augmentation for `pdfjsLib`.
+// - These are lightweight shims used only for typing within this file.
+// ------------------------------------------------------------------
 
+// >>> TOC 3: Component (Page) <<<
+// ------------------------------------------------------------------
+// Component: `Page` (Rico PDF parser UI)
+// - Stateful client component that loads pdf.js, extracts text from
+//   uploaded PDFs, allows snippet editing, converts snippets to
+//   structured JSON, and integrates with the upload/confirm flow.
+// ------------------------------------------------------------------
+// #region Component (Page)
 export default function Page() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [pdfLoaded, setPdfLoaded] = useState(false);
@@ -62,6 +102,15 @@ export default function Page() {
   const [pendingFilename, setPendingFilename] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+  // >>> TOC 4: Component State <<<
+  // #region Component State
+  // ----------------------------------------------------------------
+  // Component State: refs, UI state and flow control
+  // - `fileRef`, `latestArrayBuffer`, `pageTexts`, and multiple snippet
+  //   states track the PDF and extracted content.
+  // - `conflictAnalysis`, `categoryAnalysis` and related flags manage
+  //   the upload/merge/category UI flows after confirmation.
+  // ----------------------------------------------------------------
   // Upload/conflict state for confirm flow
   const [conflictAnalysis, setConflictAnalysis] =
     useState<ConflictAnalysis | null>(null);
@@ -93,6 +142,15 @@ export default function Page() {
 
   // tolerant 'Subtotal' regex
   const SUBTOTAL_REGEX = /S\s*u\s*b\s*t\s*o\s*t\s*a\s*l/i;
+
+  // #endregion
+  // >>> TOC 5: Helpers (pdf.js loader & utilities) <<<
+  // #region Helpers (pdf.js loader & utilities)
+  // ----------------------------------------------------------------
+  // Helpers: PDF.js loader and utilities
+  // - `loadPdfJsFromCdn`, `ensurePdfJsLoaded` handle loading and
+  //   verifying availability of the pdf.js runtime used for extraction.
+  // ----------------------------------------------------------------
 
   useEffect(() => {
     if (pdfLoaded && window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
@@ -288,6 +346,13 @@ export default function Page() {
     }
   }
 
+  // #endregion
+  // ----------------------------------------------------------------
+  // Extraction: page-level text extraction
+  // - `extractAllText` iterates through pages, collects raw text, and
+  //   delegates to `extractCardsFromPages` to locate card snippets.
+  // ----------------------------------------------------------------
+
   async function extractAllText(pdf: PDFDocumentProxy) {
     let accum = "";
     const num = pdf.numPages;
@@ -386,6 +451,8 @@ export default function Page() {
     const snippet = concat.substring(startIndex, endIndex).trim();
     return snippet;
   }
+
+  // #region Extraction (page-level text extraction)
 
   // Extract all card snippets from pages starting at startPageIndex.
   // This is more robust: it finds card headers, looks for column headers and
@@ -521,6 +588,16 @@ export default function Page() {
 
     return result;
   }
+
+  // ----------------------------------------------------------------
+  // #endregion
+  // #region Parsing (snippet -> structured records)
+  // Parsing: snippet -> structured records
+  // - `parseSnippetToRecords` converts a raw snippet into an array of
+  //   normalized record objects { Data, Descrição, R$, US$ }.
+  // - This section contains robust heuristics to handle page breaks,
+  //   noisy headers/footers, and multiple currency columns.
+  // ----------------------------------------------------------------
 
   function parseSnippetToRecords(snippet: string) {
     if (!snippet) return [] as Record<string, string>[];
@@ -665,6 +742,9 @@ export default function Page() {
     return obj;
   }
 
+  // #endregion
+  // #region Adapters (parsers -> transactions)
+
   // Adapter: convert parsed JSON ({ cardKey: [{Data, Descrição, R$, US$}] })
   // into Transaction[] expected by analyzeUploadConflicts
   function ricoAdapter(
@@ -718,6 +798,16 @@ export default function Page() {
     }
     return txns;
   }
+
+  // ----------------------------------------------------------------
+  // Adapters & Filename parsing
+  // - `ricoAdapter` transforms parsed card records into `Transaction[]`
+  //   suitable for conflict analysis and upload.
+  // - `parseRicoFilename` attempts to extract year/month from the
+  //   uploaded filename to derive a target table name (RICO_YYYYMM).
+  // ----------------------------------------------------------------
+
+  // #region Adapters & Filename parsing
 
   // Parse Rico PDF filename and extract year/month for table naming
   function parseRicoFilename(
@@ -801,6 +891,8 @@ export default function Page() {
 
     return null;
   }
+
+  // #endregion
 
   function onSubmitPassword(e?: React.FormEvent) {
     if (e) e.preventDefault();
@@ -949,6 +1041,16 @@ export default function Page() {
     }
   };
 
+  // ----------------------------------------------------------------
+  // Handlers: upload/confirm flow
+  // - `handleResolveConflicts`, `handleCancelMerge`, `handleCategoryComplete`
+  //   and `handleCategorySkip` drive the confirm/upload/cleanup behavior
+  //   after a user confirms parsed JSON and requests upload.
+  // ----------------------------------------------------------------
+
+  // #endregion
+  // #region Handlers: upload/confirm flow
+
   const handleCancelMerge = () => {
     setShowMergeDialog(false);
     setConflictAnalysis(null);
@@ -981,6 +1083,9 @@ export default function Page() {
     if (pendingKey) deletePendingPdf(pendingKey).catch(() => {});
     router.push("/upload");
   };
+
+  // #endregion
+  // #region Render / UI
 
   return (
     <div style={{ padding: 20 }}>
@@ -1339,3 +1444,7 @@ export default function Page() {
     </div>
   );
 }
+
+// #endregion Render / UI
+
+// #endregion Component (Page)

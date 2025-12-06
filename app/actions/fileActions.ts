@@ -14,6 +14,44 @@ import {
 } from "@/lib/utils/bankProcessors";
 
 // Separate function to process file data without uploading
+/**
+ * Parse and normalize an uploaded file into the application's internal
+ * processed-data shape (tableName, transactions, etc.).
+ *
+ * Responsibilities:
+ * - Read the provided `File` into an ArrayBuffer and parse it as CSV
+ *   (via PapaParse) or Excel (via `xlsx`).
+ * - Apply bank-specific parsing rules and map raw rows to a unified
+ *   processed-data object using helpers in `lib/utils/bankProcessors`.
+ *
+ * Bank-specific behavior (high level):
+ * - CSV files: parsed with PapaParse. For `Inter-BR-Account` and
+ *   `Inter-BR-Account-Monthly` the delimiter is `;`, otherwise `,`.
+ * - Excel files: read via `XLSX.read`. For `B3` the function will
+ *   attempt to locate and use the "Proventos Recebidos" sheet.
+ * - After parsing the raw rows, the function delegates to the
+ *   appropriate `process*` helper (e.g. `processInterBRMastercard`,
+ *   `processB3`) which returns the normalized `processedData`.
+ *
+ * Parameters:
+ * @param file - Browser `File` object (CSV or Excel). The caller
+ *   should ensure allowed extensions are enforced at the UI level.
+ * @param bank - Bank identifier string used to select parsing rules.
+ *
+ * Returns: Promise<object>
+ * - On success: `{ success: true, data: processedData }` where
+ *   `processedData` is the normalized result produced by bank-specific
+ *   processors (typically includes `tableName` and `transactions`).
+ * - On failure: `{ success: false, error: string, message: string }`.
+ *   Known error codes include `UNSUPPORTED_BANK` and `PROCESSING_ERROR`.
+ *
+ * Notes:
+ * - This function performs only client-side parsing/normalization. It
+ *   does not upload data to Supabase — use `uploadExcel` / `uploadToSupabase`
+ *   for that step.
+ * - The function logs helpful debugging information to the console and
+ *   bubbles errors into a structured response to simplify UI handling.
+ */
 export async function processFileData(file: File, bank: string) {
   try {
     console.log("Processing file data for bank:", bank, "file:", file.name);

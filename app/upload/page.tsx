@@ -426,10 +426,16 @@ export default function UploadPage() {
   // - Surface validation errors through `uploadSummary`.
   // ----------------------------------------------------------------
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Guard clause: if the file input was cancelled or contains no files,
+    // exit early to avoid processing `undefined`/empty arrays.
     if (!e.target.files?.length) return;
     const selectedFiles = Array.from(e.target.files);
 
-    // Choose allowed extensions depending on bank selection
+    // Determine allowed file extensions for validation.
+    // - The `Rico` flow accepts `.pdf` in addition to spreadsheet formats
+    //   because Rico uses a PDF parser. Other banks only accept Excel/CSV.
+    // - The regex is case-insensitive (`i`) and matches the filename
+    //   extension for quick client-side validation before processing.
     const allowedExts =
       selectedBank === "Rico" ? /\.(xlsx|xls|csv|pdf)$/i : /\.(xlsx|xls|csv)$/i;
     const invalidFiles = selectedFiles.filter(
@@ -494,6 +500,8 @@ export default function UploadPage() {
       })),
     });
   };
+
+  // ----------------------------------------------------------------
   const handleUpload = async () => {
     if (!files.length || !selectedBank) {
       setUploadSummary({

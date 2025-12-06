@@ -22,6 +22,30 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
+/**
+ * Persist a pending PDF to client-side IndexedDB for later processing.
+ *
+ * Purpose:
+ * - Temporarily store an uploaded PDF (from the Upload page) so that the
+ *   Rico PDF parser route can retrieve and parse it asynchronously.
+ *
+ * Behavior:
+ * - Opens the `finance-tracker-pending-pdfs` IndexedDB database and writes
+ *   a record into the `pending` object store.
+ * - Generates a unique key in the form: `rico-<timestamp>-<random>` which is
+ *   returned to the caller. That key is used by the parser route to look up
+ *   the stored PDF (see `loadPendingPdf`/`deletePendingPdf`).
+ * - The stored record includes the original filename, the blob (File), and
+ *   a `createdAt` timestamp. Records are intended for short-term storage; use
+ *   `cleanupOldPendingPdfs()` to purge stale entries.
+ *
+ * Parameters:
+ * @param file - The `File` object to persist (expected to be a PDF from the UI).
+ *
+ * Returns: Promise<string>
+ * - Resolves with the generated key on success.
+ * - Rejects with the underlying IndexedDB error on failure.
+ */
 export async function savePendingPdf(file: File): Promise<string> {
   const db = await openDB();
   const tx = db.transaction("pending", "readwrite");

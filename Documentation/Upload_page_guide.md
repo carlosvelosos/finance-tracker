@@ -42,3 +42,7 @@
 ### Upload page
 
 Inter Mastercard and Rico viso should allow PDF upload while American Express and SEB SJ Prio should expect ???
+
+#### 1.2 Rico Visa upload flow
+
+It temporally stores the pdf localy and parses it to /pdf-parser/rico page.

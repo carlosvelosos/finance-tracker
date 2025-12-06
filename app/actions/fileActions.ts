@@ -438,6 +438,12 @@ export async function executeTableCreation(tableName: string) {
     }
 
     console.log("Table created and verified successfully:", tableName);
+
+    // FIX #2: Add delay for REST API cache propagation
+    console.log("[FIX #2] Waiting 1 second for REST API cache to update...");
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("[FIX #2] REST API cache update delay completed");
+
     return {
       success: true,
       message: `Table "${tableName}" created successfully with RLS enabled!`,
@@ -605,54 +611,118 @@ export async function uploadToSupabase(
 
     console.log("Proceeding with insert...");
 
-    // Try insert without .select() first to see if that's the issue
-    console.log("Attempting insert without select...");
-    const { data: insertData, error: insertError } = await supabase
-      .from(tableName)
-      .insert(transactionsWithCorrectIds);
+    // FIX #3: Retry logic for insert operations with empty error detection
+    let insertData, insertError;
+    let retryCount = 0;
+    const maxRetries = 2;
+    const retryDelayMs = 500;
 
-    console.log("Insert without select - data:", insertData);
-    console.log("Insert without select - error:", insertError);
+    while (retryCount < maxRetries) {
+      console.log(`[FIX #3] Insert attempt ${retryCount + 1}/${maxRetries}...`);
+      const result = await supabase
+        .from(tableName)
+        .insert(transactionsWithCorrectIds);
 
-    // Check if insertError is a real error (has properties) or just an empty object
+      insertData = result.data;
+      insertError = result.error;
+
+      console.log(
+        `[DEBUG] Insert attempt ${retryCount + 1} - data:`,
+        insertData,
+      );
+      console.log(
+        `[DEBUG] Insert attempt ${retryCount + 1} - error object keys:`,
+        insertError ? Object.keys(insertError) : null,
+      );
+      console.log(
+        `[DEBUG] Insert attempt ${retryCount + 1} - full error:`,
+        insertError,
+      );
+
+      // FIX #1: Better error object detection - check for empty objects (404 from REST API)
+      const isEmptyErrorObject =
+        insertError && Object.keys(insertError).length === 0;
+      const hasErrorProperties =
+        insertError &&
+        (insertError.message ||
+          insertError.code ||
+          insertError.details ||
+          insertError.status === 404);
+
+      if (isEmptyErrorObject && retryCount < maxRetries - 1) {
+        console.warn(
+          `[FIX #1] [FIX #3] Empty error object detected (likely HTTP 404 - REST API cache not updated yet). Retrying...`,
+        );
+        console.log(`[FIX #3] Waiting ${retryDelayMs}ms before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+        retryCount++;
+      } else {
+        console.log(
+          `[FIX #3] Insert attempt ${retryCount + 1} completed. Has error properties: ${hasErrorProperties}, Is empty object: ${isEmptyErrorObject}`,
+        );
+        break; // Success or real error, don't retry
+      }
+    }
+
+    console.log("[DEBUG] Final insert attempt result - data:", insertData);
+    console.log("[DEBUG] Final insert attempt result - error:", insertError);
+
+    // FIX #4: Improved error detection including empty objects
     const hasInsertError =
       insertError &&
-      (insertError.message || insertError.code || insertError.details);
+      (insertError.message ||
+        insertError.code ||
+        insertError.details ||
+        insertError.status === 404 ||
+        Object.keys(insertError).length === 0);
 
     // For insert without .select(), data will be null but that's OK if no error
     let finalData, finalError;
     if (hasInsertError) {
-      // First insert had an error, try with .select()
-      console.log("First insert had error, trying with .select()...");
+      // Insert had an error, try with .select() to get more details
+      console.log("[DEBUG] Insert error detected. Error object:", insertError);
+      console.log(
+        "[FIX #4] Attempting insert with .select() for additional details...",
+      );
       const { data, error } = await supabase
         .from(tableName)
         .insert(transactionsWithCorrectIds)
         .select();
 
-      console.log("Insert with select - data:", data);
-      console.log("Insert with select - error:", error);
+      console.log("[DEBUG] Insert with select - data:", data);
+      console.log("[DEBUG] Insert with select - error:", error);
 
       finalData = data;
       finalError = error;
     } else {
-      // First insert succeeded (no error, even if data is null)
-      console.log("First insert succeeded without error");
+      // Insert succeeded (no error, even if data is null)
+      console.log(
+        "[SUCCESS] Insert completed without error (data may be null for insert without .select())",
+      );
       finalData = insertData; // Will be null, but that's OK
       finalError = insertError; // Will be null or empty object
     }
-    console.log("Final insert - data:", finalData);
-    console.log("Final insert - error:", finalError);
+    console.log("[DEBUG] Final insert - data:", finalData);
+    console.log("[DEBUG] Final insert - error object:", finalError);
+    console.log(
+      "[DEBUG] Final insert - error object keys:",
+      finalError ? Object.keys(finalError) : null,
+    );
 
-    // Check for meaningful errors (not empty objects)
+    // FIX #4: Check for meaningful errors (not empty objects or null)
     const hasRealError =
       finalError &&
-      (finalError.message || finalError.code || finalError.details);
+      (finalError.message ||
+        finalError.code ||
+        finalError.details ||
+        finalError.status === 404 ||
+        Object.keys(finalError).length > 0);
 
     if (hasRealError) {
       // Special handling for duplicate key constraint
       if (finalError?.code === "23505") {
-        console.log(
-          "Duplicate key error detected. This might be due to existing data in the table.",
+        console.error(
+          "[ERROR] Duplicate key error detected. This might be due to existing data in the table.",
         );
         console.log(
           "Consider using 'Clear existing data' option if you want to replace existing records.",
@@ -666,11 +736,13 @@ export async function uploadToSupabase(
         };
       }
 
-      console.error("Insert error details:", {
+      console.error("[ERROR] Insert error details:", {
         code: finalError?.code,
         message: finalError?.message,
         details: finalError?.details,
         hint: finalError?.hint,
+        status: (finalError as any)?.status,
+        errorKeys: Object.keys(finalError || {}),
         fullError: finalError,
       });
       return {
@@ -682,39 +754,56 @@ export async function uploadToSupabase(
       };
     }
 
-    // Even if no error, check if data was actually inserted when we expected data back
+    // FIX #4: Better detection including empty error objects (which can represent 404s)
     // Note: If we used insert without .select(), finalData will be null but that's OK
-    if (finalError === null && finalData === null) {
+    const isNormalNoSelectResponse =
+      (finalError === null ||
+        (finalError && Object.keys(finalError).length === 0)) &&
+      finalData === null;
+    const isEmptyResponse =
+      !finalData || (Array.isArray(finalData) && finalData.length === 0);
+    const wasEmptyErrorObjectInRaw =
+      Object.keys(insertError || {}).length === 0 && insertError !== null;
+
+    if (isNormalNoSelectResponse) {
       // This is the normal case for insert without .select() - verify via row count
       console.log(
-        "Insert completed without error, but no data returned (normal for insert without select)",
+        "[SUCCESS] Insert completed without error. No data returned (this is normal for insert without .select())",
       );
-      console.log("Will verify success via row count validation...");
-    } else if (
-      !finalData ||
-      (Array.isArray(finalData) && finalData.length === 0)
-    ) {
-      console.error("Insert failed: No data returned from insert operation");
+      console.log("[DEBUG] Will verify success via row count validation...");
+    } else if (isEmptyResponse) {
+      // This could be a real error - check if the original error was an empty object (404)
+      if (wasEmptyErrorObjectInRaw) {
+        console.error(
+          "[ERROR] Insert returned empty error object (HTTP 404 from REST API). All retries exhausted.",
+        );
+      } else {
+        console.error(
+          "[ERROR] Insert failed: No data returned from insert operation",
+        );
+      }
       return {
         success: false,
         error: "INSERT_ERROR",
-        message: "Insert failed: No data was inserted",
+        message: wasEmptyErrorObjectInRaw
+          ? "Insert failed: REST API did not recognize the table (404 error after retries). Please try again."
+          : "Insert failed: No data was inserted",
       };
     }
 
     // Additional validation: Count actual rows in table after insert
-    console.log("Validating insert by counting table rows...");
+    console.log("[DEBUG] Validating insert by counting table rows...");
     const expectedRowCount = clearData
       ? transactionsWithCorrectIds.length
       : currentMaxId + transactionsWithCorrectIds.length;
-    console.log(`Expected total rows in table: ${expectedRowCount}`);
+    console.log(`[DEBUG] Expected total rows in table: ${expectedRowCount}`);
 
     const { count: actualRowCount, error: countError } = await supabase
       .from(tableName)
       .select("*", { count: "exact", head: true });
 
     if (countError) {
-      console.error("Error counting table rows:", countError);
+      console.error("[ERROR] Error counting table rows:", countError);
       return {
         success: false,
         error: "VALIDATION_ERROR",
@@ -722,11 +811,11 @@ export async function uploadToSupabase(
       };
     }
 
-    console.log(`Actual rows in table after insert: ${actualRowCount}`);
+    console.log(`[DEBUG] Actual rows in table after insert: ${actualRowCount}`);
 
     if (actualRowCount !== expectedRowCount) {
       console.error(
-        `Row count mismatch! Expected: ${expectedRowCount}, Actual: ${actualRowCount}`,
+        `[ERROR] Row count mismatch! Expected: ${expectedRowCount}, Actual: ${actualRowCount}`,
       );
       // Attempt fallback: if exec_sql RPC exists, try server-side INSERT to bypass RLS/policy issues
       try {
@@ -776,7 +865,9 @@ export async function uploadToSupabase(
           };
         }
         if (newActualRowCount === expectedRowCount) {
-          console.log("Fallback insert succeeded and validated via row count.");
+          console.log(
+            "[SUCCESS] Fallback insert succeeded and validated via row count.",
+          );
           return {
             success: true,
             message: `Upload successful (fallback): ${transactionsWithCorrectIds.length} records inserted into \"${tableName}\" (verified: ${newActualRowCount} total rows)`,
@@ -809,7 +900,10 @@ export async function uploadToSupabase(
         ? `Upload successful! Table "${tableName}" cleared and ${insertedCount} new records inserted (verified: ${actualRowCount} total rows)`
         : `Upload successful! ${insertedCount} records inserted into "${tableName}" (verified: ${actualRowCount} total rows)`,
     };
-    console.log("Returning success result:", successResult);
+    console.log(
+      "[SUCCESS] Upload to Supabase completed successfully. Returning success result:",
+      successResult,
+    );
     return successResult;
   } catch (error) {
     console.error("Error in uploadToSupabase:", error);

@@ -883,18 +883,44 @@ export default function UploadPage() {
   const handleCategoryComplete = () => {
     setShowCategoryDialog(false);
     setCategoryAnalysis(null);
+    setCategoryProgress({
+      show: false,
+      stage: "",
+      message: "",
+      current: 0,
+      total: 0,
+    });
     setUploadSummary({
       show: true,
       success: true,
       message: "Categories Applied Successfully!",
       details: "All transactions have been categorized and saved.",
     });
+    // Reset UI state after showing success
+    setTimeout(() => {
+      setFiles([]);
+      setUploadProgress({
+        totalFiles: 0,
+        currentFile: 0,
+        currentFileName: "",
+        status: "",
+        results: [],
+      });
+      setUploadSummary({ show: false, success: false, message: "" });
+    }, 2000);
   };
 
   // NEW: Handle skip categorization (Step 2)
   const handleCategorySkip = () => {
     setShowCategoryDialog(false);
     setCategoryAnalysis(null);
+    setCategoryProgress({
+      show: false,
+      stage: "",
+      message: "",
+      current: 0,
+      total: 0,
+    });
     setUploadSummary({
       show: true,
       success: true,
@@ -902,6 +928,18 @@ export default function UploadPage() {
       details:
         "Transactions remain as &quot;Unknown&quot; category. You can categorize them later in the app.",
     });
+    // Reset UI state after showing success
+    setTimeout(() => {
+      setFiles([]);
+      setUploadProgress({
+        totalFiles: 0,
+        currentFile: 0,
+        currentFileName: "",
+        status: "",
+        results: [],
+      });
+      setUploadSummary({ show: false, success: false, message: "" });
+    }, 2000);
   };
 
   // ...existing code...

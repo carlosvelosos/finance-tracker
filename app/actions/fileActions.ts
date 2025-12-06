@@ -644,10 +644,7 @@ export async function uploadToSupabase(
         insertError && Object.keys(insertError).length === 0;
       const hasErrorProperties =
         insertError &&
-        (insertError.message ||
-          insertError.code ||
-          insertError.details ||
-          insertError.status === 404);
+        (insertError.message || insertError.code || insertError.details);
 
       if (isEmptyErrorObject && retryCount < maxRetries - 1) {
         console.warn(
@@ -673,7 +670,6 @@ export async function uploadToSupabase(
       (insertError.message ||
         insertError.code ||
         insertError.details ||
-        insertError.status === 404 ||
         Object.keys(insertError).length === 0);
 
     // For insert without .select(), data will be null but that's OK if no error
@@ -710,14 +706,13 @@ export async function uploadToSupabase(
     );
 
     // FIX #4: Check for meaningful errors (not empty objects or null)
+    // FIX #4: Check for meaningful errors (not empty objects or null)
     const hasRealError =
       finalError &&
       (finalError.message ||
         finalError.code ||
         finalError.details ||
-        finalError.status === 404 ||
         Object.keys(finalError).length > 0);
-
     if (hasRealError) {
       // Special handling for duplicate key constraint
       if (finalError?.code === "23505") {
@@ -741,7 +736,7 @@ export async function uploadToSupabase(
         message: finalError?.message,
         details: finalError?.details,
         hint: finalError?.hint,
-        status: (finalError as any)?.status,
+        status: (finalError as unknown as Record<string, unknown>)?.status,
         errorKeys: Object.keys(finalError || {}),
         fullError: finalError,
       });

@@ -1074,39 +1074,39 @@ export default function UploadPage() {
   // ----------------------------------------------------------------
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
-      <div className="min-h-screen bg-[#121212] text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <div className="container mx-auto px-4 py-16 max-w-2xl">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-green-400">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-green-600 dark:text-green-500">
               Upload Bank Statement
             </h1>
-            <p className="text-gray-400 text-lg">
+            <p className="text-muted-foreground text-lg">
               Select your bank and upload transaction files
             </p>
           </div>
 
-          <Card className="bg-[#1E1E1E] border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-2xl text-green-400">
+              <CardTitle className="text-2xl text-green-600 dark:text-green-500">
                 Upload Files
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {/* Bank selection dropdown */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Bank Account
                 </label>
                 <Select onValueChange={setSelectedBank}>
-                  <SelectTrigger className="w-full bg-[#121212] border-gray-600 text-white focus:border-green-500">
+                  <SelectTrigger className="w-full bg-background border-input text-foreground focus:border-green-600 dark:focus:border-green-500">
                     <SelectValue placeholder="Select a bank account" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1E1E1E] border-gray-600">
+                  <SelectContent className="bg-popover border-border">
                     {BANK_OPTIONS.map((bank) => (
                       <SelectItem
                         key={bank}
                         value={bank}
-                        className="text-white hover:bg-[#121212] focus:bg-[#121212]"
+                        className="text-foreground hover:bg-accent focus:bg-accent"
                       >
                         {bank}
                       </SelectItem>
@@ -1117,26 +1117,30 @@ export default function UploadPage() {
 
               {/* Bank-specific upload instructions */}
               {selectedBank && BANK_INSTRUCTIONS[selectedBank] && (
-                <div className="space-y-3 p-4 bg-blue-900/20 border border-blue-700 rounded-md animate-in slide-in-from-top duration-300">
+                <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md animate-in slide-in-from-top duration-300">
                   <div className="flex items-start gap-2">
-                    <div className="text-blue-400 text-xl mt-0.5">📋</div>
+                    <div className="text-blue-600 dark:text-blue-400 text-xl mt-0.5">
+                      📋
+                    </div>
                     <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-blue-300 mb-2">
+                      <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">
                         Expected File Format for {selectedBank}
                       </h3>
 
                       <div className="space-y-2 text-xs">
                         {/* File format */}
                         <div>
-                          <span className="text-gray-400">File Format: </span>
-                          <code className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-blue-300">
+                          <span className="text-muted-foreground">
+                            File Format:{" "}
+                          </span>
+                          <code className="bg-muted border border-input px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">
                             {BANK_INSTRUCTIONS[selectedBank].format}
                           </code>
                         </div>
 
                         {/* Expected columns */}
                         <div>
-                          <span className="text-gray-400">
+                          <span className="text-muted-foreground">
                             Expected Columns:
                           </span>
                           <div className="mt-1 flex flex-wrap gap-1">
@@ -1144,7 +1148,7 @@ export default function UploadPage() {
                               (col, idx) => (
                                 <code
                                   key={idx}
-                                  className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-green-300 text-[10px]"
+                                  className="bg-muted border border-input px-1.5 py-0.5 rounded text-green-600 dark:text-green-500 text-[10px]"
                                 >
                                   {col}
                                 </code>
@@ -1155,18 +1159,20 @@ export default function UploadPage() {
 
                         {/* Filename pattern */}
                         <div>
-                          <span className="text-gray-400">
+                          <span className="text-muted-foreground">
                             Filename Pattern:{" "}
                           </span>
-                          <code className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-yellow-300">
+                          <code className="bg-muted border border-input px-1.5 py-0.5 rounded text-yellow-600 dark:text-yellow-500">
                             {BANK_INSTRUCTIONS[selectedBank].fileNamePattern}
                           </code>
                         </div>
 
                         {/* Example */}
                         <div>
-                          <span className="text-gray-400">Example: </span>
-                          <code className="bg-[#121212] border border-gray-600 px-1.5 py-0.5 rounded text-gray-300">
+                          <span className="text-muted-foreground">
+                            Example:{" "}
+                          </span>
+                          <code className="bg-muted border border-input px-1.5 py-0.5 rounded text-foreground/80">
                             {BANK_INSTRUCTIONS[selectedBank].example}
                           </code>
                         </div>
@@ -1174,11 +1180,11 @@ export default function UploadPage() {
                         {/* Additional notes */}
                         {BANK_INSTRUCTIONS[selectedBank].notes &&
                           BANK_INSTRUCTIONS[selectedBank].notes!.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-blue-800">
-                              <span className="text-gray-400 block mb-1">
+                            <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
+                              <span className="text-muted-foreground block mb-1">
                                 ⚠️ Important Notes:
                               </span>
-                              <ul className="list-disc list-inside space-y-0.5 text-gray-300">
+                              <ul className="list-disc list-inside space-y-0.5 text-foreground/80">
                                 {BANK_INSTRUCTIONS[selectedBank].notes!.map(
                                   (note, idx) => (
                                     <li key={idx} className="text-[10px]">
@@ -1197,7 +1203,7 @@ export default function UploadPage() {
 
               {/* File input field - now supports multiple files */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Upload Files
                 </label>
                 <Input
@@ -1205,10 +1211,10 @@ export default function UploadPage() {
                   accept=".xlsx,.xls,.csv,.pdf"
                   onChange={handleFileChange}
                   multiple
-                  className="cursor-pointer bg-[#121212] border-gray-600 text-white file:bg-green-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 file:inline-flex file:items-center hover:border-green-500"
+                  className="cursor-pointer bg-background border-input text-foreground file:bg-green-600 file:text-white file:border-0 file:px-4 file:py-2 file:rounded-md file:mr-4 file:inline-flex file:items-center hover:border-green-600 dark:hover:border-green-500"
                 />
                 {files.length > 0 && (
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-foreground">
                     <strong>
                       {files.length} file{files.length > 1 ? "s" : ""} selected:
                     </strong>
@@ -1216,13 +1222,13 @@ export default function UploadPage() {
                       {files.slice(0, 3).map((file, index) => (
                         <li
                           key={index}
-                          className="text-xs text-gray-400 truncate"
+                          className="text-xs text-muted-foreground truncate"
                         >
                           • {file.name}
                         </li>
                       ))}
                       {files.length > 3 && (
-                        <li className="text-xs text-gray-400">
+                        <li className="text-xs text-muted-foreground">
                           • ... and {files.length - 3} more file
                           {files.length - 3 > 1 ? "s" : ""}
                         </li>
@@ -1235,8 +1241,8 @@ export default function UploadPage() {
               <div
                 className={`flex flex-col space-y-2 p-3 rounded-md border ${
                   clearData
-                    ? "bg-red-900/20 border-red-700"
-                    : "bg-yellow-900/20 border-yellow-700"
+                    ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                    : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -1244,29 +1250,29 @@ export default function UploadPage() {
                     id="clearData"
                     checked={clearData}
                     onCheckedChange={handleClearDataChange}
-                    className="border-gray-600"
+                    className="border-input"
                   />
                   <label
                     htmlFor="clearData"
-                    className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Clear existing data before upload
                   </label>
                 </div>
                 {targetTableNames.length > 0 && (
-                  <div className="ml-6 text-xs text-gray-400">
+                  <div className="ml-6 text-xs text-muted-foreground">
                     Target table{targetTableNames.length > 1 ? "s" : ""}:{" "}
                     <div className="mt-1">
                       {targetTableNames.slice(0, 3).map((tableName, index) => (
                         <code
                           key={index}
-                          className="bg-[#121212] border border-gray-600 px-1 rounded mr-2 mb-1 inline-block"
+                          className="bg-muted border border-input px-1 rounded mr-2 mb-1 inline-block"
                         >
                           {tableName}
                         </code>
                       ))}
                       {targetTableNames.length > 3 && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground/60">
                           ... and {targetTableNames.length - 3} more
                         </span>
                       )}
@@ -1276,7 +1282,9 @@ export default function UploadPage() {
               </div>
               <div
                 className={`text-xs -mt-2 ${
-                  clearData ? "text-red-400 font-medium" : "text-gray-400"
+                  clearData
+                    ? "text-red-600 dark:text-red-500 font-medium"
+                    : "text-muted-foreground"
                 }`}
               >
                 {clearData
@@ -1288,7 +1296,7 @@ export default function UploadPage() {
 
               {/* NEW: Auto-skip exact duplicates option */}
               {!clearData && (
-                <div className="flex flex-col space-y-2 p-3 rounded-md border bg-blue-900/20 border-blue-700">
+                <div className="flex flex-col space-y-2 p-3 rounded-md border bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="autoSkip"
@@ -1296,16 +1304,16 @@ export default function UploadPage() {
                       onCheckedChange={(checked) =>
                         setAutoSkipDuplicates(checked as boolean)
                       }
-                      className="border-gray-600"
+                      className="border-input"
                     />
                     <label
                       htmlFor="autoSkip"
-                      className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       Auto-skip exact duplicates (100% match)
                     </label>
                   </div>
-                  <div className="ml-6 text-xs text-gray-400">
+                  <div className="ml-6 text-xs text-muted-foreground">
                     Automatically skip transactions that already exist in the
                     database. You&apos;ll still review conflicts for partial
                     matches.
@@ -1315,26 +1323,26 @@ export default function UploadPage() {
 
               {/* Upload Progress Display */}
               {uploadProgress.totalFiles > 0 && (
-                <div className="space-y-3 p-4 bg-blue-900/20 border border-blue-700 rounded-md">
+                <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-blue-300">
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
                       {uploading ? "Upload Progress" : "Upload Results"}
                     </span>
-                    <span className="text-sm text-blue-400">
+                    <span className="text-sm text-blue-700 dark:text-blue-400">
                       {uploadProgress.currentFile} / {uploadProgress.totalFiles}
                     </span>
                   </div>
 
                   {uploadProgress.status && (
-                    <div className="text-sm text-blue-300">
+                    <div className="text-sm text-blue-700 dark:text-blue-300">
                       {uploadProgress.status}
                     </div>
                   )}
 
                   {/* Progress bar */}
-                  <div className="w-full bg-blue-950 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                      className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
                       style={{
                         width: `${(uploadProgress.currentFile / uploadProgress.totalFiles) * 100}%`,
                       }}
@@ -1348,10 +1356,10 @@ export default function UploadPage() {
                         key={index}
                         className={`text-xs p-2 rounded flex items-center ${
                           result.status === "success"
-                            ? "bg-green-900/30 text-green-300 border border-green-700"
+                            ? "bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700"
                             : result.status === "error"
-                              ? "bg-red-900/30 text-red-300 border border-red-700"
-                              : "bg-gray-800 text-gray-400 border border-gray-700"
+                              ? "bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-700"
+                              : "bg-muted text-muted-foreground border border-input"
                         }`}
                       >
                         <span className="mr-2">
@@ -1379,8 +1387,8 @@ export default function UploadPage() {
                 <div
                   className={`p-4 border rounded-md ${
                     uploadSummary.success
-                      ? "bg-green-900/20 border-green-700"
-                      : "bg-red-900/20 border-red-700"
+                      ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700"
+                      : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -1391,8 +1399,8 @@ export default function UploadPage() {
                       <div
                         className={`font-medium ${
                           uploadSummary.success
-                            ? "text-green-300"
-                            : "text-red-300"
+                            ? "text-green-800 dark:text-green-300"
+                            : "text-red-800 dark:text-red-300"
                         }`}
                       >
                         {uploadSummary.message}
@@ -1400,8 +1408,8 @@ export default function UploadPage() {
                       <div
                         className={`text-sm ${
                           uploadSummary.success
-                            ? "text-green-400"
-                            : "text-red-400"
+                            ? "text-green-700 dark:text-green-400"
+                            : "text-red-700 dark:text-red-400"
                         }`}
                       >
                         {uploadSummary.details}
@@ -1417,7 +1425,7 @@ export default function UploadPage() {
                         details: "",
                       })
                     }
-                    className="mt-2 text-xs text-gray-400 hover:text-gray-300 underline"
+                    className="mt-2 text-xs text-muted-foreground hover:text-foreground underline"
                   >
                     Dismiss
                   </button>
@@ -1427,7 +1435,7 @@ export default function UploadPage() {
               <Button
                 onClick={handleUpload}
                 disabled={uploading || files.length === 0}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:bg-gray-700 disabled:text-gray-400"
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:bg-muted disabled:text-muted-foreground"
               >
                 {uploading
                   ? `Uploading ${uploadProgress.currentFile}/${uploadProgress.totalFiles}...`
@@ -1439,7 +1447,7 @@ export default function UploadPage() {
               </Button>
               {/* Debug info */}
               {process.env.NODE_ENV === "development" && (
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-muted-foreground/60 mt-2">
                   Clear Data: {clearData ? "YES" : "NO"} | Target Table:{" "}
                   {targetTableNames?.join(", ") || "None"}
                 </div>
@@ -1452,24 +1460,24 @@ export default function UploadPage() {
             open={showClearDataWarning}
             onOpenChange={setShowClearDataWarning}
           >
-            <DialogContent className="max-w-md bg-[#1E1E1E] border-gray-700 text-white">
+            <DialogContent className="max-w-md bg-card border-border text-foreground">
               <DialogHeader>
-                <DialogTitle className="text-red-400">
+                <DialogTitle className="text-red-600 dark:text-red-500">
                   ⚠️ Clear Existing Data
                 </DialogTitle>
-                <DialogDescription className="text-gray-300">
+                <DialogDescription className="text-foreground/70">
                   You are about to clear ALL existing data from the following
                   table before uploading new data:
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4">
-                <div className="p-2 bg-[#121212] border border-gray-600 rounded text-center font-mono text-sm text-gray-300">
+                <div className="p-2 bg-muted border border-input rounded text-center font-mono text-sm text-foreground/80">
                   {targetTableNames?.join(", ") || "Unknown tables"}
                 </div>
 
-                <div className="text-sm text-gray-400">
-                  <strong className="text-gray-300">
+                <div className="text-sm text-foreground/70">
+                  <strong className="text-foreground">
                     This action cannot be undone!
                   </strong>
                   <br />
@@ -1482,7 +1490,7 @@ export default function UploadPage() {
                 <Button
                   variant="outline"
                   onClick={cancelClearData}
-                  className="border-gray-600 text-gray-300 hover:bg-[#121212]"
+                  className="border-input text-foreground hover:bg-accent"
                 >
                   Cancel
                 </Button>
@@ -1525,7 +1533,7 @@ export default function UploadPage() {
                   {/* Stage indicator */}
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <div className="text-sm font-medium text-foreground mb-1">
                         {categoryProgress.stage === "discovering" &&
                           "🔍 Discovering Tables"}
                         {categoryProgress.stage === "fetching" &&
@@ -1534,7 +1542,7 @@ export default function UploadPage() {
                           "🤖 Analyzing Transactions"}
                         {categoryProgress.stage === "complete" && "✅ Complete"}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-muted-foreground">
                         {categoryProgress.message}
                       </div>
                     </div>
@@ -1543,13 +1551,13 @@ export default function UploadPage() {
                   {/* Progress bar */}
                   {categoryProgress.total > 0 && (
                     <div>
-                      <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
                         <span>Progress</span>
                         <span>
                           {categoryProgress.current} / {categoryProgress.total}
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                      <div className="w-full bg-muted rounded-full h-2.5">
                         <div
                           className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
                           style={{
@@ -1561,7 +1569,7 @@ export default function UploadPage() {
                   )}
 
                   {/* Info message */}
-                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-800">
+                  <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-800">
                     💡 <strong>Tip:</strong> The system is searching through all
                     your transaction tables to find similar expenses and suggest
                     categories. This provides the most accurate suggestions

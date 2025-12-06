@@ -135,6 +135,30 @@ import {
 } from "@/components/ui/dialog";
 import ProtectedRoute from "@/components/protected-route";
 
+/* ================================================================
+   SECTION: Module Configuration & Purpose
+
+   - This module provides the UploadPage React component used to
+     upload bank statements and related files for multiple finance
+     sources. The file is organized into the following sections:
+
+     1) Configuration: bank option constants and per-bank instructions
+     2) Main component: `UploadPage` (state hooks, event handlers)
+     3) Event handlers: file selection, upload workflow, user actions
+     4) Helpers: utility functions like table name generation
+     5) Derived values: computed arrays used by the UI
+     6) Render: JSX UI, dialogs and controls
+
+   - NOTE: This file contains many bank-specific parsing hints and
+     behavior notes in `BANK_INSTRUCTIONS`. Keep that object in sync
+     with parsing logic in `app/actions` when making future changes.
+  ================================================================ */
+
+// ----------------------------------------------------------------
+// Config: Bank options
+// - `BANK_OPTIONS` enumerates selectable sources shown in the UI.
+// - Keep this list synchronized with `BANK_INSTRUCTIONS` below.
+// ----------------------------------------------------------------
 const BANK_OPTIONS = [
   "DEV",
   "Inter-BR-Mastercard",
@@ -316,7 +340,28 @@ const BANK_INSTRUCTIONS: Record<
   },
 };
 
+// ----------------------------------------------------------------
+// Main Component: UploadPage
+// - Contains state, event handlers, helpers and JSX for the upload
+//   workflow. The component is organized with clearly separated
+//   sections (state, handlers, helpers, derived values, render).
+// ----------------------------------------------------------------
 export default function UploadPage() {
+  /* ================================================================
+      Component State (React hooks)
+
+      Grouping and brief purpose for each state variable is listed
+      below to help navigate the component's behavior.
+
+      - File selection: `files`
+      - Bank selection: `selectedBank`
+      - Upload flow: `uploading`, `uploadProgress`, `uploadSummary`
+      - Data safety: `clearData`, `showClearDataWarning`
+      - Conflict resolution: `autoSkipDuplicates`, `conflictAnalysis`
+      - Category assignment: `categoryAnalysis`, `categoryProgress`
+
+      Keep this block up-to-date when changing or adding state.
+    ================================================================ */
   const [files, setFiles] = useState<File[]>([]);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -373,6 +418,13 @@ export default function UploadPage() {
 
   const router = useRouter();
 
+  // ----------------------------------------------------------------
+  // Event Handler: File selection
+  // - Validates selected file extensions based on `selectedBank`.
+  // - Routes Rico PDF flow to the PDF parser by saving the PDF
+  //   to pending storage and redirecting with a key.
+  // - Surface validation errors through `uploadSummary`.
+  // ----------------------------------------------------------------
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     const selectedFiles = Array.from(e.target.files);
@@ -456,6 +508,13 @@ export default function UploadPage() {
     // Start with first file
     await processNextFile(0);
   };
+
+  // ----------------------------------------------------------------
+  // Upload orchestration
+  // - `handleUpload` kicks off per-file processing using
+  //   `processNextFile`, which handles parsing, table creation,
+  //   upload and conflict resolution for each file.
+  // ----------------------------------------------------------------
 
   // NEW: Process files with conflict resolution
   const processNextFile = async (fileIndex: number) => {
@@ -857,7 +916,12 @@ export default function UploadPage() {
     setShowClearDataWarning(false);
   };
 
-  // Function to get the table name that would be created for the selected bank and file
+  // ----------------------------------------------------------------
+  // Helper: Table name generation
+  // - Encapsulates bank-specific naming rules used to determine the
+  //   destination table for each uploaded file. Keep logic aligned
+  //   with `fileActions` parsing and the `BANK_INSTRUCTIONS` object.
+  // ----------------------------------------------------------------
   const getTableName = (
     bank: string | null,
     file: File | null,
@@ -982,13 +1046,24 @@ export default function UploadPage() {
     }
   };
 
-  // Get the current table names that would be affected (deduplicated)
+  // ----------------------------------------------------------------
+  // Derived values: target table list
+  // - `targetTableNames` is a deduplicated list of table names that will
+  //   be impacted by the current selection of files and bank.
+  // - Displayed in the UI to help users verify their upload targets.
+  // ----------------------------------------------------------------
   const targetTableNames = Array.from(
     new Set(
       files.map((file) => getTableName(selectedBank, file)).filter(Boolean),
     ),
   );
 
+  // ----------------------------------------------------------------
+  // Render: JSX and UI
+  // - The component render includes the protected route wrapper, upload
+  //   controls, progress indicators, and any dialogs for conflicts or
+  //   category assignment.
+  // ----------------------------------------------------------------
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="min-h-screen bg-[#121212] text-white">

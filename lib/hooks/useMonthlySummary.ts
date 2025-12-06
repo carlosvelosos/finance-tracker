@@ -344,7 +344,7 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
         try {
           const { data: transactions, error } = await supabase
             .from(tableName)
-            .select('"Date", "Amount"')
+            .select('"Date", "Amount", "Category"')
             .eq("user_id", user.id);
 
           if (error) {
@@ -545,11 +545,13 @@ export function useMonthlySummary(options: UseMonthlySummaryOptions = {}) {
             const month = match[2];
             const monthKey = `${year}-${month}`;
 
-            // Calculate total for this month
-            const total = (result.transactions as Transaction[]).reduce(
-              (sum, transaction) => sum + (transaction.Amount || 0),
-              0,
-            );
+            // Calculate total for this month, excluding 'B3' category (case-insensitive)
+            const total = (result.transactions as Transaction[])
+              .filter(
+                (transaction) =>
+                  (transaction.Category || "").toLowerCase().trim() !== "b3",
+              )
+              .reduce((sum, transaction) => sum + (transaction.Amount || 0), 0);
 
             monthlyInaccTotals[monthKey] = total;
           }

@@ -173,32 +173,30 @@ export function DarkNavigationMenuDemo() {
           </NavigationMenuContent>
         </NavigationMenuItem>{" "}
         <NavigationMenuItem>
-          <Link href="/upload">
-            {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
-            }
-            <NavigationMenuLink
+          <NavigationMenuLink asChild>
+            <Link
+              href="/upload"
               className={cn(
                 navigationMenuTriggerStyle(),
                 "text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400",
               )}
             >
               Upload Files
-            </NavigationMenuLink>
-          </Link>
+            </Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>{" "}
         <NavigationMenuItem>
-          <Link href="/email-client">
-            {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
-            }
-            <NavigationMenuLink
+          <NavigationMenuLink asChild>
+            <Link
+              href="/email-client"
               className={cn(
                 navigationMenuTriggerStyle(),
                 "text-gray-200 bg-[#121212] rounded-3xl hover:bg-black hover:bg-opacity-30 hover:text-green-400",
               )}
             >
               Email Client
-            </NavigationMenuLink>
-          </Link>
+            </Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>{" "}
       </NavigationMenuList>
     </NavigationMenu>

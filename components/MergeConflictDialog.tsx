@@ -206,12 +206,12 @@ export function MergeConflictDialog({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto bg-background text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-2xl">
+          <DialogTitle className="text-2xl text-green-600 dark:text-green-500">
             Review Upload Conflicts - {analysis.tableName}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             {analysis.conflicts.length > 0
               ? `Found ${analysis.conflicts.length} potential duplicate${analysis.conflicts.length > 1 ? "s" : ""}. Review and decide which transactions to add.`
               : "No conflicts found. All transactions are new."}
@@ -313,43 +313,43 @@ export function MergeConflictDialog({
         <div className="mb-4">
           <div className="grid grid-cols-2 gap-4">
             {/* LEFT SIDE: Current Database Table */}
-            <div className="border rounded-lg bg-blue-50 overflow-hidden flex flex-col">
-              <div className="p-3 border-b border-blue-200 bg-blue-50 sticky top-0">
-                <h3 className="text-base font-bold text-blue-800">
+            <div className="border border-border rounded-lg bg-blue-50 dark:bg-blue-900/10 overflow-hidden flex flex-col">
+              <div className="p-3 border-b border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 sticky top-0">
+                <h3 className="text-base font-bold text-blue-800 dark:text-blue-300">
                   📊 Current Database ({analysis.tableName})
                 </h3>
-                <div className="text-xs text-blue-700 mt-1">
+                <div className="text-xs text-blue-700 dark:text-blue-400 mt-1">
                   {analysis.existingTransactions.length} existing transaction
                   {analysis.existingTransactions.length !== 1 ? "s" : ""}
                 </div>
               </div>
 
               {analysis.existingTransactions.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-muted-foreground py-8">
                   <DatabaseIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Empty table - no existing data</p>
                 </div>
               ) : (
                 <div className="flex-1">
                   <table className="w-full text-xs border-collapse">
-                    <thead className="bg-blue-100">
+                    <thead className="bg-blue-100 dark:bg-blue-900/30">
                       <tr
-                        className="border-b-2 border-blue-300"
+                        className="border-b-2 border-blue-300 dark:border-blue-800"
                         style={{ height: "36px" }}
                       >
-                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 dark:text-blue-300 align-middle">
                           ID
                         </th>
-                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 dark:text-blue-300 align-middle">
                           Date
                         </th>
-                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 dark:text-blue-300 align-middle">
                           Description
                         </th>
-                        <th className="px-2 py-1 text-right font-semibold text-blue-900 align-middle">
+                        <th className="px-2 py-1 text-right font-semibold text-blue-900 dark:text-blue-300 align-middle">
                           Amount
                         </th>
-                        <th className="px-2 py-1 text-left font-semibold text-blue-900 align-middle">
+                        <th className="px-2 py-1 text-left font-semibold text-blue-900 dark:text-blue-300 align-middle">
                           Category
                         </th>
                       </tr>
@@ -381,12 +381,12 @@ export function MergeConflictDialog({
             </div>
 
             {/* RIGHT SIDE: Future State Table (New Upload) */}
-            <div className="border rounded-lg bg-gray-50 overflow-hidden flex flex-col">
-              <div className="p-3 border-b border-gray-200 bg-gray-50">
-                <h3 className="text-base font-bold text-gray-800">
+            <div className="border border-border rounded-lg bg-muted/30 overflow-hidden flex flex-col">
+              <div className="p-3 border-b border-border bg-muted/50">
+                <h3 className="text-base font-bold text-foreground">
                   ⬆️ New Upload + Decisions
                 </h3>
-                <div className="text-xs text-gray-700 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   {counts.toAdd} transaction{counts.toAdd !== 1 ? "s" : ""} will
                   be added
                 </div>
@@ -394,24 +394,24 @@ export function MergeConflictDialog({
 
               <div className="flex-1">
                 <table className="w-full text-xs border-collapse">
-                  <thead className="bg-gray-100">
+                  <thead className="bg-muted">
                     <tr
-                      className="border-b-2 border-gray-300"
+                      className="border-b-2 border-border"
                       style={{ height: "36px" }}
                     >
-                      <th className="px-2 py-1 text-left font-semibold text-gray-900 align-middle">
+                      <th className="px-2 py-1 text-left font-semibold text-foreground align-middle">
                         Date
                       </th>
-                      <th className="px-2 py-1 text-left font-semibold text-gray-900 align-middle">
+                      <th className="px-2 py-1 text-left font-semibold text-foreground align-middle">
                         Description
                       </th>
-                      <th className="px-2 py-1 text-right font-semibold text-gray-900 align-middle">
+                      <th className="px-2 py-1 text-right font-semibold text-foreground align-middle">
                         Amount
                       </th>
-                      <th className="px-2 py-1 text-center font-semibold text-gray-900 align-middle">
+                      <th className="px-2 py-1 text-center font-semibold text-foreground align-middle">
                         Status
                       </th>
-                      <th className="px-2 py-1 text-center font-semibold text-gray-900 align-middle">
+                      <th className="px-2 py-1 text-center font-semibold text-foreground align-middle">
                         Action
                       </th>
                     </tr>
@@ -482,12 +482,12 @@ export function MergeConflictDialog({
         </div>
 
         {/* Footer with Summary and Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 border-t border-gray-700 pt-4 mt-4">
+        <div className="flex flex-col sm:flex-row gap-3 border-t border-border pt-4 mt-4">
           <div className="flex-1">
-            <div className="text-sm text-gray-300">
+            <div className="text-sm text-muted-foreground">
               Summary: {counts.toAdd} to add, {counts.toSkip} to skip
             </div>
-            <div className="text-lg font-bold text-green-400 mt-1">
+            <div className="text-lg font-bold text-green-600 dark:text-green-500 mt-1">
               Total Amount: {formatCurrency(counts.totalAmount)}
             </div>
           </div>
@@ -520,13 +520,13 @@ function StatCard({ label, count, color, icon, subtitle }: StatCardProps) {
   const getColorClasses = () => {
     switch (color) {
       case "green":
-        return "bg-green-50 border-green-200 text-green-700";
+        return "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300";
       case "yellow":
-        return "bg-yellow-50 border-yellow-200 text-yellow-700";
+        return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300";
       case "gray":
-        return "bg-gray-50 border-gray-200 text-gray-700";
+        return "bg-muted border-border text-muted-foreground";
       case "blue":
-        return "bg-blue-50 border-blue-200 text-blue-700";
+        return "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300";
     }
   };
 
@@ -583,27 +583,29 @@ function ExistingTransactionRow({
 }: ExistingTransactionRowProps) {
   return (
     <tr
-      className={`border-b hover:bg-blue-100 ${
-        isHighlighted ? "bg-yellow-100" : "bg-white"
+      className={`border-b hover:bg-blue-100 dark:hover:bg-blue-900/40 ${
+        isHighlighted
+          ? "bg-yellow-100 dark:bg-yellow-900/30"
+          : "bg-white dark:bg-slate-900/50"
       }`}
       style={{ height: "32px", maxHeight: "32px" }}
     >
-      <td className="px-2 py-1 text-gray-700 whitespace-nowrap align-middle">
+      <td className="px-2 py-1 text-foreground/80 whitespace-nowrap align-middle">
         {transaction.id}
       </td>
-      <td className="px-2 py-1 text-gray-900 whitespace-nowrap align-middle">
+      <td className="px-2 py-1 text-foreground whitespace-nowrap align-middle">
         {formatDate(transaction.Date)}
       </td>
       <td
-        className="px-2 py-1 max-w-xs truncate text-gray-900 align-middle"
+        className="px-2 py-1 max-w-xs truncate text-foreground align-middle"
         title={transaction.Description || "N/A"}
       >
         {transaction.Description || "N/A"}
       </td>
-      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-gray-900 align-middle">
+      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-foreground align-middle">
         {formatCurrency(transaction.Amount)}
       </td>
-      <td className="px-2 py-1 text-gray-700 whitespace-nowrap align-middle">
+      <td className="px-2 py-1 text-muted-foreground whitespace-nowrap align-middle">
         {transaction.Category || "Uncategorized"}
       </td>
     </tr>
@@ -626,28 +628,28 @@ function NewTransactionRow({
     <tr
       className={`border-b ${
         decision === "add"
-          ? "bg-green-50 hover:bg-green-100"
-          : "bg-gray-100 hover:bg-gray-200"
+          ? "bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30"
+          : "bg-muted hover:bg-muted/80"
       }`}
       style={{ height: "32px", maxHeight: "32px" }}
     >
-      <td className="px-2 py-1 whitespace-nowrap text-gray-900 align-middle">
+      <td className="px-2 py-1 whitespace-nowrap text-foreground align-middle">
         {formatDate(transaction.Date)}
       </td>
       <td
-        className="px-2 py-1 max-w-xs truncate text-gray-900 align-middle"
+        className="px-2 py-1 max-w-xs truncate text-foreground align-middle"
         title={transaction.Description || "N/A"}
       >
         {transaction.Description || "N/A"}
       </td>
-      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-gray-900 align-middle">
+      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-foreground align-middle">
         {formatCurrency(transaction.Amount)}
       </td>
       <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
         {decision === "add" ? (
-          <CheckCircleIcon className="h-4 w-4 text-green-600 inline" />
+          <CheckCircleIcon className="h-4 w-4 text-green-600 dark:text-green-500 inline" />
         ) : (
-          <XCircleIcon className="h-4 w-4 text-gray-500 inline" />
+          <XCircleIcon className="h-4 w-4 text-muted-foreground inline" />
         )}
       </td>
       <td className="px-2 py-1 text-center whitespace-nowrap align-middle overflow-hidden">
@@ -687,39 +689,42 @@ function ConflictTransactionRow({
   onDecide,
 }: ConflictTransactionRowProps) {
   const getBorderColor = () => {
-    if (conflict.matchLevel === 1) return "border-l-4 border-l-red-500";
-    if (conflict.matchLevel === 2) return "border-l-4 border-l-orange-500";
-    if (conflict.matchLevel === 3) return "border-l-4 border-l-yellow-500";
-    return "border-l-4 border-l-gray-400";
+    if (conflict.matchLevel === 1)
+      return "border-l-4 border-l-red-600 dark:border-l-red-500";
+    if (conflict.matchLevel === 2)
+      return "border-l-4 border-l-orange-600 dark:border-l-orange-500";
+    if (conflict.matchLevel === 3)
+      return "border-l-4 border-l-yellow-600 dark:border-l-yellow-500";
+    return "border-l-4 border-l-border";
   };
 
   return (
     <tr
-      className={`border-b bg-yellow-50 hover:bg-yellow-100 ${getBorderColor()}`}
+      className={`border-b bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 ${getBorderColor()}`}
       style={{ height: "32px", maxHeight: "32px" }}
     >
-      <td className="px-2 py-1 whitespace-nowrap text-gray-900 align-middle">
+      <td className="px-2 py-1 whitespace-nowrap text-foreground align-middle">
         {formatDate(conflict.newTransaction.Date)}
       </td>
       <td
-        className="px-2 py-1 max-w-xs truncate text-gray-900 align-middle"
+        className="px-2 py-1 max-w-xs truncate text-foreground align-middle"
         title={conflict.newTransaction.Description || "N/A"}
       >
         {conflict.newTransaction.Description || "N/A"}
       </td>
-      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-gray-900 align-middle">
+      <td className="px-2 py-1 text-right whitespace-nowrap font-medium text-foreground align-middle">
         {formatCurrency(conflict.newTransaction.Amount)}
       </td>
       <td className="px-2 py-1 text-center whitespace-nowrap align-middle">
         <span
           className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
             conflict.matchLevel === 1
-              ? "bg-red-200 text-red-800"
+              ? "bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-300"
               : conflict.matchLevel === 2
-                ? "bg-orange-200 text-orange-800"
+                ? "bg-orange-200 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300"
                 : conflict.matchLevel === 3
-                  ? "bg-yellow-200 text-yellow-800"
-                  : "bg-gray-200 text-gray-700"
+                  ? "bg-yellow-200 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300"
+                  : "bg-muted text-muted-foreground"
           }`}
         >
           {conflict.matchLevel === 1

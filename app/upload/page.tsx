@@ -1117,7 +1117,7 @@ export default function UploadPage() {
 
               {/* Bank-specific upload instructions */}
               {selectedBank && BANK_INSTRUCTIONS[selectedBank] && (
-                <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md animate-in slide-in-from-top duration-300">
+                <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md animate-in fade-in duration-200">
                   <div className="flex items-start gap-2">
                     <div className="text-blue-600 dark:text-blue-400 text-xl mt-0.5">
                       📋

@@ -83,12 +83,42 @@ export interface TransactionDecision {
 }
 
 /**
- * Main function to analyze upload conflicts
+ * Analyze uploaded transactions against existing table data and detect potential
+ * duplicates or suspicious rows.
  *
- * @param tableName - Target database table (e.g., "HB_2025")
- * @param newTransactions - Transactions from uploaded file
- * @param autoSkipExactDuplicates - Whether to auto-skip 100% matches
- * @returns Analysis result with categorized transactions
+ * Behaviour summary:
+ * - Fetches existing rows from the provided `tableName` (Supabase).
+ * - Filters out obviously invalid incoming rows (both `Date` and `Description`
+ *   missing or set to `'N/A'`).
+ * - Compares each valid incoming transaction to existing rows using four
+ *   ordered match levels (1 -> 4). The first matching level found is used.
+ *
+ * Match levels (high -> low confidence):
+ * - Level 1 (100%): Exact duplicate — same date, normalized description and amount
+ * - Level 2 (90%): High confidence — same date and amount, description Levenshtein distance ≤ 2
+ * - Level 3 (70%): Possible duplicate — adjacent date (±1 day) and same amount
+ * - Level 4 (50%): Suspicious similarity — similar date (±2 days), amount difference ≤ 10,
+ *   and description similarity > 80%
+ *
+ * Notes & side-effects:
+ * - If the target table does not exist (Supabase error codes `PGRST116` or `42P01`),
+ *   the function returns early and treats all valid incoming transactions as `safeToAdd`.
+ * - When `autoSkipExactDuplicates` is true, Level 1 matches are placed into
+ *   `autoSkipped` instead of `conflicts` to allow automated skipping of perfect duplicates.
+ * - The function performs a remote read against Supabase and therefore must be awaited.
+ * - Returned `ConflictAnalysis`includes the fetched `existingTransactions` so callers
+ *   can render conflict UIs without an additional DB round-trip.
+ * - Throws if Supabase returns an unexpected error (other than the handled "table not
+ *   found" cases).
+ *
+ * Performance:
+ * - Comparison is done in-memory after a single read of existing rows. For very large
+ *   existing tables consider pre-filtering or paginating prior to running this analysis.
+ *
+ * @param tableName - Target database table (e.g., "HB_2025" or "RICO_202501")
+ * @param newTransactions - Parsed transactions to analyze (array of `Transaction`)
+ * @param autoSkipExactDuplicates - When true, Level 1 exact matches are auto-skipped
+ * @returns Promise<ConflictAnalysis> - categorized result: `{ safeToAdd, conflicts, autoSkipped, existingTransactions }`
  */
 export async function analyzeUploadConflicts(
   tableName: string,

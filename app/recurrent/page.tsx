@@ -501,24 +501,21 @@ export default function BillsPage() {
         CREATE TABLE ${targetTableName} (
           id SERIAL PRIMARY KEY,
           description TEXT NOT NULL,
-          due_day INTEGER NOT NULL,
-          payment_method TEXT NOT NULL,
+          due_day INTEGER NOT NULL CHECK (due_day >= 1 AND due_day <= 31),
           country TEXT NOT NULL,
-          base_value NUMERIC NOT NULL DEFAULT 0,
-          is_credit_card BOOLEAN DEFAULT FALSE,
-          credit_card_name TEXT,
-          jan_value NUMERIC,
-          feb_value NUMERIC,
-          mar_value NUMERIC,
-          apr_value NUMERIC,
-          may_value NUMERIC,
-          jun_value NUMERIC,
-          jul_value NUMERIC,
-          aug_value NUMERIC,
-          sep_value NUMERIC,
-          oct_value NUMERIC,
-          nov_value NUMERIC,
-          dec_value NUMERIC,
+          base_value NUMERIC(10, 2) NOT NULL,
+          jan_value NUMERIC(10, 2),
+          feb_value NUMERIC(10, 2),
+          mar_value NUMERIC(10, 2),
+          apr_value NUMERIC(10, 2),
+          may_value NUMERIC(10, 2),
+          jun_value NUMERIC(10, 2),
+          jul_value NUMERIC(10, 2),
+          aug_value NUMERIC(10, 2),
+          sep_value NUMERIC(10, 2),
+          oct_value NUMERIC(10, 2),
+          nov_value NUMERIC(10, 2),
+          dec_value NUMERIC(10, 2),
           jan_status BOOLEAN DEFAULT FALSE,
           feb_status BOOLEAN DEFAULT FALSE,
           mar_status BOOLEAN DEFAULT FALSE,
@@ -531,9 +528,24 @@ export default function BillsPage() {
           oct_status BOOLEAN DEFAULT FALSE,
           nov_status BOOLEAN DEFAULT FALSE,
           dec_status BOOLEAN DEFAULT FALSE,
-          created_at TIMESTAMP DEFAULT NOW(),
-          updated_at TIMESTAMP DEFAULT NOW()
+          created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT timezone('utc'::text, now()),
+          updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT timezone('utc'::text, now()),
+          jan_payment_method TEXT,
+          feb_payment_method TEXT,
+          mar_payment_method TEXT,
+          apr_payment_method TEXT,
+          may_payment_method TEXT,
+          jun_payment_method TEXT,
+          jul_payment_method TEXT,
+          aug_payment_method TEXT,
+          sep_payment_method TEXT,
+          oct_payment_method TEXT,
+          nov_payment_method TEXT,
+          dec_payment_method TEXT
         );
+
+        CREATE INDEX IF NOT EXISTS idx_${targetTableName}_country ON ${targetTableName} (country);
+        CREATE INDEX IF NOT EXISTS idx_${targetTableName}_due_day ON ${targetTableName} (due_day);
 
         ALTER TABLE ${targetTableName} ENABLE ROW LEVEL SECURITY;
 
@@ -621,11 +633,8 @@ export default function BillsPage() {
           .insert({
             description: sourceBill.description || "Unnamed",
             due_day: sourceBill.due_day || 1,
-            payment_method: sourceBill.payment_method || "Not specified",
             country: sourceBill.country || "Sweden",
             base_value: newBaseValue || 0,
-            is_credit_card: sourceBill.is_credit_card || false,
-            credit_card_name: sourceBill.credit_card_name || null,
             ...statusFields,
           });
 
@@ -915,6 +924,7 @@ export default function BillsPage() {
               valueColor="text-blue-600"
               onMonthChange={handleMonthChange}
               onBillUpdate={handleBillUpdate}
+              currentTableYear={currentTableYear}
             />
           )}
           {(selectedCountry === "Brazil" || selectedCountry === "Both") && (
@@ -929,6 +939,7 @@ export default function BillsPage() {
               valueColor="text-green-600"
               onMonthChange={handleMonthChange}
               onBillUpdate={handleBillUpdate}
+              currentTableYear={currentTableYear}
             />
           )}
         </div>

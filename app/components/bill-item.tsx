@@ -29,6 +29,7 @@ interface BillItemProps {
   onTogglePaid: (id: number) => void;
   month: string;
   onBillUpdate?: (updatedBill: Bill) => void;
+  currentTableYear: number;
 }
 
 export default function BillItem({
@@ -36,6 +37,7 @@ export default function BillItem({
   onTogglePaid,
   month,
   onBillUpdate,
+  currentTableYear,
 }: BillItemProps) {
   const monthAbbr = month.toLowerCase().substring(0, 3);
   const statusField = `${monthAbbr}_status` as keyof Bill;
@@ -83,7 +85,7 @@ export default function BillItem({
 
       // Update record in Supabase
       const { error } = await supabase
-        .from("recurrent_2025")
+        .from(`recurrent_${currentTableYear}`)
         .update({
           description: editBill.description,
           due_day: editBill.due_day,

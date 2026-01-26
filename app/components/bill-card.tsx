@@ -24,6 +24,7 @@ interface BillCardProps {
   valueColor?: string; // Keeping this for backward compatibility
   onMonthChange?: (newMonthName: string) => void;
   onBillUpdate?: (updatedBill: Bill) => void;
+  currentTableYear: number;
 }
 
 export default function BillCard({
@@ -36,6 +37,7 @@ export default function BillCard({
   country,
   onMonthChange,
   onBillUpdate,
+  currentTableYear,
 }: BillCardProps) {
   // We don't use selectedMonth elsewhere, but we need it for the callback
   const [, setSelectedMonth] = useState(month);
@@ -244,6 +246,7 @@ export default function BillCard({
                           onTogglePaid={onTogglePaid}
                           month={monthName}
                           onBillUpdate={onBillUpdate}
+                          currentTableYear={currentTableYear}
                         />
                       </div>
                     ))}

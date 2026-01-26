@@ -38,6 +38,15 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Mapping of countries to their respective currencies
 const countryCurrencyMap: Record<string, string> = {
@@ -65,6 +74,23 @@ export default function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [currentTableYear, setCurrentTableYear] = useState(2025);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedYearToCreate, setSelectedYearToCreate] = useState(2026);
+  const [validationStatus, setValidationStatus] = useState<{
+    type: "idle" | "checking" | "ready" | "error" | "warning";
+    message: string;
+    sourceTableExists: boolean;
+    targetTableExists: boolean;
+    sourceBillCount: number;
+  }>({
+    type: "idle",
+    message: "",
+    sourceTableExists: false,
+    targetTableExists: false,
+    sourceBillCount: 0,
+  });
+  const [isCreating, setIsCreating] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(
     MONTHS[new Date().getMonth()],
   );
@@ -89,9 +115,12 @@ export default function BillsPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchBills = async () => {
+  const fetchBills = async (year?: number) => {
+    const tableYear = year ?? currentTableYear;
     try {
-      const { data, error } = await supabase.from("recurrent_2025").select("*");
+      const { data, error } = await supabase
+        .from(`recurrent_${tableYear}`)
+        .select("*");
 
       if (error) throw error;
       setBills(data || []);
@@ -101,6 +130,7 @@ export default function BillsPage() {
       } else {
         console.error("Error fetching bills:", error);
       }
+      setBills([]); // Set empty array if table doesn't exist
     } finally {
       setLoading(false);
     }
@@ -130,7 +160,7 @@ export default function BillsPage() {
       );
 
       const { error } = await supabase
-        .from("recurrent_2025")
+        .from(`recurrent_${currentTableYear}`)
         .update({ [statusField]: newStatus })
         .eq("id", id);
 
@@ -191,7 +221,7 @@ export default function BillsPage() {
 
       // Insert the new expense into Supabase
       const { data, error } = await supabase
-        .from("recurrent_2025")
+        .from(`recurrent_${currentTableYear}`)
         .insert({
           description: newExpense.description,
           due_day: newExpense.due_day,
@@ -294,7 +324,7 @@ export default function BillsPage() {
         // Only update if there are future months to update
         if (hasUpdates) {
           const { error } = await supabase
-            .from("recurrent_2025")
+            .from(`recurrent_${currentTableYear}`)
             .update({
               ...updateData,
               updated_at: new Date().toISOString(),
@@ -341,6 +371,303 @@ export default function BillsPage() {
     if (newIndex !== -1 && newIndex !== currentMonthIndex) {
       setCurrentMonthIndex(newIndex);
       setCurrentMonth(monthName);
+    }
+  };
+
+  // Validate table creation prerequisites
+  const validateTableCreation = async (targetYear: number) => {
+    setValidationStatus({
+      type: "checking",
+      message: "Validating...",
+      sourceTableExists: false,
+      targetTableExists: false,
+      sourceBillCount: 0,
+    });
+
+    const sourceYear = targetYear - 1;
+    const sourceTableName = `recurrent_${sourceYear}`;
+    const targetTableName = `recurrent_${targetYear}`;
+
+    try {
+      // Check if source table exists
+      const { data: sourceData, error: sourceError } = await supabase
+        .from(sourceTableName)
+        .select("id")
+        .limit(1);
+
+      const sourceExists = !sourceError;
+
+      if (!sourceExists) {
+        setValidationStatus({
+          type: "error",
+          message: `Source table ${sourceTableName} does not exist. Please create it first.`,
+          sourceTableExists: false,
+          targetTableExists: false,
+          sourceBillCount: 0,
+        });
+        return;
+      }
+
+      // Get count of bills in source table
+      const { count: sourceBillCount } = await supabase
+        .from(sourceTableName)
+        .select("*", { count: "exact", head: true });
+
+      // Check if target table exists
+      const { error: targetError } = await supabase
+        .from(targetTableName)
+        .select("id")
+        .limit(1);
+
+      const targetExists = !targetError;
+
+      if (targetExists) {
+        // Get count of bills in target table
+        const { count: targetBillCount } = await supabase
+          .from(targetTableName)
+          .select("*", { count: "exact", head: true });
+
+        setValidationStatus({
+          type: "warning",
+          message: `Table ${targetTableName} already exists with ${targetBillCount || 0} bills. Creating will DELETE all existing data and replace with ${sourceBillCount || 0} bills from ${sourceTableName}.`,
+          sourceTableExists: true,
+          targetTableExists: true,
+          sourceBillCount: sourceBillCount || 0,
+        });
+      } else {
+        setValidationStatus({
+          type: "ready",
+          message: `Ready to create ${targetTableName} from ${sourceTableName} (${sourceBillCount || 0} bills)`,
+          sourceTableExists: true,
+          targetTableExists: false,
+          sourceBillCount: sourceBillCount || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Validation error:", error);
+      setValidationStatus({
+        type: "error",
+        message: "Error during validation. Please try again.",
+        sourceTableExists: false,
+        targetTableExists: false,
+        sourceBillCount: 0,
+      });
+    }
+  };
+
+  // Create new year table from previous year
+  const createYearTable = async () => {
+    if (
+      validationStatus.type === "error" ||
+      validationStatus.type === "idle" ||
+      validationStatus.type === "checking"
+    ) {
+      return;
+    }
+
+    setIsCreating(true);
+    const targetYear = selectedYearToCreate;
+    const sourceYear = targetYear - 1;
+    const sourceTableName = `recurrent_${sourceYear}`;
+    const targetTableName = `recurrent_${targetYear}`;
+
+    try {
+      // Step 1: Drop target table if it exists (try with exec_sql, handle gracefully if not available)
+      if (validationStatus.targetTableExists) {
+        setValidationStatus((prev) => ({
+          ...prev,
+          message: "Deleting existing table...",
+        }));
+
+        try {
+          await supabase.rpc("exec_sql", {
+            sql: `DROP TABLE IF EXISTS ${targetTableName} CASCADE;`,
+          });
+        } catch (dropErr) {
+          console.warn(
+            "Could not drop table automatically (will attempt to overwrite):",
+            dropErr,
+          );
+        }
+      }
+
+      // Step 2: Try to create new table with schema using exec_sql
+      setValidationStatus((prev) => ({
+        ...prev,
+        message: "Creating new table...",
+      }));
+
+      const createTableSQL = `
+        CREATE TABLE ${targetTableName} (
+          id SERIAL PRIMARY KEY,
+          description TEXT NOT NULL,
+          due_day INTEGER NOT NULL,
+          payment_method TEXT NOT NULL,
+          country TEXT NOT NULL,
+          base_value NUMERIC NOT NULL DEFAULT 0,
+          is_credit_card BOOLEAN DEFAULT FALSE,
+          credit_card_name TEXT,
+          jan_value NUMERIC,
+          feb_value NUMERIC,
+          mar_value NUMERIC,
+          apr_value NUMERIC,
+          may_value NUMERIC,
+          jun_value NUMERIC,
+          jul_value NUMERIC,
+          aug_value NUMERIC,
+          sep_value NUMERIC,
+          oct_value NUMERIC,
+          nov_value NUMERIC,
+          dec_value NUMERIC,
+          jan_status BOOLEAN DEFAULT FALSE,
+          feb_status BOOLEAN DEFAULT FALSE,
+          mar_status BOOLEAN DEFAULT FALSE,
+          apr_status BOOLEAN DEFAULT FALSE,
+          may_status BOOLEAN DEFAULT FALSE,
+          jun_status BOOLEAN DEFAULT FALSE,
+          jul_status BOOLEAN DEFAULT FALSE,
+          aug_status BOOLEAN DEFAULT FALSE,
+          sep_status BOOLEAN DEFAULT FALSE,
+          oct_status BOOLEAN DEFAULT FALSE,
+          nov_status BOOLEAN DEFAULT FALSE,
+          dec_status BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        );
+
+        ALTER TABLE ${targetTableName} ENABLE ROW LEVEL SECURITY;
+
+        CREATE POLICY "Enable read access for all users" ON ${targetTableName}
+          FOR SELECT USING (true);
+
+        CREATE POLICY "Enable insert for authenticated users only" ON ${targetTableName}
+          FOR INSERT WITH CHECK (true);
+
+        CREATE POLICY "Enable update for authenticated users only" ON ${targetTableName}
+          FOR UPDATE USING (true);
+
+        CREATE POLICY "Enable delete for authenticated users only" ON ${targetTableName}
+          FOR DELETE USING (true);
+      `;
+
+      let tableCreated = false;
+      try {
+        const { error: createError } = await supabase.rpc("exec_sql", {
+          sql: createTableSQL,
+        });
+
+        if (createError) {
+          throw createError;
+        }
+        tableCreated = true;
+      } catch (execError) {
+        // exec_sql not available - provide manual SQL instructions
+        console.error("Table creation with exec_sql failed:", execError);
+
+        setValidationStatus({
+          type: "error",
+          message: `Automatic table creation not supported. Please run this SQL in Supabase SQL Editor:\n\n${createTableSQL}\n\nThen try again.`,
+          sourceTableExists: validationStatus.sourceTableExists,
+          targetTableExists: false,
+          sourceBillCount: validationStatus.sourceBillCount,
+        });
+        setIsCreating(false);
+        return;
+      }
+
+      // Step 3: Wait for REST API cache
+      if (tableCreated) {
+        setValidationStatus((prev) => ({
+          ...prev,
+          message: "Waiting for database cache...",
+        }));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+
+      // Step 4: Fetch bills from source table
+      setValidationStatus((prev) => ({
+        ...prev,
+        message: "Fetching source data...",
+      }));
+      const { data: sourceBills, error: fetchError } = await supabase
+        .from(sourceTableName)
+        .select("*");
+
+      if (fetchError || !sourceBills) {
+        throw new Error(`Failed to fetch source bills: ${fetchError?.message}`);
+      }
+
+      // Step 5: Insert bills one by one
+      setValidationStatus((prev) => ({
+        ...prev,
+        message: `Inserting bills (0/${sourceBills.length})...`,
+      }));
+
+      for (let i = 0; i < sourceBills.length; i++) {
+        const sourceBill = sourceBills[i];
+
+        // Use December value as new base_value, fallback to current base_value
+        const newBaseValue = sourceBill.dec_value ?? sourceBill.base_value;
+
+        // Initialize all status fields to false
+        const statusFields: Record<string, boolean> = {};
+        MONTHS.forEach((month) => {
+          const monthAbbr = month.toLowerCase().substring(0, 3);
+          statusFields[`${monthAbbr}_status`] = false;
+        });
+
+        const { error: insertError } = await supabase
+          .from(targetTableName)
+          .insert({
+            description: sourceBill.description || "Unnamed",
+            due_day: sourceBill.due_day || 1,
+            payment_method: sourceBill.payment_method || "Not specified",
+            country: sourceBill.country || "Sweden",
+            base_value: newBaseValue || 0,
+            is_credit_card: sourceBill.is_credit_card || false,
+            credit_card_name: sourceBill.credit_card_name || null,
+            ...statusFields,
+          });
+
+        if (insertError) {
+          throw new Error(
+            `Failed to insert bill "${sourceBill.description}": ${insertError.message}`,
+          );
+        }
+
+        setValidationStatus((prev) => ({
+          ...prev,
+          message: `Inserting bills (${i + 1}/${sourceBills.length})...`,
+        }));
+      }
+
+      // Success!
+      setValidationStatus({
+        type: "ready",
+        message: `Successfully created ${targetTableName} with ${sourceBills.length} bills!`,
+        sourceTableExists: true,
+        targetTableExists: true,
+        sourceBillCount: sourceBills.length,
+      });
+
+      // Switch to the newly created year
+      setTimeout(() => {
+        setCurrentTableYear(targetYear);
+        setLoading(true);
+        fetchBills(targetYear);
+        setCreateDialogOpen(false);
+        setIsCreating(false);
+      }, 1500);
+    } catch (error) {
+      console.error("Error creating year table:", error);
+      setValidationStatus({
+        type: "error",
+        message: `Failed to create table: ${error instanceof Error ? error.message : "Unknown error"}`,
+        sourceTableExists: validationStatus.sourceTableExists,
+        targetTableExists: validationStatus.targetTableExists,
+        sourceBillCount: validationStatus.sourceBillCount,
+      });
+      setIsCreating(false);
     }
   };
 
@@ -470,9 +797,34 @@ export default function BillsPage() {
   return (
     <ProtectedRoute allowedUserIds={["2b5c5467-04e0-4820-bea9-1645821fa1b7"]}>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold text-center mb-6 text-[#898989]">
-          Bills to Be Paid
-        </h1>
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <h1 className="text-2xl font-bold text-[#898989]">
+            Bills to Be Paid
+          </h1>
+          <div className="flex items-center gap-2">
+            <Label className="text-[#898989]">Year:</Label>
+            <Select
+              value={currentTableYear.toString()}
+              onValueChange={(value) => {
+                const year = parseInt(value);
+                setCurrentTableYear(year);
+                setLoading(true);
+                fetchBills(year);
+              }}
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 6 }, (_, i) => 2025 + i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <div className="flex items-center justify-between mb-4 p-4">
           {/* Country Selection with ToggleGroup */}
@@ -719,6 +1071,151 @@ export default function BillsPage() {
           >
             {isSubmitting ? "Updating..." : "Update Future Months with Mean"}
           </Button>
+
+          {/* Create New Year Table Dialog */}
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                className="bg-purple-500 hover:bg-purple-600 text-white"
+                onClick={() => {
+                  setSelectedYearToCreate(currentTableYear + 1);
+                  setValidationStatus({
+                    type: "idle",
+                    message: "",
+                    sourceTableExists: false,
+                    targetTableExists: false,
+                    sourceBillCount: 0,
+                  });
+                }}
+              >
+                Create New Year Table
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create New Year Table</DialogTitle>
+                <DialogDescription>
+                  Create a new recurrent bills table for a specific year by
+                  copying data from the previous year.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="target-year" className="text-right">
+                    Target Year
+                  </Label>
+                  <Select
+                    value={selectedYearToCreate.toString()}
+                    onValueChange={(value) => {
+                      const year = parseInt(value);
+                      setSelectedYearToCreate(year);
+                      setValidationStatus({
+                        type: "idle",
+                        message: "",
+                        sourceTableExists: false,
+                        targetTableExists: false,
+                        sourceBillCount: 0,
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 6 }, (_, i) => 2025 + i).map(
+                        (year) => (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="text-sm mb-2">
+                    <strong>Source:</strong> recurrent_
+                    {selectedYearToCreate - 1}
+                  </div>
+                  <div className="text-sm mb-4">
+                    <strong>Target:</strong> recurrent_{selectedYearToCreate}
+                  </div>
+
+                  {validationStatus.type === "idle" && (
+                    <Button
+                      onClick={() =>
+                        validateTableCreation(selectedYearToCreate)
+                      }
+                      className="w-full"
+                      variant="outline"
+                    >
+                      Check Prerequisites
+                    </Button>
+                  )}
+
+                  {validationStatus.type === "checking" && (
+                    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded">
+                      <p className="text-sm">{validationStatus.message}</p>
+                    </div>
+                  )}
+
+                  {validationStatus.type === "error" && (
+                    <div className="p-3 bg-red-100 dark:bg-red-900 rounded">
+                      <p className="text-sm text-red-800 dark:text-red-200">
+                        {validationStatus.message}
+                      </p>
+                    </div>
+                  )}
+
+                  {validationStatus.type === "warning" && (
+                    <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200 font-semibold">
+                        ⚠️ Warning
+                      </p>
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200 mt-1">
+                        {validationStatus.message}
+                      </p>
+                    </div>
+                  )}
+
+                  {validationStatus.type === "ready" && !isCreating && (
+                    <div className="p-3 bg-green-100 dark:bg-green-900 rounded">
+                      <p className="text-sm text-green-800 dark:text-green-200">
+                        ✓ {validationStatus.message}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCreateDialogOpen(false)}
+                  disabled={isCreating}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={createYearTable}
+                  disabled={
+                    (validationStatus.type !== "ready" &&
+                      validationStatus.type !== "warning") ||
+                    isCreating
+                  }
+                  className="bg-purple-500 hover:bg-purple-600 text-white"
+                >
+                  {isCreating
+                    ? "Creating..."
+                    : validationStatus.targetTableExists
+                      ? "Overwrite & Create"
+                      : "Create Table"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <Sheet>
             <SheetTrigger asChild>
               <Button className="bg-green-500 hover:bg-green-600 text-white">

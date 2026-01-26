@@ -39,18 +39,28 @@ const Dialog = ({ children, open = false, onOpenChange }: DialogProps) => {
 
 const DialogTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ className, children, ...props }, ref) => {
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ className, children, asChild = false, ...props }, ref) => {
   const context = React.useContext(DialogContext);
   if (!context) throw new Error("DialogTrigger must be used within Dialog");
 
+  const handleClick = (e: React.MouseEvent) => {
+    context.onOpenChange(true);
+    props.onClick?.(e as any);
+  };
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children, {
+      ...children.props,
+      onClick: (e: React.MouseEvent) => {
+        handleClick(e);
+        children.props.onClick?.(e);
+      },
+    } as any);
+  }
+
   return (
-    <button
-      ref={ref}
-      className={className}
-      onClick={() => context.onOpenChange(true)}
-      {...props}
-    >
+    <button ref={ref} className={className} onClick={handleClick} {...props}>
       {children}
     </button>
   );
@@ -127,6 +137,20 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = "DialogDescription";
 
+const DialogFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className,
+    )}
+    {...props}
+  />
+);
+DialogFooter.displayName = "DialogFooter";
+
 export {
   Dialog,
   DialogTrigger,
@@ -134,4 +158,5 @@ export {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 };

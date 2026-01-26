@@ -101,7 +101,7 @@ export default function BillsPage() {
     "Sweden" | "Brazil" | "Both" | "None"
   >("Both");
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Bill | "currentValue" | "";
+    key: keyof Bill | "currentValue" | "currentPaymentMethod" | "";
     direction: "ascending" | "descending";
   }>({ key: "", direction: "ascending" });
 
@@ -755,6 +755,14 @@ export default function BillsPage() {
           typeof a[valueField] === "number" ? a[valueField] : a.base_value;
         bValue =
           typeof b[valueField] === "number" ? b[valueField] : b.base_value;
+      } else if (sortConfig.key === "currentPaymentMethod") {
+        const monthAbbr = MONTHS[currentMonthIndex]
+          .toLowerCase()
+          .substring(0, 3);
+        const paymentMethodField = `${monthAbbr}_payment_method` as keyof Bill;
+
+        aValue = a[paymentMethodField];
+        bValue = b[paymentMethodField];
       } else {
         aValue = a[sortConfig.key as keyof Bill];
         bValue = b[sortConfig.key as keyof Bill];
@@ -783,7 +791,9 @@ export default function BillsPage() {
   }, [bills, sortConfig, currentMonthIndex]);
 
   // Handle column header click for sorting
-  const handleSort = (key: keyof Bill | "currentValue") => {
+  const handleSort = (
+    key: keyof Bill | "currentValue" | "currentPaymentMethod",
+  ) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.key === key) {
         // Toggle direction if same key
@@ -974,12 +984,12 @@ export default function BillsPage() {
               </TableHead>
               <TableHead
                 className="text-white cursor-pointer hover:bg-gray-800 transition-colors w-[15%]"
-                onClick={() => handleSort("payment_method")}
+                onClick={() => handleSort("currentPaymentMethod")}
               >
                 <div className="flex items-center">
                   <span className="flex-1">Payment Method</span>
                   <span className="ml-1 inline-block w-4">
-                    {sortConfig.key === "payment_method" &&
+                    {sortConfig.key === "currentPaymentMethod" &&
                       (sortConfig.direction === "ascending" ? "↑" : "↓")}
                   </span>
                 </div>
@@ -1035,10 +1045,15 @@ export default function BillsPage() {
                   .substring(0, 3);
                 const statusField = `${monthAbbr}_status` as keyof Bill;
                 const valueField = `${monthAbbr}_value` as keyof Bill;
+                const paymentMethodField =
+                  `${monthAbbr}_payment_method` as keyof Bill;
                 const currentValue =
                   typeof bill[valueField] === "number"
                     ? (bill[valueField] as number)
                     : bill.base_value;
+                const currentPaymentMethod = bill[paymentMethodField] as
+                  | string
+                  | null;
                 const isPaid = bill[statusField];
                 const isLastRow = index === filteredArray.length - 1;
 
@@ -1053,7 +1068,7 @@ export default function BillsPage() {
                       {bill.description}
                     </TableCell>
                     <TableCell>{bill.due_day}</TableCell>
-                    <TableCell>{bill.payment_method}</TableCell>
+                    <TableCell>{currentPaymentMethod || "-"}</TableCell>
                     <TableCell>{bill.country}</TableCell>
                     <TableCell>
                       {bill.country === "Brazil"

@@ -1004,7 +1004,7 @@ export default function TransactionTable({
         <TableBody>
           {sortedTransactions.map((transaction, index, array) => (
             <TableRow
-              key={transaction.id}
+              key={`${transaction.source_table || transaction.sourceTable || ""}-${transaction.id}`}
               className={`${
                 transaction.Category === "Unknown"
                   ? "bg-yellow-100 text-black"

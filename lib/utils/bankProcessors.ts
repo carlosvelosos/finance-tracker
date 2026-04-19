@@ -304,6 +304,7 @@ export function processAmex(data: string[][], fileName: string) {
         Date: formattedDate, // Formatted date in YYYY-MM-DD
         Description: description, // Cleaned description
         Amount: amount, // Parsed amount
+        Bank: "American Express",
         // Additional fields from the new format can be added here if needed
         // Comment: row[3]?.trim() || row[4]?.trim() || null // Using "Utökade specifikationer" or "Visas på ditt kontoutdrag som" as comment
       };

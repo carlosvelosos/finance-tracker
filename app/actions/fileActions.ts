@@ -216,7 +216,7 @@ CREATE TABLE public."${tableName}" (
   "Responsible" text NULL DEFAULT 'Carlos'::text,
   "Comment" text NULL,
   user_id uuid NULL DEFAULT '2b5c5467-04e0-4820-bea9-1645821fa1b7'::uuid,
-  "Bank" text NULL DEFAULT 'Inter-BR'::text,
+  "Bank" text NULL,
   CONSTRAINT "${tableName}_pkey" PRIMARY KEY (id),
   CONSTRAINT "${tableName}_id_key" UNIQUE (id)
 ) TABLESPACE pg_default;
@@ -289,7 +289,7 @@ export async function executeTableCreation(tableName: string) {
         "Responsible" text NULL DEFAULT 'Carlos'::text,
         "Comment" text NULL,
         user_id uuid NULL DEFAULT '2b5c5467-04e0-4820-bea9-1645821fa1b7'::uuid,
-        "Bank" text NULL DEFAULT 'Inter-BR'::text,
+        "Bank" text NULL,
         CONSTRAINT "${tableName}_pkey" PRIMARY KEY (id),
         CONSTRAINT "${tableName}_id_key" UNIQUE (id)
       )`;

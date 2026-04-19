@@ -23,6 +23,26 @@ import { useState, useRef, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Transaction } from "@/types/transaction";
 
+// Map description prefixes (regex) to a canonical display name.
+// Add entries here to merge similar descriptions into one line.
+const DESCRIPTION_NORMALIZATIONS: Array<{
+  pattern: RegExp;
+  canonical: string;
+}> = [
+  { pattern: /^bredband2/i, canonical: "Bredband2" },
+  { pattern: /telia/i, canonical: "Telia" },
+  { pattern: /^bixia/i, canonical: "Bixia" },
+  { pattern: /^(sj prio|seb kort bank)/i, canonical: "SEB SJ Prio" },
+];
+
+function normalizeDescription(desc: string): string {
+  const trimmed = desc.trim();
+  for (const { pattern, canonical } of DESCRIPTION_NORMALIZATIONS) {
+    if (pattern.test(trimmed)) return canonical;
+  }
+  return trimmed;
+}
+
 function hexToRgba(hex: string, alpha: number): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return `rgba(136, 132, 216, ${alpha})`;
@@ -506,15 +526,25 @@ export function CustomBarChart({
                 (entry) => entry.Category === item.category,
               );
 
-              const descriptions = filteredData.reduce(
-                (acc, entry) => {
-                  if (entry.Description && entry.Amount) {
-                    acc[entry.Description] =
-                      (acc[entry.Description] || 0) + entry.Amount;
+              const descriptionsRaw: Record<
+                string,
+                { display: string; total: number }
+              > = {};
+              filteredData.forEach((entry) => {
+                if (entry.Description && entry.Amount) {
+                  const display = normalizeDescription(entry.Description);
+                  const key = display.toLowerCase();
+                  if (!descriptionsRaw[key]) {
+                    descriptionsRaw[key] = { display, total: 0 };
                   }
-                  return acc;
-                },
-                {} as Record<string, number>,
+                  descriptionsRaw[key].total += entry.Amount;
+                }
+              });
+              const descriptions = Object.fromEntries(
+                Object.values(descriptionsRaw).map(({ display, total }) => [
+                  display,
+                  total,
+                ]),
               );
 
               return (

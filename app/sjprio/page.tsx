@@ -69,7 +69,7 @@ export default function Home() {
             />
           }
           updateButtonComponent={undefined}
-          downloadUrl="https://secure.sebkort.com/nis/m/sjse/external/t/login/index"
+          downloadUrl="https://spendwise.se/logga-in/"
           downloadButtonText="Download Invoice"
           chartUrl="./chart"
           chartButtonText="Go to Chart Page"

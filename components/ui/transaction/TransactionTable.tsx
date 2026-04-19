@@ -243,7 +243,10 @@ export default function TransactionTable({
       // Determine the table name and database ID
       // source_table (snake_case) is the DB column returned by AM_ALL and other views
       // sourceTable (camelCase) is set manually by family hooks that prefix IDs
-      const tableName = transaction.sourceTable || transaction.source_table || TransactionTableName;
+      const tableName =
+        transaction.sourceTable ||
+        transaction.source_table ||
+        TransactionTableName;
       const dbId =
         transaction.originalId ||
         (typeof id === "number" ? id : parseInt(id.toString()));
@@ -316,7 +319,10 @@ export default function TransactionTable({
       // Determine the table name and database ID
       // source_table (snake_case) is the DB column returned by AM_ALL and other views
       // sourceTable (camelCase) is set manually by family hooks that prefix IDs
-      const tableName = transaction.sourceTable || transaction.source_table || TransactionTableName;
+      const tableName =
+        transaction.sourceTable ||
+        transaction.source_table ||
+        TransactionTableName;
       const dbId =
         transaction.originalId ||
         (typeof id === "number" ? id : parseInt(id.toString()));
@@ -389,7 +395,10 @@ export default function TransactionTable({
       // Determine the table name and database ID
       // source_table (snake_case) is the DB column returned by AM_ALL and other views
       // sourceTable (camelCase) is set manually by family hooks that prefix IDs
-      const tableName = transaction.sourceTable || transaction.source_table || TransactionTableName;
+      const tableName =
+        transaction.sourceTable ||
+        transaction.source_table ||
+        TransactionTableName;
       const dbId =
         transaction.originalId ||
         (typeof id === "number" ? id : parseInt(id.toString()));

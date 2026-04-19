@@ -3,7 +3,7 @@ import { Transaction } from "@/types/transaction";
 import { useTransactions } from "./useTransactions";
 
 export function useAmexTransactions() {
-  return useTransactions({ bankFilter: "American Express" });
+  return useTransactions({ tableName: "AM_ALL" });
 }
 
 export function useHandelsbankenTransactions() {

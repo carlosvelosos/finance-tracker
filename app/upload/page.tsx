@@ -113,6 +113,7 @@ import {
   analyzeCategoryMatches,
   CategoryAnalysis,
 } from "@/app/actions/categoryAnalysis";
+import { rebuildAmexView } from "@/app/actions/updateActions";
 import { MergeConflictDialog } from "@/components/MergeConflictDialog";
 import { CategoryAssignmentDialog } from "@/components/CategoryAssignmentDialog";
 import { Button } from "@/components/ui/button";
@@ -696,6 +697,13 @@ export default function UploadPage() {
         // Step 1 complete! Now check if we should trigger Step 2 (category assignment)
         console.log("Upload successful, analyzing categories...");
 
+        // Rebuild AM_ALL view automatically so new Amex data is immediately visible
+        if (selectedBank === "AmericanExpress-SE") {
+          rebuildAmexView().catch((err) =>
+            console.error("Failed to rebuild AM_ALL view:", err),
+          );
+        }
+
         try {
           // Show progress UI
           setCategoryProgress({
@@ -774,6 +782,13 @@ export default function UploadPage() {
             );
 
             if (retryResult.success) {
+              // Rebuild AM_ALL view after successful retry upload
+              if (selectedBank === "AmericanExpress-SE") {
+                rebuildAmexView().catch((err) =>
+                  console.error("Failed to rebuild AM_ALL view:", err),
+                );
+              }
+
               // Try category analysis after retry
               try {
                 setCategoryProgress({

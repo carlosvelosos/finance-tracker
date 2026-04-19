@@ -3,7 +3,6 @@
 import { useAmexTransactions } from "../../lib/hooks/useTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";
 import ProtectedRoute from "@/components/protected-route";
-import UpdateAmexAggregatedButton from "@/components/UpdateAmexAggregatedButton";
 import BankTablePageHeader from "@/components/ui/bank-table-page-header";
 import BankTablePageBody from "@/components/ui/bank-table-page-body";
 import DataSourceInfo from "@/components/ui/data-source-info";
@@ -80,12 +79,12 @@ export default function Home() {
             <DataSourceInfo
               transactions={transactions}
               bankInfo={bankInfo}
-              tableName="Sweden_transactions_agregated_2025"
-              tableDescription="Aggregated transactions for American Express accounts in 2025"
+              tableName="AM_ALL"
+              tableDescription="Live view of all American Express transactions from monthly AM_* tables"
               activeBankFilter="American Express"
             />
           }
-          updateButtonComponent={<UpdateAmexAggregatedButton />}
+          updateButtonComponent={undefined}
           downloadUrl="https://www.americanexpress.com/en-us/account/login?inav=iNavLnkLog"
           downloadButtonText="Download Invoice"
           chartUrl="./chart"

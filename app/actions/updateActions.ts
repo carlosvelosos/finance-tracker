@@ -949,3 +949,17 @@ export async function executeInterUpdate(
     };
   }
 }
+
+// Rebuild the AM_ALL view to include any newly uploaded AM_* monthly tables.
+// Called automatically after a successful AmericanExpress-SE upload.
+export async function rebuildAmexView(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const { error } = await supabase.rpc("rebuild_am_all_view");
+  if (error) {
+    console.error("Error rebuilding AM_ALL view:", error);
+    return { success: false, error: error.message };
+  }
+  return { success: true };
+}

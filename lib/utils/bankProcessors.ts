@@ -289,6 +289,7 @@ export function processAmex(data: string[][], fileName: string) {
 
       // Clean amount - handle European format with comma as decimal separator
       const cleanedAmount = rawAmount
+        .replace(/\u2212/g, "-") // Replace Unicode minus sign (−) with ASCII hyphen-minus
         .replace(/\s/g, "") // Remove spaces
         .replace(/\./g, "") // Remove thousand separators (dots)
         .replace(",", "."); // Replace comma with dot for decimal point

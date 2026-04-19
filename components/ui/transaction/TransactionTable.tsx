@@ -230,35 +230,47 @@ export default function TransactionTable({
    */
   const handleUpdateCategory = async (
     id: string | number,
+    passedSourceTable: string | null | undefined,
     newCategory: string,
   ) => {
     setUpdatingId(id);
     try {
-      // Find the transaction to get its source table and database ID
-      const transaction = localTransactions.find((t) => t.id === id);
+      // Find the transaction matched by both id and source_table to avoid
+      // ambiguity when multiple monthly tables share the same numeric id.
+      const transaction = localTransactions.find(
+        (t) =>
+          t.id === id &&
+          (passedSourceTable
+            ? (t.sourceTable || t.source_table) === passedSourceTable
+            : true),
+      );
       if (!transaction) {
         throw new Error("Transaction not found");
       }
 
       // Determine the table name and database ID
-      // source_table (snake_case) is the DB column returned by AM_ALL and other views
+      // source_table (snake_case) is the DB column returned by views (e.g. HB_ALL)
       // sourceTable (camelCase) is set manually by family hooks that prefix IDs
       const tableName =
+        passedSourceTable ||
         transaction.sourceTable ||
-        transaction.source_table ||
-        TransactionTableName;
+        transaction.source_table;
       const dbId =
         transaction.originalId ||
         (typeof id === "number" ? id : parseInt(id.toString()));
 
       if (!tableName) {
-        throw new Error("Cannot determine table name for update");
+        throw new Error(
+          `Cannot determine source table for transaction id=${id}. The transaction is missing both sourceTable and source_table fields.`,
+        );
       }
 
-      const { error } = await supabase
+      console.log(`[Category Update] table=${tableName} id=${dbId}`);
+      const { data: updatedRows, error } = await supabase
         .from(tableName)
         .update({ Category: newCategory })
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .select("id");
 
       if (error) {
         console.error("Error updating category:", error);
@@ -266,6 +278,14 @@ export default function TransactionTable({
           duration: 3000,
           position: "top-right",
         });
+      } else if (!updatedRows || updatedRows.length === 0) {
+        console.error(
+          `[Category Update] 0 rows affected in ${tableName} for id=${dbId}`,
+        );
+        toast.error(
+          `Update failed: no matching row found in ${tableName} (id=${dbId}). Check table permissions or RLS policies.`,
+          { duration: 5000, position: "top-right" },
+        );
       } else {
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
@@ -306,35 +326,47 @@ export default function TransactionTable({
    */
   const handleUpdateResponsible = async (
     id: string | number,
+    passedSourceTable: string | null | undefined,
     newResponsible: string,
   ) => {
     setUpdatingId(id);
     try {
-      // Find the transaction to get its source table and database ID
-      const transaction = localTransactions.find((t) => t.id === id);
+      // Find the transaction matched by both id and source_table to avoid
+      // ambiguity when multiple monthly tables share the same numeric id.
+      const transaction = localTransactions.find(
+        (t) =>
+          t.id === id &&
+          (passedSourceTable
+            ? (t.sourceTable || t.source_table) === passedSourceTable
+            : true),
+      );
       if (!transaction) {
         throw new Error("Transaction not found");
       }
 
       // Determine the table name and database ID
-      // source_table (snake_case) is the DB column returned by AM_ALL and other views
+      // source_table (snake_case) is the DB column returned by views (e.g. HB_ALL)
       // sourceTable (camelCase) is set manually by family hooks that prefix IDs
       const tableName =
+        passedSourceTable ||
         transaction.sourceTable ||
-        transaction.source_table ||
-        TransactionTableName;
+        transaction.source_table;
       const dbId =
         transaction.originalId ||
         (typeof id === "number" ? id : parseInt(id.toString()));
 
       if (!tableName) {
-        throw new Error("Cannot determine table name for update");
+        throw new Error(
+          `Cannot determine source table for transaction id=${id}. The transaction is missing both sourceTable and source_table fields.`,
+        );
       }
 
-      const { error } = await supabase
+      console.log(`[Responsible Update] table=${tableName} id=${dbId}`);
+      const { data: updatedRows, error } = await supabase
         .from(tableName)
         .update({ Responsible: newResponsible })
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .select("id");
 
       if (error) {
         console.error("Error updating responsible:", error);
@@ -342,6 +374,14 @@ export default function TransactionTable({
           duration: 3000,
           position: "top-right",
         });
+      } else if (!updatedRows || updatedRows.length === 0) {
+        console.error(
+          `[Responsible Update] 0 rows affected in ${tableName} for id=${dbId}`,
+        );
+        toast.error(
+          `Update failed: no matching row found in ${tableName} (id=${dbId}). Check table permissions or RLS policies.`,
+          { duration: 5000, position: "top-right" },
+        );
       } else {
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
@@ -382,35 +422,47 @@ export default function TransactionTable({
    */
   const handleUpdateComment = async (
     id: string | number,
+    passedSourceTable: string | null | undefined,
     newComment: string,
   ) => {
     setUpdatingId(id);
     try {
-      // Find the transaction to get its source table and database ID
-      const transaction = localTransactions.find((t) => t.id === id);
+      // Find the transaction matched by both id and source_table to avoid
+      // ambiguity when multiple monthly tables share the same numeric id.
+      const transaction = localTransactions.find(
+        (t) =>
+          t.id === id &&
+          (passedSourceTable
+            ? (t.sourceTable || t.source_table) === passedSourceTable
+            : true),
+      );
       if (!transaction) {
         throw new Error("Transaction not found");
       }
 
       // Determine the table name and database ID
-      // source_table (snake_case) is the DB column returned by AM_ALL and other views
+      // source_table (snake_case) is the DB column returned by views (e.g. HB_ALL)
       // sourceTable (camelCase) is set manually by family hooks that prefix IDs
       const tableName =
+        passedSourceTable ||
         transaction.sourceTable ||
-        transaction.source_table ||
-        TransactionTableName;
+        transaction.source_table;
       const dbId =
         transaction.originalId ||
         (typeof id === "number" ? id : parseInt(id.toString()));
 
       if (!tableName) {
-        throw new Error("Cannot determine table name for update");
+        throw new Error(
+          `Cannot determine source table for transaction id=${id}. The transaction is missing both sourceTable and source_table fields.`,
+        );
       }
 
-      const { error } = await supabase
+      console.log(`[Comment Update] table=${tableName} id=${dbId}`);
+      const { data: updatedRows, error } = await supabase
         .from(tableName)
         .update({ Comment: newComment })
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .select("id");
 
       if (error) {
         console.error("Error updating comment:", error);
@@ -418,6 +470,14 @@ export default function TransactionTable({
           duration: 3000,
           position: "top-right",
         });
+      } else if (!updatedRows || updatedRows.length === 0) {
+        console.error(
+          `[Comment Update] 0 rows affected in ${tableName} for id=${dbId}`,
+        );
+        toast.error(
+          `Update failed: no matching row found in ${tableName} (id=${dbId}). Check table permissions or RLS policies.`,
+          { duration: 5000, position: "top-right" },
+        );
       } else {
         // Update local state to reflect the change immediately
         setLocalTransactions((prevTransactions) =>
@@ -1109,6 +1169,7 @@ export default function TransactionTable({
                         onClick={() =>
                           handleUpdateCategory(
                             transaction.id,
+                            transaction.source_table ?? transaction.sourceTable,
                             editingCategory.value,
                           )
                         }
@@ -1165,6 +1226,7 @@ export default function TransactionTable({
                         onClick={() =>
                           handleUpdateResponsible(
                             transaction.id,
+                            transaction.source_table ?? transaction.sourceTable,
                             editingResponsible.value,
                           )
                         }
@@ -1224,6 +1286,7 @@ export default function TransactionTable({
                         onClick={() =>
                           handleUpdateComment(
                             transaction.id,
+                            transaction.source_table ?? transaction.sourceTable,
                             editingComment.value,
                           )
                         }

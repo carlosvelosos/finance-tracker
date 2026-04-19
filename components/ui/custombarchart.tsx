@@ -19,9 +19,15 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Transaction } from "@/types/transaction";
+
+function hexToRgba(hex: string, alpha: number): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return `rgba(136, 132, 216, ${alpha})`;
+  return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${alpha})`;
+}
 
 type CustomBarChartProps = {
   data: Transaction[]; // Expect raw transaction data as input
@@ -37,21 +43,41 @@ export function CustomBarChart({
   title = "Bar Chart",
   description = "Category-wise totals",
 }: CustomBarChartProps) {
-  // Get current month (1-12)
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
 
   // State for the minor expenses threshold (default to 1.0%)
   const [minorExpensesThreshold, setMinorExpensesThreshold] = useState(1.0);
-  // State for the month range filter (default from January to current month)
-  const [monthRange, setMonthRange] = useState<[number, number]>([
-    1,
-    currentMonth,
-  ]);
+
+  // Drag refs for the month-year grid (refs avoid extra re-renders)
+  const isDragging = useRef(false);
+  const dragPainting = useRef(true);
+
+  // Selected months as a Set of "YYYY-MM" keys
+  const [selectedMonths, setSelectedMonths] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
+    for (let m = 1; m <= month; m++) {
+      initial.add(`${year}-${String(m).padStart(2, "0")}`);
+    }
+    return initial;
+  });
+
   // State for hidden categories
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(
     new Set(),
   );
+
+  // Release drag on global mouseup
+  useEffect(() => {
+    const handleMouseUp = () => {
+      isDragging.current = false;
+    };
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => document.removeEventListener("mouseup", handleMouseUp);
+  }, []);
 
   // Toggle category visibility
   const toggleCategoryVisibility = (category: string) => {
@@ -90,42 +116,12 @@ export function CustomBarChart({
     "December",
   ];
 
-  // Filter data by month range first
+  // Filter data by selected months
   const dateFilteredData = data.filter((transaction) => {
-    if (!transaction.Date) return true; // Include transactions without date
-
-    try {
-      // Parse the date and get the month (1-12)
-      const transactionDate = new Date(transaction.Date);
-
-      // Check if the date is valid
-      if (isNaN(transactionDate.getTime())) {
-        console.log("Invalid date format:", transaction.Date);
-        return true; // Include transactions with invalid dates
-      }
-
-      const transactionMonth = transactionDate.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
-
-      // Debug log to see what's happening with dates
-      if (transaction.Category) {
-        console.log(
-          `Transaction: ${transaction.Category}, Date: ${
-            transaction.Date
-          }, Month: ${transactionMonth}, In Range: ${
-            transactionMonth >= monthRange[0] &&
-            transactionMonth <= monthRange[1]
-          }`,
-        );
-      }
-
-      // Check if the month is within the selected range
-      return (
-        transactionMonth >= monthRange[0] && transactionMonth <= monthRange[1]
-      );
-    } catch (error) {
-      console.error("Error parsing date:", transaction.Date, error);
-      return true; // Include transactions with problematic dates
-    }
+    if (!transaction.Date) return true;
+    const m = transaction.Date.match(/^(\d{4})-(\d{2})/);
+    if (!m) return true;
+    return selectedMonths.has(`${m[1]}-${m[2]}`);
   });
 
   // Remove unwanted categories before any processing
@@ -241,6 +237,83 @@ export function CustomBarChart({
   // Recalculate visible total for accurate percentages
   const visibleTotalSum = chartData.reduce((sum, item) => sum + item.total, 0);
 
+  // --- Month-year grid helpers ---
+  const availableYears: number[] = [
+    ...new Set(
+      data
+        .filter((t) => t.Date && /^\d{4}/.test(t.Date))
+        .map((t) => parseInt(t.Date!.substring(0, 4))),
+    ),
+  ].sort((a, b) => a - b);
+
+  const txCountPerCell = data.reduce(
+    (acc, t) => {
+      if (!t.Date) return acc;
+      const match = t.Date.match(/^(\d{4})-(\d{2})/);
+      if (match) {
+        const key = `${match[1]}-${match[2]}`;
+        acc[key] = (acc[key] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const maxTxCount = Math.max(...Object.values(txCountPerCell), 1);
+  const monthShort = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const gridYears = availableYears.length > 0 ? availableYears : [currentYear];
+  const selectedCount = selectedMonths.size;
+
+  const handleCellMouseDown = (key: string) => {
+    isDragging.current = true;
+    const wasSelected = selectedMonths.has(key);
+    dragPainting.current = !wasSelected;
+    setSelectedMonths((prev) => {
+      const next = new Set(prev);
+      if (wasSelected) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const handleCellMouseEnter = (key: string) => {
+    if (!isDragging.current) return;
+    setSelectedMonths((prev) => {
+      const alreadySet = prev.has(key);
+      if (dragPainting.current === alreadySet) return prev;
+      const next = new Set(prev);
+      if (dragPainting.current) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const next = new Set<string>();
+    gridYears.forEach((y) => {
+      const maxM = y === currentYear ? currentMonth : 12;
+      for (let m = 1; m <= maxM; m++) {
+        next.add(`${y}-${String(m).padStart(2, "0")}`);
+      }
+    });
+    setSelectedMonths(next);
+  };
+
+  const handleClearAll = () => setSelectedMonths(new Set());
+
   return (
     <Card>
       <CardHeader>
@@ -325,33 +398,102 @@ export function CustomBarChart({
           />
         </div>
         <div className="w-full px-4 mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Month Range: {monthNames[monthRange[0] - 1]} -{" "}
-            {monthNames[monthRange[1] - 1]}
-          </label>
-          <Slider
-            defaultValue={monthRange}
-            min={1}
-            max={12}
-            step={1}
-            value={monthRange}
-            onValueChange={(value) => setMonthRange([value[0], value[1]])}
-            className="mt-2"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Jan</span>
-            <span>Feb</span>
-            <span>Mar</span>
-            <span>Apr</span>
-            <span>May</span>
-            <span>Jun</span>
-            <span>Jul</span>
-            <span>Aug</span>
-            <span>Sep</span>
-            <span>Oct</span>
-            <span>Nov</span>
-            <span>Dec</span>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Date Range
+              <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">
+                {selectedCount} month{selectedCount !== 1 ? "s" : ""} selected
+              </span>
+            </label>
+            <div className="flex gap-2 text-xs">
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:underline underline-offset-2"
+              >
+                Select all
+              </button>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:underline underline-offset-2"
+              >
+                Clear
+              </button>
+            </div>
           </div>
+          <div
+            className="select-none overflow-x-auto"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {/* Month column headers */}
+            <div className="flex gap-1 mb-1 ml-10 min-w-max">
+              {monthShort.map((mn) => (
+                <div
+                  key={mn}
+                  className="w-8 text-center text-[10px] text-gray-400 dark:text-gray-500"
+                >
+                  {mn}
+                </div>
+              ))}
+            </div>
+            {/* Year rows */}
+            {gridYears.map((year) => (
+              <div
+                key={year}
+                className="flex items-center gap-1 mb-1 min-w-max"
+              >
+                <div className="w-9 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-1 shrink-0">
+                  {year}
+                </div>
+                {Array.from({ length: 12 }, (_, i) => {
+                  const month = i + 1;
+                  const key = `${year}-${String(month).padStart(2, "0")}`;
+                  const isSelected = selectedMonths.has(key);
+                  const count = txCountPerCell[key] || 0;
+                  const intensity =
+                    count > 0 ? 0.25 + (count / maxTxCount) * 0.75 : 0.15;
+                  const isFuture =
+                    year > currentYear ||
+                    (year === currentYear && month > currentMonth);
+                  return (
+                    <div
+                      key={key}
+                      className="w-8 h-8 rounded-md transition-transform hover:scale-110"
+                      style={{
+                        backgroundColor: isSelected
+                          ? hexToRgba(barColor, intensity)
+                          : "rgba(150,150,150,0.1)",
+                        outline: isSelected
+                          ? `2px solid ${hexToRgba(barColor, 0.55)}`
+                          : "2px solid transparent",
+                        outlineOffset: "1px",
+                        opacity: isFuture ? 0.3 : 1,
+                        cursor: isFuture ? "default" : "pointer",
+                      }}
+                      title={`${monthNames[i]} ${year}${count > 0 ? ` — ${count} transactions` : ""}`}
+                      onMouseDown={() => {
+                        if (isFuture) return;
+                        handleCellMouseDown(key);
+                      }}
+                      onMouseEnter={() => {
+                        if (isFuture) return;
+                        handleCellMouseEnter(key);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] text-gray-400 dark:text-gray-500">
+            Click or drag to select · Start drag on a selected cell to deselect
+          </p>
+          <p className="mt-0.5 text-[10px] text-gray-400 dark:text-gray-500">
+            Color intensity reflects transaction volume — darker cells have more
+            transactions
+          </p>
         </div>
         <div className="flex-col items-center justify-center mt-2 w-full">
           <div className="mb-2 px-4 text-xs text-gray-600 dark:text-gray-400">

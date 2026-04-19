@@ -2,7 +2,7 @@ import { useTransactions } from "./useTransactions";
 
 export function useHandelsbankenChartTransactions() {
   return useTransactions({
-    bankFilter: "Handelsbanken",
+    tableName: "HB_ALL",
     orderBy: '"Date"',
     orderDirection: "desc",
   });

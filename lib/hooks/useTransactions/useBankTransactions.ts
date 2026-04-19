@@ -7,7 +7,7 @@ export function useAmexTransactions() {
 }
 
 export function useHandelsbankenTransactions() {
-  return useTransactions({ bankFilter: "Handelsbanken" });
+  return useTransactions({ tableName: "HB_ALL" });
 }
 
 export function useSjPrioTransactions() {

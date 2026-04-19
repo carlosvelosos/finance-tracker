@@ -3,7 +3,6 @@
 import { useHandelsbankenTransactions } from "../../lib/hooks/useTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";
 import ProtectedRoute from "@/components/protected-route";
-import UpdateAggregatedButton from "@/components/UpdateAggregatedButton";
 import BankTablePageHeader from "@/components/ui/bank-table-page-header";
 import BankTablePageBody from "@/components/ui/bank-table-page-body";
 import DataSourceInfo from "@/components/ui/data-source-info";
@@ -64,12 +63,12 @@ export default function Home() {
             <DataSourceInfo
               transactions={transactions}
               bankInfo={bankInfo}
-              tableName="Sweden_transactions_agregated_2025"
-              tableDescription="Aggregated transactions for Handelsbanken accounts in 2025"
+              tableName="HB_ALL"
+              tableDescription="Live view of all Handelsbanken transactions from monthly HB_* tables"
               activeBankFilter="Handelsbanken"
             />
           }
-          updateButtonComponent={<UpdateAggregatedButton />}
+          updateButtonComponent={undefined}
           downloadUrl="https://www.handelsbanken.se/en/login"
           downloadButtonText="Download Invoice"
           chartButtons={[

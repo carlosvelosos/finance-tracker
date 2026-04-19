@@ -232,14 +232,31 @@ export function processInterBRMastercardPDF(
   return { tableName, transactions };
 }
 
-export function processHandelsbanken(data: string[][]) {
-  // Extract the year from row 6: "Period: 2025-01-01 - 2025-03-24"
-  const periodRow = data[6]?.[0] || "";
-  const yearMatch = periodRow.match(/(\d{4})-/);
-  const year = yearMatch ? yearMatch[1] : new Date().getFullYear(); // Default to current year if missing
+export function processHandelsbanken(data: string[][], fileName: string) {
+  // Validate filename: must match HB_YYYYMM (e.g. HB_202503.xlsx)
+  if (!/^HB_\d{6}\./i.test(fileName)) {
+    throw new Error(
+      `Invalid filename "${fileName}". Handelsbanken files must be named HB_YYYYMM.xlsx (e.g. HB_202503.xlsx). Please re-export a single month with the correct filename.`,
+    );
+  }
 
-  // Determine table name
-  const tableName = `HB_${year}`;
+  // Extract table name from filename (e.g. "HB_202503.xlsx" -> "HB_202503")
+  const tableName = fileName.replace(/\.(csv|xlsx|xls)$/i, "");
+
+  // Validate that the period row spans only one calendar month
+  // Row 6 (index 6) format: "Period: 2025-03-01 - 2025-03-31"
+  const periodRow = data[6]?.[0] || "";
+  const periodMatch = periodRow.match(
+    /Period:\s*(\d{4})-(\d{2})-\d{2}\s*-\s*(\d{4})-(\d{2})-\d{2}/i,
+  );
+  if (periodMatch) {
+    const [, startYear, startMonth, endYear, endMonth] = periodMatch;
+    if (startYear !== endYear || startMonth !== endMonth) {
+      throw new Error(
+        `The file covers ${startYear}-${startMonth} to ${endYear}-${endMonth} (multiple months). Please re-export a single calendar month from Handelsbanken and name the file HB_${startYear}${startMonth}.xlsx.`,
+      );
+    }
+  }
 
   // Start processing transactions (row 9 onwards)
   const transactions = data
@@ -251,6 +268,7 @@ export function processHandelsbanken(data: string[][]) {
       Description: row[2], // Text -> Description
       Amount: parseFloat(String(row[3]).replace(",", ".")), // Belopp -> Amount (convert to float)
       Balance: parseFloat(String(row[4]).replace(",", ".")), // Saldo -> Balance (convert to float)
+      Bank: "Handelsbanken",
     }));
 
   if (transactions.length === 0) {

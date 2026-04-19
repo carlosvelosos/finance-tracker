@@ -977,3 +977,17 @@ export async function rebuildSjView(): Promise<{
   }
   return { success: true };
 }
+
+// Rebuild the Handelsbanken view to include any newly uploaded HB_* monthly tables.
+// Called automatically after a successful Handelsbanken-SE upload.
+export async function rebuildHandelsbankenView(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const { error } = await supabase.rpc("rebuild_handelsbanken_view");
+  if (error) {
+    console.error("Error rebuilding Handelsbanken view:", error);
+    return { success: false, error: error.message };
+  }
+  return { success: true };
+}

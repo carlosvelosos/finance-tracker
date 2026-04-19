@@ -67,12 +67,26 @@ export async function processFileData(file: File, bank: string) {
         skipEmptyLines: true, // Skip empty lines
         delimiter:
           bank === "Inter-BR-Account" || bank === "Inter-BR-Account-Monthly"
-            ? ";"
-            : ",", // Use semicolon for Inter BR Account files
+            ? ";" // Swedish/Brazilian semicolon-delimited exports
+            : bank === "Handelsbanken-SE"
+              ? "" // Auto-detect: Excel CSV exports may use comma or semicolon depending on locale
+              : ",",
       });
       data = parsed.data as string[][]; // Cast parsed data to string[][]
     } else {
-      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      let workbook: ReturnType<typeof XLSX.read>;
+      try {
+        workbook = XLSX.read(arrayBuffer, { type: "array" });
+      } catch (xlsxErr) {
+        if (bank === "Handelsbanken-SE") {
+          throw new Error(
+            "Could not read the Handelsbanken Excel file \u2014 the file format is not supported by the parser. " +
+              "Workaround: open the file in Excel \u2192 File \u2192 Save As \u2192 \"CSV UTF-8 (comma delimited)\" \u2192 " +
+              "rename the saved file to HB_YYYYMM.csv (e.g. HB_202601.csv) and upload again.",
+          );
+        }
+        throw xlsxErr;
+      }
 
       // For B3, read specific sheet "Proventos Recebidos"
       let sheetName = workbook.SheetNames[0]; // Default to first sheet
@@ -121,7 +135,7 @@ export async function processFileData(file: File, bank: string) {
         console.log("Processed data:", processedData);
         break;
       case "Handelsbanken-SE":
-        processedData = processHandelsbanken(data);
+        processedData = processHandelsbanken(data, file.name);
         break;
       case "AmericanExpress-SE":
         processedData = processAmex(data, file.name);

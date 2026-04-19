@@ -113,7 +113,11 @@ import {
   analyzeCategoryMatches,
   CategoryAnalysis,
 } from "@/app/actions/categoryAnalysis";
-import { rebuildAmexView, rebuildSjView } from "@/app/actions/updateActions";
+import {
+  rebuildAmexView,
+  rebuildHandelsbankenView,
+  rebuildSjView,
+} from "@/app/actions/updateActions";
 import { MergeConflictDialog } from "@/components/MergeConflictDialog";
 import { CategoryAssignmentDialog } from "@/components/CategoryAssignmentDialog";
 import { Button } from "@/components/ui/button";
@@ -260,17 +264,19 @@ const BANK_INSTRUCTIONS: Record<
     ],
   },
   "Handelsbanken-SE": {
-    format: "CSV or Excel",
+    format: "Excel (.xlsx) or CSV (.csv)",
     columns: ["[Metadata]", "Transaktionsdatum", "Text", "Belopp", "Saldo"],
-    fileNamePattern: "Any file containing YYYY in name",
-    example: "transactions-2025.csv",
+    fileNamePattern: "HB_YYYYMM.xlsx  or  HB_YYYYMM.csv",
+    example: "HB_202601.xlsx  \u2014or\u2014  HB_202601.csv",
     notes: [
+      "File must cover exactly one calendar month \u2014 re-export if it spans multiple",
+      "Filename must match HB_YYYYMM.xlsx or HB_YYYYMM.csv exactly (table name is taken from filename)",
       "First 9 rows contain metadata (will be skipped)",
       "Row 6 format: 'Period: YYYY-MM-DD - YYYY-MM-DD'",
-      "Year extracted from Period row",
-      "Creates table: HB_YYYY",
+      "Creates table: HB_YYYYMM (e.g. HB_202601)",
       "Transactions start from row 9",
       "Amount format: Swedish (comma as decimal separator)",
+      "CSV fallback: if .xlsx upload fails, open in Excel \u2192 Save As \u2192 CSV UTF-8 \u2192 rename to HB_YYYYMM.csv",
     ],
   },
   "AmericanExpress-SE": {
@@ -703,6 +709,11 @@ export default function UploadPage() {
             console.error("Failed to rebuild AM_ALL view:", err),
           );
         }
+        if (selectedBank === "Handelsbanken-SE") {
+          rebuildHandelsbankenView().catch((err) =>
+            console.error("Failed to rebuild Handelsbanken view:", err),
+          );
+        }
         if (selectedBank === "SEB_SJ_Prio-SE") {
           rebuildSjView().catch((err) =>
             console.error("Failed to rebuild SJ_ALL view:", err),
@@ -791,6 +802,11 @@ export default function UploadPage() {
               if (selectedBank === "AmericanExpress-SE") {
                 rebuildAmexView().catch((err) =>
                   console.error("Failed to rebuild AM_ALL view:", err),
+                );
+              }
+              if (selectedBank === "Handelsbanken-SE") {
+                rebuildHandelsbankenView().catch((err) =>
+                  console.error("Failed to rebuild Handelsbanken view:", err),
                 );
               }
               if (selectedBank === "SEB_SJ_Prio-SE") {
@@ -1063,11 +1079,8 @@ export default function UploadPage() {
         ).padStart(2, "0");
         return `INACC_${fallbackYearMonthly}${fallbackMonthMonthly}`;
       case "Handelsbanken-SE":
-        // Extract year from filename for Handelsbanken tables (format: HB_YYYY)
-        const hbYearMatch = fileName.match(/(\d{4})/);
-        return hbYearMatch
-          ? `HB_${hbYearMatch[1]}`
-          : `HB_${new Date().getFullYear()}`;
+        // Table name taken directly from filename (e.g. "HB_202503.xlsx" -> "HB_202503")
+        return fileName.replace(/\.(csv|xlsx|xls)$/i, "");
       case "AmericanExpress-SE":
         // Extract table name from filename (e.g., "AM_202503.csv" -> "AM_202503")
         return fileName.replace(/\.(csv|xlsx|xls)$/i, "");

@@ -963,3 +963,17 @@ export async function rebuildAmexView(): Promise<{
   }
   return { success: true };
 }
+
+// Rebuild the SJ_ALL view to include any newly uploaded SJ_*/SEB_* monthly tables.
+// Called automatically after a successful SEB_SJ_Prio-SE upload.
+export async function rebuildSjView(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const { error } = await supabase.rpc("rebuild_sj_all_view");
+  if (error) {
+    console.error("Error rebuilding SJ_ALL view:", error);
+    return { success: false, error: error.message };
+  }
+  return { success: true };
+}

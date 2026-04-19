@@ -3,7 +3,6 @@
 import { useSjPrioTransactions } from "../../lib/hooks/useTransactions";
 import { usePageState } from "../../lib/hooks/usePageState";
 import ProtectedRoute from "@/components/protected-route";
-import UpdateSjAggregatedButton from "@/components/UpdateSjAggregatedButton";
 import BankTablePageHeader from "@/components/ui/bank-table-page-header";
 import BankTablePageBody from "@/components/ui/bank-table-page-body";
 import DataSourceInfo from "@/components/ui/data-source-info";
@@ -64,12 +63,12 @@ export default function Home() {
             <DataSourceInfo
               transactions={transactions}
               bankInfo={bankInfo}
-              tableName="Sweden_transactions_agregated_2025"
-              tableDescription="Aggregated transactions for SEB SJ Prio accounts in 2025"
+              tableName="SJ_ALL"
+              tableDescription="Live view of all SEB SJ Prio transactions from monthly SJ_*/SEB_* tables"
               activeBankFilter="SEB SJ Prio"
             />
           }
-          updateButtonComponent={<UpdateSjAggregatedButton />}
+          updateButtonComponent={undefined}
           downloadUrl="https://secure.sebkort.com/nis/m/sjse/external/t/login/index"
           downloadButtonText="Download Invoice"
           chartUrl="./chart"

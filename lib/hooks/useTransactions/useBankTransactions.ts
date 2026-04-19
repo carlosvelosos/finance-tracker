@@ -11,7 +11,7 @@ export function useHandelsbankenTransactions() {
 }
 
 export function useSjPrioTransactions() {
-  return useTransactions({ bankFilter: "SEB SJ Prio" });
+  return useTransactions({ tableName: "SJ_ALL" });
 }
 
 export function useInterTransactions() {

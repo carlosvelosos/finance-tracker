@@ -425,6 +425,7 @@ export function processSEB(data: string[][], fileName: string) {
         Date: finalDate, // Formatted Datum column with 1 day added
         Description: row[2]?.trim() || "", // Specifikation column
         Amount: amount, // Belopp column
+        Bank: "SEB SJ Prio",
       };
     })
     .filter((t) => t.Date !== null); // Filter out transactions with invalid dates
